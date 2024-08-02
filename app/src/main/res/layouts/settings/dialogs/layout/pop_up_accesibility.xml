@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal">
+
+    <carbon.widget.LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_sheet"
+        android:forceDarkAllowed="false"
+        android:orientation="vertical"
+        app:carbon_maxWidth="500dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <carbon.widget.ConstraintLayout
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_marginTop="20dp"
+                android:alpha="0.5"
+                android:background="?attr/colorOnSurface"
+                app:carbon_cornerRadius="2dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/dm_sans_regular"
+            android:gravity="center"
+            android:text="@string/feature_notice"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:checked="false"
+            android:fontFamily="@font/dm_sans_medium"
+            android:letterSpacing="-0.03"
+            android:padding="10dp"
+            android:text="@string/use_accessibility"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginBottom="10dp"
+            android:fontFamily="@font/dm_sans_regular"
+            android:gravity="start"
+            android:text="@string/accessibility_notice"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:orientation="horizontal"
+            android:padding="25dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:backgroundTint="@android:color/transparent"
+                android:fontFamily="@font/dm_sans_regular"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="@string/return_button"
+                android:textColor="?attr/colorTertiary"
+                android:textSize="16sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/proceed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:backgroundTint="?attr/colorTertiaryContainer"
+                android:fontFamily="@font/dm_sans_regular"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="@string/proceed_button"
+                android:textColor="?attr/colorOnTertiaryContainer"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+    </carbon.widget.LinearLayout>
+
+</RelativeLayout>

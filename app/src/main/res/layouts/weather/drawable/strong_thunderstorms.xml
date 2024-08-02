@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector android:height="48.0dip" android:width="48.0dip" android:viewportWidth="48.0" android:viewportHeight="48.0"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
+    <path android:fillColor="@drawable/strong_thunderstorms_fill_0" android:pathData="M30.667,21L24,34.757H30L29.257,47L44,30.962L38.665,30.941L44,21H30.667Z" android:fillType="evenOdd" />
+    <path android:fillColor="@drawable/strong_thunderstorms_fill_1" android:pathData="M18.667,37L16,42.291H18.4L18.103,47L24,40.832L21.866,40.824L24,37H18.667Z" android:fillType="evenOdd" />
+    <path android:fillColor="@drawable/strong_thunderstorms_fill_2" android:pathData="M27.304,20.22L21.604,32H18.77C18.415,31.78 18.253,31.306 18.472,30.895L19.517,28.943C20.229,27.611 19.264,26 17.753,26H14.167C13.988,26 13.814,26.024 13.646,26.069C13.481,26.024 13.307,26 13.124,26H10.085C9.314,26 8.611,26.444 8.279,27.141L6.458,30.969C3.223,29.366 1,26.049 1,22.209C1,16.797 5.41,12.418 10.854,12.418C12.746,12.418 14.51,12.948 16.005,13.865C17.271,6.554 23.674,1 31.394,1C40.009,1 47,7.936 47,16.5C47,16.939 46.974,17.365 46.936,17.792H44.712H40.597H30.857C29.298,17.792 27.892,18.747 27.304,20.22Z" android:fillAlpha="0.92" android:fillType="evenOdd" />
+    <path android:fillColor="@drawable/strong_thunderstorms_fill_3" android:pathData="M10,28L6,35.937H9.6L9.154,43L18,33.748L14.799,33.735L18,28H10Z" android:fillType="evenOdd" />
+</vector>

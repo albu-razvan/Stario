@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.stario.launcher.ui.lock.ClosingAnimationView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:forceDarkAllowed="false"
+    android:transitionGroup="true">
+
+    <com.stario.launcher.sheet.SheetsFocusController
+        android:id="@+id/coordinator"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.stario.launcher.ui.lock.LockDetector
+            android:id="@+id/detector"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingStart="30dp"
+            android:paddingEnd="30dp">
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+        </com.stario.launcher.ui.lock.LockDetector>
+
+    </com.stario.launcher.sheet.SheetsFocusController>
+
+</com.stario.launcher.ui.lock.ClosingAnimationView>

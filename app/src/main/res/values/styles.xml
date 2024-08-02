@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Dialog" parent="MaterialAlertDialog.Material3">
+        <item name="shapeAppearance">@style/Theme.Dialog.Shape</item>
+        <item name="shapeAppearanceOverlay">@null</item>
+    </style>
+
+    <style name="Theme.Dialog.Shape">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">30dp</item>
+    </style>
+
+    <style name="Theme.Dialog.Title" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:fontFamily">@font/dm_sans_bold</item>
+    </style>
+
+    <style name="Theme.Dialog.Body" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="alpha">0.8</item>
+        <item name="android:fontFamily">@font/dm_sans_regular</item>
+        <item name="android:gravity">left</item>
+    </style>
+
+    <style name="Theme.Dialog.Button" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:fontFamily">@font/dm_sans_regular</item>
+    </style>
+</resources>

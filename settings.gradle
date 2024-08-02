@@ -1,0 +1,3 @@
+rootProject.name = "stario"
+include ':app'
+include ':hidden'

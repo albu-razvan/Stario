@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:forceDarkAllowed="false">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="500dp"
+        android:layout_height="match_parent">
+
+        <include
+            layout="@layout/tabs"
+            app:layout_constraintTop_toBottomOf="@id/title_feeds" />
+
+        <com.stario.launcher.ui.pager.CustomDurationViewPager
+            android:id="@+id/articles_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:translationZ="-1px" />
+
+        <TextView
+            android:id="@+id/title_feeds"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/dm_sans_medium"
+            android:gravity="bottom|left"
+            android:letterSpacing="-0.03"
+            android:lines="1"
+            android:paddingStart="30dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="30dp"
+            android:paddingBottom="20dp"
+            android:text="@string/briefing"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="30sp"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/placeholder"
+        android:layout_width="500dp"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="20dp"
+        android:gravity="bottom|center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:fontFamily="@font/dm_sans_regular"
+            android:letterSpacing="-0.03"
+            android:lines="1"
+            android:text="@string/no_feeds"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:fontFamily="@font/dm_sans_medium"
+            android:letterSpacing="-0.03"
+            android:lines="1"
+            android:text="@string/import_feed"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="30sp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

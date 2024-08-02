@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fast_scroller_pop_up"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/fastscroller_popup"
+    android:fontFamily="@font/dm_sans_bold"
+    android:gravity="center"
+    android:lines="1"
+    android:scaleX="0"
+    android:scaleY="0"
+    android:textColor="?attr/colorOnPrimaryContainer"
+    android:textSize="30sp" />

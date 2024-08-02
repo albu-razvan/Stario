@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.bosphere.fadingedgelayout.FadingEdgeLayout
+        android:id="@+id/fader"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:fel_edge="bottom|top"
+        app:fel_size_bottom="100dp"
+        app:fel_size_top="20dp">
+
+        <com.stario.launcher.ui.pager.CustomDurationViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.bosphere.fadingedgelayout.FadingEdgeLayout>
+
+    <RelativeLayout
+        android:layout_width="500dp"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:gravity="bottom"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp">
+
+        <include layout="@layout/search_bar" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

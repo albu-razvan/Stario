@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<carbon.widget.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/section_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="20dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginRight="20dp"
+    android:layout_marginBottom="10dp"
+    android:background="?attr/colorSurfaceContainer"
+    android:clipChildren="false"
+    android:forceDarkAllowed="false"
+    android:orientation="vertical"
+    app:carbon_cornerRadius="20dp"
+    app:carbon_maxWidth="600dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/representative"
+        android:layout_width="wrap_content"
+        android:clipChildren="false"
+        android:layout_height="150dp"
+        android:visibility="gone">
+
+        <com.bosphere.fadingedgelayout.FadingEdgeLayout
+            android:layout_width="600dp"
+            android:layout_height="250dp"
+            app:fel_edge="bottom"
+            app:fel_size_bottom="250dp"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/display"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0"
+                android:scaleType="centerCrop" />
+
+            <carbon.widget.TextView
+                android:id="@+id/category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="?attr/colorSecondary"
+                android:ellipsize="end"
+                android:fontFamily="@font/dm_sans_regular"
+                android:lines="1"
+                android:paddingStart="10sp"
+                android:paddingTop="6sp"
+                android:paddingEnd="10sp"
+                android:paddingBottom="5sp"
+                android:textColor="?attr/colorOnSecondary"
+                android:textSize="16sp"
+                app:carbon_cornerRadius="50dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_max="200dp" />
+
+        </com.bosphere.fadingedgelayout.FadingEdgeLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:fontFamily="@font/dm_sans_medium"
+            android:gravity="left"
+            android:letterSpacing="-0.02"
+            android:lineHeight="20sp"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            android:alpha="0.7"
+            android:ellipsize="end"
+            android:fontFamily="@font/dm_sans_regular"
+            android:gravity="left"
+            android:letterSpacing="-0.01"
+            android:maxLines="20"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            android:alpha="0.7"
+            android:fontFamily="@font/dm_sans_regular"
+            android:gravity="left"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+</carbon.widget.LinearLayout>

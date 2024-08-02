@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER_HINTS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <application
+        android:name=".Stario"
+        android:appCategory="productivity"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:localeConfig="@xml/locales_config"
+        android:supportsRtl="false"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="tiramisu">
+
+        <activity
+            android:name=".sheet.drawer.apps.SplashScreen"
+            android:allowEmbedded="false"
+            android:alwaysRetainTaskState="false"
+            android:exported="true"
+            android:launchMode="standard"
+            android:supportsPictureInPicture="false"
+            android:theme="@style/Theme.Light.Blue.Opaque"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
+        <activity
+            android:name=".activities.settings.Settings"
+            android:allowEmbedded="false"
+            android:taskAffinity=".settings"
+            android:alwaysRetainTaskState="false"
+            android:exported="true"
+            android:launchMode="standard"
+            android:supportsPictureInPicture="false"
+            android:theme="@style/Theme.Light.Blue.Opaque"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
+        <activity
+            android:name=".activities.Launcher"
+            android:allowEmbedded="false"
+            android:alwaysRetainTaskState="true"
+            android:clearTaskOnLaunch="true"
+            android:configChanges="orientation|screenSize|layoutDirection"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:launchMode="singleInstancePerTask"
+            android:persistableMode="persistAcrossReboots"
+            android:resumeWhilePausing="true"
+            android:rotationAnimation="crossfade"
+            android:stateNotNeeded="true"
+            android:supportsPictureInPicture="false"
+            android:theme="@style/Theme.Light.Blue"
+            android:windowSoftInputMode="adjustNothing">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER_APP" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".services.NotificationService"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".services.AccessibilityService"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+    </application>
+
+</manifest>

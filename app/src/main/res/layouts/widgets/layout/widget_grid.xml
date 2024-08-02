@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:forceDarkAllowed="false">
+
+    <com.bosphere.fadingedgelayout.FadingEdgeLayout
+        android:id="@+id/fader"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:fel_edge="top|bottom">
+
+        <com.stario.launcher.ui.widgets.WidgetScroller
+            android:id="@+id/scroller"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            android:overScrollMode="never"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp">
+
+            <LinearLayout
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:gravity="bottom"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/add"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:gravity="center"
+                    android:letterSpacing="-0.03"
+                    android:lines="1"
+                    android:padding="20dp"
+                    android:text="@string/create_a_widget"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="30sp"
+                    android:visibility="invisible" />
+
+                <com.stario.launcher.ui.widgets.WidgetGrid
+                    android:id="@+id/grid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipChildren="false"
+                    android:clipToPadding="false" />
+
+            </LinearLayout>
+
+        </com.stario.launcher.ui.widgets.WidgetScroller>
+
+    </com.bosphere.fadingedgelayout.FadingEdgeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.stario.launcher.ui.glance.GlanceConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/glance"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorSurfaceContainer"
+    android:padding="10dp"
+    app:carbon_maxWidth="400dp">
+
+    <LinearLayout
+        android:id="@+id/extensions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:gravity="center_vertical"
+        android:minHeight="80dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </LinearLayout>
+
+</com.stario.launcher.ui.glance.GlanceConstraintLayout>

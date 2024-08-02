@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector android:height="48.0dip" android:width="48.0dip" android:viewportWidth="48.0" android:viewportHeight="48.0"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
+    <path android:fillColor="@drawable/mixed_rain_hail_sleet_fill_0" android:pathData="M47,16.5C47,24.858 40.338,31.671 32,31.988V32H11V31.998C10.952,31.998 10.905,31.999 10.857,31.999C5.413,31.999 1,27.616 1,22.209C1,16.803 5.413,12.42 10.857,12.42C12.746,12.42 14.511,12.948 16.011,13.863C17.271,6.559 23.679,1 31.393,1C40.013,1 47,7.939 47,16.5Z" android:fillAlpha="0.92" android:fillType="evenOdd" />
+    <path android:fillColor="@drawable/mixed_rain_hail_sleet_fill_1" android:pathData="M47,16.5C47,24.858 40.338,31.671 32,31.988V32H11V31.998C10.952,31.998 10.905,31.999 10.857,31.999C5.413,31.999 1,27.616 1,22.209C1,16.803 5.413,12.42 10.857,12.42C12.746,12.42 14.511,12.948 16.011,13.863C17.271,6.559 23.679,1 31.393,1C40.013,1 47,7.939 47,16.5Z" android:fillType="evenOdd" />
+    <path android:fillColor="@drawable/mixed_rain_hail_sleet_fill_2" android:pathData="M47,16.5C47,24.858 40.338,31.671 32,31.988V32H11V31.998C10.952,31.998 10.905,31.999 10.857,31.999C5.413,31.999 1,27.616 1,22.209C1,16.803 5.413,12.42 10.857,12.42C12.746,12.42 14.511,12.948 16.011,13.863C17.271,6.559 23.679,1 31.393,1C40.013,1 47,7.939 47,16.5Z" android:fillAlpha="0.92" android:fillType="evenOdd" />
+    <path android:fillColor="#ff5e5e5e" android:pathData="M9.44,23.735l5.44,5.439l-5.44,5.439l-5.44,-5.439z" />
+    <path android:fillColor="#ff0b57d0" android:pathData="M23.5,37L20.318,39.929C18.561,41.547 18.561,44.169 20.318,45.787C22.076,47.404 24.925,47.404 26.682,45.787C28.439,44.169 28.439,41.547 26.682,39.929C26.673,39.92 26.663,39.912 26.654,39.903L23.5,37Z" />
+    <path android:fillColor="#ff757575" android:pathData="M28.48,21.015l2.72,2.72l-16.32,16.318l-2.72,-2.72z" />
+    <path android:fillColor="#ff757575" android:pathData="M35.28,27.814l2.72,2.72l-8.16,8.159l-2.72,-2.72z" />
+</vector>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:forceDarkAllowed="false"
+    android:gravity="center_horizontal|bottom"
+    android:orientation="vertical"
+    android:paddingBottom="10dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:clipChildren="false">
+
+        <com.stario.launcher.ui.icons.AdaptiveIconView
+            android:id="@+id/icon"
+            android:layout_width="0px"
+            android:layout_height="0px"
+            android:layout_margin="10dp"
+            app:sizeRestricted="true" />
+
+        <carbon.widget.ConstraintLayout
+            android:id="@+id/notification_dot"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:background="?attr/colorAccent"
+            android:visibility="gone"
+            app:carbon_cornerRadius="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="5dp"
+        android:breakStrategy="balanced"
+        android:ellipsize="end"
+        android:fontFamily="@font/dm_sans_medium"
+        android:gravity="center_horizontal"
+        android:letterSpacing="-0.03"
+        android:lines="2"
+        android:maxWidth="60dp"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/icon" />
+
+</LinearLayout>

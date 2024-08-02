@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.stario.launcher.ui.recyclers.FastScroller xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fast_scroller"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:overScrollMode="never">
+
+    <com.stario.launcher.ui.recyclers.ListeningRecyclerView
+        android:id="@+id/drawer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:descendantFocusability="blocksDescendants"
+        android:nestedScrollingEnabled="true"
+        android:overScrollMode="never"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:fontFamily="@font/dm_sans_medium"
+        android:gravity="center"
+        android:letterSpacing="-0.03"
+        android:lines="1"
+        android:text="@string/apps"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="30sp" />
+
+</com.stario.launcher.ui.recyclers.FastScroller>

@@ -1,0 +1,154 @@
+<resources>
+    <!-- Non translatable -->
+    <string name="app_name" translatable="false">Stario</string>
+
+    <!-- General -->
+    <string name="unavailable">Unavailable</string>
+    <string name="default_text">Default</string>
+    <string name="about">Info</string>
+    <string name="remove">Remove</string>
+    <string name="licenses">Licenses</string>
+    <string name="restart">Restart</string>
+    <string name="animations">Animations</string>
+    <string name="miscellaneous">Miscellaneous</string>
+    <string name="something_went_wrong">Something went wrong!</string>
+    <string name="refresh">Refresh</string>
+
+    <!-- Home pop-up -->
+    <string name="settings">Home Settings</string>
+    <string name="wallpaper">Wallpaper &amp; Style</string>
+
+    <!-- Settings -->
+    <string name="preferences">Preferences</string>
+    <string name="media_player">Media player</string>
+    <string name="notification_dots">Notification dots</string>
+    <string name="lock_gesture">Double tap to lock</string>
+    <string name="use_imperial_units">Imperial units</string>
+    <string name="vibrations">Vibrations</string>
+    <string name="change_color">Change accent color</string>
+    <string name="search_engine">Search engine</string>
+    <string name="hide_applications">Hide applications</string>
+    <string name="legacy_lock_animation">Legacy lock animation</string>
+    <string name="legacy_launch_animations">Legacy launch animations</string>
+    <string name="system_launcher">→ Reassign system launcher</string>
+    <string name="app_info">App info</string>
+
+    <!-- Settings pop-up -->
+    <string name="feature_notice">Feature notice</string>
+    <string name="return_button">Return</string>
+    <string name="proceed_button">Proceed</string>
+
+    <!-- Notifications pop-up -->
+    <string name="read_notifications">Read notifications</string>
+    <string name="notifications_access">Stario needs access to notifications for this feature to work.</string>
+
+    <!-- Accessibility pop-up -->
+    <string name="use_accessibility">Use accessibility</string>
+    <string name="accessibility_notice">Stario needs access to accessibility services for this feature to work.</string>
+
+    <!-- Theme pop-up -->
+    <string name="accent_colors">Accent colors</string>
+    <string name="dynamic">Dynamic</string>
+    <string name="force_dark">Force dark mode</string>
+
+    <!-- Search engine pop-up -->
+    <string name="supported_engines">Supported engines</string>
+
+    <!-- Hidden apps pop-up -->
+    <string name="hidden_apps">Hidden apps</string>
+
+    <!-- License pop-up -->
+    <string name="license">License</string>
+
+    <!-- Widgets -->
+    <string name="create_a_widget">Create a widget</string>
+    <string name="widgets">Widgets</string>
+    <string name="widget_one">widget</string>
+    <string name="widget_many">widgets</string>
+
+    <!-- Media -->
+    <string name="unknown_artist">Unknown Artist</string>
+
+    <!-- Categories -->
+    <string name="categories">Categories</string>
+    <string name="unsorted">Unsorted</string>
+    <string name="games">Games</string>
+    <string name="audio">Music</string>
+    <string name="video">Entertainment</string>
+    <string name="images">Photography</string>
+    <string name="social">Social</string>
+    <string name="news">News</string>
+    <string name="maps">Navigation</string>
+    <string name="productivity">Productivity</string>
+    <string name="accessibility">Accessibility</string>
+    <string name="finance">Finance</string>
+    <string name="health">Health</string>
+    <string name="personalization">Personalization</string>
+    <string name="sports">Sports</string>
+
+    <!-- Applications -->
+    <string name="uninstall">Uninstall</string>
+
+    <!-- Briefing -->
+    <string name="briefing">Your briefing ↗</string>
+    <string name="briefing_configurator">Briefing</string>
+    <string name="no_feeds">No feed</string>
+    <string name="import_feed">Import from link</string>
+    <string name="link_feed">Import</string>
+    <string name="invalid_url">Invalid URL</string>
+    <string name="invalid_rss">Not a feed</string>
+    <string name="link">Feed link</string>
+    <string name="no_connection">No internet connection</string>
+    <string name="already_subscribed">You are already subscribed to this feed!</string>
+
+    <!-- Search -->
+    <string name="apps">Applications</string>
+    <string name="search_on">Search on</string>
+
+    <!-- Weather -->
+    <string name="clear_sky">Clear</string>
+    <string name="cloudy">Cloudy</string>
+    <string name="fair">Fair</string>
+    <string name="fog">Fog</string>
+    <string name="heavy_rain">Heavy rain</string>
+    <string name="heavy_rain_and_thunder">Heavy rain and thunder</string>
+    <string name="heavy_rain_showers">Heavy rain showers</string>
+    <string name="heavy_rain_showers_and_thunder">Heavy rain showers and thunder</string>
+    <string name="heavy_sleet">Heavy sleet</string>
+    <string name="heavy_sleet_and_thunder">Heavy sleet and thunder</string>
+    <string name="heavy_sleet_showers">Heavy sleet showers</string>
+    <string name="heavy_sleet_showers_and_thunder">Heavy sleet showers and thunder</string>
+    <string name="heavy_snow">Heavy snow</string>
+    <string name="heavy_snow_and_thunder">Heavy snow and thunder</string>
+    <string name="heavy_snow_showers">Heavy snow showers</string>
+    <string name="heavy_snow_showers_and_thunder">Heavy snow showers and thunder</string>
+    <string name="light_rain">Light rain</string>
+    <string name="light_rain_and_thunder">Light rain and thunder</string>
+    <string name="light_rain_showers">Light rain showers</string>
+    <string name="light_rain_showers_and_thunder">Light rain showers and thunder</string>
+    <string name="light_sleet">Light sleet</string>
+    <string name="light_sleet_and_thunder">Light sleet and thunder</string>
+    <string name="light_sleet_showers">Light sleet showers</string>
+    <string name="light_snow">Light snow</string>
+    <string name="light_snow_and_thunder">Light snow and thunder</string>
+    <string name="light_snow_showers">Light snow showers</string>
+    <string name="light_sleet_showers_and_thunder">Light sleet showers and thunder</string>
+    <string name="light_snow_showers_and_thunder">Light snow showers and thunder</string>
+    <string name="partly_cloudy">Partly cloudy</string>
+    <string name="rain">Rain</string>
+    <string name="rain_and_thunder">Rain and thunder</string>
+    <string name="rain_showers">Rain showers</string>
+    <string name="rain_showers_and_thunder">Rain showers and thunder</string>
+    <string name="sleet">Sleet</string>
+    <string name="sleet_and_thunder">Sleet and thunder</string>
+    <string name="sleet_showers">Sleet showers</string>
+    <string name="sleet_showers_and_thunder">Sleet showers and thunder</string>
+    <string name="snow">Snow</string>
+    <string name="snow_and_thunder">Snow and thunder</string>
+    <string name="snow_showers">Snow showers</string>
+    <string name="snow_showers_and_thunder">Snow showers and thunder</string>
+    <string name="weather_source">Source: met.no</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_description">The service has the soul purpose of enabling lock screen gesture on the home screen. It does not collect or share data with any third party.</string>
+</resources>
