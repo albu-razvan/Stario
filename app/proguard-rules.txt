@@ -1,5 +1,6 @@
 -keep class android.app.WallpaperManager { *; }
 -keep class org.chickenhook.restrictionbypass.** { *; }
+-keep class com.ctc.wstx.stax.** { *; }
 -dontwarn aQute.bnd.annotation.spi.ServiceProvider
 -dontwarn org.osgi.util.tracker.ServiceTracker
 -dontwarn org.apache.geronimo.osgi.registry.api.ProviderRegistry
