@@ -46,7 +46,7 @@ public class TopSheetBehavior<V extends View> extends SheetBehavior<V> {
 
     @Override
     protected void calculateCollapsedOffset() {
-        collapsedOffset = -parentHeight / 4;
+        collapsedOffset = expandedOffset - Measurements.dpToPx(SheetBehavior.COLLAPSED_DELTA_DP);
     }
 
     @Override
