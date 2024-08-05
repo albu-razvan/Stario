@@ -24,7 +24,6 @@ import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
@@ -113,12 +112,16 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
     public @interface State {
     }
 
+    /**
+     * Offset difference between EXPANDED and COLLAPSED state in dp
+     */
+    protected static final int COLLAPSED_DELTA_DP = 350;
+
     private SettleRunnable settleRunnable;
     protected int expandedOffset;
     protected int halfExpandedOffset;
     protected float halfExpandedRatio = 0f;
     protected int collapsedOffset;
-    protected ViewConfiguration configuration;
     @State
     protected int state = STATE_COLLAPSED;
     @Nullable
@@ -250,8 +253,8 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
         parentWidth = parent.getWidth();
         parentHeight = parent.getHeight();
 
-        calculateCollapsedOffset();
         calculateExpandedOffset();
+        calculateCollapsedOffset();
         calculateHalfExpandedOffset();
 
         if (state == STATE_EXPANDED) {

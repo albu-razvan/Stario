@@ -48,9 +48,7 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
 
     @Override
     protected void calculateCollapsedOffset() {
-        if (viewRef != null && viewRef.get() != null) {
-            collapsedOffset = -viewRef.get().getMeasuredWidth() / 4;
-        }
+        collapsedOffset = expandedOffset - Measurements.dpToPx(SheetBehavior.COLLAPSED_DELTA_DP);
     }
 
     @Override
