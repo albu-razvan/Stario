@@ -31,10 +31,6 @@ android {
     }
     sourceSets {
         main {
-            java {
-                exclude "com.apptasticsoftware.rssreader/AbstractRssReader.class"
-                exclude "com.apptasticsoftware.rssreader/RssReader.class"
-            }
             res {
                 srcDirs = ['src/main/res',
                            'src/main/res/themes',
