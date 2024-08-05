@@ -70,9 +70,8 @@
                         android:id="@+id/container_widgets"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:nestedScrollingEnabled="true"
-                        android:overScrollMode="never"
-                        app:carbon_overScroll="never" />
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never" />
 
                 </carbon.widget.RelativeLayout>
 
