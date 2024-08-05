@@ -34,6 +34,13 @@ public class RoundedWidgetHost extends AppWidgetHostView {
         setClipToOutline(true);
     }
 
+    public RoundedWidgetHost(Context context, ViewGroup.LayoutParams params) {
+        super(context);
+
+        setLayoutParams(params);
+        setPadding(0, 0, 0, 0);
+    }
+
     @Override
     public void setPadding(int left, int top, int right, int bottom) {
         super.setPadding(0, 0, 0, 0);

@@ -37,6 +37,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
+import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.apps.LauncherApplication;
 import com.stario.launcher.sheet.drawer.apps.LauncherApplicationManager;
 import com.stario.launcher.themes.ThemedActivity;
@@ -46,7 +47,6 @@ import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.animation.Animation;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.ViewHolder> {
@@ -54,6 +54,7 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
     private final ThemedActivity activity;
     private final RecyclerView recycler;
     private final WidgetEntries entries;
+    private ViewHolder targetHolder;
 
     public WidgetListAdapter(ThemedActivity activity, RecyclerView recycler,
                              WidgetConfigurator.Request requestListener) {
@@ -61,9 +62,14 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
         this.recycler = recycler;
         this.requestListener = requestListener;
         this.entries = new WidgetEntries();
+        this.targetHolder = null;
+
+        setHasStableIds(true);
     }
 
     public void update() {
+        reset();
+
         PackageManager packageManager = this.activity.getPackageManager();
 
         List<AppWidgetProviderInfo> widgets = AppWidgetManager
@@ -105,16 +111,32 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
                     entry = new WidgetGroupEntry(packageName, label, icon);
                 }
 
-                entries.add(entry);
+                int index = 0;
+                while (index < entries.size() &&
+                        entries.get(index).compareTo(entry) < 0) {
+                    index++;
+                }
+
+                entries.add(index, entry);
             }
 
             entry.addWidget(info);
         }
 
-        Collections.sort(entries);
-
         // stupidly inefficient
         notifyDataSetChanged();
+    }
+
+    private void reset() {
+        if (targetHolder != null) {
+            if (targetHolder.adapter != null) {
+                targetHolder.adapter.reset();
+            }
+
+            targetHolder.widgets.setVisibility(View.GONE);
+
+            targetHolder = null;
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -122,6 +144,7 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
         private final TextView label;
         private final TextView count;
         private final RecyclerView widgets;
+        private WidgetItemAdapter adapter;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -131,7 +154,14 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
             count = itemView.findViewById(R.id.count);
             widgets = itemView.findViewById(R.id.prebuilt);
 
-            widgets.setLayoutManager(new LinearLayoutManager(activity));
+            itemView.setHapticFeedbackEnabled(false);
+
+            widgets.setLayoutManager(new LinearLayoutManager(activity) {
+                @Override
+                public boolean canScrollVertically() {
+                    return false;
+                }
+            });
         }
     }
 
@@ -151,14 +181,19 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
                             activity.getResources().getString(R.string.widget_many)));
 
             holder.itemView.setOnClickListener(v -> {
-                if (holder.widgets.getAdapter() == null) {
-                    holder.widgets.setAdapter(new WidgetItemAdapter(activity, data, requestListener));
-                }
+                Vibrations.getInstance().vibrate();
 
-                if (holder.widgets.getVisibility() == View.GONE) {
+                holder.adapter = new WidgetItemAdapter(activity, data, requestListener);
+                holder.widgets.setAdapter(holder.adapter);
+
+                if (holder.widgets.getVisibility() != View.VISIBLE) {
                     holder.widgets.setVisibility(View.VISIBLE);
+
+                    reset();
+
+                    targetHolder = holder;
                 } else {
-                    holder.widgets.setVisibility(View.GONE);
+                    reset();
                 }
 
                 TransitionManager.beginDelayedTransition(recycler,
@@ -175,8 +210,9 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
     }
 
     @Override
-    public int getItemViewType(int position) {
-        return position;
+    public long getItemId(int position) {
+        return entries.get(position)
+                .packageName.hashCode();
     }
 
     @NonNull

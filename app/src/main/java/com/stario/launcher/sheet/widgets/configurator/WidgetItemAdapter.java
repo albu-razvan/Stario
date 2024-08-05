@@ -59,18 +59,33 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
     private final WidgetListAdapter.WidgetGroupEntry entry;
     private final WidgetConfigurator.Request requestListener;
     private final ThemedActivity activity;
+    private ViewHolder targetHolder;
 
     public WidgetItemAdapter(ThemedActivity activity, WidgetListAdapter.WidgetGroupEntry entry,
                              WidgetConfigurator.Request requestListener) {
         this.requestListener = requestListener;
         this.activity = activity;
         this.entry = entry;
+        this.targetHolder = null;
+    }
+
+    void reset() {
+        if (targetHolder != null) {
+            targetHolder.preview.animate().alpha(1)
+                    .setDuration(Animation.SHORT.getDuration());
+            targetHolder.options.setVisibility(View.INVISIBLE);
+
+            targetHolder = null;
+        }
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         private final ConstraintLayout preview;
         private final TextView label;
         private final View options;
+        private final View small;
+        private final View medium;
+        private final View large;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -78,6 +93,9 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
             preview = itemView.findViewById(R.id.preview);
             label = itemView.findViewById(R.id.label);
             options = itemView.findViewById(R.id.options);
+            small = itemView.findViewById(R.id.small);
+            medium = itemView.findViewById(R.id.medium);
+            large = itemView.findViewById(R.id.large);
         }
     }
 
@@ -105,31 +123,34 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
 
                     holder.options.setVisibility(View.VISIBLE);
 
-                    ViewGroup small = holder.options.findViewById(R.id.small);
-                    small.setOnClickListener(v -> {
+                    holder.small.setOnClickListener(v -> {
                         if (requestListener != null) {
                             requestListener.requestAddition(info, WidgetSize.SMALL);
                         }
                     });
 
-                    ViewGroup medium = holder.options.findViewById(R.id.medium);
-                    medium.setOnClickListener(v -> {
+                    holder.medium.setOnClickListener(v -> {
                         if (requestListener != null) {
                             requestListener.requestAddition(info, WidgetSize.MEDIUM);
                         }
                     });
 
-                    ViewGroup large = holder.options.findViewById(R.id.large);
-                    large.setOnClickListener(v -> {
+                    holder.large.setOnClickListener(v -> {
                         if (requestListener != null) {
                             requestListener.requestAddition(info, WidgetSize.LARGE);
                         }
                     });
+
+                    if (!holder.equals(targetHolder)) {
+                        reset();
+                    }
+
+                    targetHolder = holder;
                 } else {
                     holder.preview.animate().alpha(1)
                             .setDuration(Animation.SHORT.getDuration());
 
-                    holder.options.setVisibility(View.GONE);
+                    holder.options.setVisibility(View.INVISIBLE);
                 }
             });
 
@@ -212,14 +233,10 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
                         Log.e(TAG, "onBindViewHolder: Exception parsing layout. ", exception);
                     }
 
-                    RoundedWidgetHost host = new RoundedWidgetHost(activity);
-
-                    host.setLayoutParams(params);
+                    RoundedWidgetHost host = new RoundedWidgetHost(activity, params);
 
                     host.setAppWidget(-1, previewInfo);
                     host.updateAppWidget(null);
-                    host.setClipToPadding(false);
-                    host.setClipChildren(false);
 
                     host.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
                         View child = host.getChildAt(0);
@@ -268,7 +285,7 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
         }
     }
 
-    public static void forwardGroupClicks(ViewGroup viewGroup, View forwardTarget) {
+    static void forwardGroupClicks(ViewGroup viewGroup, View forwardTarget) {
         for (int index = 0; index < viewGroup.getChildCount(); index++) {
             View view = viewGroup.getChildAt(index);
 

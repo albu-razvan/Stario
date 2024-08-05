@@ -36,9 +36,7 @@ public class WidgetHostView extends RoundedWidgetHost {
     private CheckForLongPress mPendingCheckForLongPress;
 
     public WidgetHostView(Context context, WidgetContainer.LayoutParams params) {
-        super(context);
-
-        setLayoutParams(params);
+        super(context, params);
     }
 
     @Override

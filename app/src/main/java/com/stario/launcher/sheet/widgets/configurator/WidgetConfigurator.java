@@ -38,6 +38,7 @@ import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 public class WidgetConfigurator extends ActionDialog {
     private static final String TAG = "WidgetConfigurator";
     private final Request requestListener;
+    private NestedScrollView scroller;
     private WidgetListAdapter adapter;
 
     public WidgetConfigurator(@NonNull ThemedActivity activity, @NonNull Request requestListener) {
@@ -51,7 +52,7 @@ public class WidgetConfigurator extends ActionDialog {
     protected View inflateContent(LayoutInflater inflater) {
         View contentView = inflater.inflate(R.layout.widget_picker, null);
 
-        NestedScrollView scroller = contentView.findViewById(R.id.scroller);
+        scroller = contentView.findViewById(R.id.scroller);
         RecyclerView recycler = contentView.findViewById(R.id.container_widgets);
 
         scroller.setClipToOutline(true);
@@ -84,6 +85,7 @@ public class WidgetConfigurator extends ActionDialog {
             getBehavior().setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
         }
 
+        scroller.scrollTo(0, 0);
         adapter.update();
     }
 

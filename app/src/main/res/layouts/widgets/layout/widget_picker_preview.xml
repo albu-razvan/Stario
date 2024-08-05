@@ -28,7 +28,7 @@
             android:baselineAligned="false"
             android:elevation="1px"
             android:orientation="horizontal"
-            android:visibility="gone"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
