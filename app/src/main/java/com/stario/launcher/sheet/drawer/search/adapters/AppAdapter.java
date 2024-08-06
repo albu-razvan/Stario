@@ -74,21 +74,21 @@ public class AppAdapter extends RecyclerApplicationAdapter
                                 filteredList.add(starting++, application);
 
                                 if (filteredList.size() >=
-                                        Measurements.getListColumns()) {
+                                        Measurements.getListColumnCount()) {
                                     break;
                                 }
                             } else if (lowercaseLabel.contains(filterPattern)) {
                                 filteredList.add(starting + containing++, application);
 
                                 if (filteredList.size() >=
-                                        Measurements.getListColumns()) {
+                                        Measurements.getListColumnCount()) {
                                     break;
                                 }
                             } else if (JaroWinklerDistance.getScore(lowercaseLabel, filterPattern) > 0.87d) {
                                 filteredList.add(starting + containing + close++, application);
 
                                 if (filteredList.size() >=
-                                        Measurements.getListColumns()) {
+                                        Measurements.getListColumnCount()) {
                                     break;
                                 }
                             }

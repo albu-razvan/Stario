@@ -19,13 +19,7 @@ package com.stario.launcher.sheet.widgets.configurator;
 
 import android.annotation.SuppressLint;
 import android.appwidget.AppWidgetProviderInfo;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.content.res.XmlResourceParser;
 import android.graphics.drawable.Drawable;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.util.Xml;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,23 +30,15 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.stario.launcher.R;
 import com.stario.launcher.sheet.widgets.WidgetSize;
+import com.stario.launcher.sheet.widgets.dialog.WidgetsDialog;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.widgets.RoundedWidgetHost;
 import com.stario.launcher.utils.Casing;
 import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.animation.Animation;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-
-import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.ViewHolder> {
     private static final String TAG = "WidgetItemAdapter";
@@ -154,6 +140,32 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
                 }
             });
 
+            holder.small.setVisibility(View.VISIBLE);
+            holder.medium.setVisibility(View.VISIBLE);
+            holder.large.setVisibility(View.VISIBLE);
+
+            if (Utils.isMinimumSDK(31) &&
+                    info.targetCellHeight > 0 &&
+                    info.targetCellWidth > 0) {
+                if (info.targetCellHeight > 3) {
+                    holder.small.setVisibility(View.GONE);
+                    holder.medium.setVisibility(View.GONE);
+                }
+
+                if (info.targetCellWidth > 3) {
+                    holder.small.setVisibility(View.GONE);
+                }
+            }
+
+            if (info.minHeight > WidgetsDialog.getWidgetCellSize()) {
+                holder.small.setVisibility(View.GONE);
+                holder.medium.setVisibility(View.GONE);
+            }
+
+            if (info.minWidth > WidgetsDialog.getWidgetCellSize()) {
+                holder.small.setVisibility(View.GONE);
+            }
+
             ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
@@ -161,76 +173,28 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
             params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
             params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
             params.constrainedHeight = true;
-            params.matchConstraintMaxHeight = Measurements.dpToPx(180);
+            params.matchConstraintMaxHeight = Measurements.dpToPx(200);
+
+            Drawable previewImage = info.loadPreviewImage(activity, Measurements.getDotsPerInch());
 
             if (Utils.isMinimumSDK(31)) {
                 int previewLayout = info.previewLayout;
-
-                if (info.maxResizeWidth > 0) {
-                    params.constrainedWidth = true;
-                    params.matchConstraintMaxWidth = info.maxResizeWidth;
-                }
-
-                if (info.maxResizeHeight > 0) {
-                    params.matchConstraintMaxHeight = Math.min(info.maxResizeHeight,
-                            params.matchConstraintMaxHeight);
-                }
-
-                if (info.minHeight > 0) {
-                    params.matchConstraintMinHeight = info.minHeight;
-                }
 
                 if (previewLayout != 0) {
                     AppWidgetProviderInfo previewInfo = info.clone();
                     previewInfo.initialLayout = info.previewLayout;
 
-                    try {
-                        Resources resources = activity.getPackageManager()
-                                .getResourcesForApplication(info.provider.getPackageName());
-
-                        XmlResourceParser parser = resources.getLayout(previewLayout);
-                        boolean found = false;
-                        int state;
-
-                        do {
-                            state = parser.next();
-
-                            if (state == XmlPullParser.START_TAG) {
-                                AttributeSet set = Xml.asAttributeSet(parser);
-
-                                int height = set.getAttributeIntValue("http://schemas.android.com/apk/res/android",
-                                        "layout_height", Integer.MIN_VALUE); // if it exists, it will always be >= -2
-
-                                if (height != Integer.MIN_VALUE) {
-                                    if (height == ViewGroup.LayoutParams.MATCH_PARENT) {
-                                        if (previewInfo.targetCellHeight > 0 &&
-                                                previewInfo.targetCellWidth > 0) {
-                                            params.height = 0;
-                                            params.dimensionRatio = "W," + (previewInfo.targetCellHeight * 2 + 1) + ":" +
-                                                    previewInfo.targetCellWidth * 2; // fake bigger cell height, as in launcher3
-                                        } else {
-                                            params.height = params.matchConstraintMaxHeight;
-                                        }
-                                    }
-
-                                    found = true;
-                                }
-                            }
-                        } while (state != XmlPullParser.END_DOCUMENT && !found);
-
-                        if (!found) {
-                            if (previewInfo.targetCellHeight > 0 &&
-                                    previewInfo.targetCellWidth > 0) {
-                                params.height = 0;
-                                params.dimensionRatio = "W," + (previewInfo.targetCellHeight * 2 + 1) + ":" +
-                                        previewInfo.targetCellWidth * 2;
-                            } else {
-                                params.height = params.matchConstraintMaxHeight;
-                            }
-                        }
-                    } catch (PackageManager.NameNotFoundException |
-                             XmlPullParserException | IOException exception) {
-                        Log.e(TAG, "onBindViewHolder: Exception parsing layout. ", exception);
+                    if (previewInfo.targetCellHeight > 0 &&
+                            previewInfo.targetCellWidth > 0) {
+                        params.height = 0;
+                        params.dimensionRatio = "W," + (previewInfo.targetCellHeight * 2 + 1) + ":" +
+                                (previewInfo.targetCellWidth * 2); // fake bigger cell height
+                    } else if (previewImage != null) {
+                        params.height = 0;
+                        params.dimensionRatio = "W," + ((float) previewImage.getIntrinsicHeight() /
+                                previewImage.getIntrinsicWidth()) + "f";
+                    } else {
+                        params.height = params.matchConstraintMaxHeight;
                     }
 
                     RoundedWidgetHost host = new RoundedWidgetHost(activity, params);
@@ -242,8 +206,8 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
                         View child = host.getChildAt(0);
 
                         if (child != null) {
-                            float scale = Math.min(0.85f, Math.min((float) host.getMeasuredWidth() / child.getMeasuredWidth(),
-                                    (float) host.getMeasuredHeight() / child.getMeasuredHeight()));
+                            float scale = Math.min((float) host.getMeasuredWidth() / child.getMeasuredWidth(),
+                                    (float) host.getMeasuredHeight() / child.getMeasuredHeight());
 
                             if (!Float.isNaN(scale)) {
                                 child.setScaleY(scale);
@@ -260,26 +224,22 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
                 }
             }
 
-            Drawable previewImage = info.loadPreviewImage(activity, Measurements.getDotsPerInch());
-
             if (previewImage == null) {
                 previewImage = entry.icon;
                 params.height = Measurements.getIconSize();
             } else {
-                params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                params.height = 0;
+                params.dimensionRatio = "W," + ((float) previewImage.getIntrinsicHeight() /
+                        previewImage.getIntrinsicWidth()) + "f";
+                params.matchConstraintMaxHeight = Math.min(params.matchConstraintMaxHeight,
+                        Math.max(Measurements.dpToPx(50), previewImage.getIntrinsicHeight()));
             }
 
             ImageView imageView = new ImageView(activity);
-            Glide.with(activity)
-                    .load(previewImage)
-                    .apply(RequestOptions.bitmapTransform(
-                                    new RoundedCornersTransformation(
-                                            Measurements.dpToPx(RoundedWidgetHost.RADIUS_DP), 0)
-                            )
-                    ).into(imageView);
-            imageView.setLayoutParams(params);
 
+            imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
             imageView.setImageDrawable(previewImage);
+            imageView.setLayoutParams(params);
 
             holder.preview.addView(imageView);
         }
@@ -289,6 +249,7 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
         for (int index = 0; index < viewGroup.getChildCount(); index++) {
             View view = viewGroup.getChildAt(index);
 
+            view.setHapticFeedbackEnabled(false);
             view.setOnTouchListener(null);
             view.setOnClickListener(v -> forwardTarget.performClick());
 

@@ -92,16 +92,13 @@ public abstract class ActionDialog extends BottomSheetDialog {
                         WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             }
         }
-
     }
 
     @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        if (!hasFocus) {
-            dismiss();
-        }
+    protected void onStop() {
+        dismiss();
 
-        super.onWindowFocusChanged(hasFocus);
+        super.onStop();
     }
 
     protected abstract @NonNull View inflateContent(LayoutInflater inflater);

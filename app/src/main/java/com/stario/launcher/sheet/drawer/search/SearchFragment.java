@@ -98,10 +98,10 @@ public class SearchFragment extends Fragment {
         RecyclerView apps = root.findViewById(R.id.apps);
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(activity,
-                Measurements.getListColumns());
+                Measurements.getListColumnCount());
         gridLayoutManager.setItemPrefetchEnabled(true);
 
-        Measurements.addListColumnsListener(gridLayoutManager::setSpanCount);
+        Measurements.addListColumnCountChangeListener(gridLayoutManager::setSpanCount);
 
         apps.setLayoutManager(gridLayoutManager);
         apps.setItemAnimator(new DefaultItemAnimator());

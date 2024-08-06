@@ -36,14 +36,14 @@ public class Measurements {
     private static final ObservableObject<Integer> LIST_COLUMNS = new ObservableObject<>(0);
     private static final ObservableObject<Integer> FOLDER_COLUMNS = new ObservableObject<>(0);
     private static final ObservableObject<Integer> WIDGET_COLUMNS = new ObservableObject<>(0);
+    private static boolean measured = false;
     private static OnMeasureRoot listener;
     private static int defaultPadding;
-    private static int mWidth;
-    private static int mHeight;
+    private static int width;
+    private static int height;
     private static float dp;
     private static int dpi;
     private static float sp;
-    private static boolean measured = false;
 
     public static void measure(@NonNull View root, OnMeasureRoot onMeasureListener) {
         listener = onMeasureListener;
@@ -68,16 +68,16 @@ public class Measurements {
         dpi = displayMetrics.densityDpi;
         sp = displayMetrics.scaledDensity;
 
-        mWidth = displayMetrics.widthPixels;
-        mHeight = displayMetrics.heightPixels;
+        width = displayMetrics.widthPixels;
+        height = displayMetrics.heightPixels;
 
         defaultPadding = dpToPx(20);
 
-        LIST_COLUMNS.updateObject(Math.min(6, mWidth / dpToPx(90)));
-        FOLDER_COLUMNS.updateObject(mWidth / dpToPx(180));
+        LIST_COLUMNS.updateObject(Math.min(6, width / dpToPx(90)));
+        FOLDER_COLUMNS.updateObject(width / dpToPx(180));
 
         //ensure that the number of columns is a multiple of 2
-        WIDGET_COLUMNS.updateObject((mWidth / dpToPx(150) / 2) * 2);
+        WIDGET_COLUMNS.updateObject((width / dpToPx(150) / 2) * 2);
 
         root.setOnApplyWindowInsetsListener((v, insets) -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -134,11 +134,11 @@ public class Measurements {
     }
 
     public static int getWidth() {
-        return mWidth;
+        return width;
     }
 
     public static int getHeight() {
-        return mHeight;
+        return height;
     }
 
     public static int getDefaultPadding() {
@@ -153,19 +153,19 @@ public class Measurements {
         return SYS_UI_HEIGHT.getObject();
     }
 
-    public static int getListColumns() {
+    public static int getListColumnCount() {
         return LIST_COLUMNS.getObject();
     }
 
-    public static int getFolderColumns() {
+    public static int getFolderColumnCount() {
         return FOLDER_COLUMNS.getObject();
     }
 
-    public static int getWidgetColumns() {
+    public static int getWidgetColumnCount() {
         return WIDGET_COLUMNS.getObject();
     }
 
-    public static void addListColumnsListener(ObservableObject.OnSet<Integer> listener) {
+    public static void addListColumnCountChangeListener(ObservableObject.OnSet<Integer> listener) {
         if (listener != null) {
             LIST_COLUMNS.addListener(listener);
 
@@ -173,7 +173,7 @@ public class Measurements {
         }
     }
 
-    public static void addFolderColumnsListener(ObservableObject.OnSet<Integer> listener) {
+    public static void addFolderColumnCountChangeListener(ObservableObject.OnSet<Integer> listener) {
         if (listener != null) {
             FOLDER_COLUMNS.addListener(listener);
 
@@ -181,7 +181,7 @@ public class Measurements {
         }
     }
 
-    public static void addWidgetColumnsListener(ObservableObject.OnSet<Integer> listener) {
+    public static void addWidgetColumnCountChangeListener(ObservableObject.OnSet<Integer> listener) {
         if (listener != null) {
             WIDGET_COLUMNS.addListener(listener);
 
@@ -210,7 +210,7 @@ public class Measurements {
     }
 
     public static boolean isLandscape() {
-        return mWidth > mHeight;
+        return width > height;
     }
 
     public interface OnMeasureRoot {

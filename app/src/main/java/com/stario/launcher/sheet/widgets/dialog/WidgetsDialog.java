@@ -70,14 +70,15 @@ public class WidgetsDialog extends SheetDialogFragment {
     private static final int MAX_COUNT = 15;
     private static final int CONFIGURATION_CODE = 3264614;
     private static final String WIDGET_SIZE = "com.stario.launcher.WIDGET_SIZE";
+    private static int columnSize = 0;
     private ActivityResultLauncher<Intent> attachWidgetRequest;
+    private WidgetConfigurator configurator;
     private SharedPreferences widgetStore;
     private AppWidgetManager manager;
     private WidgetHost host;
     private WidgetGrid grid;
     private LinearLayout content;
     private TextView add;
-    private WidgetConfigurator configurator;
 
     public WidgetsDialog() {
         super();
@@ -85,6 +86,10 @@ public class WidgetsDialog extends SheetDialogFragment {
 
     public WidgetsDialog(SheetType type) {
         super(type);
+    }
+
+    public static int getWidgetCellSize() {
+        return columnSize;
     }
 
     @Override
@@ -188,11 +193,15 @@ public class WidgetsDialog extends SheetDialogFragment {
                     widgetStore.edit().remove(String.valueOf(identifier)).apply();
                 }
             } else {
-                WidgetsDialog.this.getWidgetHost().deleteAppWidgetId(identifier);
+                WidgetsDialog.this.getWidgetHost()
+                        .deleteAppWidgetId(identifier);
             }
         }
 
         UiUtils.runOnUIThread(new AttachRunnable(widgets));
+
+        grid.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
+                columnSize = grid.computeCellSize());
 
         return view;
     }

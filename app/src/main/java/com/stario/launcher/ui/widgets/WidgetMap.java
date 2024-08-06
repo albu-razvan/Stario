@@ -51,7 +51,7 @@ public class WidgetMap {
 
             column = column + 1;
 
-            if (column >= Measurements.getWidgetColumns()) {
+            if (column >= Measurements.getWidgetColumnCount()) {
                 column = 0;
                 row++;
             }
@@ -62,7 +62,7 @@ public class WidgetMap {
 
 
     private boolean checkFreeSpace(Cell origin, WidgetSize size) {
-        if (origin.column + size.x > Measurements.getWidgetColumns()) {
+        if (origin.column + size.x > Measurements.getWidgetColumnCount()) {
             return false;
         }
 

@@ -78,7 +78,7 @@ public class WidgetGrid extends GridLayout {
 
         setLayoutTransition(layoutTransition);
 
-        Measurements.addWidgetColumnsListener(object -> {
+        Measurements.addWidgetColumnCountChangeListener(object -> {
             View parent = (View) getParent();
 
             float originalAlpha = parent != null ? parent.getAlpha() : 1;
@@ -117,7 +117,7 @@ public class WidgetGrid extends GridLayout {
     }
 
     int getCellSize() {
-        return getMeasuredWidth() / Measurements.getWidgetColumns();
+        return getMeasuredWidth() / Measurements.getWidgetColumnCount();
     }
 
     public void attach(AppWidgetHostView host, Widget widget) {
@@ -157,5 +157,9 @@ public class WidgetGrid extends GridLayout {
         }
 
         return 0;
+    }
+
+    public int computeCellSize() {
+        return getWidth() / Measurements.getWidgetColumnCount();
     }
 }
