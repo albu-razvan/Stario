@@ -12,8 +12,8 @@ android {
         applicationId 'com.stario.launcher'
         minSdkVersion 28
         targetSdkVersion 34
-        versionCode 83
-        versionName '2.2 (Alpha)'
+        versionCode 84
+        versionName '2.3 (Alpha)'
         resourceConfigurations += ["en"]
     }
     buildTypes {
@@ -102,7 +102,7 @@ dependencies {
         exclude group: 'commons-collections', module: 'commons-collections'
     }
 
-    annotationProcessor('androidx.annotation:annotation:1.8.0')
+    annotationProcessor('androidx.annotation:annotation:1.8.1')
 
     api('tk.zielony:carbon:0.17.0')
 }
