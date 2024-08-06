@@ -42,9 +42,9 @@ public class Folder extends DrawerPage {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
 
         GridLayoutManager manager = new GridLayoutManager(activity,
-                Measurements.getListColumns());
+                Measurements.getListColumnCount());
 
-        Measurements.addListColumnsListener(manager::setSpanCount);
+        Measurements.addListColumnCountChangeListener(manager::setSpanCount);
 
         drawer.setLayoutManager(manager);
         drawer.setItemAnimator(null);

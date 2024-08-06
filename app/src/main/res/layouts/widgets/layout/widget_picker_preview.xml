@@ -26,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:baselineAligned="false"
+            android:animateLayoutChanges="false"
             android:elevation="1px"
             android:orientation="horizontal"
             android:visibility="invisible"

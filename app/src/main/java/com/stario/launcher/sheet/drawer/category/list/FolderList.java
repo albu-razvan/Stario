@@ -45,9 +45,9 @@ public class FolderList extends DrawerPage {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
 
         GridLayoutManager manager = new GridLayoutManager(activity,
-                Measurements.getFolderColumns());
+                Measurements.getFolderColumnCount());
 
-        Measurements.addFolderColumnsListener(manager::setSpanCount);
+        Measurements.addFolderColumnCountChangeListener(manager::setSpanCount);
 
         drawer.setLayoutManager(manager);
         drawer.setItemAnimator(null);
