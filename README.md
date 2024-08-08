@@ -2,7 +2,7 @@
 
 <img src="docs/logo_repo.png" width="128">
 
-[![Discord](https://img.shields.io/discord/803299970169700402?label=Discord&logo=discord&logoColor=white)](https://discord.gg/WuVapMt9gY)
+[![Discord](https://img.shields.io/discord/1110537583726964820?label=Discord&logo=discord&logoColor=white)](https://discord.gg/WuVapMt9gY)
 
 Inspired by the minimalist phone concept, Stario aims to keep functionality and productivity at their peak in a simple and elegant format.
 
