@@ -19,13 +19,16 @@ package com.stario.launcher.activities.settings;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.app.role.RoleManager;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.transition.Transition;
+import android.transition.TransitionListenerAdapter;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.CompoundButton;
@@ -39,12 +42,11 @@ import androidx.core.app.ActivityOptionsCompat;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.stario.launcher.BuildConfig;
 import com.stario.launcher.R;
-import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.activities.settings.dialogs.AccessibilityConfigurator;
 import com.stario.launcher.activities.settings.dialogs.NotificationConfigurator;
+import com.stario.launcher.activities.settings.dialogs.engine.EngineDialog;
 import com.stario.launcher.activities.settings.dialogs.hide.HideApplicationsDialog;
 import com.stario.launcher.activities.settings.dialogs.license.LicensesDialog;
-import com.stario.launcher.activities.settings.dialogs.engine.EngineDialog;
 import com.stario.launcher.glance.extensions.media.Media;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.preferences.Vibrations;
@@ -221,13 +223,38 @@ public class Settings extends ThemedActivity {
             }
         });
 
-        findViewById(R.id.restart).setOnClickListener((view) -> {
-            Intent intent = new Intent(Settings.this, Launcher.class);
+        findViewById(R.id.restart).setOnClickListener(new View.OnClickListener() {
+            private void triggerRebirth() {
+                PackageManager packageManager = getPackageManager();
+                Intent intent = packageManager.getLaunchIntentForPackage(getPackageName());
 
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                if (intent != null) {
+                    ComponentName componentName = intent.getComponent();
+                    Intent mainIntent = Intent.makeRestartActivityTask(componentName);
+                    mainIntent.setPackage(getPackageName());
 
-            startActivity(intent, ActivityOptions
-                    .makeSceneTransitionAnimation(Settings.this).toBundle());
+                    startActivity(mainIntent);
+                    System.exit(0);
+                }
+            }
+
+            @Override
+            public void onClick(View view) {
+                getOnBackPressedDispatcher().onBackPressed();
+
+                Transition transition = getWindow().getReturnTransition();
+
+                if (transition != null) {
+                    transition.addListener(new TransitionListenerAdapter() {
+                        @Override
+                        public void onTransitionEnd(Transition transition) {
+                            triggerRebirth();
+                        }
+                    });
+                } else {
+                    triggerRebirth();
+                }
+            }
         });
 
         findViewById(R.id.def_launcher).setOnClickListener((view) -> {
