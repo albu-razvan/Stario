@@ -17,12 +17,12 @@
 
 package com.stario.launcher;
 
-import android.app.Activity;
 import android.app.Application;
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.stario.launcher.ui.measurements.Measurements;
 
@@ -31,37 +31,15 @@ public class Stario extends Application {
     public void onCreate() {
         super.onCreate();
 
-        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
-            @Override
-            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
-            }
-
-            @Override
-            public void onActivityStarted(@NonNull Activity activity) {
-                if (!Measurements.wereTaken()) {
-                    throw new RuntimeException("Measurements were not taken.");
-                }
-            }
-
-            @Override
-            public void onActivityResumed(@NonNull Activity activity) {
-            }
-
-            @Override
-            public void onActivityPaused(@NonNull Activity activity) {
-            }
-
-            @Override
-            public void onActivityStopped(@NonNull Activity activity) {
-            }
-
-            @Override
-            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
-            }
-
-            @Override
-            public void onActivityDestroyed(@NonNull Activity activity) {
-            }
-        });
+        ProcessLifecycleOwner.get()
+                .getLifecycle()
+                .addObserver(new DefaultLifecycleObserver() {
+                    @Override
+                    public void onStart(@NonNull LifecycleOwner owner) {
+                        if (!Measurements.wereTaken()) {
+                            throw new RuntimeException("Measurements were not taken.");
+                        }
+                    }
+                });
     }
 }
