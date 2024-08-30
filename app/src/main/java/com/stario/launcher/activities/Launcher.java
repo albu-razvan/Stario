@@ -18,14 +18,9 @@
 package com.stario.launcher.activities;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
@@ -53,7 +48,6 @@ public class Launcher extends ThemedActivity {
     public final static int MAX_BACKGROUND_ALPHA = 230;
     private static final String TAG = "Launcher";
     private SheetsFocusController coordinator;
-    private BroadcastReceiver reorderReceiver;
     private ClosingAnimationView main;
     private View decorView;
     private Glance glance;
@@ -91,7 +85,6 @@ public class Launcher extends ThemedActivity {
         ));
 
         attachGlance();
-        registerReorderReceiver();
     }
 
     private void attachGlance() {
@@ -102,24 +95,6 @@ public class Launcher extends ThemedActivity {
         glance.attachViewExtension(GlanceViewExtensionType.CALENDAR);
         glance.attachDialogExtension(GlanceDialogExtensionType.MEDIA_PLAYER, Gravity.BOTTOM);
         glance.attachDialogExtension(GlanceDialogExtensionType.WEATHER, Gravity.BOTTOM);
-    }
-
-    private void registerReorderReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_SCREEN_ON);
-
-        reorderReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Intent reorder = new Intent(Launcher.this, Launcher.class);
-                reorder.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
-                        Intent.FLAG_ACTIVITY_NO_ANIMATION);
-
-                startActivity(reorder);
-            }
-        };
-
-        registerReceiver(reorderReceiver, filter);
     }
 
     private void attachSheets(WallpaperManagerHidden wallpaperManager) {
@@ -194,17 +169,6 @@ public class Launcher extends ThemedActivity {
         super.onStop();
 
         main.reset();
-    }
-
-    @Override
-    protected void onDestroy() {
-        try {
-            unregisterReceiver(reorderReceiver);
-        } catch (Exception exception) {
-            Log.e(TAG, "onDestroy: Lock receiver not registered.");
-        }
-
-        super.onDestroy();
     }
 
     @Override
