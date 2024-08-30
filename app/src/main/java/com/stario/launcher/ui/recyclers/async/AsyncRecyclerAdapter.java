@@ -17,9 +17,6 @@
 
 package com.stario.launcher.ui.recyclers.async;
 
-import android.animation.AnimatorSet;
-import android.animation.LayoutTransition;
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,15 +28,20 @@ import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.ui.measurements.Measurements;
-import com.stario.launcher.utils.animation.Animation;
 
 import java.util.function.Supplier;
 
+/**
+ * Recycler adapter that handles data loading and inflation in different threads.
+ * Applies height estimations to account for fast scrolling.
+ * Use only with fixed height AsyncViewHolder root views.
+ */
+@SuppressWarnings("rawtypes")
 public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.AsyncViewHolder>
         extends RecyclerView.Adapter<AVH> {
     private final static int VIEW_TYPE = 0;
-    private final static int MIN_POOL_SIZE = 4;
-    private int initialHolderHeight;
+    private final static int MIN_POOL_SIZE = 6;
+    private int holderHeight;
     private final Activity activity;
     private final AsyncLayoutInflater layoutInflater;
     private RecyclerView recyclerView;
@@ -49,7 +51,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
         this.activity = activity;
         this.type = InflationType.ASYNC;
         this.layoutInflater = new AsyncLayoutInflater(activity);
-        this.initialHolderHeight = Measurements.dpToPx(50);
+        this.holderHeight = AsyncViewHolder.HEIGHT_UNMEASURED;
     }
 
     public void setInflationType(InflationType type) {
@@ -57,6 +59,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     }
 
     public abstract class AsyncViewHolder extends RecyclerView.ViewHolder {
+        public static final int HEIGHT_UNMEASURED = -1;
         private InflationListener listener;
         private boolean inflated;
 
@@ -90,7 +93,13 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
         private void postInflate() {
             onInflated();
 
-            itemView.post(() -> initialHolderHeight = itemView.getMeasuredHeight());
+            itemView.post(() -> {
+                if (holderHeight == HEIGHT_UNMEASURED) {
+                    holderHeight = itemView.getMeasuredHeight();
+                } else if (holderHeight != itemView.getMeasuredHeight()) {
+                    throw new RuntimeException("AsyncViewHolder height changed. Are you using same height holders?");
+                }
+            });
 
             if (listener != null) {
                 listener.onInflated();
@@ -116,29 +125,12 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
 
         root.setClipChildren(false);
         root.setClipToPadding(false);
-
-        LayoutTransition transition = new LayoutTransition();
-
-        transition.disableTransitionType(LayoutTransition.CHANGING);
-        transition.disableTransitionType(LayoutTransition.DISAPPEARING);
-        transition.disableTransitionType(LayoutTransition.CHANGE_DISAPPEARING);
-        transition.disableTransitionType(LayoutTransition.CHANGE_APPEARING);
-
-        AnimatorSet set = new AnimatorSet();
-        set.playTogether(
-                ObjectAnimator.ofFloat(null, "alpha", 0, 1),
-                ObjectAnimator.ofFloat(null, "scaleX", 0.8f, 1),
-                ObjectAnimator.ofFloat(null, "scaleY", 0.8f, 1)
-        );
-
-        LayoutTransition layoutTransition = new LayoutTransition();
-        layoutTransition.setAnimator(LayoutTransition.APPEARING, set);
-        layoutTransition.setDuration(LayoutTransition.APPEARING, Animation.MEDIUM.getDuration());
-
-        //root.setLayoutTransition(transition);
+        root.setLayoutTransition(null);
 
         root.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, initialHolderHeight));
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                holderHeight != AsyncViewHolder.HEIGHT_UNMEASURED ?
+                        holderHeight : Measurements.dpToPx(50)));
 
         return root;
     }
@@ -187,6 +179,10 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
                 pool.putRecycledView(viewHolder);
             }
         }
+    }
+
+    public int getApproximatedHolderHeight() {
+        return holderHeight;
     }
 
     protected abstract void onBind(@NonNull AVH holder, int position);

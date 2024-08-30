@@ -46,14 +46,19 @@ public class List extends DrawerPage {
         fastScroller.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         GridLayoutManager manager = new GridLayoutManager(activity,
-                Measurements.getListColumnCount());
+                Measurements.getListColumnCount()) {
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return false;
+            }
+        };
 
         Measurements.addListColumnCountChangeListener(manager::setSpanCount);
 
         drawer.setLayoutManager(manager);
         drawer.setItemAnimator(null);
 
-        ListAdapter adapter = new ListAdapter(activity, manager);
+        ListAdapter adapter = new ListAdapter(activity, drawer);
 
         drawer.setAdapter(adapter);
 

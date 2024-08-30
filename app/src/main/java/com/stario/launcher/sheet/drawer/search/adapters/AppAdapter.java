@@ -134,7 +134,7 @@ public class AppAdapter extends RecyclerApplicationAdapter
 
     @Override
     protected LauncherApplication getApplication(int index) {
-        if (index >= getSize()) {
+        if (index >= getItemCount()) {
             return applications.get(0);
         }
 

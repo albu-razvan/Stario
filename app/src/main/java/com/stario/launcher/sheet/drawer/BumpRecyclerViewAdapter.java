@@ -20,5 +20,6 @@ package com.stario.launcher.sheet.drawer;
 public interface BumpRecyclerViewAdapter {
     long DELAY = 20;
 
-    void bump(int count);
+    void bump();
+    void removeLimit();
 }

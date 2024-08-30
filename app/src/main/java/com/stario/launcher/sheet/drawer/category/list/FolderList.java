@@ -45,14 +45,19 @@ public class FolderList extends DrawerPage {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
 
         GridLayoutManager manager = new GridLayoutManager(activity,
-                Measurements.getFolderColumnCount());
+                Measurements.getFolderColumnCount()) {
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return false;
+            }
+        };
 
         Measurements.addFolderColumnCountChangeListener(manager::setSpanCount);
 
         drawer.setLayoutManager(manager);
         drawer.setItemAnimator(null);
 
-        FolderListAdapter adapter = new FolderListAdapter(activity, this);
+        FolderListAdapter adapter = new FolderListAdapter(activity, this, drawer);
 
         drawer.setAdapter(adapter);
 
