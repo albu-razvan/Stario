@@ -52,7 +52,7 @@ public abstract class SheetDialogFragment extends AppCompatDialogFragment {
     public final static String SHEET_EVENT = "SheetDialogFragment.SHEET_EVENT";
     public final static String CLASS = "SheetDialogFragment.CLASS";
     public final static String OFFSET = "SheetDialogFragment.OFFSET";
-    public final static float PUBLISH_STEP = 0.02f;
+    public final static float PUBLISH_STEP = 0.05f;
     private final static String TYPE_KEY = "com.stario.launcher.SheetDialog.TYPE_KEY";
     private final ArrayList<DialogInterface.OnShowListener> showListeners;
     private final ArrayList<OnDestroyListener> destroyListeners;

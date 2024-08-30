@@ -56,6 +56,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
     private static final float TARGET_SCALE = 0.9f;
     private static boolean animating = false;
     private final List<AdaptiveIconView> sharedIcons;
+    private final RecyclerView recyclerView;
     private final CategoryData categoryData;
     private final ThemedActivity activity;
     private final FolderList folderList;
@@ -63,13 +64,15 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
     private boolean limit;
     private int size;
 
-    public FolderListAdapter(ThemedActivity activity, FolderList folderList) {
+    public FolderListAdapter(ThemedActivity activity,
+                             FolderList folderList, RecyclerView recyclerView) {
         super(activity);
 
         animating = false;
 
         this.activity = activity;
         this.folderList = folderList;
+        this.recyclerView = recyclerView;
 
         this.categoryData = CategoryData.getInstance();
         this.sharedIcons = new ArrayList<>();
@@ -338,25 +341,32 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
     }
 
     @Override
-    public void bump(int bumpSize) {
-        long overflowChecker = (long) size + bumpSize;
-        int inserted;
+    public void bump() {
+        if (limit) {
+            int approximatedHolderHeight = getApproximatedHolderHeight();
+            int newSize = size +
+                    (approximatedHolderHeight != AsyncRecyclerAdapter.AsyncViewHolder.HEIGHT_UNMEASURED ?
+                            Math.round(
+                                    Math.max(1,
+                                            recyclerView.getMeasuredHeight() / (float) approximatedHolderHeight)
+                            ) : 1
+                    );
 
-        if (overflowChecker >>> 31 != 0 || // https://stackoverflow.com/a/12226662
-                size + bumpSize >= categoryData.size()) {
-            limit = false;
-
-            inserted = categoryData.size() - size;
-        } else {
-            int newSize = size + bumpSize;
-
-            inserted = newSize - size;
+            int inserted = newSize - size;
             size = newSize;
-        }
 
-        if (inserted > 0) {
-            notifyItemRangeInserted(getItemCount() - inserted, inserted);
+            if (inserted > 0) {
+                notifyItemRangeInserted(getItemCount() - inserted, inserted);
+            }
         }
+    }
+
+    @Override
+    public void removeLimit() {
+        limit = false;
+
+        int inserted = categoryData.size() - size;
+        notifyItemRangeInserted(getItemCount() - inserted, inserted);
     }
 
     public static boolean isAnimating() {

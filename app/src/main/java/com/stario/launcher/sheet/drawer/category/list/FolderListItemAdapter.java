@@ -21,7 +21,6 @@ import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
-import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -74,12 +73,17 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
                 this.category = category;
 
                 // Fake a loading delay not to freeze the UI when inflating all views
-                int loop = Math.min(category.getSize(), HARD_LIMIT);
-                while (loop > 0) {
-                    UiUtils.runOnUIThreadDelayed(() -> bump(1),
+                int loop = getMaxSize();
+                if (loop > 0) {
+                    UiUtils.runOnUIThreadDelayed(this::removeLimit,
                             loop * BumpRecyclerViewAdapter.DELAY * 4);
 
-                    loop--;
+                    while (loop > 0) {
+                        UiUtils.runOnUIThreadDelayed(this::bump,
+                                loop * BumpRecyclerViewAdapter.DELAY * 4);
+
+                        loop--;
+                    }
                 }
             } else {
                 limit = false;
@@ -203,7 +207,11 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
 
     @Override
     public int getItemCount() {
-        return limit ? size : Math.min(category.getSize(), HARD_LIMIT);
+        return limit ? size : getMaxSize();
+    }
+
+    private int getMaxSize() {
+        return category != null ? Math.min(category.getSize(), HARD_LIMIT) : 0;
     }
 
     public boolean isCapped() {
@@ -211,11 +219,17 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
     }
 
     @Override
-    public void bump(@IntRange(from = 1, to = 1) int bumpSize) {
-        if (++size >= Math.min(category.getSize(), HARD_LIMIT)) {
-            limit = false;
+    public void bump() {
+        if(limit) {
+            notifyItemInserted(++size - 1);
         }
+    }
 
-        notifyItemInserted(size - 1);
+    @Override
+    public void removeLimit() {
+        limit = false;
+
+        int inserted = getMaxSize() - size;
+        notifyItemRangeInserted(getItemCount() - inserted, inserted);
     }
 }

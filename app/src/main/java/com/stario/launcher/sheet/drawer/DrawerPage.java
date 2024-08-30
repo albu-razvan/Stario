@@ -99,9 +99,7 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
                         int bumpSize;
 
                         if (offset == 1f) {
-                            bumpSize = Integer.MAX_VALUE;
-
-                            UiUtils.runOnUIThreadDelayed(() -> bumpAdapter.bump(bumpSize),
+                            UiUtils.runOnUIThreadDelayed(bumpAdapter::removeLimit,
                                     Math.max(0, scheduledUpdateTime - System.currentTimeMillis()));
                         } else {
                             bumpSize = Math.round((offset - lastOffset) / SheetDialogFragment.PUBLISH_STEP);
@@ -109,7 +107,7 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
                             // Fake a loading delay not to freeze the UI when inflating all views
                             int loop = bumpSize;
                             while (loop > 0) {
-                                UiUtils.runOnUIThreadDelayed(() -> bumpAdapter.bump(1),
+                                UiUtils.runOnUIThreadDelayed(bumpAdapter::bump,
                                         Math.max(0, scheduledUpdateTime - System.currentTimeMillis()) +
                                                 loop * BumpRecyclerViewAdapter.DELAY);
 

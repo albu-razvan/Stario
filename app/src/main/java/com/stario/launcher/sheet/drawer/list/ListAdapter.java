@@ -31,21 +31,22 @@ import com.stario.launcher.sheet.drawer.apps.LauncherApplicationManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.recyclers.FastScroller;
+import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
 import com.stario.launcher.utils.animation.Animation;
 
 public class ListAdapter extends RecyclerApplicationAdapter
         implements FastScroller.OnPopupViewUpdate,
         FastScroller.OnPopupViewReset, BumpRecyclerViewAdapter {
-    private final RecyclerView.LayoutManager layoutManager;
-    private LauncherApplicationManager applicationManager;
+    private final RecyclerView recyclerView;
+    private final LauncherApplicationManager applicationManager;
     private boolean limit;
     private int size;
     private int oldScrollerPosition;
 
-    public ListAdapter(ThemedActivity activity, RecyclerView.LayoutManager layoutManager) {
+    public ListAdapter(ThemedActivity activity, RecyclerView recyclerView) {
         super(activity);
 
-        this.layoutManager = layoutManager;
+        this.recyclerView = recyclerView;
         this.size = 0;
         this.limit = true;
         this.oldScrollerPosition = -1;
@@ -54,7 +55,7 @@ public class ListAdapter extends RecyclerApplicationAdapter
         applicationManager.addApplicationListener(new LauncherApplicationManager.ApplicationListener() {
             @Override
             public void onHidden(LauncherApplication application) {
-                notifyItemRangeRemoved(0, getSize());
+                notifyItemRangeRemoved(0, getItemCount());
             }
 
             @Override
@@ -64,7 +65,7 @@ public class ListAdapter extends RecyclerApplicationAdapter
 
             @Override
             public void onRemoved(LauncherApplication application) {
-                notifyItemRangeRemoved(0, getSize());
+                notifyItemRangeRemoved(0, getItemCount());
             }
 
             @Override
@@ -89,19 +90,22 @@ public class ListAdapter extends RecyclerApplicationAdapter
 
         if (oldScrollerPosition != index) {
             Vibrations.getInstance().vibrate();
+            RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
 
-            View lastView = layoutManager.findViewByPosition(oldScrollerPosition);
-            View currentView = layoutManager.findViewByPosition(index);
+            if (layoutManager != null) {
+                View lastView = layoutManager.findViewByPosition(oldScrollerPosition);
+                View currentView = layoutManager.findViewByPosition(index);
 
-            if (currentView != null) {
-                currentView.animate().scaleX(AdaptiveIconView.MAX_SCALE)
-                        .scaleY(AdaptiveIconView.MAX_SCALE)
-                        .setDuration(Animation.MEDIUM.getDuration());
-            }
+                if (currentView != null) {
+                    currentView.animate().scaleX(AdaptiveIconView.MAX_SCALE)
+                            .scaleY(AdaptiveIconView.MAX_SCALE)
+                            .setDuration(Animation.MEDIUM.getDuration());
+                }
 
-            if (lastView != null) {
-                lastView.animate().scaleX(1).scaleY(1)
-                        .setDuration(Animation.MEDIUM.getDuration());
+                if (lastView != null) {
+                    lastView.animate().scaleX(1).scaleY(1)
+                            .setDuration(Animation.MEDIUM.getDuration());
+                }
             }
         }
 
@@ -119,13 +123,17 @@ public class ListAdapter extends RecyclerApplicationAdapter
 
     @Override
     public void onReset(int index) {
-        View currentView = layoutManager.findViewByPosition(oldScrollerPosition);
-        oldScrollerPosition = -1;
+        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
 
-        if (currentView != null) {
-            currentView.animate().scaleX(1)
-                    .scaleY(1)
-                    .setDuration(Animation.MEDIUM.getDuration());
+        if (layoutManager != null) {
+            View currentView = layoutManager.findViewByPosition(oldScrollerPosition);
+            oldScrollerPosition = -1;
+
+            if (currentView != null) {
+                currentView.animate().scaleX(1)
+                        .scaleY(1)
+                        .setDuration(Animation.MEDIUM.getDuration());
+            }
         }
     }
 
@@ -151,24 +159,32 @@ public class ListAdapter extends RecyclerApplicationAdapter
         return limit ? size : applicationManager.getSize();
     }
 
-    public void bump(int bumpSize) {
-        long overflowChecker = (long) size + bumpSize;
-        int inserted;
+    @Override
+    public void bump() {
+        if (limit) {
+            int approximatedHolderHeight = getApproximatedHolderHeight();
+            int newSize = size +
+                    (approximatedHolderHeight != AsyncRecyclerAdapter.AsyncViewHolder.HEIGHT_UNMEASURED ?
+                            Math.round(
+                                    Math.max(1,
+                                            recyclerView.getMeasuredHeight() / (float) approximatedHolderHeight)
+                            ) : 1
+                    );
 
-        if (overflowChecker >>> 31 != 0 || // https://stackoverflow.com/a/12226662
-                size + bumpSize >= applicationManager.getSize()) {
-            limit = false;
-
-            inserted = applicationManager.getSize() - size;
-        } else {
-            int newSize = size + bumpSize;
-
-            inserted = newSize - size;
+            int inserted = newSize - size;
             size = newSize;
-        }
 
-        if (inserted > 0) {
-            notifyItemRangeInserted(getSize() - inserted, inserted);
+            if (inserted > 0) {
+                notifyItemRangeInserted(getItemCount() - inserted, inserted);
+            }
         }
+    }
+
+    @Override
+    public void removeLimit() {
+        limit = false;
+
+        int inserted = applicationManager.getSize() - size;
+        notifyItemRangeInserted(getItemCount() - inserted, inserted);
     }
 }
