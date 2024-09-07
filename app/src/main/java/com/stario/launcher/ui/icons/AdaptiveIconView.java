@@ -17,7 +17,11 @@
 
 package com.stario.launcher.ui.icons;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Path;
@@ -29,17 +33,29 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.stario.launcher.R;
+import com.stario.launcher.activities.settings.dialogs.icons.IconsDialog;
+import com.stario.launcher.preferences.Entry;
+import com.stario.launcher.sheet.drawer.apps.IconPackManager;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.utils.objects.ObjectInvalidateDelegate;
+import com.stario.launcher.utils.objects.ObjectRemeasureDelegate;
+
+import java.io.Serializable;
 
 public class AdaptiveIconView extends View {
     public static final float MAX_SCALE = 1.15f;
-    private ObjectInvalidateDelegate<Float> radius;
+    private ObjectRemeasureDelegate<Float> radius;
+    private ObjectRemeasureDelegate<PathAlgorithm> pathAlgorithm;
     private ObjectInvalidateDelegate<Drawable> icon;
-    private Path path;
+    private LocalBroadcastManager localBroadcastManager;
+    private BroadcastReceiver radiusReceiver;
+    private BroadcastReceiver squircleReceiver;
+    private SharedPreferences preferences;
     private boolean sizeRestricted;
+    private Path path;
 
     public AdaptiveIconView(Context context) {
         super(context);
@@ -60,6 +76,27 @@ public class AdaptiveIconView extends View {
     }
 
     private void init(Context context, @Nullable AttributeSet attrs) {
+        this.preferences = context.getSharedPreferences(Entry.ICONS.toString(), Context.MODE_PRIVATE);
+        this.localBroadcastManager = LocalBroadcastManager.getInstance(context);
+        this.radiusReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                radius.setValue(intent.getFloatExtra(IconsDialog.EXTRA_CORNER_RADIUS, 1f));
+            }
+        };
+        this.squircleReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Serializable serializable = intent.getSerializableExtra(IconsDialog.EXTRA_PATH_ALGORITHM);
+
+                if (serializable instanceof PathAlgorithm) {
+                    pathAlgorithm.setValue((PathAlgorithm) serializable);
+                } else {
+                    pathAlgorithm.setValue(PathAlgorithm.REGULAR);
+                }
+            }
+        };
+
         if (attrs != null) {
             TypedArray attributes = context.getApplicationContext().obtainStyledAttributes(attrs, R.styleable.AdaptiveIconView);
 
@@ -72,9 +109,44 @@ public class AdaptiveIconView extends View {
 
         this.path = new Path();
         this.icon = new ObjectInvalidateDelegate<>(this);
-        this.radius = new ObjectInvalidateDelegate<>(this, 1f);
+        this.pathAlgorithm = new ObjectRemeasureDelegate<>(this,
+                PathAlgorithm.fromIdentifier(
+                        preferences.getInt(IconPackManager.PATH_ALGORITHM_ENTRY, 0)
+                )
+        );
+        this.radius = new ObjectRemeasureDelegate<>(this,
+                preferences.getFloat(IconPackManager.CORNER_RADIUS_ENTRY, 1f));
 
         setLayerType(LAYER_TYPE_HARDWARE, null);
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
+        localBroadcastManager.registerReceiver(radiusReceiver,
+                new IntentFilter(IconsDialog.INTENT_CHANGE_CORNER_RADIUS));
+        localBroadcastManager.registerReceiver(squircleReceiver,
+                new IntentFilter(IconsDialog.INTENT_CHANGE_PATH_ALGORITHM));
+
+        PathAlgorithm currentPathAlgorithm = PathAlgorithm
+                .fromIdentifier(preferences.getInt(IconPackManager.PATH_ALGORITHM_ENTRY, 0));
+        if (!pathAlgorithm.getValue().equals(currentPathAlgorithm)) {
+            this.pathAlgorithm.setValue(currentPathAlgorithm);
+        }
+
+        Float currentRadius = preferences.getFloat(IconPackManager.CORNER_RADIUS_ENTRY, 1f);
+        if (!radius.getValue().equals(currentRadius)) {
+            this.radius.setValue(currentRadius);
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        localBroadcastManager.unregisterReceiver(radiusReceiver);
+        localBroadcastManager.unregisterReceiver(squircleReceiver);
     }
 
     @Override
@@ -110,6 +182,33 @@ public class AdaptiveIconView extends View {
     }
 
     private void updateClipPath(int width, int height) {
+        if (pathAlgorithm.getValue() == PathAlgorithm.SQUIRCLE) {
+            createClipPathSquircle(width, height);
+        } else {
+            createClipPathRegular(width, height);
+        }
+    }
+
+    //Thanks to Olga Nikolskaya https://medium.com/@nikolskayaolia/an-easy-way-to-implement-smooth-shapes-such-as-superellipse-and-squircle-into-a-user-interface-a5ba4e1139ed
+    //And the https://copyicon.com/generator/svg-squircle implementation in JavaScript
+    //Modified for the context of this project
+    private void createClipPathSquircle(int width, int height) {
+        float halfWidth = width / 2f;
+        float halfHeight = height / 2f;
+        float arc = Math.min(halfWidth, halfHeight) * (0.45f - (1f - radius.getValue()) * 0.45f);
+
+        path.reset();
+        path.moveTo(0, halfHeight);
+
+        path.cubicTo(0, arc, arc, 0, halfWidth, 0);
+        path.cubicTo(width - arc, 0, width, arc, width, halfHeight);
+        path.cubicTo(width, height - arc, width - arc, height, halfWidth, height);
+        path.cubicTo(arc, height, 0, height - arc, 0, halfHeight);
+
+        path.close();
+    }
+
+    private void createClipPathRegular(int width, int height) {
         float cornerRadius = radius.getValue() * width / 2f;
 
         path.reset();

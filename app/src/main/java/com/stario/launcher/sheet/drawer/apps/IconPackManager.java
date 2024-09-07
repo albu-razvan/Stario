@@ -49,6 +49,9 @@ import java.util.HashMap;
 
 //TODO icon pack support
 public class IconPackManager {
+    public static final String CORNER_RADIUS_ENTRY = "com.stario.CORNER_RADIUS";
+    public static final String PATH_ALGORITHM_ENTRY = "com.stario.PATH_ALGORITHM";
+
     /*Applications that changed their launch components along the years.
       Feel free to update this whenever you find other apps that did so.*/
     private static final HashMap<String, String> changedComponents = new HashMap<>() {{
@@ -147,7 +150,8 @@ public class IconPackManager {
     }
 
     @SuppressLint("DiscouragedApi")
-    public class IconPack {
+    public
+    class IconPack {
         private static final String TAG = "IconPackManager";
         private final LauncherApplication application;
         private final HashMap<String, String> packageDrawables;

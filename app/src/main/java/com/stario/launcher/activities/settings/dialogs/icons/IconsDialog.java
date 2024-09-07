@@ -17,6 +17,7 @@
 
 package com.stario.launcher.activities.settings.dialogs.icons;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,8 +32,10 @@ import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.slider.Slider;
 import com.stario.launcher.R;
 import com.stario.launcher.preferences.Entry;
+import com.stario.launcher.sheet.drawer.apps.IconPackManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
+import com.stario.launcher.ui.icons.PathAlgorithm;
 import com.stario.launcher.ui.measurements.Measurements;
 
 public class IconsDialog extends ActionDialog {
@@ -75,6 +78,50 @@ public class IconsDialog extends ActionDialog {
         Measurements.addNavListener(value -> content.setPadding(0, 0, 0, value));
 
         adapter = new IconsRecyclerAdapter(activity, v -> dismiss());
+
+        slider.setValue(preferences.getFloat(IconPackManager.CORNER_RADIUS_ENTRY, 1f));
+        slider.addOnChangeListener((slider1, value, fromUser) -> {
+            Intent intent = new Intent(INTENT_CHANGE_CORNER_RADIUS);
+            intent.putExtra(EXTRA_CORNER_RADIUS, value);
+
+            preferences.edit()
+                    .putFloat(IconPackManager.CORNER_RADIUS_ENTRY, value)
+                    .apply();
+
+            localBroadcastManager.sendBroadcastSync(intent);
+        });
+
+        PathAlgorithm currentPathAlgorithm = PathAlgorithm.fromIdentifier(
+                preferences.getInt(IconPackManager.PATH_ALGORITHM_ENTRY, 0)
+        );
+
+        if (currentPathAlgorithm == PathAlgorithm.SQUIRCLE) {
+            algorithm.check(R.id.squircle);
+        } else {
+            algorithm.check(R.id.regular);
+        }
+
+        algorithm.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            Intent intent = new Intent(INTENT_CHANGE_PATH_ALGORITHM);
+
+            if (checkedId == R.id.squircle && isChecked) {
+                intent.putExtra(EXTRA_PATH_ALGORITHM, PathAlgorithm.SQUIRCLE);
+
+                preferences.edit()
+                        .putInt(IconPackManager.PATH_ALGORITHM_ENTRY,
+                                PathAlgorithm.SQUIRCLE.ordinal())
+                        .apply();
+            } else {
+                intent.putExtra(EXTRA_PATH_ALGORITHM, PathAlgorithm.REGULAR);
+
+                preferences.edit()
+                        .putInt(IconPackManager.PATH_ALGORITHM_ENTRY,
+                                PathAlgorithm.REGULAR.ordinal())
+                        .apply();
+            }
+
+            localBroadcastManager.sendBroadcastSync(intent);
+        });
 
         recycler.setLayoutManager(new LinearLayoutManager(activity,
                 LinearLayoutManager.VERTICAL, false));
