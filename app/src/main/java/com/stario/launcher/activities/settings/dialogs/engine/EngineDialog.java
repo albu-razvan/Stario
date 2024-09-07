@@ -52,11 +52,6 @@ public class EngineDialog extends ActionDialog {
     }
 
     @Override
-    public void show() {
-        super.show();
-    }
-
-    @Override
     protected boolean blurBehind() {
         return true;
     }

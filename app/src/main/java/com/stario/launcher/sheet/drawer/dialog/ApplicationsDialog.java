@@ -129,9 +129,9 @@ public class ApplicationsDialog extends SheetDialogFragment {
                     skipVibration = true;
                     pager.setCurrentItem(1, false);
                 } else if (position == 1 || position == 2) {
-                    activity.getSharedPreferences(Entry.APPLICATION)
+                    activity.getSharedPreferences(Entry.DRAWER)
                             .edit()
-                            .putInt(ApplicationsDialog.APPLICATIONS_PAGE, position)
+                            .putInt(APPLICATIONS_PAGE, position)
                             .apply();
                 }
 
@@ -217,7 +217,8 @@ public class ApplicationsDialog extends SheetDialogFragment {
                     }
                 }, new IntentFilter(UNINSTALL_BROADCAST));
 
-        pager.setCurrentItem(activity.getSettings()
+        pager.setCurrentItem(activity
+                .getSharedPreferences(Entry.DRAWER)
                 .getInt(APPLICATIONS_PAGE, 1));
 
         Measurements.addNavListener(value -> {

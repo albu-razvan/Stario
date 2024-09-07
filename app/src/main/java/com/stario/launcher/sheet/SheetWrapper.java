@@ -39,7 +39,7 @@ public class SheetWrapper {
         this.slideListener = listener;
 
         try {
-            dialog = SheetDialogFactory.forType(type, launcher.getSharedPreferences(Entry.APPLICATION));
+            dialog = SheetDialogFactory.forType(type, launcher.getSharedPreferences(Entry.STARIO));
             dialog.setCancelable(false);
 
             showRequest = () -> {

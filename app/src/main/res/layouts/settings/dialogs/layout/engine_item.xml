@@ -28,6 +28,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/dm_sans_medium"
             android:textColor="?attr/colorOnSurface"
+            android:letterSpacing="-0.03"
             android:textSize="20sp" />
 
         <TextView

@@ -46,6 +46,7 @@ import com.stario.launcher.activities.settings.dialogs.AccessibilityConfigurator
 import com.stario.launcher.activities.settings.dialogs.NotificationConfigurator;
 import com.stario.launcher.activities.settings.dialogs.engine.EngineDialog;
 import com.stario.launcher.activities.settings.dialogs.hide.HideApplicationsDialog;
+import com.stario.launcher.activities.settings.dialogs.icons.IconsDialog;
 import com.stario.launcher.activities.settings.dialogs.license.LicensesDialog;
 import com.stario.launcher.glance.extensions.media.Media;
 import com.stario.launcher.preferences.Entry;
@@ -204,6 +205,19 @@ public class Settings extends ThemedActivity {
                     dialog.setOnDismissListener(dialog ->
                             hideCount.setText(getResources().getString(R.string.hidden_apps) +
                                     ": " + hiddenApps.getAll().size()));
+                }
+
+                dialog.show();
+            }
+        });
+
+        findViewById(R.id.icons).setOnClickListener(new View.OnClickListener() {
+            private IconsDialog dialog;
+
+            @Override
+            public void onClick(View view) {
+                if (dialog == null) {
+                    dialog = new IconsDialog(Settings.this);
                 }
 
                 dialog.show();

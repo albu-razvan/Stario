@@ -219,6 +219,8 @@ public class LauncherApplicationManager {
     public static LauncherApplicationManager from(@NonNull ThemedActivity activity) {
         if (instance == null) {
             instance = new LauncherApplicationManager(activity);
+        } else {
+            instance.iconPacks.refresh();
         }
 
         return instance;

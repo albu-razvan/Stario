@@ -58,8 +58,8 @@ public class IconPackManager {
                 "com.google.android.apps.safetyhub/com.google.android.apps.safetyhub.home.HomePageAppInfoEntry");
     }};
     private static IconPackManager instance = null;
-    private final ArrayList<IconPack> iconPacks;
     private final PackageManager packageManager;
+    private final ArrayList<IconPack> iconPacks;
 
     //TODO refresh icons on theme change
     private IconPackManager(ThemedActivity activity) {
@@ -67,12 +67,32 @@ public class IconPackManager {
         this.packageManager = activity.getPackageManager();
     }
 
-    static IconPackManager from(@NonNull ThemedActivity activity) {
+    public static IconPackManager from(@NonNull ThemedActivity activity) {
         if (instance == null) {
             instance = new IconPackManager(activity);
         }
 
         return instance;
+    }
+
+    public int getCount() {
+        return iconPacks.size();
+    }
+
+    public IconPack getPack(int index) {
+        return iconPacks.get(index);
+    }
+
+    public IconPack getPack(String packageName) {
+        for (int index = 0; index < iconPacks.size(); index++) {
+            if (iconPacks.get(index)
+                    .application.info
+                    .packageName.equals(packageName)) {
+                return getPack(index);
+            }
+        }
+
+        return null;
     }
 
     //TODO
@@ -89,19 +109,28 @@ public class IconPackManager {
         }
     }
 
-    //TODO
     void remove(LauncherApplication application) {
-        //iconPacks.remove();
+        if (application != null) {
+            for (int index = 0; index < iconPacks.size(); index++) {
+                if (application.equals(iconPacks.get(index).application)) {
+                    iconPacks.remove(index);
+
+                    return;
+                }
+            }
+        }
     }
 
-    boolean add(LauncherApplication application) {
+    void add(LauncherApplication application) {
         if (checkPackValidity(application)) {
             iconPacks.add(new IconPack(application));
-
-            return true;
         }
+    }
 
-        return false;
+    void refresh() {
+        for (IconPack pack : iconPacks) {
+            pack.packageDrawables.clear();
+        }
     }
 
     public boolean checkPackValidity(LauncherApplication application) {
@@ -118,20 +147,20 @@ public class IconPackManager {
     }
 
     @SuppressLint("DiscouragedApi")
-    class IconPack {
+    public class IconPack {
         private static final String TAG = "IconPackManager";
         private final LauncherApplication application;
         private final HashMap<String, String> packageDrawables;
         private Resources resources;
         private boolean loaded;
 
-        IconPack(LauncherApplication application) {
+        private IconPack(LauncherApplication application) {
             this.application = application;
             this.packageDrawables = new HashMap<>();
             this.loaded = false;
         }
 
-        public void load() {
+        void load() {
             Utils.submitTask(() -> {
                 try {
                     XmlPullParser parser = null;
@@ -279,6 +308,14 @@ public class IconPackManager {
             }
 
             return null;
+        }
+
+        public String getLabel() {
+            return application.getLabel();
+        }
+
+        public Drawable getIcon() {
+            return application.getIcon();
         }
 
         @Override
