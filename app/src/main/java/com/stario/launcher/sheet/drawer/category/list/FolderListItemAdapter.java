@@ -25,9 +25,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
+import com.stario.launcher.apps.LauncherApplication;
+import com.stario.launcher.apps.categories.Category;
 import com.stario.launcher.sheet.drawer.BumpRecyclerViewAdapter;
-import com.stario.launcher.sheet.drawer.apps.LauncherApplication;
-import com.stario.launcher.sheet.drawer.apps.categories.Category;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
@@ -95,14 +95,26 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
 
             listener = new Category.CategoryItemListener() {
                 int preparedRemovalIndex = -1;
+                boolean skipInsertion = false;
+
+                @Override
+                public void onPrepareInsertion(LauncherApplication application) {
+                    if (category.getSize() >= HARD_LIMIT) {
+                        skipInsertion = true;
+                    }
+                }
 
                 @Override
                 public void onInserted(LauncherApplication application) {
-                    int index = category.indexOf(application);
+                    if (!skipInsertion) {
+                        int index = category.indexOf(application);
 
-                    if (index >= 0) {
-                        UiUtils.runOnUIThread(() -> notifyItemInserted(index));
+                        if (index >= 0 && index < HARD_LIMIT) {
+                            notifyItemInserted(index);
+                        }
                     }
+
+                    skipInsertion = false;
                 }
 
                 @Override
@@ -112,22 +124,18 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
 
                 @Override
                 public void onRemoved(LauncherApplication application) {
-                    if (preparedRemovalIndex >= 0) {
-                        UiUtils.runOnUIThread(() -> notifyItemRemoved(preparedRemovalIndex));
+                    if (preparedRemovalIndex >= 0 && preparedRemovalIndex < HARD_LIMIT) {
+                        notifyItemRemoved(preparedRemovalIndex);
 
                         preparedRemovalIndex = -1;
                     } else {
-                        UiUtils.runOnUIThread(() -> notifyDataSetChanged());
+                        notifyDataSetChanged();
                     }
                 }
 
                 @Override
                 public void onUpdated(LauncherApplication application) {
-                    int index = category.indexOf(application);
-
-                    if (index >= 0) {
-                        UiUtils.runOnUIThread(() -> notifyItemChanged(index));
-                    }
+                    notifyDataSetChanged();
                 }
             };
 
@@ -188,6 +196,17 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
     }
 
     @Override
+    public long getItemId(int position) {
+        LauncherApplication application = category.get(position);
+
+        if (application != null) {
+            return application.hashCode();
+        } else {
+            return RecyclerView.NO_ID;
+        }
+    }
+
+    @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         if (category != null && listener != null) {
             category.removeCategoryItemListener(listener);
@@ -197,12 +216,6 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
     @Override
     protected Supplier<ViewHolder> getHolderSupplier() {
         return ViewHolder::new;
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return category.get(position)
-                .getInfo().packageName.hashCode();
     }
 
     @Override
@@ -220,7 +233,7 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
 
     @Override
     public void bump() {
-        if(limit) {
+        if (limit) {
             notifyItemInserted(++size - 1);
         }
     }

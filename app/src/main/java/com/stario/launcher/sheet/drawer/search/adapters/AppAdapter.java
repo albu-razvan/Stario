@@ -24,8 +24,8 @@ import android.widget.Filter;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.stario.launcher.sheet.drawer.apps.LauncherApplication;
-import com.stario.launcher.sheet.drawer.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.LauncherApplication;
+import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.sheet.drawer.search.JaroWinklerDistance;
 import com.stario.launcher.sheet.drawer.search.Searchable;
 import com.stario.launcher.themes.ThemedActivity;

@@ -26,8 +26,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.BumpRecyclerViewAdapter;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
-import com.stario.launcher.sheet.drawer.apps.LauncherApplication;
-import com.stario.launcher.sheet.drawer.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.LauncherApplication;
+import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.recyclers.FastScroller;
@@ -156,7 +156,7 @@ public class ListAdapter extends RecyclerApplicationAdapter
 
     @Override
     protected int getSize() {
-        return limit ? size : applicationManager.getSize();
+        return limit ? Math.min(applicationManager.getSize(), size) : applicationManager.getSize();
     }
 
     @Override

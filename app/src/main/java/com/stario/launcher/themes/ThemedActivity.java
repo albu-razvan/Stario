@@ -178,7 +178,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
     }
 
     public SharedPreferences getSettings() {
-        return getSharedPreferences(Entry.APPLICATION);
+        return getSharedPreferences(Entry.STARIO);
     }
 
     public Resources.Theme getTheme(boolean forceDark) {

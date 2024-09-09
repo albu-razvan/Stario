@@ -33,8 +33,8 @@ import com.stario.launcher.R;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.BumpRecyclerViewAdapter;
 import com.stario.launcher.sheet.drawer.DrawerAdapter;
-import com.stario.launcher.sheet.drawer.apps.categories.Category;
-import com.stario.launcher.sheet.drawer.apps.categories.CategoryData;
+import com.stario.launcher.apps.categories.Category;
+import com.stario.launcher.apps.categories.CategoryData;
 import com.stario.launcher.sheet.drawer.category.Categories;
 import com.stario.launcher.sheet.drawer.category.folder.Folder;
 import com.stario.launcher.themes.ThemedActivity;
@@ -337,7 +337,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
     @Override
     public int getItemCount() {
-        return limit ? size : categoryData.size();
+        return limit ? Math.min(size, categoryData.size()) : categoryData.size();
     }
 
     @Override

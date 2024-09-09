@@ -30,10 +30,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.stario.launcher.R;
+import com.stario.launcher.apps.LauncherApplication;
+import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.categories.CategoryData;
 import com.stario.launcher.preferences.Entry;
-import com.stario.launcher.sheet.drawer.apps.LauncherApplication;
-import com.stario.launcher.sheet.drawer.apps.LauncherApplicationManager;
-import com.stario.launcher.sheet.drawer.apps.categories.CategoryData;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 
@@ -54,6 +54,7 @@ public class HiddenRecyclerAdapter extends RecyclerView.Adapter<HiddenRecyclerAd
         private final TextView category;
         private final TextView label;
 
+        @SuppressLint("ClickableViewAccessibility")
         public ViewHolder(View itemView) {
             super(itemView);
 
@@ -61,6 +62,9 @@ public class HiddenRecyclerAdapter extends RecyclerView.Adapter<HiddenRecyclerAd
             category = itemView.findViewById(R.id.category);
             label = itemView.findViewById(R.id.label);
             materialSwitch = itemView.findViewById(R.id.hide_switch);
+
+            materialSwitch.setClickable(false);
+            itemView.setOnClickListener(view -> materialSwitch.performClick());
         }
     }
 

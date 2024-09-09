@@ -35,7 +35,7 @@ import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.SheetType;
 import com.stario.launcher.sheet.SheetWrapper;
 import com.stario.launcher.sheet.SheetsFocusController;
-import com.stario.launcher.sheet.drawer.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.lock.ClosingAnimationView;
 import com.stario.launcher.ui.measurements.Measurements;

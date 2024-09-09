@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/colorSurfaceVariant"
+    android:background="@drawable/ripple"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:padding="20dp"
@@ -27,11 +27,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:fontFamily="@font/dm_sans_medium"
+            android:fontFamily="@font/dm_sans_regular"
+            android:letterSpacing="-0.03"
             android:lines="1"
             android:maxLines="1"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="16sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/category"

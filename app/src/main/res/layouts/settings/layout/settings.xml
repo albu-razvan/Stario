@@ -7,8 +7,8 @@
     android:fitsSystemWindows="true"
     android:forceDarkAllowed="false"
     app:fel_edge="bottom|top"
-    app:fel_size_bottom="130dp"
-    app:fel_size_top="80dp">
+    app:fel_size_bottom="20dp"
+    app:fel_size_top="20dp">
 
     <ScrollView
         android:id="@+id/scroll_view"
@@ -22,9 +22,11 @@
 
         <carbon.widget.LinearLayout
             android:layout_width="match_parent"
-            android:animateLayoutChanges="true"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:animateLayoutChanges="true"
             android:orientation="vertical"
             app:carbon_maxWidth="500dp">
 
@@ -35,9 +37,7 @@
                 android:fontFamily="@font/dm_sans_medium"
                 android:gravity="center"
                 android:letterSpacing="-0.03"
-                android:paddingStart="30dp"
                 android:paddingTop="30dp"
-                android:paddingEnd="30dp"
                 android:paddingBottom="30dp"
                 android:text="@string/settings"
                 android:textColor="?attr/colorOnSurface"
@@ -47,9 +47,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_regular"
-                android:paddingStart="30dp"
                 android:paddingTop="20dp"
-                android:paddingEnd="30dp"
                 android:text="@string/preferences"
                 android:textColor="?attr/colorSecondary"
                 android:textSize="16sp" />
@@ -60,8 +58,6 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:letterSpacing="-0.03"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
                 android:text="@string/media_player"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp" />
@@ -72,8 +68,6 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:letterSpacing="-0.03"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
                 android:text="@string/notification_dots"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp"
@@ -85,8 +79,6 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:letterSpacing="-0.03"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
                 android:text="@string/lock_gesture"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp" />
@@ -97,8 +89,6 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:letterSpacing="-0.03"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
                 android:text="@string/use_imperial_units"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp"
@@ -110,8 +100,6 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:letterSpacing="-0.03"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
                 android:text="@string/vibrations"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp" />
@@ -124,14 +112,39 @@
                 android:fontFamily="@font/dm_sans_medium"
                 android:gravity="center_vertical"
                 android:letterSpacing="-0.03"
-                android:paddingStart="30dp"
                 android:paddingTop="10dp"
-                android:paddingEnd="30dp"
                 android:paddingBottom="10dp"
                 android:text="@string/change_color"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp"
                 android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/icons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:letterSpacing="-0.03"
+                    android:paddingTop="10dp"
+                    android:text="@string/icons"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/pack_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:paddingBottom="10dp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/search_engine"
@@ -144,9 +157,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/dm_sans_medium"
                     android:letterSpacing="-0.03"
-                    android:paddingStart="30dp"
                     android:paddingTop="10dp"
-                    android:paddingEnd="30dp"
                     android:text="@string/search_engine"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="20sp" />
@@ -156,8 +167,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/dm_sans_regular"
-                    android:paddingStart="30dp"
-                    android:paddingEnd="30dp"
                     android:paddingBottom="10dp"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="16sp" />
@@ -175,9 +184,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/dm_sans_medium"
                     android:letterSpacing="-0.03"
-                    android:paddingStart="30dp"
                     android:paddingTop="10dp"
-                    android:paddingEnd="30dp"
                     android:text="@string/hide_applications"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="20sp" />
@@ -187,8 +194,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/dm_sans_regular"
-                    android:paddingStart="30dp"
-                    android:paddingEnd="30dp"
                     android:paddingBottom="10dp"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="16sp" />
@@ -202,9 +207,7 @@
                 android:drawablePadding="5dp"
                 android:fontFamily="@font/dm_sans_medium"
                 android:letterSpacing="-0.03"
-                android:paddingStart="30dp"
                 android:paddingTop="10dp"
-                android:paddingEnd="30dp"
                 android:paddingBottom="10dp"
                 android:text="@string/system_launcher"
                 android:textColor="?attr/colorOnSurface"
@@ -214,9 +217,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_regular"
-                android:paddingStart="30dp"
                 android:paddingTop="40dp"
-                android:paddingEnd="30dp"
                 android:text="@string/animations"
                 android:textColor="?attr/colorSecondary"
                 android:textSize="16sp" />
@@ -227,8 +228,6 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:letterSpacing="-0.03"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
                 android:text="@string/legacy_launch_animations"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp" />
@@ -239,8 +238,6 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:letterSpacing="-0.03"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
                 android:text="@string/legacy_lock_animation"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp" />
@@ -249,9 +246,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_regular"
-                android:paddingStart="30dp"
                 android:paddingTop="40dp"
-                android:paddingEnd="30dp"
                 android:text="@string/about"
                 android:textColor="?attr/colorSecondary"
                 android:textSize="16sp" />
@@ -262,9 +257,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:letterSpacing="-0.03"
-                android:paddingStart="30dp"
                 android:paddingTop="10dp"
-                android:paddingEnd="30dp"
                 android:paddingBottom="10dp"
                 android:text="@string/app_info"
                 android:textColor="?attr/colorOnSurface"
@@ -276,10 +269,9 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:letterSpacing="-0.03"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
+                android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                android:text="@string/license"
+                android:text="@string/licenses"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp" />
 
@@ -287,9 +279,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_regular"
-                android:paddingStart="30dp"
                 android:paddingTop="40dp"
-                android:paddingEnd="30dp"
                 android:text="@string/miscellaneous"
                 android:textColor="?attr/colorSecondary"
                 android:textSize="16sp" />
@@ -300,10 +290,8 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:letterSpacing="-0.03"
-                android:paddingStart="30dp"
-                android:paddingTop="7.5dp"
-                android:paddingEnd="30dp"
-                android:paddingBottom="7.5dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
                 android:text="@string/restart"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp" />
@@ -311,9 +299,7 @@
             <carbon.widget.LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
                 android:layout_marginTop="30dp"
-                android:layout_marginEnd="30dp"
                 android:layout_marginBottom="100dp"
                 android:background="?attr/colorPrimaryContainer"
                 android:orientation="vertical"
@@ -355,9 +341,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="4dp"
-                    android:divider="@drawable/divider"
-                    android:showDividers="middle">
+                    android:layout_marginTop="4dp">
 
                     <carbon.widget.ImageView
                         android:id="@+id/twitter"

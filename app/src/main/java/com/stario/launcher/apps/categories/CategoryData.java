@@ -15,15 +15,15 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.sheet.drawer.apps.categories;
+package com.stario.launcher.apps.categories;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 
 import com.stario.launcher.R;
+import com.stario.launcher.apps.LauncherApplication;
+import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.preferences.Entry;
-import com.stario.launcher.sheet.drawer.apps.LauncherApplication;
-import com.stario.launcher.sheet.drawer.apps.LauncherApplicationManager;
 import com.stario.launcher.themes.ThemedActivity;
 
 import java.util.ArrayList;
@@ -79,8 +79,8 @@ public class CategoryData {
                     @Override
                     public void onUpdated(LauncherApplication application) {
                         for (Category category : categories) {
-                            for (Category.CategoryItemListener listener : category.listeners) {
-                                if (category.applications.contains(application)) {
+                            if (category.applications.contains(application)) {
+                                for (Category.CategoryItemListener listener : category.listeners) {
                                     listener.onUpdated(application);
                                 }
                             }

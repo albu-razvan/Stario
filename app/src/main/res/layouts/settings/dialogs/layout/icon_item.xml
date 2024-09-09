@@ -7,17 +7,16 @@
     android:forceDarkAllowed="false"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="20dp"
+    android:padding="16dp"
     app:carbon_cornerRadius="10dp">
 
-    <ImageView
+    <com.stario.launcher.ui.icons.AdaptiveIconView
         android:id="@+id/icon"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:scaleType="fitCenter" />
+        android:layout_width="50dp"
+        android:layout_height="50dp" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingLeft="20dp"
@@ -27,17 +26,23 @@
             android:id="@+id/label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
             android:fontFamily="@font/dm_sans_regular"
             android:letterSpacing="-0.03"
+            android:lines="1"
+            android:maxLines="1"
             android:textColor="?attr/colorOnSurface"
             android:textSize="20sp" />
 
         <TextView
-            android:id="@+id/url"
-            android:layout_width="wrap_content"
+            android:id="@+id/count"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:alpha="0.7"
+            android:ellipsize="end"
             android:fontFamily="@font/dm_sans_regular"
+            android:lines="1"
+            android:maxLines="1"
             android:textColor="?attr/colorOnSurface"
             android:textSize="16sp" />
 

@@ -26,11 +26,12 @@
     <string name="use_imperial_units">Imperial units</string>
     <string name="vibrations">Vibrations</string>
     <string name="change_color">Change accent color</string>
-    <string name="search_engine">Search engine</string>
-    <string name="hide_applications">Hide applications</string>
+    <string name="search_engine">↗ Search engine</string>
+    <string name="hide_applications">↗ Hide applications</string>
     <string name="legacy_lock_animation">Legacy lock animation</string>
     <string name="legacy_launch_animations">Legacy launch animations</string>
-    <string name="system_launcher">→ Reassign system launcher</string>
+    <string name="icons">↗ Icons</string>
+    <string name="system_launcher">↗ Reassign system launcher</string>
     <string name="app_info">App info</string>
 
     <!-- Settings pop-up -->
@@ -51,8 +52,12 @@
     <string name="dynamic">Dynamic</string>
     <string name="force_dark">Force dark mode</string>
 
-    <!-- Search engine pop-up -->
-    <string name="supported_engines">Supported engines</string>
+    <!-- Icons pop-up -->
+    <string name="corner_radius">Corner radius</string>
+    <string name="regular">Regular</string>
+    <string name="squircle">Squircle</string>
+    <string name="components">components</string>
+    <string name="calculating">Calculating…</string>
 
     <!-- Hidden apps pop-up -->
     <string name="hidden_apps">Hidden apps</string>
