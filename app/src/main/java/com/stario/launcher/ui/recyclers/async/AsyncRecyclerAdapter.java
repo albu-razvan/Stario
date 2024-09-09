@@ -18,6 +18,7 @@
 package com.stario.launcher.ui.recyclers.async;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,6 +60,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     }
 
     public abstract class AsyncViewHolder extends RecyclerView.ViewHolder {
+        private static final String TAG = "AsyncViewHolder";
         public static final int HEIGHT_UNMEASURED = -1;
         private InflationListener listener;
         private boolean inflated;
@@ -97,7 +99,10 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
                 if (holderHeight == HEIGHT_UNMEASURED) {
                     holderHeight = itemView.getMeasuredHeight();
                 } else if (holderHeight != itemView.getMeasuredHeight()) {
-                    throw new RuntimeException("AsyncViewHolder height changed. Are you using same height holders?");
+                    holderHeight = itemView.getMeasuredHeight();
+
+                    Log.w(TAG, "Holder height estimation for " + AsyncRecyclerAdapter.this.getClass() +
+                            "async holders changed. New estimation: " + holderHeight);
                 }
             });
 
