@@ -22,13 +22,16 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.WindowCompat;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.stario.launcher.R;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.measurements.Measurements;
@@ -37,6 +40,7 @@ import com.stario.launcher.utils.Utils;
 
 public abstract class ActionDialog extends BottomSheetDialog {
     protected final ThemedActivity activity;
+    private View root;
 
     public ActionDialog(@NonNull ThemedActivity activity) {
         super(activity);
@@ -52,27 +56,49 @@ public abstract class ActionDialog extends BottomSheetDialog {
 
         behavior.setSkipCollapsed(true);
 
-        View contentView = inflateContent(activity.getLayoutInflater());
-        UiUtils.applyNotchMargin(contentView);
+        LayoutInflater inflater = activity.getLayoutInflater();
 
-        setContentView(contentView);
+        root = inflater.inflate(R.layout.pop_up_root, null, false);
+        ((ViewGroup) root.findViewById(R.id.content)).addView(inflateContent(activity.getLayoutInflater()));
+        UiUtils.applyNotchMargin(root);
 
-        ViewGroup.MarginLayoutParams params = ((ViewGroup.MarginLayoutParams) contentView.getLayoutParams());
+        root.setOnClickListener(view -> dismiss());
+
+        setContentView(root);
+
+        ViewGroup.MarginLayoutParams params = ((ViewGroup.MarginLayoutParams) root.getLayoutParams());
         params.leftMargin = Measurements.dpToPx(10);
         params.rightMargin = Measurements.dpToPx(10);
-        ((View) contentView.getParent()).setBackgroundColor(Color.TRANSPARENT);
+        ((View) root.getParent()).setBackgroundColor(Color.TRANSPARENT);
     }
 
     @Override
-    public void show() {
-        super.show();
-
-        Vibrations.getInstance().vibrate();
-
-        getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+    public void onAttachedToWindow() {
         Window window = getWindow();
 
+        root.post(() -> {
+            ViewParent frame = root.getParent();
+
+            if (frame != null) {
+                fitToBottomInset((View) frame, false);
+
+                ViewParent coordinator = frame.getParent();
+
+                if (coordinator != null) {
+                    fitToBottomInset((View) coordinator, false);
+
+                    ViewParent container = coordinator.getParent();
+
+                    if (container != null) {
+                        fitToBottomInset((View) container, false);
+                    }
+                }
+            }
+        });
+
         if (window != null) {
+            WindowCompat.setDecorFitsSystemWindows(window, false);
+
             if (blurBehind()) {
                 window.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND |
                         WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -92,6 +118,50 @@ public abstract class ActionDialog extends BottomSheetDialog {
                         WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             }
         }
+    }
+
+    // hack to remove STATE_EXPANDED fit to system window jitter on layout pass
+    @Override
+    public void onDetachedFromWindow() {
+        ViewParent frame = root.getParent();
+
+        if (frame != null) {
+            fitToBottomInset((View) frame, true);
+
+            ViewParent coordinator = frame.getParent();
+
+            if (coordinator != null) {
+                fitToBottomInset((View) coordinator, true);
+
+                ViewParent container = coordinator.getParent();
+
+                if (container != null) {
+                    fitToBottomInset((View) container, true);
+                }
+            }
+        }
+
+        super.onDetachedFromWindow();
+    }
+
+    private void fitToBottomInset(View view, boolean fit) {
+        view.setFitsSystemWindows(fit);
+        view.setPadding(view.getPaddingLeft(),
+                view.getPaddingTop(), view.getPaddingRight(), 0);
+    }
+
+    @Override
+    public void hide() {
+        super.dismiss();
+    }
+
+    @Override
+    public void show() {
+        super.show();
+
+        Vibrations.getInstance().vibrate();
+
+        getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     @Override

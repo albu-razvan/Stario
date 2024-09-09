@@ -32,7 +32,7 @@
         tools:targetApi="tiramisu">
 
         <activity
-            android:name=".sheet.drawer.apps.SplashScreen"
+            android:name=".apps.SplashScreen"
             android:allowEmbedded="false"
             android:alwaysRetainTaskState="false"
             android:exported="true"

@@ -56,9 +56,8 @@
     <string name="corner_radius">Corner radius</string>
     <string name="regular">Regular</string>
     <string name="squircle">Squircle</string>
-
-    <!-- Search engine pop-up -->
-    <string name="supported_engines">Supported engines</string>
+    <string name="components">components</string>
+    <string name="calculating">Calculating…</string>
 
     <!-- Hidden apps pop-up -->
     <string name="hidden_apps">Hidden apps</string>

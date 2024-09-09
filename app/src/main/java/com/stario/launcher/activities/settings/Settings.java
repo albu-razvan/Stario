@@ -48,10 +48,12 @@ import com.stario.launcher.activities.settings.dialogs.engine.EngineDialog;
 import com.stario.launcher.activities.settings.dialogs.hide.HideApplicationsDialog;
 import com.stario.launcher.activities.settings.dialogs.icons.IconsDialog;
 import com.stario.launcher.activities.settings.dialogs.license.LicensesDialog;
+import com.stario.launcher.apps.IconPackManager;
+import com.stario.launcher.apps.LauncherApplication;
+import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.glance.extensions.media.Media;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.preferences.Vibrations;
-import com.stario.launcher.sheet.drawer.apps.LauncherApplication;
 import com.stario.launcher.sheet.drawer.search.SearchEngine;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.lock.LockDetector;
@@ -61,6 +63,7 @@ import com.stario.launcher.utils.Utils;
 public class Settings extends ThemedActivity {
     private MaterialSwitch mediaSwitch;
     private MaterialSwitch lockSwitch;
+    private TextView iconPackName;
 
     @SuppressLint({"ClickableViewAccessibility", "SetTextI18n"})
     @Override
@@ -92,12 +95,15 @@ public class Settings extends ThemedActivity {
         MaterialSwitch switchVibrations = findViewById(R.id.vibrations);
 
         TextView searchEngineName = findViewById(R.id.engine_name);
+        iconPackName = findViewById(R.id.pack_name);
         View close = findViewById(R.id.close);
         TextView hideCount = findViewById(R.id.hidden_count);
 
         hideCount.setText(getResources().getString(R.string.hidden_apps) +
                 ": " + hiddenApps.getAll().size());
         searchEngineName.setText(SearchEngine.engineFor(this).toString());
+
+        updateIconPackName();
 
         close.setMinimumHeight(Measurements.dpToPx(Measurements.HEADER_SIZE_DP));
         close.setOnClickListener((view) -> onBackPressed());
@@ -218,6 +224,9 @@ public class Settings extends ThemedActivity {
             public void onClick(View view) {
                 if (dialog == null) {
                     dialog = new IconsDialog(Settings.this);
+
+                    dialog.setOnDismissListener(dialog ->
+                            updateIconPackName());
                 }
 
                 dialog.show();
@@ -315,6 +324,24 @@ public class Settings extends ThemedActivity {
             view.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce_small));
             startActivity(new Intent(Intent.ACTION_DEFAULT, Uri.parse("https://discord.gg/WuVapMt9gY")));
         });
+    }
+
+    private void updateIconPackName() {
+        SharedPreferences iconPreferences = getSharedPreferences(Entry.ICONS);
+        String packPackageName = iconPreferences.getString(IconPackManager.ICON_PACK_ENTRY, null);
+
+        if (packPackageName != null) {
+            LauncherApplication iconPackApplication = LauncherApplicationManager
+                    .getInstance().get(packPackageName);
+
+            if (iconPackApplication != LauncherApplication.FALLBACK_APP) {
+                iconPackName.setText(iconPackApplication.getLabel());
+
+                return;
+            }
+        }
+
+        iconPackName.setText(R.string.default_text);
     }
 
     private void checkNotificationPermission() {

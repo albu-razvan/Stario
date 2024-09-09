@@ -1,65 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<carbon.widget.RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/content"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_horizontal">
+    app:carbon_maxHeight="400dp">
 
-    <carbon.widget.LinearLayout
-        android:id="@+id/content"
+    <carbon.widget.RecyclerView
+        android:id="@+id/recycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/background_sheet"
-        android:forceDarkAllowed="false"
-        android:orientation="vertical"
-        app:carbon_maxWidth="500dp">
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="20dp"
+        android:overScrollMode="never"
+        app:carbon_cornerRadius="30dp"
+        app:carbon_overScroll="never" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <carbon.widget.ConstraintLayout
-                android:layout_width="40dp"
-                android:layout_height="4dp"
-                android:layout_marginTop="20dp"
-                android:alpha="0.5"
-                android:background="?attr/colorOnSurface"
-                app:carbon_cornerRadius="2dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:fontFamily="@font/dm_sans_regular"
-            android:gravity="center"
-            android:text="@string/supported_engines"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="16sp" />
-
-        <com.bosphere.fadingedgelayout.FadingEdgeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:fel_edge="bottom|top"
-            app:fel_size_bottom="20dp"
-            app:fel_size_top="20dp">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipToPadding="false"
-                android:overScrollMode="never"
-                android:paddingTop="20dp"
-                android:paddingBottom="20dp" />
-
-        </com.bosphere.fadingedgelayout.FadingEdgeLayout>
-
-    </carbon.widget.LinearLayout>
-
-</RelativeLayout>
+</carbon.widget.RelativeLayout>

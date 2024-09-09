@@ -7,8 +7,8 @@
     android:fitsSystemWindows="true"
     android:forceDarkAllowed="false"
     app:fel_edge="bottom|top"
-    app:fel_size_bottom="130dp"
-    app:fel_size_top="80dp">
+    app:fel_size_bottom="20dp"
+    app:fel_size_top="20dp">
 
     <ScrollView
         android:id="@+id/scroll_view"
@@ -119,18 +119,32 @@
                 android:textSize="20sp"
                 android:visibility="gone" />
 
-            <TextView
+            <LinearLayout
                 android:id="@+id/icons"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawablePadding="5dp"
-                android:fontFamily="@font/dm_sans_medium"
-                android:letterSpacing="-0.03"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:text="@string/icons"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:letterSpacing="-0.03"
+                    android:paddingTop="10dp"
+                    android:text="@string/icons"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/pack_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:paddingBottom="10dp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/search_engine"
@@ -257,7 +271,7 @@
                 android:letterSpacing="-0.03"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                android:text="@string/license"
+                android:text="@string/licenses"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp" />
 

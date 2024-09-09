@@ -15,7 +15,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.sheet.drawer.apps;
+package com.stario.launcher.apps;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -35,8 +35,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.stario.launcher.BuildConfig;
+import com.stario.launcher.apps.categories.CategoryData;
 import com.stario.launcher.preferences.Entry;
-import com.stario.launcher.sheet.drawer.apps.categories.CategoryData;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
@@ -46,7 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LauncherApplicationManager {
+public final class LauncherApplicationManager {
     private static final String TAG = "Applications";
     private static LauncherApplicationManager instance = null;
     private final BroadcastReceiver receiver;
@@ -64,7 +64,7 @@ public class LauncherApplicationManager {
         this.applicationMap = new HashMap<>();
         this.listeners = new ArrayList<>();
         this.hiddenSettings = activity.getSharedPreferences(Entry.HIDDEN_APPS);
-        this.iconPacks = IconPackManager.from(activity);
+        this.iconPacks = IconPackManager.from(activity, this::updateIcons);
 
         this.receiver = new BroadcastReceiver() {
             @Override
@@ -232,6 +232,12 @@ public class LauncherApplicationManager {
         }
 
         return instance;
+    }
+
+    void updateIcons() {
+        for (LauncherApplication application : applicationListHidden) {
+            iconPacks.updateIcon(application, this::notifyUpdate);
+        }
     }
 
     private void notifyUpdate(LauncherApplication application) {

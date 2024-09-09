@@ -15,11 +15,12 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.sheet.drawer.apps.categories;
+package com.stario.launcher.apps.categories;
 
 import androidx.annotation.Nullable;
 
-import com.stario.launcher.sheet.drawer.apps.LauncherApplication;
+import com.stario.launcher.apps.LauncherApplication;
+import com.stario.launcher.utils.UiUtils;
 
 import java.util.ArrayList;
 
@@ -48,51 +49,58 @@ public class Category {
     }
 
     void addApplication(LauncherApplication applicationToAdd) {
-        int left = 0;
-        int right = applications.size() - 1;
+        UiUtils.runOnUIThread(() -> {
+            int left = 0;
+            int right = applications.size() - 1;
 
-        while (left <= right) {
-            int middle = (left + right) / 2;
+            while (left <= right) {
+                int middle = (left + right) / 2;
 
-            LauncherApplication application = applications.get(middle);
-            int compareValue = application.getLabel()
-                    .compareTo(applicationToAdd.getLabel());
+                LauncherApplication application = applications.get(middle);
+                int compareValue = application.getLabel()
+                        .compareTo(applicationToAdd.getLabel());
 
-            if (compareValue < 0) {
-                left = middle + 1;
-            } else if (compareValue > 0) {
-                right = middle - 1;
-            } else {
-                return;
+                if (compareValue < 0) {
+                    left = middle + 1;
+                } else if (compareValue > 0) {
+                    right = middle - 1;
+                } else {
+                    return;
+                }
             }
-        }
 
-        applications.add(left, applicationToAdd);
+            for (CategoryItemListener listener : listeners) {
+                listener.onPrepareInsertion(applicationToAdd);
+            }
 
-        for (CategoryItemListener listener : listeners) {
-            listener.onInserted(applicationToAdd);
-        }
+            applications.add(left, applicationToAdd);
+
+            for (CategoryItemListener listener : listeners) {
+                listener.onInserted(applicationToAdd);
+            }
+        });
     }
 
     void removeApplication(String packageName) {
-        for (int index = 0; index < applications.size(); index++) {
-            LauncherApplication application = applications.get(index);
+        UiUtils.runOnUIThread(() -> {
+            for (int index = 0; index < applications.size(); index++) {
+                LauncherApplication application = applications.get(index);
 
-            //TODO can this throw a concurrent modification exception?
-            if (application.getInfo().packageName.equals(packageName)) {
-                for (CategoryItemListener listener : listeners) {
-                    listener.onPrepareRemoval(application);
+                if (application.getInfo().packageName.equals(packageName)) {
+                    for (CategoryItemListener listener : listeners) {
+                        listener.onPrepareRemoval(application);
+                    }
+
+                    applications.remove(index);
+
+                    for (CategoryItemListener listener : listeners) {
+                        listener.onRemoved(application);
+                    }
+
+                    return;
                 }
-
-                applications.remove(index);
-
-                for (CategoryItemListener listener : listeners) {
-                    listener.onRemoved(application);
-                }
-
-                return;
             }
-        }
+        });
     }
 
     public int indexOf(LauncherApplication application) {
@@ -125,6 +133,15 @@ public class Category {
      * These callbacks do not guarantee that will be run on the UI thread
      */
     public interface CategoryItemListener {
+        /**
+         * This will always be called before {@link #onInserted(LauncherApplication)}
+         */
+        default void onPrepareInsertion(LauncherApplication application) {
+        }
+
+        /**
+         * This will always be called after {@link #onPrepareInsertion(LauncherApplication)}
+         */
         default void onInserted(LauncherApplication application) {
         }
 

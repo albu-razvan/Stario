@@ -15,7 +15,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.sheet.drawer.apps.categories;
+package com.stario.launcher.apps.categories;
 
 import android.app.Activity;
 import android.content.Context;

@@ -1,84 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:forceDarkAllowed="false">
+    android:background="@drawable/background_sheet">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroller"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="20dp"
         android:background="@drawable/background_sheet"
-        android:orientation="vertical"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_max="500dp">
+        android:clipToPadding="false"
+        android:overScrollMode="never">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <carbon.widget.ConstraintLayout
-                android:layout_width="40dp"
-                android:layout_height="4dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                android:alpha="0.3"
-                android:background="?attr/colorOnSurface"
-                app:carbon_cornerRadius="2dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <carbon.widget.NestedScrollView
-            android:id="@+id/scroller"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:background="@drawable/background_sheet">
+            android:orientation="vertical">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_marginBottom="20dp"
+                android:fontFamily="@font/dm_sans_medium"
+                android:gravity="center"
+                android:letterSpacing="-0.03"
+                android:text="@string/widgets"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="30sp" />
 
-                <TextView
-                    android:id="@+id/title"
+            <carbon.widget.RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:carbon_cornerRadius="30dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/container_widgets"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="20dp"
-                    android:fontFamily="@font/dm_sans_medium"
-                    android:gravity="center"
-                    android:text="@string/widgets"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="30sp" />
+                    android:layout_height="match_parent"
+                    android:overScrollMode="never" />
 
-                <carbon.widget.RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="20dp"
-                    app:carbon_cornerRadius="30dp">
+            </carbon.widget.RelativeLayout>
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/container_widgets"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:nestedScrollingEnabled="false"
-                        android:overScrollMode="never" />
+        </LinearLayout>
 
-                </carbon.widget.RelativeLayout>
+    </androidx.core.widget.NestedScrollView>
 
-            </LinearLayout>
-
-        </carbon.widget.NestedScrollView>
-
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

@@ -17,11 +17,11 @@
 
 package com.stario.launcher.ui.icons;
 
-public enum PathAlgorithm {
+public enum PathCornerTreatmentAlgorithm {
     REGULAR,
     SQUIRCLE;
 
-    public static PathAlgorithm fromIdentifier(int identifier) {
+    public static PathCornerTreatmentAlgorithm fromIdentifier(int identifier) {
         if (identifier == 1) {
             return SQUIRCLE;
         } else {

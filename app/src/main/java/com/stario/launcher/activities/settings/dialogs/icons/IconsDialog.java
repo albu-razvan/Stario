@@ -17,9 +17,11 @@
 
 package com.stario.launcher.activities.settings.dialogs.icons;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -28,15 +30,18 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.slider.Slider;
 import com.stario.launcher.R;
+import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.preferences.Entry;
-import com.stario.launcher.sheet.drawer.apps.IconPackManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
-import com.stario.launcher.ui.icons.PathAlgorithm;
+import com.stario.launcher.ui.icons.PathCornerTreatmentAlgorithm;
 import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 
 public class IconsDialog extends ActionDialog {
     /**
@@ -66,6 +71,7 @@ public class IconsDialog extends ActionDialog {
         this.preferences = activity.getSharedPreferences(Entry.ICONS);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @NonNull
     @Override
     protected View inflateContent(LayoutInflater inflater) {
@@ -74,6 +80,34 @@ public class IconsDialog extends ActionDialog {
         Slider slider = root.findViewById(R.id.slider);
         MaterialButtonToggleGroup algorithm = root.findViewById(R.id.algorithm);
         RecyclerView recycler = root.findViewById(R.id.recycler);
+        recycler.setOnTouchListener(new View.OnTouchListener() {
+            private final BottomSheetBehavior<?> behavior;
+            private boolean scrolledToTop;
+
+            {
+                this.behavior = getBehavior();
+                this.scrolledToTop = true;
+
+                recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                        scrolledToTop = recyclerView.computeVerticalScrollOffset() == 0;
+                    }
+                });
+            }
+
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_CANCEL ||
+                        event.getAction() == MotionEvent.ACTION_UP) {
+                    behavior.setDraggable(true);
+                } else {
+                    behavior.setDraggable(scrolledToTop);
+                }
+
+                return false;
+            }
+        });
 
         Measurements.addNavListener(value -> content.setPadding(0, 0, 0, value));
 
@@ -91,11 +125,11 @@ public class IconsDialog extends ActionDialog {
             localBroadcastManager.sendBroadcastSync(intent);
         });
 
-        PathAlgorithm currentPathAlgorithm = PathAlgorithm.fromIdentifier(
+        PathCornerTreatmentAlgorithm currentPathCornerTreatmentAlgorithm = PathCornerTreatmentAlgorithm.fromIdentifier(
                 preferences.getInt(IconPackManager.PATH_ALGORITHM_ENTRY, 0)
         );
 
-        if (currentPathAlgorithm == PathAlgorithm.SQUIRCLE) {
+        if (currentPathCornerTreatmentAlgorithm == PathCornerTreatmentAlgorithm.SQUIRCLE) {
             algorithm.check(R.id.squircle);
         } else {
             algorithm.check(R.id.regular);
@@ -105,24 +139,26 @@ public class IconsDialog extends ActionDialog {
             Intent intent = new Intent(INTENT_CHANGE_PATH_ALGORITHM);
 
             if (checkedId == R.id.squircle && isChecked) {
-                intent.putExtra(EXTRA_PATH_ALGORITHM, PathAlgorithm.SQUIRCLE);
+                intent.putExtra(EXTRA_PATH_ALGORITHM, PathCornerTreatmentAlgorithm.SQUIRCLE);
 
                 preferences.edit()
                         .putInt(IconPackManager.PATH_ALGORITHM_ENTRY,
-                                PathAlgorithm.SQUIRCLE.ordinal())
+                                PathCornerTreatmentAlgorithm.SQUIRCLE.ordinal())
                         .apply();
             } else {
-                intent.putExtra(EXTRA_PATH_ALGORITHM, PathAlgorithm.REGULAR);
+                intent.putExtra(EXTRA_PATH_ALGORITHM, PathCornerTreatmentAlgorithm.REGULAR);
 
                 preferences.edit()
                         .putInt(IconPackManager.PATH_ALGORITHM_ENTRY,
-                                PathAlgorithm.REGULAR.ordinal())
+                                PathCornerTreatmentAlgorithm.REGULAR.ordinal())
                         .apply();
             }
 
             localBroadcastManager.sendBroadcastSync(intent);
         });
 
+        recycler.addItemDecoration(new DividerItemDecorator(getContext(),
+                MaterialDividerItemDecoration.VERTICAL));
         recycler.setLayoutManager(new LinearLayoutManager(activity,
                 LinearLayoutManager.VERTICAL, false));
         recycler.setAdapter(adapter);

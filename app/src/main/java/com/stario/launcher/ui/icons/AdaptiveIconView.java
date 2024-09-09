@@ -38,7 +38,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.stario.launcher.R;
 import com.stario.launcher.activities.settings.dialogs.icons.IconsDialog;
 import com.stario.launcher.preferences.Entry;
-import com.stario.launcher.sheet.drawer.apps.IconPackManager;
+import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.utils.objects.ObjectInvalidateDelegate;
 import com.stario.launcher.utils.objects.ObjectRemeasureDelegate;
@@ -48,7 +48,7 @@ import java.io.Serializable;
 public class AdaptiveIconView extends View {
     public static final float MAX_SCALE = 1.15f;
     private ObjectRemeasureDelegate<Float> radius;
-    private ObjectRemeasureDelegate<PathAlgorithm> pathAlgorithm;
+    private ObjectRemeasureDelegate<PathCornerTreatmentAlgorithm> pathAlgorithm;
     private ObjectInvalidateDelegate<Drawable> icon;
     private LocalBroadcastManager localBroadcastManager;
     private BroadcastReceiver radiusReceiver;
@@ -89,10 +89,10 @@ public class AdaptiveIconView extends View {
             public void onReceive(Context context, Intent intent) {
                 Serializable serializable = intent.getSerializableExtra(IconsDialog.EXTRA_PATH_ALGORITHM);
 
-                if (serializable instanceof PathAlgorithm) {
-                    pathAlgorithm.setValue((PathAlgorithm) serializable);
+                if (serializable instanceof PathCornerTreatmentAlgorithm) {
+                    pathAlgorithm.setValue((PathCornerTreatmentAlgorithm) serializable);
                 } else {
-                    pathAlgorithm.setValue(PathAlgorithm.REGULAR);
+                    pathAlgorithm.setValue(PathCornerTreatmentAlgorithm.REGULAR);
                 }
             }
         };
@@ -110,7 +110,7 @@ public class AdaptiveIconView extends View {
         this.path = new Path();
         this.icon = new ObjectInvalidateDelegate<>(this);
         this.pathAlgorithm = new ObjectRemeasureDelegate<>(this,
-                PathAlgorithm.fromIdentifier(
+                PathCornerTreatmentAlgorithm.fromIdentifier(
                         preferences.getInt(IconPackManager.PATH_ALGORITHM_ENTRY, 0)
                 )
         );
@@ -129,10 +129,10 @@ public class AdaptiveIconView extends View {
         localBroadcastManager.registerReceiver(squircleReceiver,
                 new IntentFilter(IconsDialog.INTENT_CHANGE_PATH_ALGORITHM));
 
-        PathAlgorithm currentPathAlgorithm = PathAlgorithm
+        PathCornerTreatmentAlgorithm currentPathCornerTreatmentAlgorithm = PathCornerTreatmentAlgorithm
                 .fromIdentifier(preferences.getInt(IconPackManager.PATH_ALGORITHM_ENTRY, 0));
-        if (!pathAlgorithm.getValue().equals(currentPathAlgorithm)) {
-            this.pathAlgorithm.setValue(currentPathAlgorithm);
+        if (!pathAlgorithm.getValue().equals(currentPathCornerTreatmentAlgorithm)) {
+            this.pathAlgorithm.setValue(currentPathCornerTreatmentAlgorithm);
         }
 
         Float currentRadius = preferences.getFloat(IconPackManager.CORNER_RADIUS_ENTRY, 1f);
@@ -182,7 +182,7 @@ public class AdaptiveIconView extends View {
     }
 
     private void updateClipPath(int width, int height) {
-        if (pathAlgorithm.getValue() == PathAlgorithm.SQUIRCLE) {
+        if (pathAlgorithm.getValue() == PathCornerTreatmentAlgorithm.SQUIRCLE) {
             createClipPathSquircle(width, height);
         } else {
             createClipPathRegular(width, height);

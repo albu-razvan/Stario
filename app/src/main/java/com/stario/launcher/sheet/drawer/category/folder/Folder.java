@@ -29,7 +29,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import com.stario.launcher.R;
 import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.DrawerPage;
-import com.stario.launcher.sheet.drawer.apps.categories.CategoryData;
+import com.stario.launcher.apps.categories.CategoryData;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.recyclers.async.InflationType;
 

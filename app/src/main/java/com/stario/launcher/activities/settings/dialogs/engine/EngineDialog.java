@@ -25,10 +25,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
 import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 
 public class EngineDialog extends ActionDialog {
     public EngineDialog(@NonNull ThemedActivity activity) {
@@ -46,6 +48,7 @@ public class EngineDialog extends ActionDialog {
 
         recycler.setLayoutManager(new LinearLayoutManager(activity,
                 LinearLayoutManager.VERTICAL, false));
+        recycler.addItemDecoration(new DividerItemDecorator(activity, MaterialDividerItemDecoration.VERTICAL));
         recycler.setAdapter(new EngineRecyclerAdapter(activity, v -> dismiss()));
 
         return root;

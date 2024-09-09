@@ -20,16 +20,16 @@ package com.stario.launcher.sheet.drawer.category.folder;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.stario.launcher.apps.LauncherApplication;
+import com.stario.launcher.apps.categories.Category;
+import com.stario.launcher.apps.categories.CategoryData;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
-import com.stario.launcher.sheet.drawer.apps.LauncherApplication;
-import com.stario.launcher.sheet.drawer.apps.categories.Category;
-import com.stario.launcher.sheet.drawer.apps.categories.CategoryData;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.UiUtils;
 
 class FolderAdapter extends RecyclerApplicationAdapter {
+    private final Category.CategoryItemListener listener;
     private final Category category;
-    private Category.CategoryItemListener listener;
 
     public FolderAdapter(ThemedActivity activity, int categoryID) {
         super(activity);
@@ -37,51 +37,58 @@ class FolderAdapter extends RecyclerApplicationAdapter {
         this.category = CategoryData.getInstance()
                 .getByID(categoryID);
 
-        if (category != null) {
-            listener = new Category.CategoryItemListener() {
-                int preparedRemovalIndex = -1;
+        listener = new Category.CategoryItemListener() {
+            int preparedRemovalIndex = -1;
 
-                @Override
-                public void onInserted(LauncherApplication application) {
-                    int index = category.indexOf(application);
+            @Override
+            public void onInserted(LauncherApplication application) {
+                int index = category.indexOf(application);
 
-                    if (index >= 0) {
-                        UiUtils.runOnUIThread(() -> notifyItemInserted(index));
-                    }
+                if (index >= 0) {
+                    notifyItemInserted(index);
                 }
+            }
 
-                @Override
-                public void onPrepareRemoval(LauncherApplication application) {
-                    preparedRemovalIndex = category.indexOf(application);
+            @Override
+            public void onPrepareRemoval(LauncherApplication application) {
+                preparedRemovalIndex = category.indexOf(application);
+            }
+
+            @Override
+            public void onRemoved(LauncherApplication application) {
+                if (preparedRemovalIndex >= 0) {
+                    UiUtils.runOnUIThread(() -> notifyItemRemoved(preparedRemovalIndex));
+
+                    preparedRemovalIndex = -1;
+                } else {
+                    notifyDataSetChanged();
                 }
+            }
 
-                @Override
-                public void onRemoved(LauncherApplication application) {
-                    if (preparedRemovalIndex >= 0) {
-                        UiUtils.runOnUIThread(() -> notifyItemRemoved(preparedRemovalIndex));
+            @Override
+            public void onUpdated(LauncherApplication application) {
+                int index = category.indexOf(application);
 
-                        preparedRemovalIndex = -1;
-                    } else {
-                        UiUtils.runOnUIThread(() -> notifyDataSetChanged());
-                    }
+                if (index >= 0) {
+                    notifyItemChanged(index);
                 }
+            }
+        };
+    }
 
-                @Override
-                public void onUpdated(LauncherApplication application) {
-                    int index = category.indexOf(application);
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
 
-                    if (index >= 0) {
-                        UiUtils.runOnUIThread(() -> notifyItemChanged(index));
-                    }
-                }
-            };
-
+        if (category != null && listener != null) {
             category.addCategoryItemListener(listener);
         }
     }
 
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+
         if (category != null && listener != null) {
             category.removeCategoryItemListener(listener);
         }

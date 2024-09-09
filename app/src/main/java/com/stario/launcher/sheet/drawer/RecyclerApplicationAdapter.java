@@ -38,7 +38,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.stario.launcher.R;
 import com.stario.launcher.preferences.Vibrations;
-import com.stario.launcher.sheet.drawer.apps.LauncherApplication;
+import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;

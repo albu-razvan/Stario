@@ -24,12 +24,16 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
-import com.stario.launcher.sheet.drawer.apps.IconPackManager;
+import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
+import com.stario.launcher.utils.UiUtils;
+
+import java.util.concurrent.CompletableFuture;
 
 public class IconsRecyclerAdapter extends RecyclerView.Adapter<IconsRecyclerAdapter.ViewHolder> {
     private final ThemedActivity activity;
@@ -46,35 +50,56 @@ public class IconsRecyclerAdapter extends RecyclerView.Adapter<IconsRecyclerAdap
     protected static class ViewHolder extends RecyclerView.ViewHolder {
         private final AdaptiveIconView icon;
         private final TextView label;
+        private final TextView count;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
             icon = itemView.findViewById(R.id.icon);
             label = itemView.findViewById(R.id.label);
+            count = itemView.findViewById(R.id.count);
         }
     }
 
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
-        if(position < getItemCount() - 1) {
+        if (position < getItemCount() - 1) {
             IconPackManager.IconPack pack = manager.getPack(position);
 
             viewHolder.label.setText(pack.getLabel());
             viewHolder.icon.setIcon(pack.getIcon());
+
+            viewHolder.count.setVisibility(View.VISIBLE);
+            viewHolder.count.setText(R.string.calculating);
+
+            CompletableFuture<Integer> future = pack.getComponentCount();
+            future.thenAccept(integer ->
+                    UiUtils.runOnUIThread(() ->
+                            viewHolder.count.setText(String.format("%,d", integer) + " " +
+                                    activity.getResources().getString(R.string.components))));
+
+            viewHolder.itemView.setOnClickListener(v -> {
+                manager.setActiveIconPack(pack);
+
+                if (listener != null) {
+                    listener.onClick(v);
+                }
+            });
         } else {
             viewHolder.label.setText(R.string.default_text);
-            viewHolder.icon.setIcon(null);
+            viewHolder.icon.setIcon(AppCompatResources.getDrawable(activity, R.mipmap.ic_launcher));
+
+            viewHolder.count.setVisibility(View.GONE);
+
+            viewHolder.itemView.setOnClickListener(v -> {
+                manager.setActiveIconPack(null);
+
+                if (listener != null) {
+                    listener.onClick(v);
+                }
+            });
         }
-
-        /*viewHolder.itemView.setOnClickListener(v -> {
-            engine.setDefaultFor(activity);
-
-            if (listener != null) {
-                listener.onClick(v);
-            }
-        });*/
     }
 
     @Override
