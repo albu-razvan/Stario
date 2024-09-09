@@ -20,7 +20,6 @@ package com.stario.launcher.apps.categories;
 import androidx.annotation.Nullable;
 
 import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.utils.UiUtils;
 
 import java.util.ArrayList;
 
@@ -49,58 +48,54 @@ public class Category {
     }
 
     void addApplication(LauncherApplication applicationToAdd) {
-        UiUtils.runOnUIThread(() -> {
-            int left = 0;
-            int right = applications.size() - 1;
+        int left = 0;
+        int right = applications.size() - 1;
 
-            while (left <= right) {
-                int middle = (left + right) / 2;
+        while (left <= right) {
+            int middle = (left + right) / 2;
 
-                LauncherApplication application = applications.get(middle);
-                int compareValue = application.getLabel()
-                        .compareTo(applicationToAdd.getLabel());
+            LauncherApplication application = applications.get(middle);
+            int compareValue = application.getLabel()
+                    .compareTo(applicationToAdd.getLabel());
 
-                if (compareValue < 0) {
-                    left = middle + 1;
-                } else if (compareValue > 0) {
-                    right = middle - 1;
-                } else {
-                    return;
-                }
+            if (compareValue < 0) {
+                left = middle + 1;
+            } else if (compareValue > 0) {
+                right = middle - 1;
+            } else {
+                return;
             }
+        }
 
-            for (CategoryItemListener listener : listeners) {
-                listener.onPrepareInsertion(applicationToAdd);
-            }
+        for (CategoryItemListener listener : listeners) {
+            listener.onPrepareInsertion(applicationToAdd);
+        }
 
-            applications.add(left, applicationToAdd);
+        applications.add(left, applicationToAdd);
 
-            for (CategoryItemListener listener : listeners) {
-                listener.onInserted(applicationToAdd);
-            }
-        });
+        for (CategoryItemListener listener : listeners) {
+            listener.onInserted(applicationToAdd);
+        }
     }
 
     void removeApplication(String packageName) {
-        UiUtils.runOnUIThread(() -> {
-            for (int index = 0; index < applications.size(); index++) {
-                LauncherApplication application = applications.get(index);
+        for (int index = 0; index < applications.size(); index++) {
+            LauncherApplication application = applications.get(index);
 
-                if (application.getInfo().packageName.equals(packageName)) {
-                    for (CategoryItemListener listener : listeners) {
-                        listener.onPrepareRemoval(application);
-                    }
-
-                    applications.remove(index);
-
-                    for (CategoryItemListener listener : listeners) {
-                        listener.onRemoved(application);
-                    }
-
-                    return;
+            if (application.getInfo().packageName.equals(packageName)) {
+                for (CategoryItemListener listener : listeners) {
+                    listener.onPrepareRemoval(application);
                 }
+
+                applications.remove(index);
+
+                for (CategoryItemListener listener : listeners) {
+                    listener.onRemoved(application);
+                }
+
+                return;
             }
-        });
+        }
     }
 
     public int indexOf(LauncherApplication application) {

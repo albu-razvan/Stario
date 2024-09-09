@@ -25,6 +25,7 @@ import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.utils.UiUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,11 +36,13 @@ public class CategoryData {
     private static final int NO_CATEGORY = -1;
     private static CategoryData instance = null;
     private final HashMap<Integer, Object> categoryResources;
+    private final SharedPreferences hiddenPreferences;
     private final ArrayList<Category> categories;
     private CategoryListener categoryListener;
 
     private CategoryData(ThemedActivity activity) {
         this.categories = new ArrayList<>();
+        this.hiddenPreferences = activity.getSharedPreferences(Entry.HIDDEN_APPS);
         this.categoryResources = new HashMap<>() {{
             putIfAbsent(-1, R.string.unsorted);
             putIfAbsent(0, R.string.games);
@@ -183,13 +186,17 @@ public class CategoryData {
     }
 
     public void addApplication(LauncherApplication application) {
-        int index = containsCategory(application.getCategory());
+        if (!hiddenPreferences.contains(application.getInfo().packageName)) {
+            int index = containsCategory(application.getCategory());
 
-        if (index == NO_CATEGORY) {
-            index = addCategory(application.getCategory());
+            if (index == NO_CATEGORY) {
+                index = addCategory(application.getCategory());
+            }
+
+            Category category = get(index);
+            UiUtils.runOnUIThread(() ->
+                    category.addApplication(application));
         }
-
-        get(index).addApplication(application);
     }
 
     public void removeApplication(LauncherApplication application) {
@@ -198,19 +205,21 @@ public class CategoryData {
         if (index != NO_CATEGORY) {
             Category category = get(index);
 
-            category.removeApplication(application.getInfo().packageName);
+            UiUtils.runOnUIThread(() -> {
+                category.removeApplication(application.getInfo().packageName);
 
-            if (category.getSize() == 0) {
-                if (categoryListener != null) {
-                    categoryListener.onPrepareRemoval(category);
+                if (category.getSize() == 0) {
+                    if (categoryListener != null) {
+                        categoryListener.onPrepareRemoval(category);
+                    }
+
+                    categories.remove(index);
+
+                    if (categoryListener != null) {
+                        categoryListener.onRemoved(category);
+                    }
                 }
-
-                categories.remove(index);
-
-                if (categoryListener != null) {
-                    categoryListener.onRemoved(category);
-                }
-            }
+            });
         }
     }
 
