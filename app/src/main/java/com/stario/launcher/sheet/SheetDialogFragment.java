@@ -25,6 +25,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -40,6 +42,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.themes.ThemedActivity;
@@ -149,6 +152,15 @@ public abstract class SheetDialogFragment extends AppCompatDialogFragment {
 
             dialog.behavior.setState(SheetBehavior.STATE_COLLAPSED);
 
+            if (window != null) {
+                Drawable background = new ColorDrawable(
+                        activity.getAttributeData(com.google.android.material.R.attr.colorSurface, false)
+                );
+                background.setAlpha(0);
+
+                window.setBackgroundDrawable(background);
+            }
+
             dialog.behavior.addSheetCallback(new SheetBehavior.SheetCallback() {
                 private int lastBlurStep = -1;
                 boolean wasCollapsed = true;
@@ -173,6 +185,9 @@ public abstract class SheetDialogFragment extends AppCompatDialogFragment {
                 @Override
                 public void onSlide(@NonNull View sheet, float slideOffset) {
                     if (window != null) {
+                        Drawable background = window.getDecorView().getBackground();
+                        background.setAlpha((int) (Launcher.MAX_BACKGROUND_ALPHA * slideOffset));
+
                         // only STEP_COUNT states for performance
                         int step = (int) (STEP_COUNT * slideOffset);
 

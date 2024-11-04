@@ -34,7 +34,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -74,10 +73,10 @@ public class WidgetsDialog extends SheetDialogFragment {
     private WidgetConfigurator configurator;
     private SharedPreferences widgetStore;
     private AppWidgetManager manager;
+    private ViewGroup placeholder;
     private WidgetHost host;
     private WidgetGrid grid;
     private LinearLayout content;
-    private TextView add;
 
     public WidgetsDialog() {
         super();
@@ -127,10 +126,13 @@ public class WidgetsDialog extends SheetDialogFragment {
         View view = inflater.inflate(R.layout.widget_grid, container, false);
 
         content = view.findViewById(R.id.content);
+        placeholder = view.findViewById(R.id.placeholder);
         grid = view.findViewById(R.id.grid);
-        add = view.findViewById(R.id.add);
         WidgetScroller scroller = view.findViewById(R.id.scroller);
         FadingEdgeLayout fader = view.findViewById(R.id.fader);
+
+        placeholder.findViewById(R.id.add_button)
+                .setOnClickListener((v) -> showConfigurator());
 
         content.setOnLongClickListener(v -> {
             showConfigurator();
@@ -143,8 +145,6 @@ public class WidgetsDialog extends SheetDialogFragment {
         transition.disableTransitionType(LayoutTransition.CHANGING);
 
         content.setLayoutTransition(transition);
-
-        add.setOnClickListener(v -> showConfigurator());
 
         Measurements.addNavListener(value -> {
             fader.setFadeSizes(Measurements.getSysUIHeight() +
@@ -210,7 +210,7 @@ public class WidgetsDialog extends SheetDialogFragment {
     }
 
     private void showConfigurator() {
-        if (configurator == null) {
+        if (configurator == null || !activity.equals(configurator.getContext())) {
             configurator = new WidgetConfigurator(activity, this::addWidget);
 
             configurator.setOnShowListener(dialog -> content.animate()
@@ -248,14 +248,6 @@ public class WidgetsDialog extends SheetDialogFragment {
         configurator.dismiss();
     }
 
-    /*
-
-     */
-
-    /*
-
-     */
-
     private void configureWidget(AppWidgetManager manager, int identifier, WidgetSize size) {
         Widget widget = new Widget(identifier, grid.allocatePosition(), size);
         AppWidgetHostView host = createWidget(manager, widget);
@@ -270,6 +262,7 @@ public class WidgetsDialog extends SheetDialogFragment {
                             .apply();
 
                     grid.attach(host, widget);
+                    placeholder.setVisibility(View.GONE);
                 } else {
                     getWidgetHost().deleteAppWidgetId(host.getAppWidgetId());
                 }
@@ -287,6 +280,15 @@ public class WidgetsDialog extends SheetDialogFragment {
             }
         } catch (ActivityNotFoundException exception) {
             activity.removeOnActivityResultListener(CONFIGURATION_CODE);
+
+            String serialized = widget.serialize();
+
+            widgetStore.edit()
+                    .putString(String.valueOf(identifier), serialized)
+                    .apply();
+
+            grid.attach(host, widget);
+            placeholder.setVisibility(View.GONE);
 
             Log.w(TAG, "No configure activity found for identifier " + identifier);
         }
@@ -343,6 +345,8 @@ public class WidgetsDialog extends SheetDialogFragment {
 
         getWidgetHost().deleteAppWidgetId(host.getAppWidgetId());
         grid.removeView((View) (host.getParent()));
+
+        placeholder.setVisibility(grid.getChildCount() == 0 ? View.VISIBLE : View.GONE);
     }
 
     public @NonNull WidgetHost getWidgetHost() {
@@ -394,9 +398,9 @@ public class WidgetsDialog extends SheetDialogFragment {
                 AppWidgetHostView host = createWidget(manager, widget);
                 grid.attach(host, widget);
 
+                placeholder.setVisibility(View.GONE);
+
                 UiUtils.runOnUIThreadDelayed(this, Animation.SHORT.getDuration());
-            } else {
-                add.setVisibility(View.VISIBLE);
             }
         }
     }

@@ -163,6 +163,15 @@ public abstract class ActionDialog extends BottomSheetDialog {
     }
 
     @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+
+        if (!hasFocus) {
+            dismiss();
+        }
+    }
+
+    @Override
     protected void onStop() {
         dismiss();
 

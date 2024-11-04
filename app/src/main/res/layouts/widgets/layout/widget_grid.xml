@@ -33,20 +33,39 @@
                 android:gravity="bottom"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/add"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/dm_sans_medium"
+                <LinearLayout
+                    android:id="@+id/placeholder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_margin="20dp"
                     android:gravity="center"
-                    android:letterSpacing="-0.03"
-                    android:lines="1"
-                    android:padding="20dp"
-                    android:text="@string/create_a_widget"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="30sp"
-                    android:visibility="invisible" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:fontFamily="@font/dm_sans_regular"
+                        android:text="@string/nothing_here_yet"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="20sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/add_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="?attr/colorTertiaryContainer"
+                        android:fontFamily="@font/dm_sans_regular"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="5dp"
+                        android:paddingBottom="5dp"
+                        android:text="@string/create_a_widget"
+                        android:textColor="?attr/colorOnTertiaryContainer"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
 
                 <com.stario.launcher.ui.widgets.WidgetGrid
                     android:id="@+id/grid"

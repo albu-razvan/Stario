@@ -128,7 +128,7 @@ public class Settings extends ThemedActivity {
             @Override
             public void onCheckedChanged(CompoundButton compound, boolean isChecked) {
                 if (isChecked && !Utils.isNotificationServiceEnabled(Settings.this)) {
-                    if (dialog == null) {
+                    if (dialog == null || !Settings.this.equals(dialog.getContext())) {
                         dialog = new NotificationConfigurator(Settings.this);
 
                         dialog.setOnDismissListener(dialog -> checkNotificationPermission());
@@ -149,7 +149,7 @@ public class Settings extends ThemedActivity {
             @Override
             public void onCheckedChanged(CompoundButton compound, boolean isChecked) {
                 if (isChecked && !Utils.isAccessibilityServiceEnabled(Settings.this)) {
-                    if (dialog == null) {
+                    if (dialog == null || !Settings.this.equals(dialog.getContext())) {
                         dialog = new AccessibilityConfigurator(Settings.this);
 
                         dialog.setOnDismissListener(dialog -> checkAccessibilityPermission());
@@ -189,7 +189,7 @@ public class Settings extends ThemedActivity {
 
             @Override
             public void onClick(View view) {
-                if (dialog == null) {
+                if (dialog == null || !Settings.this.equals(dialog.getContext())) {
                     dialog = new EngineDialog(Settings.this);
 
                     dialog.setOnDismissListener(dialog ->
@@ -205,7 +205,7 @@ public class Settings extends ThemedActivity {
 
             @Override
             public void onClick(View view) {
-                if (dialog == null) {
+                if (dialog == null || !Settings.this.equals(dialog.getContext())) {
                     dialog = new HideApplicationsDialog(Settings.this);
 
                     dialog.setOnDismissListener(dialog ->
@@ -222,7 +222,7 @@ public class Settings extends ThemedActivity {
 
             @Override
             public void onClick(View view) {
-                if (dialog == null) {
+                if (dialog == null || !Settings.this.equals(dialog.getContext())) {
                     dialog = new IconsDialog(Settings.this);
 
                     dialog.setOnDismissListener(dialog ->
@@ -238,7 +238,7 @@ public class Settings extends ThemedActivity {
 
             @Override
             public void onClick(View view) {
-                if (dialog == null) {
+                if (dialog == null || !Settings.this.equals(dialog.getContext())) {
                     dialog = new LicensesDialog(Settings.this);
                 }
 

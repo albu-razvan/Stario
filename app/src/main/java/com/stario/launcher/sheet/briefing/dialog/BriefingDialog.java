@@ -193,7 +193,7 @@ public class BriefingDialog extends SheetDialogFragment {
 
             @Override
             public void onClick(View view) {
-                if (configurator == null) {
+                if (configurator == null || !activity.equals(configurator.getContext())) {
                     configurator = new BriefingConfigurator(activity);
 
                     configurator.setOnShowListener(dialog -> root.animate()
