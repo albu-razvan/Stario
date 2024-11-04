@@ -82,23 +82,17 @@ public class WidgetsDialog extends SheetDialogFragment {
 
     public WidgetsDialog() {
         super();
+        
+        init();
     }
 
     public WidgetsDialog(SheetType type) {
         super(type);
+        
+        init();
     }
 
-    public static int getWidgetCellSize() {
-        return columnSize;
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-
-        this.manager = AppWidgetManager.getInstance(activity);
-        this.widgetStore = activity.getSharedPreferences(Entry.WIDGETS);
-
+    private void init() {
         attachWidgetRequest = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -112,13 +106,19 @@ public class WidgetsDialog extends SheetDialogFragment {
                             if (provider != null) {
                                 WidgetSize size = (WidgetSize) data.getSerializableExtra(WIDGET_SIZE);
 
-                                manager.bindAppWidgetIdIfAllowed(identifier, provider);
-
                                 createWidget(manager, identifier, size);
                             }
                         }
                     }
                 });
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        this.manager = AppWidgetManager.getInstance(activity);
+        this.widgetStore = activity.getSharedPreferences(Entry.WIDGETS);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -206,6 +206,10 @@ public class WidgetsDialog extends SheetDialogFragment {
         return view;
     }
 
+    public static int getWidgetCellSize() {
+        return columnSize;
+    }
+
     private void showConfigurator() {
         if (configurator == null) {
             configurator = new WidgetConfigurator(activity, this::addWidget);
@@ -227,7 +231,7 @@ public class WidgetsDialog extends SheetDialogFragment {
     private void addWidget(AppWidgetProviderInfo info, WidgetSize size) {
         if (grid.getChildCount() <= MAX_COUNT) {
             int identifier = getWidgetHost().allocateAppWidgetId();
-            boolean allowed = manager.bindAppWidgetIdIfAllowed(identifier, info.provider);
+            boolean allowed = manager.bindAppWidgetIdIfAllowed(identifier, info.getProfile(), info.provider, null);
 
             if (!allowed) {
                 Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
@@ -266,7 +270,8 @@ public class WidgetsDialog extends SheetDialogFragment {
 
     private void attachWidget(AppWidgetManager manager, Widget widget) {
         AppWidgetProviderInfo info = manager.getAppWidgetInfo(widget.id);
-        AppWidgetHostView host = getWidgetHost().createView(activity.getApplicationContext(), widget.id, info);
+        AppWidgetHostView host = getWidgetHost()
+                .createView(activity.getApplicationContext(), widget.id, info);
 
         host.setOnLongClickListener(v -> {
             Vibrations.getInstance().vibrate();
@@ -319,6 +324,8 @@ public class WidgetsDialog extends SheetDialogFragment {
     public @NonNull WidgetHost getWidgetHost() {
         if (host == null) {
             host = new WidgetHost(activity, HOST_ID);
+
+            host.startListening();
         }
 
         return host;
