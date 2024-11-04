@@ -62,11 +62,9 @@ public class FullscreenDialog extends AppCompatDialog {
             if (blur && Utils.isMinimumSDK(31)) {
                 window.setDimAmount(0.001f); // some devices do not blur if the dim value is equal to 0
 
-                window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND |
-                        WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+                window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             } else {
-                window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND |
-                        WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+                window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             }
 
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,

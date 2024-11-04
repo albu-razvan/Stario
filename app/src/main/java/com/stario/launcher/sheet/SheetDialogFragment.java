@@ -150,6 +150,7 @@ public abstract class SheetDialogFragment extends AppCompatDialogFragment {
             dialog.behavior.setState(SheetBehavior.STATE_COLLAPSED);
 
             dialog.behavior.addSheetCallback(new SheetBehavior.SheetCallback() {
+                private int lastBlurStep = -1;
                 boolean wasCollapsed = true;
 
                 @Override
@@ -175,14 +176,10 @@ public abstract class SheetDialogFragment extends AppCompatDialogFragment {
                         // only STEP_COUNT states for performance
                         int step = (int) (STEP_COUNT * slideOffset);
 
-                        if (Utils.isMinimumSDK(31)) {
-                            WindowManager.LayoutParams attributes = window.getAttributes();
+                        if (Utils.isMinimumSDK(31) && lastBlurStep != step) {
+                            window.setBackgroundBlurRadius((int) (step * BLUR_STEP));
 
-                            if (attributes.getBlurBehindRadius() != (int) (step * BLUR_STEP)) {
-                                attributes.setBlurBehindRadius((int) (step * BLUR_STEP));
-
-                                window.setAttributes(attributes);
-                            }
+                            this.lastBlurStep = step;
                         }
                     }
 

@@ -51,6 +51,7 @@
         <item name="android:windowActivityTransitions">true</item>
         <item name="android:windowShowWallpaper">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:enforceNavigationBarContrast">false</item>
         <item name="android:navigationBarColor">#00000000</item>
@@ -64,6 +65,7 @@
     <style name="Theme.Light.Orange.Opaque" parent="Theme.Light.Orange">
         <item name="android:windowShowWallpaper">false</item>
         <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:forceDarkAllowed">false</item>
     </style>
@@ -119,6 +121,7 @@
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
         <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:enforceNavigationBarContrast">false</item>
         <item name="android:statusBarColor">#00000000</item>
@@ -175,6 +178,7 @@
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
         <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:enforceNavigationBarContrast">false</item>
         <item name="android:statusBarColor">#00000000</item>

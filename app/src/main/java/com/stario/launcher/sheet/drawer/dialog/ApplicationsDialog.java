@@ -17,10 +17,6 @@
 
 package com.stario.launcher.sheet.drawer.dialog;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.transition.Transition;
 import android.transition.TransitionListenerAdapter;
@@ -34,7 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.bosphere.fadingedgelayout.FadingEdgeLayout;
@@ -53,7 +48,6 @@ import com.stario.launcher.ui.recyclers.FastScroller;
 import com.stario.launcher.utils.animation.FragmentTransition;
 
 public class ApplicationsDialog extends SheetDialogFragment {
-    public static final String UNINSTALL_BROADCAST = "com.stario.UNINSTALL_BROADCAST";
     private static final String APPLICATIONS_PAGE = "com.stario.APPLICATIONS_PAGE";
     private CustomDurationViewPager pager;
     private ResumeListener listener;
@@ -204,18 +198,6 @@ public class ApplicationsDialog extends SheetDialogFragment {
                 });
             }
         });
-
-        LocalBroadcastManager.getInstance(activity)
-                .registerReceiver(new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
-                        SheetBehavior<?> behavior = getBehavior();
-
-                        if (behavior != null) {
-                            behavior.setState(SheetBehavior.STATE_COLLAPSED);
-                        }
-                    }
-                }, new IntentFilter(UNINSTALL_BROADCAST));
 
         pager.setCurrentItem(activity
                 .getSharedPreferences(Entry.DRAWER)
