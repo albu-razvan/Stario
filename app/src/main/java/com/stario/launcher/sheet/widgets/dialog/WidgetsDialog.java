@@ -19,7 +19,6 @@ package com.stario.launcher.sheet.widgets.dialog;
 
 import android.animation.LayoutTransition;
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
@@ -71,7 +70,7 @@ public class WidgetsDialog extends SheetDialogFragment {
     private static final int CONFIGURATION_CODE = 3264614;
     private static final String WIDGET_SIZE = "com.stario.launcher.WIDGET_SIZE";
     private static int columnSize = 0;
-    private ActivityResultLauncher<Intent> attachWidgetRequest;
+    private ActivityResultLauncher<Intent> bindWidgetRequest;
     private WidgetConfigurator configurator;
     private SharedPreferences widgetStore;
     private AppWidgetManager manager;
@@ -82,18 +81,18 @@ public class WidgetsDialog extends SheetDialogFragment {
 
     public WidgetsDialog() {
         super();
-        
+
         init();
     }
 
     public WidgetsDialog(SheetType type) {
         super(type);
-        
+
         init();
     }
 
     private void init() {
-        attachWidgetRequest = registerForActivityResult(
+        bindWidgetRequest = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
@@ -106,7 +105,7 @@ public class WidgetsDialog extends SheetDialogFragment {
                             if (provider != null) {
                                 WidgetSize size = (WidgetSize) data.getSerializableExtra(WIDGET_SIZE);
 
-                                createWidget(manager, identifier, size);
+                                configureWidget(manager, identifier, size);
                             }
                         }
                     }
@@ -240,35 +239,60 @@ public class WidgetsDialog extends SheetDialogFragment {
                 intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, identifier);
                 intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider);
 
-                attachWidgetRequest.launch(intent);
+                bindWidgetRequest.launch(intent);
             } else {
-                createWidget(manager, identifier, size);
+                configureWidget(manager, identifier, size);
             }
         }
 
         configurator.dismiss();
     }
 
-    private void createWidget(AppWidgetManager manager, int identifier, WidgetSize size) {
+    /*
+
+     */
+
+    /*
+
+     */
+
+    private void configureWidget(AppWidgetManager manager, int identifier, WidgetSize size) {
         Widget widget = new Widget(identifier, grid.allocatePosition(), size);
-        String serialized = widget.serialize();
-
-        widgetStore.edit()
-                .putString(String.valueOf(identifier), serialized)
-                .apply();
-
-        attachWidget(manager, widget);
+        AppWidgetHostView host = createWidget(manager, widget);
 
         try {
-            getWidgetHost().startAppWidgetConfigureActivityForResult(activity, identifier,
-                    Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED,
-                    CONFIGURATION_CODE, ActivityOptions.makeBasic().toBundle());
+            boolean result = activity.addOnActivityResultListener(CONFIGURATION_CODE, (resultCode, intent) -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    String serialized = widget.serialize();
+
+                    widgetStore.edit()
+                            .putString(String.valueOf(identifier), serialized)
+                            .apply();
+
+                    grid.attach(host, widget);
+                } else {
+                    getWidgetHost().deleteAppWidgetId(host.getAppWidgetId());
+                }
+
+                activity.removeOnActivityResultListener(CONFIGURATION_CODE);
+            });
+
+            if (!result) {
+                getWidgetHost().deleteAppWidgetId(host.getAppWidgetId());
+                activity.removeOnActivityResultListener(CONFIGURATION_CODE);
+            } else {
+                getWidgetHost().startAppWidgetConfigureActivityForResult(activity, identifier,
+                        Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED,
+                        CONFIGURATION_CODE, null);
+            }
         } catch (ActivityNotFoundException exception) {
+            activity.removeOnActivityResultListener(CONFIGURATION_CODE);
+
             Log.w(TAG, "No configure activity found for identifier " + identifier);
         }
     }
 
-    private void attachWidget(AppWidgetManager manager, Widget widget) {
+    private AppWidgetHostView createWidget(AppWidgetManager manager, Widget widget) {
         AppWidgetProviderInfo info = manager.getAppWidgetInfo(widget.id);
         AppWidgetHostView host = getWidgetHost()
                 .createView(activity.getApplicationContext(), widget.id, info);
@@ -299,7 +323,7 @@ public class WidgetsDialog extends SheetDialogFragment {
             return true;
         });
 
-        grid.attach(host, widget);
+        return host;
     }
 
     private void deleteWidget(AppWidgetHostView host) {
@@ -367,7 +391,8 @@ public class WidgetsDialog extends SheetDialogFragment {
             Widget widget = widgets.poll();
 
             if (widget != null) {
-                attachWidget(manager, widget);
+                AppWidgetHostView host = createWidget(manager, widget);
+                grid.attach(host, widget);
 
                 UiUtils.runOnUIThreadDelayed(this, Animation.SHORT.getDuration());
             } else {
