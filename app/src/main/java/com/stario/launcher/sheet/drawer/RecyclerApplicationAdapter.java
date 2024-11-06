@@ -34,12 +34,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.stario.launcher.R;
-import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
+import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.measurements.Measurements;
@@ -170,9 +168,6 @@ public abstract class RecyclerApplicationAdapter
                     view -> {
                         Intent intent = new Intent(Intent.ACTION_DELETE);
                         intent.setData(Uri.parse("package:" + application.getInfo().packageName));
-
-                        LocalBroadcastManager.getInstance(activity)
-                                .sendBroadcastSync(new Intent(ApplicationsDialog.UNINSTALL_BROADCAST));
 
                         activity.startActivity(intent);
                     }));

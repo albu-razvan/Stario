@@ -19,7 +19,6 @@ package com.stario.launcher.sheet.widgets.dialog;
 
 import android.animation.LayoutTransition;
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
@@ -35,7 +34,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -71,35 +69,29 @@ public class WidgetsDialog extends SheetDialogFragment {
     private static final int CONFIGURATION_CODE = 3264614;
     private static final String WIDGET_SIZE = "com.stario.launcher.WIDGET_SIZE";
     private static int columnSize = 0;
-    private ActivityResultLauncher<Intent> attachWidgetRequest;
+    private ActivityResultLauncher<Intent> bindWidgetRequest;
     private WidgetConfigurator configurator;
     private SharedPreferences widgetStore;
     private AppWidgetManager manager;
+    private ViewGroup placeholder;
     private WidgetHost host;
     private WidgetGrid grid;
     private LinearLayout content;
-    private TextView add;
 
     public WidgetsDialog() {
         super();
+
+        init();
     }
 
     public WidgetsDialog(SheetType type) {
         super(type);
+
+        init();
     }
 
-    public static int getWidgetCellSize() {
-        return columnSize;
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-
-        this.manager = AppWidgetManager.getInstance(activity);
-        this.widgetStore = activity.getSharedPreferences(Entry.WIDGETS);
-
-        attachWidgetRequest = registerForActivityResult(
+    private void init() {
+        bindWidgetRequest = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
@@ -112,13 +104,19 @@ public class WidgetsDialog extends SheetDialogFragment {
                             if (provider != null) {
                                 WidgetSize size = (WidgetSize) data.getSerializableExtra(WIDGET_SIZE);
 
-                                manager.bindAppWidgetIdIfAllowed(identifier, provider);
-
-                                createWidget(manager, identifier, size);
+                                configureWidget(manager, identifier, size);
                             }
                         }
                     }
                 });
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        this.manager = AppWidgetManager.getInstance(activity);
+        this.widgetStore = activity.getSharedPreferences(Entry.WIDGETS);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -128,10 +126,13 @@ public class WidgetsDialog extends SheetDialogFragment {
         View view = inflater.inflate(R.layout.widget_grid, container, false);
 
         content = view.findViewById(R.id.content);
+        placeholder = view.findViewById(R.id.placeholder);
         grid = view.findViewById(R.id.grid);
-        add = view.findViewById(R.id.add);
         WidgetScroller scroller = view.findViewById(R.id.scroller);
         FadingEdgeLayout fader = view.findViewById(R.id.fader);
+
+        placeholder.findViewById(R.id.add_button)
+                .setOnClickListener((v) -> showConfigurator());
 
         content.setOnLongClickListener(v -> {
             showConfigurator();
@@ -144,8 +145,6 @@ public class WidgetsDialog extends SheetDialogFragment {
         transition.disableTransitionType(LayoutTransition.CHANGING);
 
         content.setLayoutTransition(transition);
-
-        add.setOnClickListener(v -> showConfigurator());
 
         Measurements.addNavListener(value -> {
             fader.setFadeSizes(Measurements.getSysUIHeight() +
@@ -206,8 +205,12 @@ public class WidgetsDialog extends SheetDialogFragment {
         return view;
     }
 
+    public static int getWidgetCellSize() {
+        return columnSize;
+    }
+
     private void showConfigurator() {
-        if (configurator == null) {
+        if (configurator == null || !activity.equals(configurator.getContext())) {
             configurator = new WidgetConfigurator(activity, this::addWidget);
 
             configurator.setOnShowListener(dialog -> content.animate()
@@ -227,7 +230,7 @@ public class WidgetsDialog extends SheetDialogFragment {
     private void addWidget(AppWidgetProviderInfo info, WidgetSize size) {
         if (grid.getChildCount() <= MAX_COUNT) {
             int identifier = getWidgetHost().allocateAppWidgetId();
-            boolean allowed = manager.bindAppWidgetIdIfAllowed(identifier, info.provider);
+            boolean allowed = manager.bindAppWidgetIdIfAllowed(identifier, info.getProfile(), info.provider, null);
 
             if (!allowed) {
                 Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
@@ -236,37 +239,65 @@ public class WidgetsDialog extends SheetDialogFragment {
                 intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, identifier);
                 intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider);
 
-                attachWidgetRequest.launch(intent);
+                bindWidgetRequest.launch(intent);
             } else {
-                createWidget(manager, identifier, size);
+                configureWidget(manager, identifier, size);
             }
         }
 
         configurator.dismiss();
     }
 
-    private void createWidget(AppWidgetManager manager, int identifier, WidgetSize size) {
+    private void configureWidget(AppWidgetManager manager, int identifier, WidgetSize size) {
         Widget widget = new Widget(identifier, grid.allocatePosition(), size);
-        String serialized = widget.serialize();
-
-        widgetStore.edit()
-                .putString(String.valueOf(identifier), serialized)
-                .apply();
-
-        attachWidget(manager, widget);
+        AppWidgetHostView host = createWidget(manager, widget);
 
         try {
-            getWidgetHost().startAppWidgetConfigureActivityForResult(activity, identifier,
-                    Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED,
-                    CONFIGURATION_CODE, ActivityOptions.makeBasic().toBundle());
+            boolean result = activity.addOnActivityResultListener(CONFIGURATION_CODE, (resultCode, intent) -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    String serialized = widget.serialize();
+
+                    widgetStore.edit()
+                            .putString(String.valueOf(identifier), serialized)
+                            .apply();
+
+                    grid.attach(host, widget);
+                    placeholder.setVisibility(View.GONE);
+                } else {
+                    getWidgetHost().deleteAppWidgetId(host.getAppWidgetId());
+                }
+
+                activity.removeOnActivityResultListener(CONFIGURATION_CODE);
+            });
+
+            if (!result) {
+                getWidgetHost().deleteAppWidgetId(host.getAppWidgetId());
+                activity.removeOnActivityResultListener(CONFIGURATION_CODE);
+            } else {
+                getWidgetHost().startAppWidgetConfigureActivityForResult(activity, identifier,
+                        Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED,
+                        CONFIGURATION_CODE, null);
+            }
         } catch (ActivityNotFoundException exception) {
+            activity.removeOnActivityResultListener(CONFIGURATION_CODE);
+
+            String serialized = widget.serialize();
+
+            widgetStore.edit()
+                    .putString(String.valueOf(identifier), serialized)
+                    .apply();
+
+            grid.attach(host, widget);
+            placeholder.setVisibility(View.GONE);
+
             Log.w(TAG, "No configure activity found for identifier " + identifier);
         }
     }
 
-    private void attachWidget(AppWidgetManager manager, Widget widget) {
+    private AppWidgetHostView createWidget(AppWidgetManager manager, Widget widget) {
         AppWidgetProviderInfo info = manager.getAppWidgetInfo(widget.id);
-        AppWidgetHostView host = getWidgetHost().createView(activity.getApplicationContext(), widget.id, info);
+        AppWidgetHostView host = getWidgetHost()
+                .createView(activity.getApplicationContext(), widget.id, info);
 
         host.setOnLongClickListener(v -> {
             Vibrations.getInstance().vibrate();
@@ -294,7 +325,7 @@ public class WidgetsDialog extends SheetDialogFragment {
             return true;
         });
 
-        grid.attach(host, widget);
+        return host;
     }
 
     private void deleteWidget(AppWidgetHostView host) {
@@ -314,11 +345,15 @@ public class WidgetsDialog extends SheetDialogFragment {
 
         getWidgetHost().deleteAppWidgetId(host.getAppWidgetId());
         grid.removeView((View) (host.getParent()));
+
+        placeholder.setVisibility(grid.getChildCount() == 0 ? View.VISIBLE : View.GONE);
     }
 
     public @NonNull WidgetHost getWidgetHost() {
         if (host == null) {
             host = new WidgetHost(activity, HOST_ID);
+
+            host.startListening();
         }
 
         return host;
@@ -360,11 +395,12 @@ public class WidgetsDialog extends SheetDialogFragment {
             Widget widget = widgets.poll();
 
             if (widget != null) {
-                attachWidget(manager, widget);
+                AppWidgetHostView host = createWidget(manager, widget);
+                grid.attach(host, widget);
+
+                placeholder.setVisibility(View.GONE);
 
                 UiUtils.runOnUIThreadDelayed(this, Animation.SHORT.getDuration());
-            } else {
-                add.setVisibility(View.VISIBLE);
             }
         }
     }

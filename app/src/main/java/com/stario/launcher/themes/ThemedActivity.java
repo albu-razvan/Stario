@@ -20,6 +20,7 @@ package com.stario.launcher.themes;
 import static com.stario.launcher.themes.Theme.THEME_BLUE;
 import static com.stario.launcher.themes.Theme.THEME_DYNAMIC;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -45,16 +46,19 @@ import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 abstract public class ThemedActivity extends AppCompatActivity {
     public static final String THEME = "com.stario.THEME";
     public static final String FORCE_DARK = "com.stario.FORCE_DARK";
     private final ArrayList<OnDestroyListener> destroyListeners;
+    private HashMap<Integer, OnActivityResult> activityResultListeners;
     private boolean dispatchTouchEvents;
     private Theme theme;
 
     public ThemedActivity() {
         this.dispatchTouchEvents = true;
+        this.activityResultListeners = new HashMap<>();
         this.destroyListeners = new ArrayList<>();
     }
 
@@ -210,7 +214,34 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
     protected abstract boolean isOpaque();
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        for (OnActivityResult resultListener : activityResultListeners.values()) {
+            if (resultListener != null) {
+                resultListener.onResult(resultCode, data);
+            }
+        }
+    }
+
+    public boolean addOnActivityResultListener(int configurationCode, OnActivityResult listener) {
+        if (listener != null) {
+            return activityResultListeners.putIfAbsent(configurationCode, listener) == null;
+        }
+
+        return false;
+    }
+
+    public void removeOnActivityResultListener(int configurationCode) {
+        activityResultListeners.remove(configurationCode);
+    }
+
     public interface OnDestroyListener {
         void onDestroy();
+    }
+
+    public interface OnActivityResult {
+        void onResult(int resultCode, Intent intent);
     }
 }

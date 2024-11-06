@@ -100,8 +100,7 @@ public abstract class ActionDialog extends BottomSheetDialog {
             WindowCompat.setDecorFitsSystemWindows(window, false);
 
             if (blurBehind()) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND |
-                        WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
                 window.setDimAmount(0.5f);
 
                 if (Utils.isMinimumSDK(31)) {
@@ -114,8 +113,7 @@ public abstract class ActionDialog extends BottomSheetDialog {
                     window.setAttributes(attributes);
                 }
             } else {
-                window.clearFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND |
-                        WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             }
         }
     }
@@ -162,6 +160,15 @@ public abstract class ActionDialog extends BottomSheetDialog {
         Vibrations.getInstance().vibrate();
 
         getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+
+        if (!hasFocus) {
+            dismiss();
+        }
     }
 
     @Override

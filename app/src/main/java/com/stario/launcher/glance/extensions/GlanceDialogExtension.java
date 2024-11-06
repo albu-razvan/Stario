@@ -31,7 +31,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.PathInterpolator;
 
 import androidx.annotation.FloatRange;
@@ -292,6 +291,7 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
 
         if (window != null) {
             int step = (int) (STEP_COUNT * fraction);
+
             View decor = activity.getWindow().getDecorView();
 
             Drawable background = decor.getBackground();
@@ -299,13 +299,7 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
 
             if (Utils.isMinimumSDK(31)) {
                 decor.post(() -> {
-                    WindowManager.LayoutParams attributes = window.getAttributes();
-
-                    if (attributes.getBlurBehindRadius() != (int) (step * BLUR_STEP)) {
-                        attributes.setBlurBehindRadius((int) (step * BLUR_STEP));
-
-                        window.setAttributes(attributes);
-                    }
+                    window.setBackgroundBlurRadius((int) (step * BLUR_STEP));
                 });
             }
         }

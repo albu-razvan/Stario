@@ -60,7 +60,7 @@
             android:configChanges="orientation|screenSize|layoutDirection"
             android:excludeFromRecents="true"
             android:exported="true"
-            android:launchMode="singleInstancePerTask"
+            android:launchMode="singleTask"
             android:persistableMode="persistAcrossReboots"
             android:resumeWhilePausing="true"
             android:rotationAnimation="crossfade"

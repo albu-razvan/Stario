@@ -18,7 +18,6 @@
 package com.stario.launcher.activities;
 
 import android.annotation.SuppressLint;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.Gravity;
@@ -27,6 +26,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.stario.launcher.R;
+import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.glance.Glance;
 import com.stario.launcher.glance.extensions.GlanceDialogExtensionType;
 import com.stario.launcher.glance.extensions.GlanceViewExtensionType;
@@ -35,7 +35,6 @@ import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.SheetType;
 import com.stario.launcher.sheet.SheetWrapper;
 import com.stario.launcher.sheet.SheetsFocusController;
-import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.lock.ClosingAnimationView;
 import com.stario.launcher.ui.measurements.Measurements;
@@ -118,36 +117,39 @@ public class Launcher extends ThemedActivity {
             slideOffset = 0;
         }
 
-        Drawable background = decorView.getBackground();
-        background.setAlpha((int) (MAX_BACKGROUND_ALPHA * slideOffset));
-
-        coordinator.setAlpha(1f - slideOffset * 1.5f);
-        coordinator.setScaleX(1f - slideOffset / 5f);
-        coordinator.setScaleY(1f - slideOffset / 5f);
+        main.setAlpha(1f - slideOffset * 1.5f);
+        main.setScaleX(1f - slideOffset * slideOffset / 5f);
+        main.setScaleY(1f - slideOffset * slideOffset / 5f);
 
         if (decorView.getWindowToken() != null) {
             IBinder windowToken = decorView.getWindowToken();
 
-            float xOffset, yOffset;
-
             if (type == SheetType.TOP_SHEET) {
-                xOffset = 0.5f;
-                yOffset = 0.5f - slideOffset / 10;
-            } else if (type == SheetType.LEFT_SHEET) {
-                xOffset = 0.5f - slideOffset / 10;
-                yOffset = 0.5f;
-            } else if (type == SheetType.BOTTOM_SHEET) {
-                xOffset = 0.5f;
-                yOffset = 0.5f + slideOffset / 10;
-            } else if (type == SheetType.RIGHT_SHEET) {
-                xOffset = 0.5f + slideOffset / 10;
-                yOffset = 0.5f;
-            } else {
-                xOffset = 0.5f;
-                yOffset = 0.5f;
-            }
+                wallpaperManager.setWallpaperOffsets(windowToken, 0.5f, 0.5f - slideOffset / 10);
 
-            wallpaperManager.setWallpaperOffsets(windowToken, xOffset, yOffset);
+                decorView.setTranslationY(slideOffset / 2f * main.getMeasuredHeight());
+                decorView.setTranslationX(0);
+            } else if (type == SheetType.LEFT_SHEET) {
+                wallpaperManager.setWallpaperOffsets(windowToken, 0.5f - slideOffset / 10, 0.5f);
+
+                decorView.setTranslationY(0);
+                decorView.setTranslationX(slideOffset / 2f * main.getMeasuredWidth());
+            } else if (type == SheetType.BOTTOM_SHEET) {
+                wallpaperManager.setWallpaperOffsets(windowToken, 0.5f, 0.5f + slideOffset / 10);
+
+                decorView.setTranslationY(-slideOffset / 2f * main.getMeasuredHeight());
+                decorView.setTranslationX(0);
+            } else if (type == SheetType.RIGHT_SHEET) {
+                wallpaperManager.setWallpaperOffsets(windowToken, 0.5f + slideOffset / 10, 0.5f);
+
+                decorView.setTranslationY(0);
+                decorView.setTranslationX(-slideOffset / 2f * main.getMeasuredWidth());
+            } else {
+                wallpaperManager.setWallpaperOffsets(windowToken, 0.5f, 0.5f);
+
+                decorView.setTranslationY(0);
+                decorView.setTranslationX(0);
+            }
 
             if (Utils.isMinimumSDK(30)) {
                 slideOffset = Math.min(1, slideOffset);
