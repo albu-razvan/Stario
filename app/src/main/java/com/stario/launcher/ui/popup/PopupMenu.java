@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.LauncherApps;
 import android.content.pm.ShortcutInfo;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.transition.Transition;
 import android.view.Gravity;
@@ -158,10 +159,7 @@ public class PopupMenu {
                     if (label != null) {
                         adapter.add(new Item(label.toString(),
                                 launcherApps.getShortcutIconDrawable(shortcut, Measurements.getDotsPerInch()),
-                                (view) -> {
-                                    //TODO activity options
-                                    launcherApps.startShortcut(shortcut, null, null);
-                                }));
+                                (view) -> launcherApps.startShortcut(shortcut, null, null)));
 
                         shortcutCount++;
                     }
@@ -194,6 +192,10 @@ public class PopupMenu {
     }
 
     public void show(Activity activity, View parent) {
+        show(activity, parent, null);
+    }
+
+    public void show(Activity activity, View parent, Rect margins) {
         Window window = activity.getWindow();
 
         if (window == null) {
@@ -213,8 +215,16 @@ public class PopupMenu {
 
             location[0] = window.getDecorView().getWidth() -
                     location[0] - (int) (parent.getWidth() * parent.getScaleX());
+
+            if (margins != null && Measurements.isLandscape()) {
+                location[0] += margins.right;
+            }
         } else {
             gravity = gravity | Gravity.LEFT;
+
+            if (margins != null && Measurements.isLandscape()) {
+                location[0] += margins.left;
+            }
         }
 
         if (Measurements.isLandscape()) {
@@ -228,6 +238,10 @@ public class PopupMenu {
             if (!Measurements.isLandscape()) {
                 location[1] += (int) (parent.getHeight() * parent.getScaleY())
                         + Measurements.dpToPx(PADDING);
+
+                if (margins != null) {
+                    location[1] += margins.top;
+                }
             }
         } else {
             gravity = gravity | Gravity.BOTTOM;
@@ -237,6 +251,10 @@ public class PopupMenu {
 
             if (!Measurements.isLandscape()) {
                 location[1] += Measurements.dpToPx(PADDING);
+
+                if (margins != null) {
+                    location[1] -= margins.bottom;
+                }
             } else {
                 location[1] -= (int) (parent.getHeight() * parent.getScaleY());
             }
@@ -288,6 +306,22 @@ public class PopupMenu {
 
     private void showAtLocation(View parent, int gravity, @Size(2) int[] location) {
         if (popupWindow != null && !popupWindow.isShowing()) {
+            root.post(() -> {
+                if ((gravity & Gravity.LEFT) == Gravity.LEFT) {
+                    root.setPivotX(0);
+                } else if ((gravity & Gravity.RIGHT) == Gravity.RIGHT) {
+                    root.setPivotX(root.getMeasuredWidth());
+                }
+
+                if (!Measurements.isLandscape()) {
+                    if ((gravity & Gravity.TOP) == Gravity.TOP) {
+                        root.setPivotY(0);
+                    } else if ((gravity & Gravity.BOTTOM) == Gravity.BOTTOM) {
+                        root.setPivotY(root.getMeasuredHeight());
+                    }
+                }
+            });
+
             popupWindow.showAtLocation(parent, gravity, location[0], location[1]);
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 
