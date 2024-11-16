@@ -47,7 +47,7 @@ public class Category {
         }
     }
 
-    void addApplication(LauncherApplication applicationToAdd) {
+    synchronized void addApplication(LauncherApplication applicationToAdd) {
         int left = 0;
         int right = applications.size() - 1;
 
@@ -78,7 +78,7 @@ public class Category {
         }
     }
 
-    void removeApplication(String packageName) {
+    synchronized void removeApplication(String packageName) {
         for (int index = 0; index < applications.size(); index++) {
             LauncherApplication application = applications.get(index);
 
