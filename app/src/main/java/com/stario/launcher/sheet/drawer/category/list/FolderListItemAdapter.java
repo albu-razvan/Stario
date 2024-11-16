@@ -27,71 +27,37 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.categories.Category;
-import com.stario.launcher.sheet.drawer.BumpRecyclerViewAdapter;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
-import com.stario.launcher.utils.UiUtils;
 
 import java.util.function.Supplier;
 
-public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAdapter.ViewHolder>
-        implements BumpRecyclerViewAdapter {
+public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAdapter.ViewHolder> {
     public static final int SOFT_LIMIT = 3;
     public static final int HARD_LIMIT = 5;
     private final ThemedActivity activity;
     private Category category;
     private Category.CategoryItemListener listener;
-    private boolean limit;
-    private int size;
 
     public FolderListItemAdapter(ThemedActivity activity) {
         super(activity);
 
         this.activity = activity;
-        this.size = 0;
-        this.limit = true;
 
         setHasStableIds(true);
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    public void setCategory(Category category, boolean animate) {
+    public void setCategory(Category category) {
         if (this.category != category) {
             if (listener != null) {
                 this.category.removeCategoryItemListener(listener);
             }
 
-            if (animate) {
-                size = 0;
-                limit = true;
+            this.category = category;
 
-                if (this.category != null && this.category.getSize() > 0) {
-                    notifyItemRangeRemoved(0, this.category.getSize() - 1);
-                }
-
-                this.category = category;
-
-                // Fake a loading delay not to freeze the UI when inflating all views
-                int loop = getMaxSize();
-                if (loop > 0) {
-                    UiUtils.runOnUIThreadDelayed(this::removeLimit,
-                            loop * BumpRecyclerViewAdapter.DELAY * 4);
-
-                    while (loop > 0) {
-                        UiUtils.runOnUIThreadDelayed(this::bump,
-                                loop * BumpRecyclerViewAdapter.DELAY * 4);
-
-                        loop--;
-                    }
-                }
-            } else {
-                limit = false;
-
-                this.category = category;
-
-                notifyDataSetChanged();
-            }
+            notifyDataSetChanged();
 
             listener = new Category.CategoryItemListener() {
                 int preparedRemovalIndex = -1;
@@ -219,30 +185,7 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
     }
 
     @Override
-    public int getItemCount() {
-        return limit ? size : getMaxSize();
-    }
-
-    private int getMaxSize() {
-        return category != null ? Math.min(category.getSize(), HARD_LIMIT) : 0;
-    }
-
-    public boolean isCapped() {
-        return category.getSize() > HARD_LIMIT;
-    }
-
-    @Override
-    public void bump() {
-        if (limit) {
-            notifyItemInserted(++size - 1);
-        }
-    }
-
-    @Override
-    public void removeLimit() {
-        limit = false;
-
-        int inserted = getMaxSize() - size;
-        notifyItemRangeInserted(getItemCount() - inserted, inserted);
+    protected int getSize() {
+        return Math.min(category.getSize(), HARD_LIMIT);
     }
 }

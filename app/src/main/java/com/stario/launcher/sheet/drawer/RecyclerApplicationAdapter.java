@@ -217,11 +217,6 @@ public abstract class RecyclerApplicationAdapter
     }
 
     @Override
-    public int getItemCount() {
-        return getSize();
-    }
-
-    @Override
     protected int getLayout() {
         return R.layout.list_item;
     }
@@ -243,6 +238,4 @@ public abstract class RecyclerApplicationAdapter
     }
 
     abstract protected LauncherApplication getApplication(int index);
-
-    abstract protected int getSize();
 }

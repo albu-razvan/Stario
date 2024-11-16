@@ -57,7 +57,7 @@ public class FolderList extends DrawerPage {
         drawer.setLayoutManager(manager);
         drawer.setItemAnimator(null);
 
-        FolderListAdapter adapter = new FolderListAdapter(activity, this, drawer);
+        FolderListAdapter adapter = new FolderListAdapter(activity, this);
 
         drawer.setAdapter(adapter);
 

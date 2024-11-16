@@ -23,32 +23,26 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.stario.launcher.preferences.Vibrations;
-import com.stario.launcher.sheet.drawer.BumpRecyclerViewAdapter;
-import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.preferences.Vibrations;
+import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.recyclers.FastScroller;
-import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
 import com.stario.launcher.utils.animation.Animation;
 
 public class ListAdapter extends RecyclerApplicationAdapter
         implements FastScroller.OnPopupViewUpdate,
-        FastScroller.OnPopupViewReset, BumpRecyclerViewAdapter {
+        FastScroller.OnPopupViewReset {
     private final RecyclerView recyclerView;
     private final LauncherApplicationManager applicationManager;
-    private boolean limit;
-    private int size;
     private int oldScrollerPosition;
 
     public ListAdapter(ThemedActivity activity, RecyclerView recyclerView) {
         super(activity);
 
         this.recyclerView = recyclerView;
-        this.size = 0;
-        this.limit = true;
         this.oldScrollerPosition = -1;
         this.applicationManager = LauncherApplicationManager.getInstance();
 
@@ -156,35 +150,6 @@ public class ListAdapter extends RecyclerApplicationAdapter
 
     @Override
     protected int getSize() {
-        return limit ? Math.min(applicationManager.getSize(), size) : applicationManager.getSize();
-    }
-
-    @Override
-    public void bump() {
-        if (limit) {
-            int approximatedHolderHeight = getApproximatedHolderHeight();
-            int newSize = size +
-                    (approximatedHolderHeight != AsyncRecyclerAdapter.AsyncViewHolder.HEIGHT_UNMEASURED ?
-                            Math.round(
-                                    Math.max(1,
-                                            recyclerView.getMeasuredHeight() / (float) approximatedHolderHeight)
-                            ) : 1
-                    );
-
-            int inserted = newSize - size;
-            size = newSize;
-
-            if (inserted > 0) {
-                notifyItemRangeInserted(getItemCount() - inserted, inserted);
-            }
-        }
-    }
-
-    @Override
-    public void removeLimit() {
-        limit = false;
-
-        int inserted = applicationManager.getSize() - size;
-        notifyItemRangeInserted(getItemCount() - inserted, inserted);
+        return applicationManager.getSize();
     }
 }
