@@ -182,7 +182,7 @@ public class LockDetector extends LinearLayout {
                                     view.getWidth(), view.getHeight()).toBundle());
                 }));
 
-        menu.showAtLocation(activity, parent, x, y);
+        menu.showAtLocation(activity, parent, x, y, PopupMenu.PIVOT_CENTER_HORIZONTAL);
     }
 
     @SuppressLint("ClickableViewAccessibility")

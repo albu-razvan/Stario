@@ -142,7 +142,7 @@ public class BriefingDialog extends SheetDialogFragment {
                             ResourcesCompat.getDrawable(resources, R.drawable.ic_delete, activity.getTheme()),
                             view -> list.remove(position)));
 
-                    menu.show(activity, textView);
+                    menu.show(activity, textView, PopupMenu.PIVOT_CENTER_HORIZONTAL);
                 }
 
                 @Override

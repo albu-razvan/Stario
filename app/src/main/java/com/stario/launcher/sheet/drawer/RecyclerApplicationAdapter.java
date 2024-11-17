@@ -170,9 +170,11 @@ public abstract class RecyclerApplicationAdapter
                 icon.setScaleY(1);
             });
 
-            menu.show(activity, icon, new Rect(Measurements.isLandscape() ? (label.getMeasuredWidth() - icon.getMeasuredWidth()) / 2 : 0,
-                    Measurements.isLandscape() ? 0 : label.getMeasuredHeight() * label.getLineCount() / label.getMaxLines() + Measurements.dpToPx(10),
-                    Measurements.isLandscape() ? (label.getMeasuredWidth() - icon.getMeasuredWidth()) / 2 : 0, 0));
+            menu.show(activity, icon,
+                    new Rect(Measurements.isLandscape() ? (label.getMeasuredWidth() - icon.getMeasuredWidth()) / 2 : 0,
+                            Measurements.isLandscape() ? 0 : label.getMeasuredHeight() * label.getLineCount() / label.getMaxLines() + Measurements.dpToPx(10),
+                            Measurements.isLandscape() ? (label.getMeasuredWidth() - icon.getMeasuredWidth()) / 2 : 0, 0),
+                    Measurements.isLandscape() ? PopupMenu.PIVOT_CENTER_VERTICAL : PopupMenu.PIVOT_DEFAULT);
         }
     }
 
