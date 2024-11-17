@@ -90,7 +90,7 @@ public class PopupMenu {
                 (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         this.root = (LinearLayout) inflater.inflate(R.layout.popup_window, null);
-        this.popupWindow = new PopupWindow(root, Measurements.dpToPx(WIDTH),
+        this.popupWindow = new PopupWindow(root, ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, true);
 
         Transition enter = new MaterialElevationScale(true);
@@ -311,7 +311,9 @@ public class PopupMenu {
             }
         }
 
-        showAtLocation(parent, location, gravity, pivotAxis);
+        showAtLocation(parent, location, 0, gravity, pivotAxis);
+
+        root.setPadding(0, 0, 0, 0);
     }
 
     public void showAtLocation(Activity activity, View parent, float x, float y, int pivotAxis) {
@@ -352,10 +354,10 @@ public class PopupMenu {
                     location[1] - (int) y;
         }
 
-        showAtLocation(parent, location, gravity, pivotAxis);
+        showAtLocation(parent, location, Measurements.dpToPx(PADDING * 2), gravity, pivotAxis);
     }
 
-    private void showAtLocation(View parent, @Size(2) int[] location, int gravity, int pivotAxis) {
+    private void showAtLocation(View parent, @Size(2) int[] location, int padding, int gravity, int pivotAxis) {
         if (popupWindow != null && !popupWindow.isShowing()) {
             root.post(() -> {
                 if ((pivotAxis & PIVOT_CENTER_HORIZONTAL) == PIVOT_DEFAULT) {
@@ -375,11 +377,12 @@ public class PopupMenu {
                 }
             });
 
+            popupWindow.setWidth(Measurements.dpToPx(WIDTH) + padding * 2);
             popupWindow.showAtLocation(parent, gravity, location[0], location[1]);
+            root.setPadding(padding, padding, padding, padding);
+
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-
             activity.getLifecycle().addObserver(observer);
-
             activity.requestIgnoreCurrentTouchEvent(false);
         }
     }
