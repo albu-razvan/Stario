@@ -46,7 +46,7 @@ import com.stario.launcher.utils.objects.ObjectRemeasureDelegate;
 import java.io.Serializable;
 
 public class AdaptiveIconView extends View {
-    public static final float MAX_SCALE = 1.15f;
+    public static final float MAX_SCALE = 1.12f;
     private ObjectRemeasureDelegate<Float> radius;
     private ObjectRemeasureDelegate<PathCornerTreatmentAlgorithm> pathAlgorithm;
     private ObjectInvalidateDelegate<Drawable> icon;

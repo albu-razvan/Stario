@@ -122,7 +122,7 @@ public class CategoryData {
         return null;
     }
 
-    public void addCategoryResource(int categoryID, Object resource) {
+    public synchronized void addCategoryResource(int categoryID, Object resource) {
         if (resource instanceof String || resource instanceof Integer) {
             categoryResources.putIfAbsent(categoryID, resource);
         }
@@ -154,7 +154,7 @@ public class CategoryData {
         return NO_CATEGORY;
     }
 
-    private int addCategory(int categoryID) {
+    private synchronized int addCategory(int categoryID) {
         Category category = new Category(categoryID);
         CategoryComparator comparator = CategoryComparator.getInstance();
 
@@ -185,7 +185,7 @@ public class CategoryData {
         return left;
     }
 
-    public void addApplication(LauncherApplication application) {
+    public synchronized void addApplication(LauncherApplication application) {
         if (!hiddenPreferences.contains(application.getInfo().packageName)) {
             int index = containsCategory(application.getCategory());
 
@@ -199,7 +199,7 @@ public class CategoryData {
         }
     }
 
-    public void removeApplication(LauncherApplication application) {
+    public synchronized void removeApplication(LauncherApplication application) {
         int index = containsCategory(application.getCategory());
 
         if (index != NO_CATEGORY) {

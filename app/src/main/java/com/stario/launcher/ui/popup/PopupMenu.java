@@ -22,7 +22,16 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.LauncherApps;
 import android.content.pm.ShortcutInfo;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.InsetDrawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.VectorDrawable;
 import android.transition.Transition;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -55,9 +64,13 @@ import java.util.List;
 import java.util.Map;
 
 public class PopupMenu {
+    public static final int PIVOT_DEFAULT = 0x00;
+    public static final int PIVOT_CENTER_VERTICAL = 0x01;
+    public static final int PIVOT_CENTER_HORIZONTAL = 0x10;
     private static final int GENERAL_ID = 1;
     private static final int SHORTCUT_GROUP_ID = 2;
     private static final int MAX_SHORTCUT_COUNT = 4;
+    private static final float INSET_FRACTION = 0.2f;
     private static final int PADDING = 10;
     private static final int WIDTH = 200;
     private final HashMap<Integer,
@@ -77,7 +90,7 @@ public class PopupMenu {
                 (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         this.root = (LinearLayout) inflater.inflate(R.layout.popup_window, null);
-        this.popupWindow = new PopupWindow(root, Measurements.dpToPx(WIDTH),
+        this.popupWindow = new PopupWindow(root, ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, true);
 
         Transition enter = new MaterialElevationScale(true);
@@ -154,14 +167,50 @@ public class PopupMenu {
 
                 if (shortcut != null) {
                     CharSequence label = shortcut.getShortLabel();
+                    Drawable icon = launcherApps.getShortcutIconDrawable(shortcut, Measurements.getDotsPerInch());
+
+                    int width = Math.max(1, icon.getIntrinsicWidth());
+                    int height = Math.max(1, icon.getIntrinsicHeight());
+
+                    int paddingHorizontal = (Math.max(width, height) - width) / 2;
+                    int paddingVertical = (Math.max(width, height) - height) / 2;
+
+                    Bitmap bitmap = Bitmap.createBitmap(width + 2 * paddingHorizontal, height + 2 * paddingVertical, Bitmap.Config.ARGB_8888);
+
+                    Canvas canvas = new Canvas(bitmap);
+                    icon.setBounds(paddingHorizontal, paddingVertical,
+                            width + paddingHorizontal, height + paddingVertical);
+                    icon.draw(canvas);
+
+                    if (icon instanceof BitmapDrawable || icon instanceof VectorDrawable) {
+                        int threshold = bitmap.getWidth() / 10;
+
+                        int centerX, centerY, target;
+                        centerX = centerY = target = bitmap.getWidth() / 2;
+
+                        while (target > threshold &&
+                                Color.alpha(bitmap.getPixel(centerX, target)) == 255 &&
+                                Color.alpha(bitmap.getPixel(target, centerY)) == 255 &&
+                                Color.alpha(bitmap.getPixel(centerX, width - target)) == 255 &&
+                                Color.alpha(bitmap.getPixel(height - target, centerY)) == 255 &&
+                                Color.alpha(bitmap.getPixel(centerX / 2 + target, centerY / 2 + target)) == 255 &&
+                                Color.alpha(bitmap.getPixel(centerY / 2 + target, centerX / 2 + target)) == 255) {
+                            target -= 2;
+                        }
+
+                        if (target <= threshold) {
+                            icon = new BitmapDrawable(activity.getResources(), bitmap);
+                        } else {
+                            icon = new LayerDrawable(new Drawable[]{new ColorDrawable(Color.WHITE),
+                                    new InsetDrawable(new BitmapDrawable(activity.getResources(), bitmap), INSET_FRACTION)});
+                        }
+                    } else {
+                        icon = new BitmapDrawable(activity.getResources(), bitmap);
+                    }
 
                     if (label != null) {
-                        adapter.add(new Item(label.toString(),
-                                launcherApps.getShortcutIconDrawable(shortcut, Measurements.getDotsPerInch()),
-                                (view) -> {
-                                    //TODO activity options
-                                    launcherApps.startShortcut(shortcut, null, null);
-                                }));
+                        adapter.add(new Item(label.toString(), icon,
+                                (view) -> launcherApps.startShortcut(shortcut, null, null)));
 
                         shortcutCount++;
                     }
@@ -193,7 +242,11 @@ public class PopupMenu {
         });
     }
 
-    public void show(Activity activity, View parent) {
+    public void show(Activity activity, View parent, int pivotAxis) {
+        show(activity, parent, null, pivotAxis);
+    }
+
+    public void show(Activity activity, View parent, Rect margins, int pivotAxis) {
         Window window = activity.getWindow();
 
         if (window == null) {
@@ -213,8 +266,16 @@ public class PopupMenu {
 
             location[0] = window.getDecorView().getWidth() -
                     location[0] - (int) (parent.getWidth() * parent.getScaleX());
+
+            if (margins != null && Measurements.isLandscape()) {
+                location[0] += margins.right;
+            }
         } else {
             gravity = gravity | Gravity.LEFT;
+
+            if (margins != null && Measurements.isLandscape()) {
+                location[0] += margins.left;
+            }
         }
 
         if (Measurements.isLandscape()) {
@@ -228,6 +289,10 @@ public class PopupMenu {
             if (!Measurements.isLandscape()) {
                 location[1] += (int) (parent.getHeight() * parent.getScaleY())
                         + Measurements.dpToPx(PADDING);
+
+                if (margins != null) {
+                    location[1] += margins.top;
+                }
             }
         } else {
             gravity = gravity | Gravity.BOTTOM;
@@ -237,15 +302,21 @@ public class PopupMenu {
 
             if (!Measurements.isLandscape()) {
                 location[1] += Measurements.dpToPx(PADDING);
+
+                if (margins != null) {
+                    location[1] -= margins.bottom;
+                }
             } else {
                 location[1] -= (int) (parent.getHeight() * parent.getScaleY());
             }
         }
 
-        showAtLocation(parent, gravity, location);
+        showAtLocation(parent, location, 0, gravity, pivotAxis);
+
+        root.setPadding(0, 0, 0, 0);
     }
 
-    public void showAtLocation(Activity activity, View parent, float x, float y) {
+    public void showAtLocation(Activity activity, View parent, float x, float y, int pivotAxis) {
         Window window = activity.getWindow();
 
         if (window == null) {
@@ -283,16 +354,35 @@ public class PopupMenu {
                     location[1] - (int) y;
         }
 
-        showAtLocation(parent, gravity, location);
+        showAtLocation(parent, location, Measurements.dpToPx(PADDING * 2), gravity, pivotAxis);
     }
 
-    private void showAtLocation(View parent, int gravity, @Size(2) int[] location) {
+    private void showAtLocation(View parent, @Size(2) int[] location, int padding, int gravity, int pivotAxis) {
         if (popupWindow != null && !popupWindow.isShowing()) {
+            root.post(() -> {
+                if ((pivotAxis & PIVOT_CENTER_HORIZONTAL) == PIVOT_DEFAULT) {
+                    if ((gravity & Gravity.LEFT) == Gravity.LEFT) {
+                        root.setPivotX(0);
+                    } else if ((gravity & Gravity.RIGHT) == Gravity.RIGHT) {
+                        root.setPivotX(root.getMeasuredWidth());
+                    }
+                }
+
+                if ((pivotAxis & PIVOT_CENTER_VERTICAL) == PIVOT_DEFAULT) {
+                    if ((gravity & Gravity.TOP) == Gravity.TOP) {
+                        root.setPivotY(0);
+                    } else if ((gravity & Gravity.BOTTOM) == Gravity.BOTTOM) {
+                        root.setPivotY(root.getMeasuredHeight());
+                    }
+                }
+            });
+
+            popupWindow.setWidth(Measurements.dpToPx(WIDTH) + padding * 2);
             popupWindow.showAtLocation(parent, gravity, location[0], location[1]);
+            root.setPadding(padding, padding, padding, padding);
+
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-
             activity.getLifecycle().addObserver(observer);
-
             activity.requestIgnoreCurrentTouchEvent(false);
         }
     }

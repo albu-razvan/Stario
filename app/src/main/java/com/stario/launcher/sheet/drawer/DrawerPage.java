@@ -17,10 +17,7 @@
 
 package com.stario.launcher.sheet.drawer;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -32,20 +29,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
-import com.stario.launcher.sheet.SheetDialogFragment;
-import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.recyclers.ScrollToTop;
-import com.stario.launcher.utils.UiUtils;
 
 public abstract class DrawerPage extends Fragment implements ScrollToTop {
-    private BroadcastReceiver sheetReceiver;
-    private LocalBroadcastManager localBroadcastManager;
     protected ThemedActivity activity;
     protected RecyclerView drawer;
     protected TextView title;
@@ -58,7 +49,6 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
         }
 
         activity = (ThemedActivity) context;
-        localBroadcastManager = LocalBroadcastManager.getInstance(activity);
 
         super.onAttach(context);
     }
@@ -80,51 +70,6 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
                 updateTitleTransforms(recyclerView);
             }
         });
-
-        sheetReceiver = new BroadcastReceiver() {
-            private float lastOffset = 0.5f - SheetDialogFragment.PUBLISH_STEP;
-            private long scheduledUpdateTime = 0;
-
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String className = intent.getStringExtra(SheetDialogFragment.CLASS);
-                RecyclerView.Adapter<?> adapter = drawer.getAdapter();
-
-                if (adapter instanceof BumpRecyclerViewAdapter &&
-                        ApplicationsDialog.class.getName().equals(className)) {
-                    BumpRecyclerViewAdapter bumpAdapter = (BumpRecyclerViewAdapter) adapter;
-                    float offset = intent.getFloatExtra(SheetDialogFragment.OFFSET, 0f);
-
-                    if (offset > lastOffset) {
-                        int bumpSize;
-
-                        if (offset == 1f) {
-                            UiUtils.runOnUIThreadDelayed(bumpAdapter::removeLimit,
-                                    Math.max(0, scheduledUpdateTime - System.currentTimeMillis()));
-                        } else {
-                            bumpSize = Math.round((offset - lastOffset) / SheetDialogFragment.PUBLISH_STEP);
-
-                            // Fake a loading delay not to freeze the UI when inflating all views
-                            int loop = bumpSize;
-                            while (loop > 0) {
-                                UiUtils.runOnUIThreadDelayed(bumpAdapter::bump,
-                                        Math.max(0, scheduledUpdateTime - System.currentTimeMillis()) +
-                                                loop * BumpRecyclerViewAdapter.DELAY);
-
-                                loop--;
-                            }
-
-                            scheduledUpdateTime = Math.max(System.currentTimeMillis(), scheduledUpdateTime) +
-                                    bumpSize * BumpRecyclerViewAdapter.DELAY;
-                            lastOffset = offset;
-                        }
-                    }
-                }
-            }
-        };
-
-        localBroadcastManager.registerReceiver(sheetReceiver,
-                new IntentFilter(SheetDialogFragment.SHEET_EVENT));
 
         title.setMinHeight(Measurements.dpToPx(Measurements.HEADER_SIZE_DP) +
                 Measurements.spToPx(8));
@@ -186,13 +131,6 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
         updateTitleVisibility();
 
         super.onResume();
-    }
-
-    @Override
-    public void onDestroy() {
-        localBroadcastManager.unregisterReceiver(sheetReceiver);
-
-        super.onDestroy();
     }
 
     @Override

@@ -22,16 +22,18 @@ import androidx.annotation.Nullable;
 import com.stario.launcher.apps.LauncherApplication;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Category {
     public final int id;
-    final ArrayList<LauncherApplication> applications;
-    final ArrayList<CategoryItemListener> listeners;
+    final List<LauncherApplication> applications;
+    final List<CategoryItemListener> listeners;
 
     public Category(int categoryID) {
         this.id = categoryID;
         this.applications = new ArrayList<>();
-        this.listeners = new ArrayList<>();
+        this.listeners = new CopyOnWriteArrayList<>(); // stupid, but I can't figure out where the ConcurrentModification occurs
     }
 
     public int getSize() {
@@ -47,7 +49,7 @@ public class Category {
         }
     }
 
-    void addApplication(LauncherApplication applicationToAdd) {
+    synchronized void addApplication(LauncherApplication applicationToAdd) {
         int left = 0;
         int right = applications.size() - 1;
 
@@ -78,7 +80,7 @@ public class Category {
         }
     }
 
-    void removeApplication(String packageName) {
+    synchronized void removeApplication(String packageName) {
         for (int index = 0; index < applications.size(); index++) {
             LauncherApplication application = applications.get(index);
 

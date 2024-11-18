@@ -47,12 +47,14 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     private final AsyncLayoutInflater layoutInflater;
     private RecyclerView recyclerView;
     private InflationType type;
+    private int limit;
 
     public AsyncRecyclerAdapter(Activity activity) {
         this.activity = activity;
         this.type = InflationType.ASYNC;
         this.layoutInflater = new AsyncLayoutInflater(activity);
         this.holderHeight = AsyncViewHolder.HEIGHT_UNMEASURED;
+        this.limit = 0;
     }
 
     public void setInflationType(InflationType type) {
@@ -146,6 +148,19 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
 
         recyclerView.getRecycledViewPool()
                 .setMaxRecycledViews(VIEW_TYPE, 20);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (dy != 0) {
+                    int oldLimit = limit;
+
+                    limit = getSize();
+                    notifyItemRangeInserted(oldLimit, limit - oldLimit);
+
+                    recyclerView.removeOnScrollListener(this);
+                }
+            }
+        });
 
         ensureMinimumViewPool();
     }
@@ -168,9 +183,25 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
 
     @Override
     public final void onBindViewHolder(@NonNull AVH holder, int position) {
-        holder.setOnInflatedInternal(() -> onBind(holder, position));
+        holder.setOnInflatedInternal(() -> {
+            if (limit < getSize()) {
+                recyclerView.post(() -> {
+                    limit++;
+                    notifyItemInserted(limit);
+                });
+            }
 
-        ensureMinimumViewPool();
+            onBind(holder, position);
+        });
+    }
+
+    @Override
+    public final int getItemCount() {
+        if (type == InflationType.SYNCED) {
+            return getSize();
+        }
+
+        return Math.min(limit + 1, getSize());
     }
 
     private void ensureMinimumViewPool() {
@@ -193,6 +224,8 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     protected abstract void onBind(@NonNull AVH holder, int position);
 
     protected abstract int getLayout();
+
+    protected abstract int getSize();
 
     protected abstract Supplier<AVH> getHolderSupplier();
 

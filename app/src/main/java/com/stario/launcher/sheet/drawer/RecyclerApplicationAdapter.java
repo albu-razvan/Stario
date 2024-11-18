@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.pm.LauncherApps;
 import android.content.pm.ShortcutInfo;
 import android.content.res.Resources;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Process;
@@ -30,6 +31,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -65,11 +67,6 @@ public abstract class RecyclerApplicationAdapter
         public TextView label;
         private AdaptiveIconView icon;
         private View notification;
-        private boolean longClicked;
-
-        public ViewHolder() {
-            longClicked = false;
-        }
 
         @SuppressLint("ClickableViewAccessibility")
         @Override
@@ -97,10 +94,9 @@ public abstract class RecyclerApplicationAdapter
             itemView.setOnTouchListener((view, event) -> {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN: {
-                        longClicked = false;
-
                         icon.animate().scaleY(AdaptiveIconView.MAX_SCALE)
                                 .scaleX(AdaptiveIconView.MAX_SCALE)
+                                .setInterpolator(new DecelerateInterpolator())
                                 .setDuration(ViewConfiguration.getLongPressTimeout());
 
                         break;
@@ -108,11 +104,9 @@ public abstract class RecyclerApplicationAdapter
 
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL: {
-                        if (!longClicked) {
-                            icon.animate().scaleY(1)
-                                    .scaleX(1)
-                                    .setDuration(Animation.MEDIUM.getDuration());
-                        }
+                        icon.animate().scaleY(1)
+                                .scaleX(1)
+                                .setDuration(Animation.SHORT.getDuration());
 
                         break;
                     }
@@ -127,12 +121,11 @@ public abstract class RecyclerApplicationAdapter
                 if (application != LauncherApplication.FALLBACK_APP) {
                     Vibrations.getInstance().vibrate();
 
-                    icon.setScaleY(AdaptiveIconView.MAX_SCALE);
-                    icon.setScaleX(AdaptiveIconView.MAX_SCALE);
+                    icon.animate().scaleY(1)
+                            .scaleX(1)
+                            .setDuration(Animation.SHORT.getDuration());
 
-                    showPopup(icon, application);
-
-                    longClicked = true;
+                    showPopup(application);
 
                     return true;
                 } else {
@@ -140,43 +133,49 @@ public abstract class RecyclerApplicationAdapter
                 }
             });
         }
-    }
 
-    private void showPopup(AdaptiveIconView iconView, LauncherApplication application) {
-        LauncherApps launcherApps =
-                ((LauncherApps) activity.getSystemService(Context.LAUNCHER_APPS_SERVICE));
+        private void showPopup(LauncherApplication application) {
+            LauncherApps launcherApps =
+                    ((LauncherApps) activity.getSystemService(Context.LAUNCHER_APPS_SERVICE));
 
-        PopupMenu menu = new PopupMenu(activity);
+            PopupMenu menu = new PopupMenu(activity);
 
-        List<ShortcutInfo> shortcuts = getShortcutForApplication(launcherApps, application);
-        menu.addShortcuts(launcherApps, shortcuts);
+            List<ShortcutInfo> shortcuts = getShortcutForApplication(launcherApps, application);
+            menu.addShortcuts(launcherApps, shortcuts);
 
-        Resources resources = activity.getResources();
+            Resources resources = activity.getResources();
 
-        menu.add(new PopupMenu.Item(resources.getString(R.string.app_info),
-                ResourcesCompat.getDrawable(resources, R.drawable.ic_info, activity.getTheme()),
-                view -> {
-                    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                    intent.setData(Uri.parse("package:" + application.getInfo().packageName));
-
-                    activity.startActivity(intent);
-                }));
-
-        if (!application.systemPackage) {
-            menu.add(new PopupMenu.Item(resources.getString(R.string.uninstall),
-                    ResourcesCompat.getDrawable(resources, R.drawable.ic_delete, activity.getTheme()),
+            menu.add(new PopupMenu.Item(resources.getString(R.string.app_info),
+                    ResourcesCompat.getDrawable(resources, R.drawable.ic_info, activity.getTheme()),
                     view -> {
-                        Intent intent = new Intent(Intent.ACTION_DELETE);
+                        Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                         intent.setData(Uri.parse("package:" + application.getInfo().packageName));
 
                         activity.startActivity(intent);
                     }));
+
+            if (!application.systemPackage) {
+                menu.add(new PopupMenu.Item(resources.getString(R.string.uninstall),
+                        ResourcesCompat.getDrawable(resources, R.drawable.ic_delete, activity.getTheme()),
+                        view -> {
+                            Intent intent = new Intent(Intent.ACTION_DELETE);
+                            intent.setData(Uri.parse("package:" + application.getInfo().packageName));
+
+                            activity.startActivity(intent);
+                        }));
+            }
+
+            menu.setOnDismissListener(() -> {
+                icon.setScaleX(1);
+                icon.setScaleY(1);
+            });
+
+            menu.show(activity, icon,
+                    new Rect(Measurements.isLandscape() ? (label.getMeasuredWidth() - icon.getMeasuredWidth()) / 2 : 0,
+                            Measurements.isLandscape() ? 0 : label.getMeasuredHeight() * label.getLineCount() / label.getMaxLines() + Measurements.dpToPx(10),
+                            Measurements.isLandscape() ? (label.getMeasuredWidth() - icon.getMeasuredWidth()) / 2 : 0, 0),
+                    Measurements.isLandscape() ? PopupMenu.PIVOT_CENTER_VERTICAL : PopupMenu.PIVOT_DEFAULT);
         }
-
-        menu.setOnDismissListener(() -> iconView.animate().scaleX(1)
-                .scaleY(1).setDuration(Animation.MEDIUM.getDuration()));
-
-        menu.show(activity, iconView);
     }
 
     private static List<ShortcutInfo> getShortcutForApplication(LauncherApps launcherApps,
@@ -217,11 +216,6 @@ public abstract class RecyclerApplicationAdapter
     }
 
     @Override
-    public int getItemCount() {
-        return getSize();
-    }
-
-    @Override
     protected int getLayout() {
         return R.layout.list_item;
     }
@@ -243,6 +237,4 @@ public abstract class RecyclerApplicationAdapter
     }
 
     abstract protected LauncherApplication getApplication(int index);
-
-    abstract protected int getSize();
 }

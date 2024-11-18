@@ -320,7 +320,7 @@ public class WidgetsDialog extends SheetDialogFragment {
                     .alpha(1)
                     .setDuration(Animation.SHORT.getDuration()));
 
-            menu.show(activity, host);
+            menu.show(activity, host, PopupMenu.PIVOT_DEFAULT);
 
             return true;
         });

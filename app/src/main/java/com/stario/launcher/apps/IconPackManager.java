@@ -47,7 +47,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
-//TODO icon pack support
 public final class IconPackManager {
     public static final String ICON_PACK_ENTRY = "com.stario.ICON_PACK";
     public static final String CORNER_RADIUS_ENTRY = "com.stario.CORNER_RADIUS";
@@ -129,7 +128,7 @@ public final class IconPackManager {
         return null;
     }
 
-    void updateIcon(LauncherApplication application, OnUpdate listener) {
+    synchronized void updateIcon(LauncherApplication application, OnUpdate listener) {
         if (activeIconPack != null) {
             CompletableFuture<Drawable> future = activeIconPack.getDrawable(application.getInfo().packageName);
 
@@ -158,7 +157,7 @@ public final class IconPackManager {
         }
     }
 
-    void remove(LauncherApplication application) {
+    synchronized void remove(LauncherApplication application) {
         if (application != null) {
             for (int index = 0; index < iconPacks.size(); index++) {
                 if (application.equals(iconPacks.get(index).application)) {
@@ -170,7 +169,7 @@ public final class IconPackManager {
         }
     }
 
-    void add(LauncherApplication application) {
+    synchronized void add(LauncherApplication application) {
         if (checkPackValidity(application)) {
             IconPack iconPack = new IconPack(application);
             iconPacks.add(iconPack);
@@ -186,7 +185,7 @@ public final class IconPackManager {
         }
     }
 
-    void refresh() {
+    synchronized void refresh() {
         for (IconPack pack : iconPacks) {
             pack.packageDrawables.clear();
         }

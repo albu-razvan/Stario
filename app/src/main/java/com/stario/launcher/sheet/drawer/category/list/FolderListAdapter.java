@@ -30,11 +30,10 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
-import com.stario.launcher.preferences.Vibrations;
-import com.stario.launcher.sheet.drawer.BumpRecyclerViewAdapter;
-import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.apps.categories.Category;
 import com.stario.launcher.apps.categories.CategoryData;
+import com.stario.launcher.preferences.Vibrations;
+import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.category.Categories;
 import com.stario.launcher.sheet.drawer.category.folder.Folder;
 import com.stario.launcher.themes.ThemedActivity;
@@ -50,35 +49,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.ViewHolder>
-        implements BumpRecyclerViewAdapter {
+public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.ViewHolder> {
     private static final float TARGET_ELEVATION = 10;
     private static final float TARGET_SCALE = 0.9f;
     private static boolean animating = false;
     private final List<AdaptiveIconView> sharedIcons;
-    private final RecyclerView recyclerView;
     private final CategoryData categoryData;
     private final ThemedActivity activity;
     private final FolderList folderList;
     private final Folder folder;
-    private boolean limit;
-    private int size;
 
-    public FolderListAdapter(ThemedActivity activity,
-                             FolderList folderList, RecyclerView recyclerView) {
+    public FolderListAdapter(ThemedActivity activity, FolderList folderList) {
         super(activity);
 
         animating = false;
 
         this.activity = activity;
         this.folderList = folderList;
-        this.recyclerView = recyclerView;
 
         this.categoryData = CategoryData.getInstance();
         this.sharedIcons = new ArrayList<>();
         this.folder = new Folder();
-        this.size = 0;
-        this.limit = true;
 
         setHasStableIds(true);
 
@@ -184,7 +175,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
             gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
                 public int getSpanSize(int position) {
-                    if (!adapter.isCapped() || position < FolderListItemAdapter.SOFT_LIMIT) {
+                    if (position < FolderListItemAdapter.SOFT_LIMIT) {
                         return 2;
                     } else {
                         return 1;
@@ -200,8 +191,8 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
             recycler.setAdapter(adapter);
         }
 
-        public void updateCategory(Category category, boolean animate) {
-            adapter.setCategory(category, animate);
+        public void updateCategory(Category category) {
+            adapter.setCategory(category);
         }
     }
 
@@ -237,87 +228,85 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
             @Override
             public void onClick(View view) {
-                if (viewHolder.adapter.isCapped()) {
-                    Vibrations.getInstance().vibrate();
+                Vibrations.getInstance().vibrate();
 
-                    for (int index = sharedIcons.size() - 1; index >= 0; index--) {
-                        AdaptiveIconView icon = sharedIcons.remove(index);
+                for (int index = sharedIcons.size() - 1; index >= 0; index--) {
+                    AdaptiveIconView icon = sharedIcons.remove(index);
 
-                        icon.setTransitionName(null);
+                    icon.setTransitionName(null);
+                }
+
+                List<View> excluded = new ArrayList<>();
+
+                FragmentManager fragmentManager = folderList.getParentFragmentManager();
+                RecyclerView.LayoutManager layoutManager = viewHolder.recycler.getLayoutManager();
+
+                if (layoutManager != null) {
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+                    for (int position = 0;
+                         position < viewHolder.adapter.getItemCount() &&
+                                 position < FolderListItemAdapter.HARD_LIMIT; position++) {
+
+                        View group = layoutManager.findViewByPosition(position);
+
+                        excluded.add(group);
+
+                        AdaptiveIconView icon = getIcon(group);
+
+                        if (icon != null) {
+                            sharedIcons.add(icon);
+
+                            String transitionName = DrawerAdapter.SHARED_ELEMENT_PREFIX + position;
+
+                            icon.setTransitionName(transitionName);
+                            transaction.addSharedElement(icon, transitionName);
+
+                            excluded.add(icon);
+                        }
                     }
 
-                    List<View> excluded = new ArrayList<>();
+                    excluded.addAll(sharedIcons);
 
-                    FragmentManager fragmentManager = folderList.getParentFragmentManager();
-                    RecyclerView.LayoutManager layoutManager = viewHolder.recycler.getLayoutManager();
+                    SharedAppTransition transition = new SharedAppTransition(false);
 
-                    if (layoutManager != null) {
-                        FragmentTransaction transaction = fragmentManager.beginTransaction();
-
-                        for (int position = 0;
-                             position < viewHolder.adapter.getItemCount() &&
-                                     position < FolderListItemAdapter.HARD_LIMIT; position++) {
-
-                            View group = layoutManager.findViewByPosition(position);
-
-                            excluded.add(group);
-
-                            AdaptiveIconView icon = getIcon(group);
-
-                            if (icon != null) {
-                                sharedIcons.add(icon);
-
-                                String transitionName = DrawerAdapter.SHARED_ELEMENT_PREFIX + position;
-
-                                icon.setTransitionName(transitionName);
-                                transaction.addSharedElement(icon, transitionName);
-
-                                excluded.add(icon);
-                            }
+                    transition.addListener(new TransitionListenerAdapter() {
+                        @Override
+                        public void onTransitionStart(Transition transition) {
+                            animating = true;
                         }
 
-                        excluded.addAll(sharedIcons);
+                        @Override
+                        public void onTransitionEnd(Transition transition) {
+                            animating = false;
+                        }
 
-                        SharedAppTransition transition = new SharedAppTransition(false);
+                        @Override
+                        public void onTransitionCancel(Transition transition) {
+                            animating = false;
+                        }
+                    });
 
-                        transition.addListener(new TransitionListenerAdapter() {
-                            @Override
-                            public void onTransitionStart(Transition transition) {
-                                animating = true;
-                            }
+                    folder.setSharedElementEnterTransition(transition);
+                    folder.setEnterTransition(new FragmentTransition(true, excluded));
+                    folder.setExitTransition(new FragmentTransition(false, null));
+                    folderList.setExitTransition(new FragmentTransition(true, excluded));
 
-                            @Override
-                            public void onTransitionEnd(Transition transition) {
-                                animating = false;
-                            }
+                    transaction.setReorderingAllowed(true);
+                    transaction.addToBackStack(Categories.STACK_ID);
 
-                            @Override
-                            public void onTransitionCancel(Transition transition) {
-                                animating = false;
-                            }
-                        });
+                    transaction.hide(folderList)
+                            .add(R.id.categories, folder);
 
-                        folder.setSharedElementEnterTransition(transition);
-                        folder.setEnterTransition(new FragmentTransition(true, excluded));
-                        folder.setExitTransition(new FragmentTransition(false, null));
-                        folderList.setExitTransition(new FragmentTransition(true, excluded));
+                    fragmentManager.executePendingTransactions();
+                    transaction.commit();
 
-                        transaction.setReorderingAllowed(true);
-                        transaction.addToBackStack(Categories.STACK_ID);
-
-                        transaction.hide(folderList)
-                                .add(R.id.categories, folder);
-
-                        fragmentManager.executePendingTransactions();
-                        transaction.commit();
-
-                        folder.updateCategoryID(category.id);
-                    }
+                    folder.updateCategoryID(category.id);
                 }
             }
         });
 
-        viewHolder.updateCategory(category, limit);
+        viewHolder.updateCategory(category);
     }
 
     @Override
@@ -336,37 +325,8 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
     }
 
     @Override
-    public int getItemCount() {
-        return limit ? Math.min(size, categoryData.size()) : categoryData.size();
-    }
-
-    @Override
-    public void bump() {
-        if (limit) {
-            int approximatedHolderHeight = getApproximatedHolderHeight();
-            int newSize = size +
-                    (approximatedHolderHeight != AsyncRecyclerAdapter.AsyncViewHolder.HEIGHT_UNMEASURED ?
-                            Math.round(
-                                    Math.max(1,
-                                            recyclerView.getMeasuredHeight() / (float) approximatedHolderHeight)
-                            ) : 1
-                    );
-
-            int inserted = newSize - size;
-            size = newSize;
-
-            if (inserted > 0) {
-                notifyItemRangeInserted(getItemCount() - inserted, inserted);
-            }
-        }
-    }
-
-    @Override
-    public void removeLimit() {
-        limit = false;
-
-        int inserted = categoryData.size() - size;
-        notifyItemRangeInserted(getItemCount() - inserted, inserted);
+    public int getSize() {
+        return categoryData.size();
     }
 
     public static boolean isAnimating() {

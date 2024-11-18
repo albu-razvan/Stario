@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class LauncherApplicationManager {
     private static final String TAG = "Applications";
@@ -62,7 +63,7 @@ public final class LauncherApplicationManager {
         this.applicationList = new ArrayList<>();
         this.applicationListHidden = new ArrayList<>();
         this.applicationMap = new HashMap<>();
-        this.listeners = new ArrayList<>();
+        this.listeners = new CopyOnWriteArrayList<>(); // stupid, but I can't figure out where the ConcurrentModification occurs
         this.hiddenSettings = activity.getSharedPreferences(Entry.HIDDEN_APPS);
         this.iconPacks = IconPackManager.from(activity, this::updateIcons);
 
@@ -316,7 +317,7 @@ public final class LauncherApplicationManager {
         return applicationListHidden.size();
     }
 
-    private void addApplication(LauncherApplication application) {
+    private synchronized void addApplication(LauncherApplication application) {
         boolean hidden = hiddenSettings.contains(application.info.packageName);
 
         applicationMap.put(application.info.packageName, application);
@@ -339,7 +340,7 @@ public final class LauncherApplicationManager {
         categoryData.addApplication(application);
     }
 
-    private void addApplicationToList(LauncherApplication applicationToAdd, List<LauncherApplication> list) {
+    private synchronized void addApplicationToList(LauncherApplication applicationToAdd, List<LauncherApplication> list) {
         int left = 0;
         int right = list.size() - 1;
 
@@ -362,7 +363,7 @@ public final class LauncherApplicationManager {
         list.add(left, applicationToAdd);
     }
 
-    private void removeApplication(String packageName) {
+    private synchronized void removeApplication(String packageName) {
         LauncherApplication application = applicationMap.getOrDefault(packageName, LauncherApplication.FALLBACK_APP);
 
         if (application != LauncherApplication.FALLBACK_APP) {
@@ -390,7 +391,7 @@ public final class LauncherApplicationManager {
         }
     }
 
-    public void showApplication(LauncherApplication application) {
+    public synchronized void showApplication(LauncherApplication application) {
         hiddenSettings.edit()
                 .remove(application.info.packageName)
                 .apply();
@@ -408,7 +409,7 @@ public final class LauncherApplicationManager {
         }
     }
 
-    public void hideApplication(LauncherApplication application) {
+    public synchronized void hideApplication(LauncherApplication application) {
         hiddenSettings.edit()
                 .putBoolean(application.info.packageName, true)
                 .apply();
