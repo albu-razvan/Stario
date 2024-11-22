@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<EditText xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.AppCompatEditText xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/search"
     android:layout_width="match_parent"
     android:layout_height="60dp"
@@ -8,9 +8,9 @@
     android:fontFamily="@font/dm_sans_regular"
     android:imeOptions="flagNoExtractUi|actionGo"
     android:lines="1"
-    android:singleLine="true"
     android:maxLines="1"
     android:padding="15dp"
+    android:singleLine="true"
     android:textColor="?attr/colorOnPrimaryContainer"
     android:textSize="18sp"
     android:translationZ="1px" />

@@ -184,7 +184,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
             });
 
             recycler.setLayoutManager(gridLayoutManager);
-            recycler.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE));
+            recycler.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE, Animation.MEDIUM));
 
             adapter = new FolderListItemAdapter(activity);
 

@@ -15,9 +15,8 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.sheet.drawer.search.adapters;
+package com.stario.launcher.sheet.drawer.search.recyclers.adapters;
 
-import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.app.SearchManager;
@@ -29,10 +28,7 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.window.SplashScreen;
 
@@ -44,35 +40,31 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.LauncherApplicationManager;
-import com.stario.launcher.sheet.drawer.search.Searchable;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class OptionAdapter extends
-        RecyclerView.Adapter<OptionAdapter.ViewHolder> implements Searchable {
+public class OptionAdapter extends AbstractSearchListAdapter {
     private static final String TAG = "com.stario.launcher.OptionAdapter";
     private static final String[] PREDEFINED_URIS = new String[]{"market://search?q=", "geo:?q="};
     private final ArrayList<OptionEntry> options;
     private final ThemedActivity activity;
-    private final ViewGroup content;
-    private final RecyclerView.LayoutManager layoutManager;
     private final PackageManager packageManager;
+    private RecyclerView recyclerView;
     private boolean show;
     private String query;
 
-    public OptionAdapter(ThemedActivity activity, ViewGroup content,
-                         RecyclerView.LayoutManager layoutManager) {
+    public OptionAdapter(ThemedActivity activity) {
+        super(activity, false);
+
         this.options = new ArrayList<>();
         this.show = false;
 
-        this.layoutManager = layoutManager;
         this.activity = activity;
-        this.content = content;
 
         this.packageManager = activity.getPackageManager();
 
@@ -121,82 +113,133 @@ public class OptionAdapter extends
                 }
             }
 
-            UiUtils.runOnUIThread(this::notifyDataSetChangedInternal);
+            UiUtils.runOnUIThread(this::notifyInternal);
         });
 
-        //TODO listen to application list changes
+        LauncherApplicationManager.from(activity)
+                .addApplicationListener(new LauncherApplicationManager.ApplicationListener() {
+                    private void insert(LauncherApplication application) {
+                        String[] filters = new String[]{Intent.ACTION_WEB_SEARCH, Intent.ACTION_SEARCH};
+
+                        for (String filter : filters) {
+                            Intent intent = new Intent(filter);
+                            intent.setPackage(application.getInfo().packageName);
+
+                            List<ResolveInfo> resolveInfo = packageManager.queryIntentActivities(intent, PackageManager.GET_RESOLVED_FILTER);
+
+                            if (!resolveInfo.isEmpty()) {
+                                options.add(new OptionEntry(application, resolveInfo.get(0).activityInfo, filter));
+
+                                notifyInternal();
+                            }
+                        }
+                    }
+
+                    private void remove(LauncherApplication application) {
+                        Iterator<OptionEntry> iterator = options.iterator();
+
+                        while (iterator.hasNext()) {
+                            OptionEntry entry = iterator.next();
+
+                            if (entry.application.equals(application)) {
+                                iterator.remove();
+
+                                return;
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onInserted(LauncherApplication application) {
+                        insert(application);
+                    }
+
+                    @Override
+                    public void onShowed(LauncherApplication application) {
+                        insert(application);
+                    }
+
+                    @Override
+                    public void onRemoved(LauncherApplication application) {
+                        remove(application);
+                    }
+
+                    @Override
+                    public void onHidden(LauncherApplication application) {
+                        remove(application);
+                    }
+
+                    @Override
+                    public void onUpdated(LauncherApplication application) {
+                        for (int index = 0; index < options.size(); index++) {
+                            OptionEntry entry = options.get(index);
+
+                            if (entry.application.equals(application)) {
+                                notifyItemChanged(index);
+
+                                return;
+                            }
+                        }
+                    }
+                });
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final TextView label;
-        private final AdaptiveIconView icon;
-
-        @SuppressLint("ClickableViewAccessibility")
-        public ViewHolder(ViewGroup itemView) {
-            super(itemView);
-
-            label = itemView.findViewById(R.id.textView);
-            icon = itemView.findViewById(R.id.icon);
-
-            itemView.setHapticFeedbackEnabled(false);
-        }
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void update(String query) {
         this.query = query;
 
-        if(query.length() > 0) {
-            if(!show) {
+        if (query.length() > 0) {
+            if (!show) {
                 show = true;
 
-                notifyDataSetChangedInternal();
+                invalidateRecyclerVisibility();
             }
         } else {
-            if(show) {
-                notifyDataSetChangedInternal();
-
+            if (show) {
                 show = false;
+
+                invalidateRecyclerVisibility();
             }
         }
     }
 
     @Override
     public boolean submit() {
-        View view = layoutManager.findViewByPosition(0);
+        if (recyclerView != null &&
+                recyclerView.getLayoutManager() != null &&
+                recyclerView.getVisibility() == View.VISIBLE) {
+            View view = recyclerView.getLayoutManager()
+                    .findViewByPosition(0);
 
-        if (view != null) {
-            view.callOnClick();
+            if (view != null) {
+                view.callOnClick();
 
-            return true;
-        } else {
-            return false;
+                return true;
+            } else {
+                return false;
+            }
         }
-    }
 
-    private void notifyDataSetChangedInternal() {
-        LayoutTransition transition = content.getLayoutTransition();
-
-        if (transition != null && transition.isRunning()) {
-            transition.addTransitionListener(new LayoutTransition.TransitionListener() {
-                @Override
-                public void startTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
-                }
-
-                @Override
-                public void endTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
-                    notifyDataSetChanged();
-
-                    transition.removeTransitionListener(this);
-                }
-            });
-        } else {
-            notifyDataSetChanged();
-        }
+        return false;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int index) {
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        this.recyclerView = recyclerView;
+
+        super.onAttachedToRecyclerView(recyclerView);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        this.recyclerView = null;
+
+        super.onDetachedFromRecyclerView(recyclerView);
+    }
+
+    @Override
+    public void onBindViewHolder(AbstractSearchListAdapter.ViewHolder viewHolder, int index) {
         OptionEntry entry = options.get(index);
 
         viewHolder.label.setText(activity.getResources().getString(R.string.search_on) + " " + entry.application.getLabel());
@@ -239,13 +282,6 @@ public class OptionAdapter extends
     @Override
     public long getItemId(int position) {
         return options.get(position).hashCode();
-    }
-
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup container, int viewType) {
-        return new ViewHolder((ViewGroup) LayoutInflater.from(activity)
-                .inflate(R.layout.search_item, container, false));
     }
 
     private static class OptionEntry {

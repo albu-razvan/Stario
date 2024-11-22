@@ -26,15 +26,13 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.widget.PreScrollListeningNestedScrollView;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,24 +40,26 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bosphere.fadingedgelayout.FadingEdgeLayout;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.stario.launcher.R;
-import com.stario.launcher.sheet.drawer.search.adapters.AppAdapter;
-import com.stario.launcher.sheet.drawer.search.adapters.OptionAdapter;
-import com.stario.launcher.sheet.drawer.search.adapters.WebAdapter;
+import com.stario.launcher.sheet.drawer.search.recyclers.OnSearchRecyclerVisibilityChangeListener;
+import com.stario.launcher.sheet.drawer.search.recyclers.SearchRecyclerItemAnimator;
+import com.stario.launcher.sheet.drawer.search.recyclers.adapters.AppAdapter;
+import com.stario.launcher.sheet.drawer.search.recyclers.adapters.OptionAdapter;
+import com.stario.launcher.sheet.drawer.search.recyclers.adapters.WebAdapter;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
-import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
 import com.stario.launcher.ui.recyclers.async.InflationType;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.animation.Animation;
 
 public class SearchFragment extends Fragment {
     public static final String TAG = "SearchFragment";
+    public static final int MAX_LIST_ITEMS = 4;
     private KeyboardHeightProvider heightProvider;
+    private AppCompatEditText search;
     private ThemedActivity activity;
     private ViewGroup content;
-    private EditText search;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -81,6 +81,8 @@ public class SearchFragment extends Fragment {
 
         View root = inflater.inflate(R.layout.search, container, false);
 
+        root.setOnTouchListener((v, event) -> true);
+
         heightProvider = new KeyboardHeightProvider(activity);
 
         PreScrollListeningNestedScrollView scrollView = root.findViewById(R.id.scroller);
@@ -88,26 +90,24 @@ public class SearchFragment extends Fragment {
         search = root.findViewById(R.id.search);
         content = root.findViewById(R.id.content);
 
-        LayoutTransition contentLayoutTransition = new LayoutTransition();
-        contentLayoutTransition.enableTransitionType(LayoutTransition.CHANGING);
-        contentLayoutTransition.setDuration(LayoutTransition.CHANGING, Animation.MEDIUM.getDuration());
-        contentLayoutTransition.setInterpolator(LayoutTransition.CHANGING, new DecelerateInterpolator(2));
+        SearchLayoutTransition searchLayoutTransition = new SearchLayoutTransition();
+        LayoutTransition nativeTransitionCast = searchLayoutTransition.getUnrefinedTransition();
 
-        content.setLayoutTransition(contentLayoutTransition);
+        nativeTransitionCast.setDuration(LayoutTransition.CHANGING, Animation.MEDIUM.getDuration());
+
+        content.setLayoutTransition(nativeTransitionCast);
 
         RecyclerView apps = root.findViewById(R.id.apps);
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(activity,
-                Measurements.getListColumnCount());
-        gridLayoutManager.setItemPrefetchEnabled(true);
-
-        Measurements.addListColumnCountChangeListener(gridLayoutManager::setSpanCount);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(activity, MAX_LIST_ITEMS);
 
         apps.setLayoutManager(gridLayoutManager);
-        apps.setItemAnimator(new DefaultItemAnimator());
+        apps.setItemAnimator(null);
 
-        AppAdapter appAdapter = new AppAdapter(activity, content, gridLayoutManager);
+        AppAdapter appAdapter = new AppAdapter(activity);
         appAdapter.setInflationType(InflationType.SYNCED);
+        appAdapter.setOnVisibilityChangeListener(new OnSearchRecyclerVisibilityChangeListener(searchLayoutTransition));
+
         apps.setAdapter(appAdapter);
 
         RecyclerView web = root.findViewById(R.id.web);
@@ -116,9 +116,11 @@ public class SearchFragment extends Fragment {
 
         web.setLayoutManager(webLinearLayoutManager);
         web.addItemDecoration(new DividerItemDecorator(activity, MaterialDividerItemDecoration.VERTICAL));
-        web.setItemAnimator(null);
+        web.setItemAnimator(new SearchRecyclerItemAnimator(Animation.MEDIUM));
 
-        WebAdapter webAdapter = new WebAdapter(activity, content);
+        WebAdapter webAdapter = new WebAdapter(activity);
+        webAdapter.setOnVisibilityChangeListener(new OnSearchRecyclerVisibilityChangeListener(searchLayoutTransition));
+
         web.setAdapter(webAdapter);
 
         RecyclerView options = root.findViewById(R.id.options);
@@ -129,10 +131,11 @@ public class SearchFragment extends Fragment {
 
         options.setLayoutManager(optionsLinearLayoutManager);
         options.addItemDecoration(new DividerItemDecorator(activity, MaterialDividerItemDecoration.VERTICAL));
-        options.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE &
-                RecyclerItemAnimator.DISAPPEARANCE));
+        options.setItemAnimator(new SearchRecyclerItemAnimator(Animation.MEDIUM));
 
-        OptionAdapter optionAdapter = new OptionAdapter(activity, content, optionsLinearLayoutManager);
+        OptionAdapter optionAdapter = new OptionAdapter(activity);
+        optionAdapter.setOnVisibilityChangeListener(new OnSearchRecyclerVisibilityChangeListener(searchLayoutTransition));
+
         options.setAdapter(optionAdapter);
 
         search.setFocusable(true);
@@ -197,25 +200,28 @@ public class SearchFragment extends Fragment {
 
         search.setOnEditorActionListener((view, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_GO) {
-                if (!appAdapter.submit()) {
-                    webAdapter.submit();
-                }
-
-                return true;
+                return appAdapter.submit() || webAdapter.submit() || optionAdapter.submit();
             }
 
             return false;
         });
 
         search.addTextChangedListener(new TextWatcher() {
+            private static final int INTERVAL = 300;
+            private long lastRegisteredTimestamp = 0;
+
+            private void updateWebAdapterLimit(String query, long timeStamp) {
+                if (timeStamp == lastRegisteredTimestamp) {
+                    webAdapter.update(query);
+                }
+            }
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
             }
 
             @Override
@@ -225,8 +231,19 @@ public class SearchFragment extends Fragment {
 
                 if (filteredQuery.equals(query)) {
                     appAdapter.update(query);
-                    webAdapter.update(query);
                     optionAdapter.update(query);
+
+                    long timestamp = System.currentTimeMillis();
+
+                    if (query.isBlank() || appAdapter.getItemCount() == 0) {
+                        webAdapter.update(query);
+                    } else {
+                        // don't process text changes too often
+                        search.postDelayed(() -> updateWebAdapterLimit(query,
+                                timestamp), INTERVAL);
+                    }
+
+                    lastRegisteredTimestamp = System.currentTimeMillis();
                 } else {
                     search.setText(filteredQuery);
                 }

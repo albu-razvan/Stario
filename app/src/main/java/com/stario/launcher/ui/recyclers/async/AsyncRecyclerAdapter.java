@@ -184,10 +184,13 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     @Override
     public final void onBindViewHolder(@NonNull AVH holder, int position) {
         holder.setOnInflatedInternal(() -> {
-            if (limit < getSize()) {
+            if (type == InflationType.ASYNC && limit < getSize()) {
                 recyclerView.post(() -> {
                     limit++;
-                    notifyItemInserted(limit);
+
+                    if (limit < getSize()) {
+                        notifyItemInserted(limit);
+                    }
                 });
             }
 

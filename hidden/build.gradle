@@ -6,6 +6,10 @@ android {
     namespace 'com.stario.launcher.hidden'
     compileSdk 34
 
+    defaultConfig {
+        minSdkVersion 28
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_14
         targetCompatibility JavaVersion.VERSION_14

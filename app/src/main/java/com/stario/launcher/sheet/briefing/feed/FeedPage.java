@@ -41,6 +41,7 @@ import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
+import com.stario.launcher.utils.animation.Animation;
 import com.stario.launcher.utils.objects.ObservableObject;
 
 import java.util.concurrent.Future;
@@ -99,7 +100,7 @@ public class FeedPage extends Fragment {
         exception = root.findViewById(R.id.exception);
 
         recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        recyclerView.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE));
+        recyclerView.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE, Animation.MEDIUM));
 
         final int baseTopPadding = Measurements.dpToPx(15);
 
