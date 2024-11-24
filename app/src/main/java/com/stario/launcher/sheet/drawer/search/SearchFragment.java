@@ -20,18 +20,24 @@ package com.stario.launcher.sheet.drawer.search;
 import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
-import androidx.core.widget.PreScrollListeningNestedScrollView;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsAnimationCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.widget.PreEventNestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -51,7 +57,12 @@ import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 import com.stario.launcher.ui.recyclers.async.InflationType;
 import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.animation.Animation;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SearchFragment extends Fragment {
     public static final String TAG = "SearchFragment";
@@ -85,8 +96,9 @@ public class SearchFragment extends Fragment {
 
         heightProvider = new KeyboardHeightProvider(activity);
 
-        PreScrollListeningNestedScrollView scrollView = root.findViewById(R.id.scroller);
+        PreEventNestedScrollView scrollView = root.findViewById(R.id.scroller);
         FadingEdgeLayout fader = root.findViewById(R.id.fader);
+        RelativeLayout searchContainer = root.findViewById(R.id.search_container);
         search = root.findViewById(R.id.search);
         content = root.findViewById(R.id.content);
 
@@ -158,7 +170,7 @@ public class SearchFragment extends Fragment {
                             Measurements.getDefaultPadding() + search.getMeasuredHeight());
 
             ((ViewGroup.MarginLayoutParams) search.getLayoutParams()).bottomMargin =
-                    value + heightProvider.getKeyboardHeight();
+                    value + (Utils.isMinimumSDK(Build.VERSION_CODES.R) ? 0 : heightProvider.getKeyboardHeight());
             search.requestLayout();
 
             fader.setFadeSizes(Measurements.getSysUIHeight(), 0,
@@ -166,14 +178,17 @@ public class SearchFragment extends Fragment {
                             search.getMeasuredHeight(), 0);
         });
 
-        heightProvider.setKeyboardHeightObserver((height) -> {
-            content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
-                    content.getPaddingRight(), height);
+        if (!Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
+            heightProvider.addKeyboardHeightObserver((height) -> {
+                content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
+                        content.getPaddingRight(), height);
 
-            ((ViewGroup.MarginLayoutParams) search.getLayoutParams()).bottomMargin =
-                    height + Measurements.getNavHeight();
-            search.requestLayout();
-        });
+                ((ViewGroup.MarginLayoutParams) search.getLayoutParams()).bottomMargin =
+                        height + Measurements.getNavHeight();
+
+                search.requestLayout();
+            });
+        }
 
         search.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
             fader.setFadeSizes(Measurements.getSysUIHeight(), 0,
@@ -187,16 +202,206 @@ public class SearchFragment extends Fragment {
 
         heightProvider.start();
 
-        scrollView.setOnPreScrollListener(direction -> {
-            if (direction == PreScrollListeningNestedScrollView.DOWN &&
-                    scrollView.getScrollY() == 0 && heightProvider.getKeyboardHeight() > 0) {
-                UiUtils.hideKeyboard(search);
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
+            AtomicReference<Integer> lastVelocity = new AtomicReference<>(null);
+            AtomicBoolean isPointerDown = new AtomicBoolean(false);
+            AtomicBoolean skipNextAnimationFrame = new AtomicBoolean(false);
+            ImeAnimationController controller = new ImeAnimationController();
+
+            scrollView.setOnPreScrollListener(new PreEventNestedScrollView.PreEvent() {
+                @Override
+                public boolean onPreScroll(int delta) {
+                    if (controller.isAnimationInProgress() &&
+                            !controller.isSettleAnimationInProgress() &&
+                            ((scrollView.getScrollY() == 0 && delta > 0 && !controller.isCurrentPositionFullyShown()) ||
+                                    (delta < 0 && !controller.isCurrentPositionFullyHidden()))) {
+
+                        return controller.insetBy(-delta) != 0;
+                    }
+
+                    WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(scrollView);
+
+                    if (insets != null) {
+                        boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
+
+                        if (delta < 0 && !isKeyboardVisible) {
+                            return false;
+                        }
+
+                        if ((delta > 0 && isKeyboardVisible) || scrollView.getScrollY() > 0) {
+                            return false;
+                        }
+                    }
+
+                    return controller.isRequestPending();
+                }
+
+                @Override
+                public boolean onPreFling(int velocity) {
+                    lastVelocity.set(velocity);
+
+                    if (scrollView.getScrollY() == 0 && controller.isAnimationInProgress()) {
+                        if (!controller.isSettleAnimationInProgress()) {
+                            controller.finish(-velocity);
+                        }
+
+                        return true;
+                    }
+
+                    WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(scrollView);
+
+                    if (insets != null) {
+                        boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
+
+                        if (velocity > 0 && !isKeyboardVisible) {
+                            return false;
+                        }
+
+                        if ((velocity < 0 && isKeyboardVisible) || scrollView.getScrollY() > 0) {
+                            return false;
+                        }
+                    }
+
+                    return controller.isRequestPending();
+                }
+            });
+
+            scrollView.setOnTouchListener((v, event) -> {
+                if (event.getAction() == MotionEvent.ACTION_DOWN ||
+                        event.getAction() == MotionEvent.ACTION_MOVE) {
+                    if (!isPointerDown.get() && !controller.isAnimationInProgress() &&
+                            !controller.isRequestPending()) {
+                        controller.startControlRequest(search, new ImeAnimationController.StateListener() {
+                            @Override
+                            public void onReady() {
+                                if (!isPointerDown.get()) {
+                                    if (lastVelocity.get() != null) {
+                                        if ((scrollView.getScrollY() == 0 && lastVelocity.get() < 0 && !controller.isCurrentPositionFullyShown()) ||
+                                                (lastVelocity.get() > 0 && !controller.isCurrentPositionFullyHidden())) {
+                                            controller.finish(-lastVelocity.get());
+                                        } else {
+                                            controller.finish();
+                                        }
+                                    } else {
+                                        controller.finish();
+                                    }
+
+                                    lastVelocity.set(null);
+                                }
+                            }
+
+                            @Override
+                            public void onPreFinish() {
+                                // prevent animation bug frame after finishing the inset controller animation
+                                skipNextAnimationFrame.set(true);
+                            }
+                        });
+                    }
+
+                    isPointerDown.set(true);
+                }
+
+                if (event.getAction() == MotionEvent.ACTION_UP ||
+                        event.getAction() == MotionEvent.ACTION_CANCEL) {
+                    isPointerDown.set(false);
+
+                    scrollView.post(() -> {
+                        if (controller.isAnimationInProgress() &&
+                                !controller.isSettleAnimationInProgress()) {
+                            controller.finish();
+                        }
+                    });
+                }
 
                 return false;
-            }
+            });
 
-            return true;
-        });
+            ViewCompat.setWindowInsetsAnimationCallback(root, new WindowInsetsAnimationCompat
+                    .Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
+                private WindowInsetsAnimationCompat imeAnimation;
+                private float startBottom;
+                private float endBottom;
+
+                @Override
+                public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
+                    startBottom = heightProvider.getKeyboardHeight();
+                }
+
+                @NonNull
+                @Override
+                public WindowInsetsAnimationCompat.BoundsCompat onStart(@NonNull WindowInsetsAnimationCompat animation, @NonNull WindowInsetsAnimationCompat.BoundsCompat bounds) {
+                    endBottom = 0;
+
+                    heightProvider.addKeyboardHeightObserver(new KeyboardHeightProvider.KeyboardHeightObserver() {
+                        @Override
+                        public void onKeyboardHeightChanged(int height) {
+                            endBottom = height;
+
+                            heightProvider.removeKeyboardHeightObserver(this);
+                        }
+                    });
+
+                    return bounds;
+                }
+
+                @NonNull
+                @Override
+                public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets, @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
+                    // prevent controller animation bug frame here
+                    if (!skipNextAnimationFrame.get()) {
+                        if (imeAnimation == null) {
+                            for (WindowInsetsAnimationCompat animation : runningAnimations) {
+                                if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) != 0) {
+                                    imeAnimation = animation;
+
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (imeAnimation != null) {
+                            float delta = endBottom - startBottom;
+                            float translation = delta * ((delta < 0 ? 1 : 0) - imeAnimation.getInterpolatedFraction());
+
+                            content.setTranslationY(-translation);
+                            searchContainer.setTranslationY(translation);
+                        }
+                    } else {
+                        skipNextAnimationFrame.set(false);
+                    }
+
+                    return insets;
+                }
+
+                @Override
+                public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
+                    imeAnimation = null;
+                }
+            });
+        } else {
+            scrollView.setOnPreScrollListener(new PreEventNestedScrollView.PreEvent() {
+                private boolean updateKeyboardVisibility(float direction) {
+                    if (direction == PreEventNestedScrollView.DOWN &&
+                            scrollView.getScrollY() == 0 && heightProvider.getKeyboardHeight() > 0) {
+                        UiUtils.hideKeyboard(search);
+
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                @Override
+                public boolean onPreScroll(int delta) {
+                    return updateKeyboardVisibility(Math.signum(delta));
+                }
+
+                @Override
+                public boolean onPreFling(int velocity) {
+                    return updateKeyboardVisibility(Math.signum(velocity));
+                }
+            });
+        }
 
         search.setOnEditorActionListener((view, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_GO) {

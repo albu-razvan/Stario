@@ -20,6 +20,7 @@ package com.stario.launcher.sheet.widgets.configurator;
 import android.annotation.SuppressLint;
 import android.appwidget.AppWidgetProviderInfo;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -144,7 +145,7 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
             holder.medium.setVisibility(View.VISIBLE);
             holder.large.setVisibility(View.VISIBLE);
 
-            if (Utils.isMinimumSDK(31) &&
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.S) &&
                     info.targetCellHeight > 0 &&
                     info.targetCellWidth > 0) {
                 if (info.targetCellHeight > 3) {
@@ -177,7 +178,7 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
 
             Drawable previewImage = info.loadPreviewImage(activity, Measurements.getDotsPerInch());
 
-            if (Utils.isMinimumSDK(31)) {
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
                 int previewLayout = info.previewLayout;
 
                 if (previewLayout != 0) {

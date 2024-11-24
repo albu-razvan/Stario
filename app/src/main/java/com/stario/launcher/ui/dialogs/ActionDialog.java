@@ -18,6 +18,7 @@
 package com.stario.launcher.ui.dialogs;
 
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -103,7 +104,7 @@ public abstract class ActionDialog extends BottomSheetDialog {
                 window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
                 window.setDimAmount(0.5f);
 
-                if (Utils.isMinimumSDK(31)) {
+                if (Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
                     WindowManager.LayoutParams attributes = window.getAttributes();
 
                     attributes.setBlurBehindRadius(

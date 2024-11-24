@@ -18,6 +18,7 @@
 package com.stario.launcher.activities;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.Gravity;
@@ -151,7 +152,7 @@ public class Launcher extends ThemedActivity {
                 decorView.setTranslationX(0);
             }
 
-            if (Utils.isMinimumSDK(30)) {
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
                 slideOffset = Math.min(1, slideOffset);
 
                 wallpaperManager.setWallpaperZoomOut(windowToken, slideOffset);

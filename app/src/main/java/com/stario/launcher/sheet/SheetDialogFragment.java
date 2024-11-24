@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -191,7 +192,7 @@ public abstract class SheetDialogFragment extends AppCompatDialogFragment {
                         // only STEP_COUNT states for performance
                         int step = (int) (STEP_COUNT * slideOffset);
 
-                        if (Utils.isMinimumSDK(31) && lastBlurStep != step) {
+                        if (Utils.isMinimumSDK(Build.VERSION_CODES.S) && lastBlurStep != step) {
                             window.setBackgroundBlurRadius((int) (step * BLUR_STEP));
 
                             this.lastBlurStep = step;

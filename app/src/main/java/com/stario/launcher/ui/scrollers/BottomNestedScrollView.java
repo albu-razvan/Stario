@@ -24,9 +24,9 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.widget.PreScrollListeningNestedScrollView;
+import androidx.core.widget.PreEventNestedScrollView;
 
-public class BottomNestedScrollView extends PreScrollListeningNestedScrollView {
+public class BottomNestedScrollView extends PreEventNestedScrollView {
     private boolean nestedScrolling;
 
     public BottomNestedScrollView(@NonNull Context context) {

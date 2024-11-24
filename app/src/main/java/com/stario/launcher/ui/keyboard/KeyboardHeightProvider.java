@@ -34,8 +34,11 @@ import android.widget.PopupWindow;
 
 import com.stario.launcher.utils.Utils;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 public class KeyboardHeightProvider extends PopupWindow {
-    private KeyboardHeightObserver observer;
+    private final List<KeyboardHeightObserver> observers;
     private final ViewTreeObserver.OnGlobalLayoutListener listener;
     private final View popupView;
     private final View parentView;
@@ -45,6 +48,7 @@ public class KeyboardHeightProvider extends PopupWindow {
         super(activity);
         this.activity = activity;
 
+        this.observers = new CopyOnWriteArrayList<>();
         this.popupView = new LinearLayout(activity);
         popupView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         popupView.setBackground(new ColorDrawable(0));
@@ -72,9 +76,7 @@ public class KeyboardHeightProvider extends PopupWindow {
             popupView.getViewTreeObserver()
                     .addOnGlobalLayoutListener(listener);
 
-            if(observer != null) {
-                observer.onKeyboardHeightChanged(getKeyboardHeight());
-            }
+            notifyKeyboardHeightChanged(getKeyboardHeight());
         }
     }
 
@@ -85,12 +87,20 @@ public class KeyboardHeightProvider extends PopupWindow {
         dismiss();
     }
 
-    public void setKeyboardHeightObserver(KeyboardHeightObserver observer) {
-        this.observer = observer;
+    public void addKeyboardHeightObserver(KeyboardHeightObserver observer) {
+        if (observer != null) {
+            observers.add(observer);
+        }
+    }
+
+    public void removeKeyboardHeightObserver(KeyboardHeightObserver observer) {
+        if (observer != null) {
+            observers.remove(observer);
+        }
     }
 
     private void notifyKeyboardHeightChanged(int height) {
-        if (observer != null) {
+        for (KeyboardHeightObserver observer : observers) {
             observer.onKeyboardHeightChanged(height);
         }
     }

@@ -24,6 +24,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.view.LayoutInflater;
@@ -91,7 +92,7 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
                     String label;
                     Drawable icon;
 
-                    if (Utils.isMinimumSDK(31)) {
+                    if (Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
                         ActivityInfo activityInfo = info.getActivityInfo();
 
                         label = activityInfo.loadLabel(packageManager).toString();
