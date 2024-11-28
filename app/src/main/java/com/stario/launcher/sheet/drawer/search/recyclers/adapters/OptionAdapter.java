@@ -251,11 +251,12 @@ public class OptionAdapter extends AbstractSearchListAdapter {
                     ActivityOptions.makeScaleUpAnimation(viewHolder.icon, 0, 0,
                             viewHolder.icon.getWidth(), viewHolder.icon.getHeight());
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
                 activityOptions.setSplashScreenStyle(SplashScreen.SPLASH_SCREEN_STYLE_SOLID_COLOR);
             }
 
             Intent intent = entry.getIntent();
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
             Uri uri = intent.getData();
             if (uri != null) {

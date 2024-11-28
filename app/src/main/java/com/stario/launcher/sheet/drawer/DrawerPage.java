@@ -20,6 +20,7 @@ package com.stario.launcher.sheet.drawer;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,10 +38,18 @@ import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.recyclers.ScrollToTop;
 
 public abstract class DrawerPage extends Fragment implements ScrollToTop {
+    private int currentlyRunningAnimations;
+
     protected ThemedActivity activity;
     protected RecyclerView drawer;
-    protected TextView title;
     protected EditText search;
+    protected TextView title;
+
+    public DrawerPage() {
+        super();
+
+        this.currentlyRunningAnimations = 0;
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -143,4 +152,144 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
     protected abstract int getLayoutResID();
 
     protected abstract int getPosition();
+
+    // Whoever designed the fragment transition API, I'm coming after you...
+    // Really ugly workaround to waiting for all transitions to finish
+    // For some reason, not specifying int res transitions, but androidx or
+    // platform transition and/or SharedElement transitions in transactions
+    // results in FragmentTransaction.show() to not show because the visibility
+    // of the fragment does not change until the end of the animation;
+    // therefore, new transitions will not run on stack pop and current transitions
+    // will NOT be cancelled either????? Basically, hidden fragment just "disappears".
+
+    @Override
+    public void setEnterTransition(@Nullable Object transition) {
+        super.setEnterTransition(transition);
+
+        if (transition instanceof androidx.transition.Transition) {
+            setTransitionAndroidXListener((androidx.transition.Transition) transition);
+        } else if (transition instanceof android.transition.Transition) {
+            setTransitionListener((android.transition.Transition) transition);
+        }
+    }
+
+    @Override
+    public void setExitTransition(@Nullable Object transition) {
+        super.setExitTransition(transition);
+
+        if (transition instanceof androidx.transition.Transition) {
+            setTransitionAndroidXListener((androidx.transition.Transition) transition);
+        } else if (transition instanceof android.transition.Transition) {
+            setTransitionListener((android.transition.Transition) transition);
+        }
+    }
+
+    @Override
+    public void setReenterTransition(@Nullable Object transition) {
+        super.setReenterTransition(transition);
+
+        if (transition instanceof androidx.transition.Transition) {
+            setTransitionAndroidXListener((androidx.transition.Transition) transition);
+        } else if (transition instanceof android.transition.Transition) {
+            setTransitionListener((android.transition.Transition) transition);
+        }
+    }
+
+    @Override
+    public void setReturnTransition(@Nullable Object transition) {
+        super.setReturnTransition(transition);
+
+        if (transition instanceof androidx.transition.Transition) {
+            setTransitionAndroidXListener((androidx.transition.Transition) transition);
+        } else if (transition instanceof android.transition.Transition) {
+            setTransitionListener((android.transition.Transition) transition);
+        }
+    }
+
+    @Override
+    public void setSharedElementEnterTransition(@Nullable Object transition) {
+        super.setSharedElementEnterTransition(transition);
+
+        if (transition instanceof androidx.transition.Transition) {
+            setTransitionAndroidXListener((androidx.transition.Transition) transition);
+        } else if (transition instanceof android.transition.Transition) {
+            setTransitionListener((android.transition.Transition) transition);
+        }
+    }
+
+    @Override
+    public void setSharedElementReturnTransition(@Nullable Object transition) {
+        super.setSharedElementReturnTransition(transition);
+
+        if (transition instanceof androidx.transition.Transition) {
+            setTransitionAndroidXListener((androidx.transition.Transition) transition);
+        } else if (transition instanceof android.transition.Transition) {
+            setTransitionListener((android.transition.Transition) transition);
+        }
+    }
+
+    private void setTransitionAndroidXListener(androidx.transition.Transition transition) {
+        transition.addListener(new androidx.transition.Transition.TransitionListener() {
+            @Override
+            public void onTransitionStart(@NonNull androidx.transition.Transition transition) {
+                currentlyRunningAnimations++;
+            }
+
+            @Override
+            public void onTransitionEnd(@NonNull androidx.transition.Transition transition) {
+                currentlyRunningAnimations--;
+            }
+
+            @Override
+            public void onTransitionCancel(@NonNull androidx.transition.Transition transition) {
+                Log.i("TAG", "onTransitionCancel: ");
+                currentlyRunningAnimations--;
+            }
+
+            @Override
+            public void onTransitionPause(@NonNull androidx.transition.Transition transition) {
+                currentlyRunningAnimations--;
+            }
+
+            @Override
+            public void onTransitionResume(@NonNull androidx.transition.Transition transition) {
+                currentlyRunningAnimations++;
+            }
+        });
+    }
+
+    private void setTransitionListener(android.transition.Transition transition) {
+        transition.addListener(new android.transition.TransitionListenerAdapter() {
+            @Override
+            public void onTransitionStart(android.transition.Transition transition) {
+                currentlyRunningAnimations++;
+            }
+
+            @Override
+            public void onTransitionEnd(android.transition.Transition transition) {
+                currentlyRunningAnimations--;
+            }
+
+            @Override
+            public void onTransitionCancel(android.transition.Transition transition) {
+                Log.i("TAG", "onTransitionCancel: ");
+
+                currentlyRunningAnimations--;
+            }
+
+            @Override
+            public void onTransitionPause(android.transition.Transition transition) {
+                currentlyRunningAnimations--;
+            }
+
+            @Override
+            public void onTransitionResume(android.transition.Transition transition) {
+                currentlyRunningAnimations++;
+            }
+        });
+    }
+
+    public boolean isTransitioning() {
+        return currentlyRunningAnimations != 0;
+    }
 }

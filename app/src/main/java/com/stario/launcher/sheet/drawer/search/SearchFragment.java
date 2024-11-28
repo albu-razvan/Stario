@@ -20,6 +20,7 @@ package com.stario.launcher.sheet.drawer.search;
 import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -67,6 +68,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class SearchFragment extends Fragment {
     public static final String TAG = "SearchFragment";
     public static final int MAX_LIST_ITEMS = 4;
+    private SearchLayoutTransition searchLayoutTransition;
     private KeyboardHeightProvider heightProvider;
     private AppCompatEditText search;
     private ThemedActivity activity;
@@ -102,7 +104,7 @@ public class SearchFragment extends Fragment {
         search = root.findViewById(R.id.search);
         content = root.findViewById(R.id.content);
 
-        SearchLayoutTransition searchLayoutTransition = new SearchLayoutTransition();
+        searchLayoutTransition = new SearchLayoutTransition();
         LayoutTransition nativeTransitionCast = searchLayoutTransition.getUnrefinedTransition();
 
         nativeTransitionCast.setDuration(LayoutTransition.CHANGING, Animation.MEDIUM.getDuration());
@@ -455,7 +457,7 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        options.post(() -> {
+        content.post(() -> {
             startPostponedEnterTransition();
 
             UiUtils.showKeyboard(search);
@@ -467,7 +469,6 @@ public class SearchFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-
         search.setText(null);
     }
 
@@ -487,5 +488,19 @@ public class SearchFragment extends Fragment {
         }
 
         super.onDestroy();
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        searchLayoutTransition.setAnimate(false);
+
+        super.onConfigurationChanged(newConfig);
+
+        // make sure that the animation succeeded
+        // will be masked by the rotation crossfade
+        search.postDelayed(() -> {
+            UiUtils.hideKeyboard(search);
+            searchLayoutTransition.setAnimate(true);
+        }, 30);
     }
 }

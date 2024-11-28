@@ -155,7 +155,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
                     int oldLimit = limit;
 
                     limit = getSize();
-                    notifyItemRangeInserted(oldLimit, limit - oldLimit);
+                    recyclerView.post(() -> notifyItemRangeInserted(oldLimit, limit - oldLimit));
 
                     recyclerView.removeOnScrollListener(this);
                 }
@@ -189,7 +189,9 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
                     limit++;
 
                     if (limit < getSize()) {
-                        notifyItemInserted(limit);
+                        if (recyclerView != null) {
+                            recyclerView.post(() -> notifyItemInserted(limit));
+                        }
                     }
                 });
             }

@@ -183,7 +183,7 @@ public class WebAdapter extends AbstractSearchListAdapter {
         ActivityOptions activityOptions =
                 ActivityOptions.makeBasic();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
             activityOptions.setSplashScreenStyle(SplashScreen.SPLASH_SCREEN_STYLE_ICON);
         }
 
@@ -215,7 +215,7 @@ public class WebAdapter extends AbstractSearchListAdapter {
                     ActivityOptions.makeScaleUpAnimation(viewHolder.icon, 0, 0,
                             viewHolder.icon.getWidth(), viewHolder.icon.getHeight());
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
                 activityOptions.setSplashScreenStyle(SplashScreen.SPLASH_SCREEN_STYLE_ICON);
             }
 

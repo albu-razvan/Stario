@@ -126,7 +126,7 @@ public class SplashScreen extends ThemedActivity {
                                     ActivityOptions.makeThumbnailScaleUpAnimation(container,
                                             Utils.getSnapshot(getWindow().getDecorView()), 0, 0);
 
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
                                 activityOptions.setSplashScreenStyle(android.window.SplashScreen.SPLASH_SCREEN_STYLE_SOLID_COLOR);
                             }
 

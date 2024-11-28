@@ -17,6 +17,8 @@
 
 package com.stario.launcher.sheet.drawer.dialog;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.transition.Transition;
 import android.transition.TransitionListenerAdapter;
@@ -30,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.bosphere.fadingedgelayout.FadingEdgeLayout;
@@ -44,13 +47,27 @@ import com.stario.launcher.sheet.drawer.search.SearchEngine;
 import com.stario.launcher.sheet.drawer.search.SearchFragment;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.pager.CustomDurationViewPager;
-import com.stario.launcher.ui.recyclers.FastScroller;
+import com.stario.launcher.utils.animation.Animation;
 import com.stario.launcher.utils.animation.FragmentTransition;
 
 public class ApplicationsDialog extends SheetDialogFragment {
     private static final String APPLICATIONS_PAGE = "com.stario.APPLICATIONS_PAGE";
+
+    /**
+     * Sent via {@link LocalBroadcastManager} with intent filter provided by
+     * {@link #getTopic(View)} when that view changes its position in the pages
+     */
+    public static final String INTENT_EXTRA_PAGE_POSITION = "com.stario.ApplicationsDialog.PagePosition";
+
+    /**
+     * Sent via {@link LocalBroadcastManager} when the pager will change its visibility.
+     * Register receivers with {@link #getTopic()}
+     */
+    public static final String INTENT_EXTRA_PAGER_VISIBILITY = "com.stario.ApplicationsDialog.PagerVisibility";
+    private LocalBroadcastManager broadcastManager;
     private CustomDurationViewPager pager;
     private ResumeListener listener;
+    private DrawerAdapter adapter;
     private EditText search;
 
     public ApplicationsDialog() {
@@ -59,6 +76,13 @@ public class ApplicationsDialog extends SheetDialogFragment {
 
     public ApplicationsDialog(SheetType type) {
         super(type);
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        broadcastManager = LocalBroadcastManager.getInstance(context);
     }
 
     @Nullable
@@ -75,14 +99,15 @@ public class ApplicationsDialog extends SheetDialogFragment {
         pager.setOverScrollMode(View.OVER_SCROLL_NEVER);
         pager.setSaveEnabled(true);
 
-        DrawerAdapter adapter = new DrawerAdapter(getChildFragmentManager());
+        adapter = new DrawerAdapter(getChildFragmentManager());
         pager.setOffscreenPageLimit(adapter.getCount());
         pager.setAdapter(adapter);
 
         pager.setPageTransformer(false, (page, position) -> {
-            if (page instanceof FastScroller) {
-                ((FastScroller) page).animateVisibility(position == 0);
-            }
+            Intent intent = new Intent(getTopic(page));
+            intent.putExtra(INTENT_EXTRA_PAGE_POSITION, position);
+
+            broadcastManager.sendBroadcastSync(intent);
 
             if (Math.abs(position) > 1) {
                 page.setTranslationX(-2 * page.getWidth() * Math.signum(position));
@@ -138,18 +163,22 @@ public class ApplicationsDialog extends SheetDialogFragment {
         });
 
         setOnBackPressed(() -> {
-            if (getChildFragmentManager()
-                    .popBackStackImmediate(SearchFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE) ||
-                    adapter.collapse()) {
-                return false;
-            } else {
-                SheetBehavior<?> behavior = getBehavior();
+            if (!adapter.isTransitioning()) {
+                if (getChildFragmentManager()
+                        .popBackStackImmediate(SearchFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE) ||
+                        (adapter.collapse() && pager.getCurrentItem() == DrawerAdapter.CATEGORIES_POSITION)) {
+                    return false;
+                } else {
+                    SheetBehavior<?> behavior = getBehavior();
 
-                if (behavior != null) {
-                    getBehavior().setState(SheetBehavior.STATE_COLLAPSED);
+                    if (behavior != null) {
+                        getBehavior().setState(SheetBehavior.STATE_COLLAPSED);
+                    }
+
+                    return true;
                 }
-
-                return true;
+            } else {
+                return false;
             }
         });
 
@@ -239,19 +268,41 @@ public class ApplicationsDialog extends SheetDialogFragment {
                         .excludeTarget(EditText.class, true)
                         .excludeTarget(RelativeLayout.class, true);
 
+                transition.setDuration(Animation.MEDIUM.getDuration());
+
                 transition.addListener(new TransitionListenerAdapter() {
                     @Override
                     public void onTransitionStart(Transition transition) {
                         if (search.getVisibility() == View.VISIBLE) {
                             pager.animate().alpha(0)
+                                    .translationY(Measurements.dpToPx(-Measurements.HEADER_SIZE_DP))
                                     .setDuration(transition.getDuration())
-                                    .setInterpolator(transition.getInterpolator());
+                                    .setInterpolator(transition.getInterpolator())
+                                    .withEndAction(() -> {
+                                        Intent intent = new Intent(getTopic());
+                                        intent.putExtra(INTENT_EXTRA_PAGER_VISIBILITY, false);
+
+                                        broadcastManager.sendBroadcastSync(intent);
+                                    });
 
                             search.setVisibility(View.GONE);
                         } else {
-                            pager.animate().alpha(1)
+                            pager.setTranslationY(0);
+                            pager.setScaleX(0.9f);
+                            pager.setScaleY(0.9f);
+
+                            pager.animate()
+                                    .alpha(1)
+                                    .scaleY(1)
+                                    .scaleX(1)
                                     .setDuration(transition.getDuration())
-                                    .setInterpolator(transition.getInterpolator());
+                                    .setInterpolator(transition.getInterpolator())
+                                    .withEndAction(() -> {
+                                        Intent intent = new Intent(getTopic());
+                                        intent.putExtra(INTENT_EXTRA_PAGER_VISIBILITY, true);
+
+                                        broadcastManager.sendBroadcastSync(intent);
+                                    });
 
                             search.setVisibility(View.VISIBLE);
                         }
@@ -278,12 +329,26 @@ public class ApplicationsDialog extends SheetDialogFragment {
         search.setCompoundDrawablesWithIntrinsicBounds(
                 engine.getDrawable(activity), null, null, null);
 
-        getChildFragmentManager()
-                .popBackStackImmediate(SearchFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        if (!adapter.isTransitioning()) {
+            getChildFragmentManager()
+                    .popBackStackImmediate(SearchFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
 
         if (listener != null) {
             listener.onResume();
         }
+    }
+
+    public static String getTopic() {
+        return getTopic(null);
+    }
+
+    public static String getTopic(View view) {
+        if (view != null) {
+            return "ApplicationPagerUpdate" + System.identityHashCode(view);
+        }
+
+        return "ApplicationPagerUpdate";
     }
 
     private void setOnResumeListener(ResumeListener listener) {
