@@ -18,6 +18,7 @@
 package com.stario.launcher.ui.scrollers;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.PreEventNestedScrollView;
+
+import com.stario.launcher.utils.Utils;
 
 public class BottomNestedScrollView extends PreEventNestedScrollView {
     private boolean nestedScrolling;
@@ -82,7 +85,20 @@ public class BottomNestedScrollView extends PreEventNestedScrollView {
 
     @Override
     public boolean onNestedFling(@NonNull View target, float velocityX, float velocityY, boolean consumed) {
-        return super.onNestedFling(target, velocityX, -velocityY, consumed);
+        if (!Utils.isMinimumSDK(Build.VERSION_CODES.Q)) {
+            velocityY = -velocityY;
+        }
+
+        return super.onNestedFling(target, velocityX, velocityY, consumed);
+    }
+
+    @Override
+    public void fling(int velocityY) {
+        if (!Utils.isMinimumSDK(Build.VERSION_CODES.Q)) {
+            velocityY = -velocityY;
+        }
+
+        super.fling(velocityY);
     }
 
     @Override

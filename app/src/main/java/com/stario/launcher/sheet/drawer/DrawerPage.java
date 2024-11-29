@@ -20,7 +20,6 @@ package com.stario.launcher.sheet.drawer;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -242,7 +241,6 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
 
             @Override
             public void onTransitionCancel(@NonNull androidx.transition.Transition transition) {
-                Log.i("TAG", "onTransitionCancel: ");
                 currentlyRunningAnimations--;
             }
 
@@ -272,8 +270,6 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
 
             @Override
             public void onTransitionCancel(android.transition.Transition transition) {
-                Log.i("TAG", "onTransitionCancel: ");
-
                 currentlyRunningAnimations--;
             }
 

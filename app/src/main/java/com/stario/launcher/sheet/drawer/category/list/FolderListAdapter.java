@@ -171,7 +171,8 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
             gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
                 public int getSpanSize(int position) {
-                    if (position < FolderListItemAdapter.SOFT_LIMIT) {
+                    if (position < FolderListItemAdapter.SOFT_LIMIT ||
+                            (adapter != null && adapter.getItemCount() < FolderListItemAdapter.HARD_LIMIT)) {
                         return 2;
                     } else {
                         return 1;

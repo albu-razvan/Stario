@@ -44,11 +44,11 @@
         <activity
             android:name=".activities.settings.Settings"
             android:allowEmbedded="false"
-            android:taskAffinity=".settings"
             android:alwaysRetainTaskState="false"
             android:exported="true"
             android:launchMode="standard"
             android:supportsPictureInPicture="false"
+            android:taskAffinity=".settings"
             android:theme="@style/Theme.Light.Blue.Opaque"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
@@ -66,8 +66,7 @@
             android:rotationAnimation="crossfade"
             android:stateNotNeeded="true"
             android:supportsPictureInPicture="false"
-            android:theme="@style/Theme.Light.Blue"
-            android:windowSoftInputMode="adjustNothing">
+            android:theme="@style/Theme.Light.Blue">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

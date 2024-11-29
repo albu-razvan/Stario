@@ -235,14 +235,16 @@ public class AdaptiveIconView extends View {
 
     @Override
     public void setClipBounds(Rect clipBounds) {
-        if (clipBounds != null && icon.getValue() != null) {
-            icon.getValue().setBounds(clipBounds);
+        if (icon.getValue() != null) {
+            if (clipBounds != null) {
+                icon.getValue().setBounds(clipBounds);
 
-            updateClipPath(clipBounds.width(), clipBounds.height());
-        } else {
-            icon.getValue().setBounds(0, 0, getMeasuredWidth(), getMeasuredHeight());
+                updateClipPath(clipBounds.width(), clipBounds.height());
+            } else {
+                icon.getValue().setBounds(0, 0, getMeasuredWidth(), getMeasuredHeight());
 
-            updateClipPath(getMeasuredWidth(), getMeasuredHeight());
+                updateClipPath(getMeasuredWidth(), getMeasuredHeight());
+            }
         }
 
         super.setClipBounds(clipBounds);

@@ -20,10 +20,11 @@ package com.stario.launcher.sheet.drawer.search;
 import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Configuration;
+import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -34,7 +35,6 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsAnimationCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -70,9 +70,18 @@ public class SearchFragment extends Fragment {
     public static final int MAX_LIST_ITEMS = 4;
     private SearchLayoutTransition searchLayoutTransition;
     private KeyboardHeightProvider heightProvider;
-    private AppCompatEditText search;
+    private ImeAnimationController controller;
+    private BackGestureHandleEditText search;
     private ThemedActivity activity;
     private ViewGroup content;
+
+    public SearchFragment() {
+        super();
+
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
+            controller = new ImeAnimationController();
+        }
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -81,8 +90,26 @@ public class SearchFragment extends Fragment {
         }
 
         activity = (ThemedActivity) context;
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 
         super.onAttach(context);
+    }
+
+    @Override
+    public void onDetach() {
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
+            controller.finish();
+        } else {
+            UiUtils.hideKeyboard(search);
+        }
+
+        super.onDetach();
+
+        if (activity != null) {
+            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        }
+
+        activity = null;
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -155,6 +182,8 @@ public class SearchFragment extends Fragment {
         search.setFocusable(true);
         search.setFocusableInTouchMode(true);
         search.setShowSoftInputOnFocus(true);
+        search.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
+                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
 
         Measurements.addSysUIListener(value -> {
             scrollView.setPadding(scrollView.getPaddingLeft(),
@@ -182,13 +211,20 @@ public class SearchFragment extends Fragment {
 
         if (!Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
             heightProvider.addKeyboardHeightObserver((height) -> {
+                searchLayoutTransition.setAnimate(false);
+
+                if (height > 0) {
+                    scrollView.smoothScrollTo(0, 0, Animation.LONG.getDuration());
+                }
+
                 content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
                         content.getPaddingRight(), height);
 
                 ((ViewGroup.MarginLayoutParams) search.getLayoutParams()).bottomMargin =
                         height + Measurements.getNavHeight();
-
                 search.requestLayout();
+
+                search.post(() -> searchLayoutTransition.setAnimate(true));
             });
         }
 
@@ -208,7 +244,6 @@ public class SearchFragment extends Fragment {
             AtomicReference<Integer> lastVelocity = new AtomicReference<>(null);
             AtomicBoolean isPointerDown = new AtomicBoolean(false);
             AtomicBoolean skipNextAnimationFrame = new AtomicBoolean(false);
-            ImeAnimationController controller = new ImeAnimationController();
 
             scrollView.setOnPreScrollListener(new PreEventNestedScrollView.PreEvent() {
                 @Override
@@ -380,29 +415,6 @@ public class SearchFragment extends Fragment {
                     imeAnimation = null;
                 }
             });
-        } else {
-            scrollView.setOnPreScrollListener(new PreEventNestedScrollView.PreEvent() {
-                private boolean updateKeyboardVisibility(float direction) {
-                    if (direction == PreEventNestedScrollView.DOWN &&
-                            scrollView.getScrollY() == 0 && heightProvider.getKeyboardHeight() > 0) {
-                        UiUtils.hideKeyboard(search);
-
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                @Override
-                public boolean onPreScroll(int delta) {
-                    return updateKeyboardVisibility(Math.signum(delta));
-                }
-
-                @Override
-                public boolean onPreFling(int velocity) {
-                    return updateKeyboardVisibility(Math.signum(velocity));
-                }
-            });
         }
 
         search.setOnEditorActionListener((view, actionId, event) -> {
@@ -413,15 +425,16 @@ public class SearchFragment extends Fragment {
             return false;
         });
 
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+
+        } else {
+            search.setOnBackInvoked(() -> (controller != null && (controller.isRequestPending() ||
+                    controller.isAnimationInProgress() || controller.isAnimationInProgress())));
+        }
+
         search.addTextChangedListener(new TextWatcher() {
             private static final int INTERVAL = 300;
             private long lastRegisteredTimestamp = 0;
-
-            private void updateWebAdapterLimit(String query, long timeStamp) {
-                if (timeStamp == lastRegisteredTimestamp) {
-                    webAdapter.update(query);
-                }
-            }
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -433,6 +446,8 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
+                scrollView.smoothScrollTo(0, 0, Animation.LONG.getDuration());
+
                 String query = editable.toString();
                 String filteredQuery = query.replaceAll("(\\r\\n|\\r|\\n)", "");
 
@@ -440,14 +455,17 @@ public class SearchFragment extends Fragment {
                     appAdapter.update(query);
                     optionAdapter.update(query);
 
-                    long timestamp = System.currentTimeMillis();
+                    long timeStamp = System.currentTimeMillis();
 
                     if (query.isBlank() || appAdapter.getItemCount() == 0) {
                         webAdapter.update(query);
                     } else {
                         // don't process text changes too often
-                        search.postDelayed(() -> updateWebAdapterLimit(query,
-                                timestamp), INTERVAL);
+                        search.postDelayed(() -> {
+                            if (timeStamp == lastRegisteredTimestamp) {
+                                webAdapter.update(query);
+                            }
+                        }, INTERVAL);
                     }
 
                     lastRegisteredTimestamp = System.currentTimeMillis();
@@ -488,19 +506,5 @@ public class SearchFragment extends Fragment {
         }
 
         super.onDestroy();
-    }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        searchLayoutTransition.setAnimate(false);
-
-        super.onConfigurationChanged(newConfig);
-
-        // make sure that the animation succeeded
-        // will be masked by the rotation crossfade
-        search.postDelayed(() -> {
-            UiUtils.hideKeyboard(search);
-            searchLayoutTransition.setAnimate(true);
-        }, 30);
     }
 }
