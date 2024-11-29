@@ -23,17 +23,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.transition.Transition;
-import android.transition.TransitionListenerAdapter;
-import android.util.Pair;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.google.android.material.transition.platform.MaterialElevationScale;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
@@ -78,53 +70,7 @@ public class LauncherApplication {
                 activity.startActivity(intent, activityOptions.toBundle());
             }
         } else {
-            Intent intent = new Intent(activity, SplashScreen.class);
-
-            intent.putExtra(SplashScreen.APPLICATION_PACKAGE, info.packageName);
-
-            ViewGroup parent = (ViewGroup) view.getParent();
-
-            Transition transition = new MaterialElevationScale(false);
-
-            // dialog window flicker hack
-            ImageView image = new ImageView(activity);
-
-            ViewGroup.LayoutParams params = view.getLayoutParams();
-            params.height = view.getHeight();
-            params.width = view.getWidth();
-            image.setLayoutParams(params);
-
-            image.setImageBitmap(Utils.getSnapshot(view));
-            parent.addView(image);
-
-            ConstraintLayout container = new ConstraintLayout(activity);
-            container.setLayoutParams(params);
-            parent.addView(container);
-
-            Drawable icon = view.getIcon();
-            view.setIcon(null);
-
-            transition.addListener(new TransitionListenerAdapter() {
-                @Override
-                public void onTransitionEnd(Transition transition) {
-                    view.setIcon(icon);
-                }
-            });
-
-            SplashScreen.scheduleViewForRemoval(parent, new View[]{container, image});
-            // end hack
-
-            activity.getWindow().setExitTransition(transition);
-
-            Pair<View, String> iconPair = new Pair<>(view, SplashScreen.SHARED_ICON_TRANSITION);
-            Pair<View, String> containerPair = new Pair<>(container, SplashScreen.SHARED_CONTAINER_TRANSITION);
-
-            ActivityOptions options = ActivityOptions
-                    .makeSceneTransitionAnimation(activity, iconPair, containerPair);
-
-            image.post(() ->
-                    container.post(() ->
-                            activity.startActivity(intent, options.toBundle())));
+            SplashScreen.launch(info.packageName, view);
         }
     }
 
