@@ -109,14 +109,14 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
         return root;
     }
 
-    private void updateTitleTransforms(RecyclerView recyclerView) {
+    protected void updateTitleTransforms(RecyclerView recyclerView) {
         title.setTranslationY(-recyclerView.computeVerticalScrollOffset());
 
         int headerSize = Measurements.dpToPx(Measurements.HEADER_SIZE_DP);
         title.setAlpha(1f - recyclerView.computeVerticalScrollOffset() / (headerSize / 2f));
     }
 
-    private void updateTitleVisibility() {
+    protected void updateTitleVisibility() {
         title.post(() -> {
             if (Measurements.isLandscape()) {
                 title.setVisibility(View.GONE);

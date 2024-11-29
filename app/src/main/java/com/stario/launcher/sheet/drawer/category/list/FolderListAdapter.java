@@ -224,65 +224,67 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
             @Override
             public void onClick(View view) {
-                Vibrations.getInstance().vibrate();
+                if (!folderList.isTransitioning()) {
+                    Vibrations.getInstance().vibrate();
 
-                for (int index = sharedIcons.size() - 1; index >= 0; index--) {
-                    AdaptiveIconView icon = sharedIcons.remove(index);
+                    for (int index = sharedIcons.size() - 1; index >= 0; index--) {
+                        AdaptiveIconView icon = sharedIcons.remove(index);
 
-                    icon.setTransitionName(null);
-                }
-
-                List<View> excluded = new ArrayList<>();
-
-                FragmentManager fragmentManager = folderList.getParentFragmentManager();
-                RecyclerView.LayoutManager layoutManager = viewHolder.recycler.getLayoutManager();
-
-                if (layoutManager != null) {
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-
-                    for (int position = 0;
-                         position < viewHolder.adapter.getItemCount() &&
-                                 position < FolderListItemAdapter.HARD_LIMIT; position++) {
-
-                        View group = layoutManager.findViewByPosition(position);
-
-                        excluded.add(group);
-
-                        AdaptiveIconView icon = getIcon(group);
-
-                        if (icon != null) {
-                            sharedIcons.add(icon);
-
-                            String transitionName = DrawerAdapter.SHARED_ELEMENT_PREFIX + position;
-
-                            icon.setTransitionName(transitionName);
-                            transaction.addSharedElement(icon, transitionName);
-
-                            excluded.add(icon);
-                        }
+                        icon.setTransitionName(null);
                     }
 
-                    excluded.addAll(sharedIcons);
+                    List<View> excluded = new ArrayList<>();
 
-                    Transition transition = new SharedAppTransition(false);
+                    FragmentManager fragmentManager = folderList.getParentFragmentManager();
+                    RecyclerView.LayoutManager layoutManager = viewHolder.recycler.getLayoutManager();
 
-                    folder.setSharedElementEnterTransition(transition);
-                    folder.setSharedElementReturnTransition(null);
-                    folder.setEnterTransition(new FragmentTransition(true, excluded));
+                    if (layoutManager != null) {
+                        FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-                    folderList.setExitTransition(new FragmentTransition(false, excluded));
-                    folderList.setReenterTransition(new FragmentTransition(true));
+                        for (int position = 0;
+                             position < viewHolder.adapter.getItemCount() &&
+                                     position < FolderListItemAdapter.HARD_LIMIT; position++) {
 
-                    transaction.setReorderingAllowed(true);
-                    transaction.addToBackStack(Categories.STACK_ID);
+                            View group = layoutManager.findViewByPosition(position);
 
-                    transaction.hide(folderList)
-                            .add(R.id.categories, folder);
+                            excluded.add(group);
 
-                    fragmentManager.executePendingTransactions();
-                    transaction.commit();
+                            AdaptiveIconView icon = getIcon(group);
 
-                    folder.updateCategoryID(category.id);
+                            if (icon != null) {
+                                sharedIcons.add(icon);
+
+                                String transitionName = DrawerAdapter.SHARED_ELEMENT_PREFIX + position;
+
+                                icon.setTransitionName(transitionName);
+                                transaction.addSharedElement(icon, transitionName);
+
+                                excluded.add(icon);
+                            }
+                        }
+
+                        excluded.addAll(sharedIcons);
+
+                        Transition transition = new SharedAppTransition(false);
+
+                        folder.setSharedElementEnterTransition(transition);
+                        folder.setSharedElementReturnTransition(null);
+                        folder.setEnterTransition(new FragmentTransition(true, excluded));
+
+                        folderList.setExitTransition(new FragmentTransition(false, excluded));
+                        folderList.setReenterTransition(new FragmentTransition(true));
+
+                        transaction.setReorderingAllowed(true);
+                        transaction.addToBackStack(Categories.STACK_ID);
+
+                        transaction.hide(folderList)
+                                .add(R.id.categories, folder);
+
+                        fragmentManager.executePendingTransactions();
+                        transaction.commit();
+
+                        folder.updateCategoryID(category.id);
+                    }
                 }
             }
         });

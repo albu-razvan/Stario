@@ -274,7 +274,7 @@ public class ApplicationsDialog extends SheetDialogFragment {
                     @Override
                     public void onTransitionStart(Transition transition) {
                         if (search.getVisibility() == View.VISIBLE) {
-                            pager.animate().alpha(0)
+                            fader.animate().alpha(0)
                                     .translationY(Measurements.dpToPx(-Measurements.HEADER_SIZE_DP))
                                     .setDuration(transition.getDuration())
                                     .setInterpolator(transition.getInterpolator())
@@ -283,18 +283,19 @@ public class ApplicationsDialog extends SheetDialogFragment {
                                         intent.putExtra(INTENT_EXTRA_PAGER_VISIBILITY, false);
 
                                         broadcastManager.sendBroadcastSync(intent);
+
+                                        fader.setTranslationY(0);
+                                        fader.setScaleX(0.9f);
+                                        fader.setScaleY(0.9f);
                                     });
 
                             search.setVisibility(View.GONE);
                         } else {
-                            pager.setTranslationY(0);
-                            pager.setScaleX(0.9f);
-                            pager.setScaleY(0.9f);
-
-                            pager.animate()
+                            fader.animate()
                                     .alpha(1)
                                     .scaleY(1)
                                     .scaleX(1)
+                                    .translationY(0)
                                     .setDuration(transition.getDuration())
                                     .setInterpolator(transition.getInterpolator())
                                     .withEndAction(() -> {

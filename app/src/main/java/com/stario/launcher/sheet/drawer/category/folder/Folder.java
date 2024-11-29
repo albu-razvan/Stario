@@ -67,6 +67,7 @@ public class Folder extends DrawerPage {
 
             drawer.post(() -> {
                 drawer.scrollToPosition(0);
+                updateTitleVisibility();
 
                 title.setText(CategoryData.getInstance()
                         .getCategoryName(categoryID, getResources()));
