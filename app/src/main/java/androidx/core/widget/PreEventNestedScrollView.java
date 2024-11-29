@@ -24,21 +24,21 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class PreScrollListeningNestedScrollView extends NestedScrollView {
+public class PreEventNestedScrollView extends NestedScrollView {
     public static final float UP = 1;
     public static final float DOWN = -1;
     private boolean ignore;
-    private PreScroll listener;
+    private PreEvent listener;
 
-    public PreScrollListeningNestedScrollView(@NonNull Context context) {
+    public PreEventNestedScrollView(@NonNull Context context) {
         super(context);
     }
 
-    public PreScrollListeningNestedScrollView(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public PreEventNestedScrollView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public PreScrollListeningNestedScrollView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public PreEventNestedScrollView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
@@ -58,7 +58,7 @@ public class PreScrollListeningNestedScrollView extends NestedScrollView {
 
     @Override
     public boolean dispatchNestedPreScroll(int dx, int dy, @Nullable int[] consumed, @Nullable int[] offsetInWindow, int type) {
-        if (listener == null || listener.onPreScroll(Math.signum(dy))) {
+        if (listener == null || !listener.onPreScroll(dy)) {
             ignore = false;
 
             return super.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow, type);
@@ -80,28 +80,33 @@ public class PreScrollListeningNestedScrollView extends NestedScrollView {
 
     @Override
     public void fling(int velocityY) {
-        if (listener == null || listener.onPreScroll(Math.signum(velocityY))) {
+        if (listener == null || !listener.onPreFling(velocityY)) {
             super.fling(velocityY);
         }
     }
 
     @Override
-    public boolean onNestedPreFling(@NonNull View target, float velocityX, float velocityY) {
-        if (listener == null || listener.onPreScroll(Math.signum(velocityY))) {
-            return super.onNestedPreFling(target, velocityX, velocityY);
-        }
-
-        return true;
+    public boolean canScrollHorizontally(int direction) {
+        return false;
     }
 
-    public void setOnPreScrollListener(PreScroll listener) {
+    public void setOnPreScrollListener(PreEvent listener) {
         this.listener = listener;
     }
 
-    public interface PreScroll {
+    public interface PreEvent {
         /**
-         * @return Whether the ScrollView should scroll or not
+         * @return true if event should be consumed by this method
          */
-        boolean onPreScroll(float direction);
+        default boolean onPreScroll(int delta) {
+            return false;
+        }
+
+        /**
+         * @return true if event should be consumed by this method
+         */
+        default boolean onPreFling(int velocity) {
+            return false;
+        }
     }
 }

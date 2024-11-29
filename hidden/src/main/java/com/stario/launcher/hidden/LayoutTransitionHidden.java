@@ -15,10 +15,20 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.sheet.drawer.search;
+package com.stario.launcher.hidden;
 
-public interface Searchable {
-    void update(String query);
+import android.animation.LayoutTransition;
+import android.view.ViewGroup;
 
-    boolean submit();
+import dev.rikka.tools.refine.RefineAs;
+
+@RefineAs(LayoutTransition.class)
+public class LayoutTransitionHidden {
+    public void layoutChange(ViewGroup parent) {
+        throw new RuntimeException("Stub!");
+    }
+
+    public void cancel() {
+        throw new RuntimeException("Stub!");
+    }
 }

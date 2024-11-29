@@ -25,6 +25,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -297,7 +298,7 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
             Drawable background = decor.getBackground();
             background.setAlpha((int) (fraction * Launcher.MAX_BACKGROUND_ALPHA));
 
-            if (Utils.isMinimumSDK(31)) {
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
                 decor.post(() -> {
                     window.setBackgroundBlurRadius((int) (step * BLUR_STEP));
                 });

@@ -33,6 +33,7 @@ import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -196,7 +197,7 @@ public class Media extends GlanceDialogExtension {
             }
         };
 
-        if (Utils.isMinimumSDK(33)) {
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
             activity.registerReceiver(receiver,
                     new IntentFilter(NotificationService.UPDATE_NOTIFICATIONS), Context.RECEIVER_NOT_EXPORTED);
         } else {

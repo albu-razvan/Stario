@@ -20,11 +20,12 @@
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="match_parent"
+        android:layout_width="0px"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
+        android:layout_weight="1"
         android:ellipsize="end"
         android:fontFamily="@font/dm_sans_medium"
         android:letterSpacing="-0.03"
@@ -33,5 +34,17 @@
         android:textColor="?attr/colorOnSurface"
         android:textSize="14sp"
         app:layout_constraintTop_toBottomOf="@id/icon" />
+
+    <TextView
+        android:id="@+id/target_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="20dp"
+        android:fontFamily="@font/dm_sans_medium"
+        android:text="↗"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="18sp" />
 
 </carbon.widget.LinearLayout>

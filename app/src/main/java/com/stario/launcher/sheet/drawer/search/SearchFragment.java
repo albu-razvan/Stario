@@ -20,21 +20,26 @@ package com.stario.launcher.sheet.drawer.search;
 import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.widget.PreScrollListeningNestedScrollView;
+import androidx.appcompat.widget.AppCompatEditText;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsAnimationCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.widget.PreEventNestedScrollView;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,24 +47,32 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bosphere.fadingedgelayout.FadingEdgeLayout;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.stario.launcher.R;
-import com.stario.launcher.sheet.drawer.search.adapters.AppAdapter;
-import com.stario.launcher.sheet.drawer.search.adapters.OptionAdapter;
-import com.stario.launcher.sheet.drawer.search.adapters.WebAdapter;
+import com.stario.launcher.sheet.drawer.search.recyclers.OnSearchRecyclerVisibilityChangeListener;
+import com.stario.launcher.sheet.drawer.search.recyclers.SearchRecyclerItemAnimator;
+import com.stario.launcher.sheet.drawer.search.recyclers.adapters.AppAdapter;
+import com.stario.launcher.sheet.drawer.search.recyclers.adapters.OptionAdapter;
+import com.stario.launcher.sheet.drawer.search.recyclers.adapters.WebAdapter;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
-import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
 import com.stario.launcher.ui.recyclers.async.InflationType;
 import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.animation.Animation;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SearchFragment extends Fragment {
     public static final String TAG = "SearchFragment";
+    public static final int MAX_LIST_ITEMS = 4;
+    private SearchLayoutTransition searchLayoutTransition;
     private KeyboardHeightProvider heightProvider;
+    private AppCompatEditText search;
     private ThemedActivity activity;
     private ViewGroup content;
-    private EditText search;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -81,33 +94,34 @@ public class SearchFragment extends Fragment {
 
         View root = inflater.inflate(R.layout.search, container, false);
 
+        root.setOnTouchListener((v, event) -> true);
+
         heightProvider = new KeyboardHeightProvider(activity);
 
-        PreScrollListeningNestedScrollView scrollView = root.findViewById(R.id.scroller);
+        PreEventNestedScrollView scrollView = root.findViewById(R.id.scroller);
         FadingEdgeLayout fader = root.findViewById(R.id.fader);
+        RelativeLayout searchContainer = root.findViewById(R.id.search_container);
         search = root.findViewById(R.id.search);
         content = root.findViewById(R.id.content);
 
-        LayoutTransition contentLayoutTransition = new LayoutTransition();
-        contentLayoutTransition.enableTransitionType(LayoutTransition.CHANGING);
-        contentLayoutTransition.setDuration(LayoutTransition.CHANGING, Animation.MEDIUM.getDuration());
-        contentLayoutTransition.setInterpolator(LayoutTransition.CHANGING, new DecelerateInterpolator(2));
+        searchLayoutTransition = new SearchLayoutTransition();
+        LayoutTransition nativeTransitionCast = searchLayoutTransition.getUnrefinedTransition();
 
-        content.setLayoutTransition(contentLayoutTransition);
+        nativeTransitionCast.setDuration(LayoutTransition.CHANGING, Animation.MEDIUM.getDuration());
+
+        content.setLayoutTransition(nativeTransitionCast);
 
         RecyclerView apps = root.findViewById(R.id.apps);
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(activity,
-                Measurements.getListColumnCount());
-        gridLayoutManager.setItemPrefetchEnabled(true);
-
-        Measurements.addListColumnCountChangeListener(gridLayoutManager::setSpanCount);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(activity, MAX_LIST_ITEMS);
 
         apps.setLayoutManager(gridLayoutManager);
-        apps.setItemAnimator(new DefaultItemAnimator());
+        apps.setItemAnimator(null);
 
-        AppAdapter appAdapter = new AppAdapter(activity, content, gridLayoutManager);
+        AppAdapter appAdapter = new AppAdapter(activity);
         appAdapter.setInflationType(InflationType.SYNCED);
+        appAdapter.setOnVisibilityChangeListener(new OnSearchRecyclerVisibilityChangeListener(searchLayoutTransition));
+
         apps.setAdapter(appAdapter);
 
         RecyclerView web = root.findViewById(R.id.web);
@@ -116,9 +130,11 @@ public class SearchFragment extends Fragment {
 
         web.setLayoutManager(webLinearLayoutManager);
         web.addItemDecoration(new DividerItemDecorator(activity, MaterialDividerItemDecoration.VERTICAL));
-        web.setItemAnimator(null);
+        web.setItemAnimator(new SearchRecyclerItemAnimator(Animation.MEDIUM));
 
-        WebAdapter webAdapter = new WebAdapter(activity, content);
+        WebAdapter webAdapter = new WebAdapter(activity);
+        webAdapter.setOnVisibilityChangeListener(new OnSearchRecyclerVisibilityChangeListener(searchLayoutTransition));
+
         web.setAdapter(webAdapter);
 
         RecyclerView options = root.findViewById(R.id.options);
@@ -129,10 +145,11 @@ public class SearchFragment extends Fragment {
 
         options.setLayoutManager(optionsLinearLayoutManager);
         options.addItemDecoration(new DividerItemDecorator(activity, MaterialDividerItemDecoration.VERTICAL));
-        options.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE &
-                RecyclerItemAnimator.DISAPPEARANCE));
+        options.setItemAnimator(new SearchRecyclerItemAnimator(Animation.MEDIUM));
 
-        OptionAdapter optionAdapter = new OptionAdapter(activity, content, optionsLinearLayoutManager);
+        OptionAdapter optionAdapter = new OptionAdapter(activity);
+        optionAdapter.setOnVisibilityChangeListener(new OnSearchRecyclerVisibilityChangeListener(searchLayoutTransition));
+
         options.setAdapter(optionAdapter);
 
         search.setFocusable(true);
@@ -155,7 +172,7 @@ public class SearchFragment extends Fragment {
                             Measurements.getDefaultPadding() + search.getMeasuredHeight());
 
             ((ViewGroup.MarginLayoutParams) search.getLayoutParams()).bottomMargin =
-                    value + heightProvider.getKeyboardHeight();
+                    value + (Utils.isMinimumSDK(Build.VERSION_CODES.R) ? 0 : heightProvider.getKeyboardHeight());
             search.requestLayout();
 
             fader.setFadeSizes(Measurements.getSysUIHeight(), 0,
@@ -163,14 +180,17 @@ public class SearchFragment extends Fragment {
                             search.getMeasuredHeight(), 0);
         });
 
-        heightProvider.setKeyboardHeightObserver((height) -> {
-            content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
-                    content.getPaddingRight(), height);
+        if (!Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
+            heightProvider.addKeyboardHeightObserver((height) -> {
+                content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
+                        content.getPaddingRight(), height);
 
-            ((ViewGroup.MarginLayoutParams) search.getLayoutParams()).bottomMargin =
-                    height + Measurements.getNavHeight();
-            search.requestLayout();
-        });
+                ((ViewGroup.MarginLayoutParams) search.getLayoutParams()).bottomMargin =
+                        height + Measurements.getNavHeight();
+
+                search.requestLayout();
+            });
+        }
 
         search.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
             fader.setFadeSizes(Measurements.getSysUIHeight(), 0,
@@ -184,38 +204,231 @@ public class SearchFragment extends Fragment {
 
         heightProvider.start();
 
-        scrollView.setOnPreScrollListener(direction -> {
-            if (direction == PreScrollListeningNestedScrollView.DOWN &&
-                    scrollView.getScrollY() == 0 && heightProvider.getKeyboardHeight() > 0) {
-                UiUtils.hideKeyboard(search);
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
+            AtomicReference<Integer> lastVelocity = new AtomicReference<>(null);
+            AtomicBoolean isPointerDown = new AtomicBoolean(false);
+            AtomicBoolean skipNextAnimationFrame = new AtomicBoolean(false);
+            ImeAnimationController controller = new ImeAnimationController();
+
+            scrollView.setOnPreScrollListener(new PreEventNestedScrollView.PreEvent() {
+                @Override
+                public boolean onPreScroll(int delta) {
+                    if (controller.isAnimationInProgress() &&
+                            !controller.isSettleAnimationInProgress() &&
+                            ((scrollView.getScrollY() == 0 && delta > 0 && !controller.isCurrentPositionFullyShown()) ||
+                                    (delta < 0 && !controller.isCurrentPositionFullyHidden()))) {
+
+                        return controller.insetBy(-delta) != 0;
+                    }
+
+                    WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(scrollView);
+
+                    if (insets != null) {
+                        boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
+
+                        if (delta < 0 && !isKeyboardVisible) {
+                            return false;
+                        }
+
+                        if ((delta > 0 && isKeyboardVisible) || scrollView.getScrollY() > 0) {
+                            return false;
+                        }
+                    }
+
+                    return controller.isRequestPending();
+                }
+
+                @Override
+                public boolean onPreFling(int velocity) {
+                    lastVelocity.set(velocity);
+
+                    if (scrollView.getScrollY() == 0 && controller.isAnimationInProgress()) {
+                        if (!controller.isSettleAnimationInProgress()) {
+                            controller.finish(-velocity);
+                        }
+
+                        return true;
+                    }
+
+                    WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(scrollView);
+
+                    if (insets != null) {
+                        boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
+
+                        if (velocity > 0 && !isKeyboardVisible) {
+                            return false;
+                        }
+
+                        if ((velocity < 0 && isKeyboardVisible) || scrollView.getScrollY() > 0) {
+                            return false;
+                        }
+                    }
+
+                    return controller.isRequestPending();
+                }
+            });
+
+            scrollView.setOnTouchListener((v, event) -> {
+                if (event.getAction() == MotionEvent.ACTION_DOWN ||
+                        event.getAction() == MotionEvent.ACTION_MOVE) {
+                    if (!isPointerDown.get() && !controller.isAnimationInProgress() &&
+                            !controller.isRequestPending()) {
+                        controller.startControlRequest(search, new ImeAnimationController.StateListener() {
+                            @Override
+                            public void onReady() {
+                                if (!isPointerDown.get()) {
+                                    if (lastVelocity.get() != null) {
+                                        if ((scrollView.getScrollY() == 0 && lastVelocity.get() < 0 && !controller.isCurrentPositionFullyShown()) ||
+                                                (lastVelocity.get() > 0 && !controller.isCurrentPositionFullyHidden())) {
+                                            controller.finish(-lastVelocity.get());
+                                        } else {
+                                            controller.finish();
+                                        }
+                                    } else {
+                                        controller.finish();
+                                    }
+
+                                    lastVelocity.set(null);
+                                }
+                            }
+
+                            @Override
+                            public void onPreFinish() {
+                                // prevent animation bug frame after finishing the inset controller animation
+                                skipNextAnimationFrame.set(true);
+                            }
+                        });
+                    }
+
+                    isPointerDown.set(true);
+                }
+
+                if (event.getAction() == MotionEvent.ACTION_UP ||
+                        event.getAction() == MotionEvent.ACTION_CANCEL) {
+                    isPointerDown.set(false);
+
+                    scrollView.post(() -> {
+                        if (controller.isAnimationInProgress() &&
+                                !controller.isSettleAnimationInProgress()) {
+                            controller.finish();
+                        }
+                    });
+                }
 
                 return false;
-            }
+            });
 
-            return true;
-        });
+            ViewCompat.setWindowInsetsAnimationCallback(root, new WindowInsetsAnimationCompat
+                    .Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
+                private WindowInsetsAnimationCompat imeAnimation;
+                private float startBottom;
+                private float endBottom;
+
+                @Override
+                public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
+                    startBottom = heightProvider.getKeyboardHeight();
+                }
+
+                @NonNull
+                @Override
+                public WindowInsetsAnimationCompat.BoundsCompat onStart(@NonNull WindowInsetsAnimationCompat animation, @NonNull WindowInsetsAnimationCompat.BoundsCompat bounds) {
+                    endBottom = 0;
+
+                    heightProvider.addKeyboardHeightObserver(new KeyboardHeightProvider.KeyboardHeightObserver() {
+                        @Override
+                        public void onKeyboardHeightChanged(int height) {
+                            endBottom = height;
+
+                            heightProvider.removeKeyboardHeightObserver(this);
+                        }
+                    });
+
+                    return bounds;
+                }
+
+                @NonNull
+                @Override
+                public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets, @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
+                    // prevent controller animation bug frame here
+                    if (!skipNextAnimationFrame.get()) {
+                        if (imeAnimation == null) {
+                            for (WindowInsetsAnimationCompat animation : runningAnimations) {
+                                if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) != 0) {
+                                    imeAnimation = animation;
+
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (imeAnimation != null) {
+                            float delta = endBottom - startBottom;
+                            float translation = delta * ((delta < 0 ? 1 : 0) - imeAnimation.getInterpolatedFraction());
+
+                            content.setTranslationY(-translation);
+                            searchContainer.setTranslationY(translation);
+                        }
+                    } else {
+                        skipNextAnimationFrame.set(false);
+                    }
+
+                    return insets;
+                }
+
+                @Override
+                public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
+                    imeAnimation = null;
+                }
+            });
+        } else {
+            scrollView.setOnPreScrollListener(new PreEventNestedScrollView.PreEvent() {
+                private boolean updateKeyboardVisibility(float direction) {
+                    if (direction == PreEventNestedScrollView.DOWN &&
+                            scrollView.getScrollY() == 0 && heightProvider.getKeyboardHeight() > 0) {
+                        UiUtils.hideKeyboard(search);
+
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                @Override
+                public boolean onPreScroll(int delta) {
+                    return updateKeyboardVisibility(Math.signum(delta));
+                }
+
+                @Override
+                public boolean onPreFling(int velocity) {
+                    return updateKeyboardVisibility(Math.signum(velocity));
+                }
+            });
+        }
 
         search.setOnEditorActionListener((view, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_GO) {
-                if (!appAdapter.submit()) {
-                    webAdapter.submit();
-                }
-
-                return true;
+                return appAdapter.submit() || webAdapter.submit() || optionAdapter.submit();
             }
 
             return false;
         });
 
         search.addTextChangedListener(new TextWatcher() {
+            private static final int INTERVAL = 300;
+            private long lastRegisteredTimestamp = 0;
+
+            private void updateWebAdapterLimit(String query, long timeStamp) {
+                if (timeStamp == lastRegisteredTimestamp) {
+                    webAdapter.update(query);
+                }
+            }
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
             }
 
             @Override
@@ -225,15 +438,26 @@ public class SearchFragment extends Fragment {
 
                 if (filteredQuery.equals(query)) {
                     appAdapter.update(query);
-                    webAdapter.update(query);
                     optionAdapter.update(query);
+
+                    long timestamp = System.currentTimeMillis();
+
+                    if (query.isBlank() || appAdapter.getItemCount() == 0) {
+                        webAdapter.update(query);
+                    } else {
+                        // don't process text changes too often
+                        search.postDelayed(() -> updateWebAdapterLimit(query,
+                                timestamp), INTERVAL);
+                    }
+
+                    lastRegisteredTimestamp = System.currentTimeMillis();
                 } else {
                     search.setText(filteredQuery);
                 }
             }
         });
 
-        options.post(() -> {
+        content.post(() -> {
             startPostponedEnterTransition();
 
             UiUtils.showKeyboard(search);
@@ -245,7 +469,6 @@ public class SearchFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-
         search.setText(null);
     }
 
@@ -265,5 +488,19 @@ public class SearchFragment extends Fragment {
         }
 
         super.onDestroy();
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        searchLayoutTransition.setAnimate(false);
+
+        super.onConfigurationChanged(newConfig);
+
+        // make sure that the animation succeeded
+        // will be masked by the rotation crossfade
+        search.postDelayed(() -> {
+            UiUtils.hideKeyboard(search);
+            searchLayoutTransition.setAnimate(true);
+        }, 30);
     }
 }

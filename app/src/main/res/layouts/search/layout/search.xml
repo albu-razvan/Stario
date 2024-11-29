@@ -32,6 +32,8 @@
                     android:id="@+id/content"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
                     android:gravity="bottom"
                     android:orientation="vertical"
                     android:paddingStart="20dp"
@@ -44,6 +46,7 @@
                         android:layout_marginTop="15dp"
                         android:nestedScrollingEnabled="false"
                         android:overScrollMode="never"
+                        android:visibility="gone"
                         app:carbon_cornerRadius="30dp"
                         app:carbon_overScroll="never" />
 
@@ -54,6 +57,7 @@
                         android:layout_marginTop="15dp"
                         android:nestedScrollingEnabled="false"
                         android:overScrollMode="never"
+                        android:visibility="gone"
                         app:carbon_cornerRadius="30dp"
                         app:carbon_overScroll="never" />
 
@@ -62,9 +66,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
-                        android:clipChildren="false"
+                        android:layout_marginBottom="-10dp"
+                        android:clipToPadding="false"
                         android:nestedScrollingEnabled="false"
-                        android:overScrollMode="never" />
+                        android:overScrollMode="never"
+                        android:visibility="gone" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp" />
 
                 </LinearLayout>
 
@@ -73,6 +83,7 @@
         </com.bosphere.fadingedgelayout.FadingEdgeLayout>
 
         <RelativeLayout
+            android:id="@+id/search_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp"

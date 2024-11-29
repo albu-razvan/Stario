@@ -48,6 +48,11 @@ public class SplashScreen extends ThemedActivity {
     public static final String SHARED_ICON_TRANSITION = "com.stario.SplashScreen.SHARED_ICON_TRANSITION";
     public static final String SHARED_CONTAINER_TRANSITION = "com.stario.SplashScreen.SHARED_CONTAINER_TRANSITION";
     private static Pair<ViewGroup, View[]> viewPair;
+    private boolean hasPaused;
+
+    public SplashScreen() {
+        this.hasPaused = false;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +126,7 @@ public class SplashScreen extends ThemedActivity {
                                     ActivityOptions.makeThumbnailScaleUpAnimation(container,
                                             Utils.getSnapshot(getWindow().getDecorView()), 0, 0);
 
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
                                 activityOptions.setSplashScreenStyle(android.window.SplashScreen.SPLASH_SCREEN_STYLE_SOLID_COLOR);
                             }
 
@@ -148,6 +153,23 @@ public class SplashScreen extends ThemedActivity {
     @Override
     protected boolean isOpaque() {
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(hasPaused) {
+            finish();
+            overridePendingTransition(0, 0);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        hasPaused = true;
     }
 
     @Override

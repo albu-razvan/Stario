@@ -281,7 +281,7 @@ public class Settings extends ThemedActivity {
         });
 
         findViewById(R.id.def_launcher).setOnClickListener((view) -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.Q)) {
                 RoleManager roleManager = getApplicationContext().getSystemService(RoleManager.class);
 
                 if (roleManager.isRoleAvailable(RoleManager.ROLE_HOME)) {

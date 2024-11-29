@@ -117,8 +117,8 @@ public class FastScroller extends RelativeLayout {
     private void addTrack() {
         View.inflate(getContext(), R.layout.fastscroller_track_thumb, this);
 
-        trackRight = findViewById(R.id.trackRight);
-        trackLeft = findViewById(R.id.trackLeft);
+        trackRight = findViewById(R.id.track_right);
+        trackLeft = findViewById(R.id.track_left);
     }
 
     @Override

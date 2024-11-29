@@ -18,7 +18,6 @@
 package com.stario.launcher.sheet.drawer.category.list;
 
 import android.transition.Transition;
-import android.transition.TransitionListenerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -52,7 +51,6 @@ import java.util.function.Supplier;
 public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.ViewHolder> {
     private static final float TARGET_ELEVATION = 10;
     private static final float TARGET_SCALE = 0.9f;
-    private static boolean animating = false;
     private final List<AdaptiveIconView> sharedIcons;
     private final CategoryData categoryData;
     private final ThemedActivity activity;
@@ -61,8 +59,6 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
     public FolderListAdapter(ThemedActivity activity, FolderList folderList) {
         super(activity);
-
-        animating = false;
 
         this.activity = activity;
         this.folderList = folderList;
@@ -184,7 +180,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
             });
 
             recycler.setLayoutManager(gridLayoutManager);
-            recycler.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE));
+            recycler.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE, Animation.MEDIUM));
 
             adapter = new FolderListItemAdapter(activity);
 
@@ -268,29 +264,14 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
                     excluded.addAll(sharedIcons);
 
-                    SharedAppTransition transition = new SharedAppTransition(false);
-
-                    transition.addListener(new TransitionListenerAdapter() {
-                        @Override
-                        public void onTransitionStart(Transition transition) {
-                            animating = true;
-                        }
-
-                        @Override
-                        public void onTransitionEnd(Transition transition) {
-                            animating = false;
-                        }
-
-                        @Override
-                        public void onTransitionCancel(Transition transition) {
-                            animating = false;
-                        }
-                    });
+                    Transition transition = new SharedAppTransition(false);
 
                     folder.setSharedElementEnterTransition(transition);
+                    folder.setSharedElementReturnTransition(null);
                     folder.setEnterTransition(new FragmentTransition(true, excluded));
-                    folder.setExitTransition(new FragmentTransition(false, null));
-                    folderList.setExitTransition(new FragmentTransition(true, excluded));
+
+                    folderList.setExitTransition(new FragmentTransition(false, excluded));
+                    folderList.setReenterTransition(new FragmentTransition(true));
 
                     transaction.setReorderingAllowed(true);
                     transaction.addToBackStack(Categories.STACK_ID);
@@ -327,9 +308,5 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
     @Override
     public int getSize() {
         return categoryData.size();
-    }
-
-    public static boolean isAnimating() {
-        return animating;
     }
 }

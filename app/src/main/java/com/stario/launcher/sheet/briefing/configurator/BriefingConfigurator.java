@@ -88,7 +88,7 @@ public class BriefingConfigurator extends ActionDialog {
         limit = contentView.findViewById(R.id.limit);
 
         heightProvider = new KeyboardHeightProvider(activity);
-        heightProvider.setKeyboardHeightObserver((height) -> {
+        heightProvider.addKeyboardHeightObserver((height) -> {
             scroller.setPadding(0, 0, 0, Measurements.getNavHeight() + height);
         });
 

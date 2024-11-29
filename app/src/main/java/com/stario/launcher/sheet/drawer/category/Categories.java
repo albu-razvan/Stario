@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.stario.launcher.R;
 import com.stario.launcher.sheet.drawer.category.list.FolderList;
@@ -45,8 +46,28 @@ public class Categories extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.drawer_categories, container, false);
 
-        if (savedInstanceState == null ||
-                !savedInstanceState.getBoolean(RESTORE_IDENTIFIER, false)) {
+        boolean restored = false;
+
+        if (savedInstanceState != null &&
+                savedInstanceState.getBoolean(RESTORE_IDENTIFIER, false)) {
+            FragmentManager manager = getParentFragmentManager();
+
+            for (Fragment fragment : manager.getFragments()) {
+                if (FolderList.class.equals(fragment.getClass())) {
+                    if (fragment.isHidden()) {
+                        manager.beginTransaction()
+                                .show(fragment)
+                                .commit();
+                    }
+
+                    restored = true;
+
+                    break;
+                }
+            }
+        }
+
+        if (!restored) {
             getParentFragmentManager().beginTransaction()
                     .add(R.id.categories, new FolderList())
                     .commit();

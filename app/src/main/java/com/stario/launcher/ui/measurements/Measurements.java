@@ -26,6 +26,7 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
+import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.objects.ObservableObject;
 
 public class Measurements {
@@ -80,7 +81,7 @@ public class Measurements {
         WIDGET_COLUMNS.updateObject((width / dpToPx(150) / 2) * 2);
 
         root.setOnApplyWindowInsetsListener((v, insets) -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
                 SYS_UI_HEIGHT.updateObject(insets
                         .getInsetsIgnoringVisibility(WindowInsets.Type.systemBars()).top);
 

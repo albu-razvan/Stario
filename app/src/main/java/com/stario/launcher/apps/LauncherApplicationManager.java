@@ -27,6 +27,7 @@ import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Process;
 import android.os.UserHandle;
 import android.util.Log;
@@ -179,7 +180,7 @@ public final class LauncherApplicationManager {
         intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
         intentFilter.addDataScheme("package");
 
-        if (Utils.isMinimumSDK(33)) {
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
             activity.registerReceiver(receiver, intentFilter, Context.RECEIVER_EXPORTED);
         } else {
             activity.registerReceiver(receiver, intentFilter);

@@ -155,7 +155,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
                     int oldLimit = limit;
 
                     limit = getSize();
-                    notifyItemRangeInserted(oldLimit, limit - oldLimit);
+                    recyclerView.post(() -> notifyItemRangeInserted(oldLimit, limit - oldLimit));
 
                     recyclerView.removeOnScrollListener(this);
                 }
@@ -184,10 +184,15 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     @Override
     public final void onBindViewHolder(@NonNull AVH holder, int position) {
         holder.setOnInflatedInternal(() -> {
-            if (limit < getSize()) {
+            if (type == InflationType.ASYNC && limit < getSize()) {
                 recyclerView.post(() -> {
                     limit++;
-                    notifyItemInserted(limit);
+
+                    if (limit < getSize()) {
+                        if (recyclerView != null) {
+                            recyclerView.post(() -> notifyItemInserted(limit));
+                        }
+                    }
                 });
             }
 

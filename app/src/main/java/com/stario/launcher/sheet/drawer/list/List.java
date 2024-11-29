@@ -18,22 +18,62 @@
 package com.stario.launcher.sheet.drawer.list;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.stario.launcher.R;
 import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.DrawerPage;
+import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.recyclers.FastScroller;
 
 public class List extends DrawerPage {
+    private LocalBroadcastManager broadcastManager;
+    private BroadcastReceiver visibilityReceiver;
+    private BroadcastReceiver positionReceiver;
     private FastScroller fastScroller;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        broadcastManager = LocalBroadcastManager.getInstance(context);
+    }
+
+    @Override
+    public void onDetach() {
+        if (visibilityReceiver != null) {
+            broadcastManager.unregisterReceiver(visibilityReceiver);
+        }
+
+        if (positionReceiver != null) {
+            broadcastManager.unregisterReceiver(positionReceiver);
+        }
+
+        super.onDetach();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        broadcastManager.registerReceiver(visibilityReceiver,
+                new IntentFilter(ApplicationsDialog.getTopic()));
+        broadcastManager.registerReceiver(positionReceiver,
+                new IntentFilter(ApplicationsDialog.getTopic(getView())));
+    }
 
     @NonNull
     @SuppressLint("ClickableViewAccessibility")
@@ -71,6 +111,22 @@ public class List extends DrawerPage {
         search.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
                 fastScroller.setBottomOffset(searchContainer.getPaddingBottom() + (bottom - top) +
                         Measurements.spToPx(32) + Measurements.dpToPx(20)));
+
+        positionReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                fastScroller.animateVisibility(
+                        intent.getFloatExtra(ApplicationsDialog.INTENT_EXTRA_PAGE_POSITION, 0f) == 0);
+            }
+        };
+
+        visibilityReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                fastScroller.animateVisibility(
+                        intent.getBooleanExtra(ApplicationsDialog.INTENT_EXTRA_PAGER_VISIBILITY, true));
+            }
+        };
 
         return rootView;
     }

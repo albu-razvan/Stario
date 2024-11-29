@@ -66,6 +66,8 @@ public class Folder extends DrawerPage {
             drawer.setAdapter(adapter);
 
             drawer.post(() -> {
+                drawer.scrollToPosition(0);
+
                 title.setText(CategoryData.getInstance()
                         .getCategoryName(categoryID, getResources()));
 

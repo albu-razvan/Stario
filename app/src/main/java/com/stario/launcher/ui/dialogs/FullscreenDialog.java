@@ -18,6 +18,7 @@
 package com.stario.launcher.ui.dialogs;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -59,7 +60,7 @@ public class FullscreenDialog extends AppCompatDialog {
 
             UiUtils.setWindowTransitions(window);
 
-            if (blur && Utils.isMinimumSDK(31)) {
+            if (blur && Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
                 window.setDimAmount(0.001f); // some devices do not blur if the dim value is equal to 0
 
                 window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);

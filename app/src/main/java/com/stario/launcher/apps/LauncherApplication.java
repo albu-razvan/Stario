@@ -68,7 +68,7 @@ public class LauncherApplication {
 
             ActivityOptions activityOptions = ActivityOptions.makeBasic();
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
                 activityOptions.setSplashScreenStyle(android.window.SplashScreen.SPLASH_SCREEN_STYLE_ICON);
             }
 

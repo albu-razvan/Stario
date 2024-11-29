@@ -23,7 +23,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.stario.launcher.sheet.drawer.category.Categories;
-import com.stario.launcher.sheet.drawer.category.list.FolderListAdapter;
 import com.stario.launcher.sheet.drawer.list.List;
 import com.stario.launcher.ui.recyclers.ScrollToTop;
 
@@ -79,12 +78,24 @@ public class DrawerAdapter extends FragmentPagerAdapter {
     }
 
     public boolean collapse() {
-        if (!fragmentManager.isDestroyed()) {
-            return FolderListAdapter.isAnimating() ||
-                    fragmentManager.popBackStackImmediate(Categories.STACK_ID,
-                            FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        if (!fragmentManager.isDestroyed() && !isTransitioning()) {
+            return fragmentManager.popBackStackImmediate(Categories.STACK_ID,
+                    FragmentManager.POP_BACK_STACK_INCLUSIVE);
         } else {
             return false;
         }
+    }
+
+    public boolean isTransitioning() {
+        if (!fragmentManager.isDestroyed()) {
+            for (Fragment fragment : fragmentManager.getFragments()) {
+                if (fragment instanceof DrawerPage &&
+                        ((DrawerPage) fragment).isTransitioning()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
