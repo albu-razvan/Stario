@@ -26,15 +26,18 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsAnimationCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -67,11 +70,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class SearchFragment extends Fragment {
     public static final String TAG = "SearchFragment";
-    public static final int MAX_LIST_ITEMS = 4;
+    public static final int MAX_APP_QUERY_ITEMS = 4;
     private SearchLayoutTransition searchLayoutTransition;
     private KeyboardHeightProvider heightProvider;
     private ImeAnimationController controller;
-    private BackGestureHandleEditText search;
+    private KeyPreImeListeningEditText search;
+    private RelativeLayout searchContainer;
     private ThemedActivity activity;
     private ViewGroup content;
 
@@ -79,7 +83,7 @@ public class SearchFragment extends Fragment {
         super();
 
         if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
-            controller = new ImeAnimationController();
+            this.controller = new ImeAnimationController();
         }
     }
 
@@ -127,7 +131,7 @@ public class SearchFragment extends Fragment {
 
         PreEventNestedScrollView scrollView = root.findViewById(R.id.scroller);
         FadingEdgeLayout fader = root.findViewById(R.id.fader);
-        RelativeLayout searchContainer = root.findViewById(R.id.search_container);
+        searchContainer = root.findViewById(R.id.search_container);
         search = root.findViewById(R.id.search);
         content = root.findViewById(R.id.content);
 
@@ -140,7 +144,7 @@ public class SearchFragment extends Fragment {
 
         RecyclerView apps = root.findViewById(R.id.apps);
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(activity, MAX_LIST_ITEMS);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(activity, MAX_APP_QUERY_ITEMS);
 
         apps.setLayoutManager(gridLayoutManager);
         apps.setItemAnimator(null);
@@ -213,7 +217,7 @@ public class SearchFragment extends Fragment {
             heightProvider.addKeyboardHeightObserver((height) -> {
                 searchLayoutTransition.setAnimate(false);
 
-                if (height > 0) {
+                if (isKeyboardVisible()) {
                     scrollView.smoothScrollTo(0, 0, Animation.LONG.getDuration());
                 }
 
@@ -243,6 +247,7 @@ public class SearchFragment extends Fragment {
         if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
             AtomicReference<Integer> lastVelocity = new AtomicReference<>(null);
             AtomicBoolean isPointerDown = new AtomicBoolean(false);
+            AtomicBoolean isAScroll = new AtomicBoolean(false);
             AtomicBoolean skipNextAnimationFrame = new AtomicBoolean(false);
 
             scrollView.setOnPreScrollListener(new PreEventNestedScrollView.PreEvent() {
@@ -256,21 +261,17 @@ public class SearchFragment extends Fragment {
                         return controller.insetBy(-delta) != 0;
                     }
 
-                    WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(scrollView);
+                    boolean isKeyboardVisible = isKeyboardVisible();
 
-                    if (insets != null) {
-                        boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
-
-                        if (delta < 0 && !isKeyboardVisible) {
-                            return false;
-                        }
-
-                        if ((delta > 0 && isKeyboardVisible) || scrollView.getScrollY() > 0) {
-                            return false;
-                        }
+                    if (delta < 0 && !isKeyboardVisible) {
+                        return false;
                     }
 
-                    return controller.isRequestPending();
+                    if ((delta > 0 && isKeyboardVisible) || scrollView.getScrollY() > 0) {
+                        return false;
+                    }
+
+                    return !isAScroll.get() || controller.isRequestPending();
                 }
 
                 @Override
@@ -285,72 +286,97 @@ public class SearchFragment extends Fragment {
                         return true;
                     }
 
-                    WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(scrollView);
+                    boolean isKeyboardVisible = isKeyboardVisible();
 
-                    if (insets != null) {
-                        boolean isKeyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
-
-                        if (velocity > 0 && !isKeyboardVisible) {
-                            return false;
-                        }
-
-                        if ((velocity < 0 && isKeyboardVisible) || scrollView.getScrollY() > 0) {
-                            return false;
-                        }
+                    if (velocity > 0 && !isKeyboardVisible) {
+                        return false;
                     }
 
-                    return controller.isRequestPending();
+                    if ((velocity < 0 && isKeyboardVisible) || scrollView.getScrollY() > 0) {
+                        return false;
+                    }
+
+                    return !isAScroll.get() || controller.isRequestPending();
                 }
             });
 
-            scrollView.setOnTouchListener((v, event) -> {
-                if (event.getAction() == MotionEvent.ACTION_DOWN ||
-                        event.getAction() == MotionEvent.ACTION_MOVE) {
-                    if (!isPointerDown.get() && !controller.isAnimationInProgress() &&
-                            !controller.isRequestPending()) {
-                        controller.startControlRequest(search, new ImeAnimationController.StateListener() {
-                            @Override
-                            public void onReady() {
-                                if (!isPointerDown.get()) {
-                                    if (lastVelocity.get() != null) {
-                                        if ((scrollView.getScrollY() == 0 && lastVelocity.get() < 0 && !controller.isCurrentPositionFullyShown()) ||
-                                                (lastVelocity.get() > 0 && !controller.isCurrentPositionFullyHidden())) {
-                                            controller.finish(-lastVelocity.get());
-                                        } else {
-                                            controller.finish();
-                                        }
-                                    } else {
-                                        controller.finish();
-                                    }
+            scrollView.setOnTouchListener(new View.OnTouchListener() {
+                private Float x = null;
+                private Float y = null;
 
-                                    lastVelocity.set(null);
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN ||
+                            event.getAction() == MotionEvent.ACTION_MOVE) {
+                        isPointerDown.set(true);
+
+                        if (x == null && y == null) {
+                            x = event.getRawX();
+                            y = event.getRawY();
+                        } else if (x != null && y != null) {
+                            float absDeltaX = Math.abs(event.getRawX() - x);
+                            float absDeltaY = Math.abs(event.getRawY() - y);
+
+                            float slop = ViewConfiguration.get(activity)
+                                    .getScaledTouchSlop();
+
+                            if (absDeltaX > absDeltaY && absDeltaX > slop) {
+                                x = null;
+                                isAScroll.set(true);
+                            } else if (absDeltaY > absDeltaX && absDeltaY > slop) {
+                                y = null;
+                                isAScroll.set(true);
+
+                                if (!controller.isAnimationInProgress() &&
+                                        !controller.isRequestPending()) {
+                                    controller.startControlRequest(search, new ImeAnimationController.StateListener() {
+                                        @Override
+                                        public void onReady() {
+                                            if (!isPointerDown.get()) {
+                                                if (lastVelocity.get() != null) {
+                                                    if ((scrollView.getScrollY() == 0 && lastVelocity.get() < 0 && !controller.isCurrentPositionFullyShown()) ||
+                                                            (lastVelocity.get() > 0 && !controller.isCurrentPositionFullyHidden())) {
+                                                        controller.finish(-lastVelocity.get());
+                                                    } else {
+                                                        controller.finish();
+                                                    }
+                                                } else {
+                                                    controller.finish();
+                                                }
+
+                                                lastVelocity.set(null);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onPreFinish() {
+                                            // prevent animation bug frame after finishing the inset controller animation
+                                            skipNextAnimationFrame.set(true);
+                                        }
+                                    });
                                 }
                             }
-
-                            @Override
-                            public void onPreFinish() {
-                                // prevent animation bug frame after finishing the inset controller animation
-                                skipNextAnimationFrame.set(true);
-                            }
-                        });
+                        }
                     }
 
-                    isPointerDown.set(true);
+                    if (event.getAction() == MotionEvent.ACTION_UP ||
+                            event.getAction() == MotionEvent.ACTION_CANCEL) {
+                        isPointerDown.set(false);
+                        isAScroll.set(false);
+
+                        scrollView.post(() -> {
+                            if (controller.isAnimationInProgress() &&
+                                    !controller.isSettleAnimationInProgress()) {
+                                controller.finish();
+                            }
+                        });
+
+                        x = null;
+                        y = null;
+                    }
+
+                    return false;
                 }
-
-                if (event.getAction() == MotionEvent.ACTION_UP ||
-                        event.getAction() == MotionEvent.ACTION_CANCEL) {
-                    isPointerDown.set(false);
-
-                    scrollView.post(() -> {
-                        if (controller.isAnimationInProgress() &&
-                                !controller.isSettleAnimationInProgress()) {
-                            controller.finish();
-                        }
-                    });
-                }
-
-                return false;
             });
 
             ViewCompat.setWindowInsetsAnimationCallback(root, new WindowInsetsAnimationCompat
@@ -385,23 +411,22 @@ public class SearchFragment extends Fragment {
                 @Override
                 public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets, @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
                     // prevent controller animation bug frame here
-                    if (!skipNextAnimationFrame.get()) {
-                        if (imeAnimation == null) {
-                            for (WindowInsetsAnimationCompat animation : runningAnimations) {
-                                if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) != 0) {
-                                    imeAnimation = animation;
+                    if (imeAnimation == null) {
+                        for (WindowInsetsAnimationCompat animation : runningAnimations) {
+                            if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) != 0) {
+                                imeAnimation = animation;
 
-                                    break;
-                                }
+                                break;
                             }
                         }
+                    }
 
+                    if (!skipNextAnimationFrame.get()) {
                         if (imeAnimation != null) {
                             float delta = endBottom - startBottom;
                             float translation = delta * ((delta < 0 ? 1 : 0) - imeAnimation.getInterpolatedFraction());
 
-                            content.setTranslationY(-translation);
-                            searchContainer.setTranslationY(translation);
+                            updateContentTranslation(translation);
                         }
                     } else {
                         skipNextAnimationFrame.set(false);
@@ -425,15 +450,12 @@ public class SearchFragment extends Fragment {
             return false;
         });
 
-        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
-
-        } else {
-            search.setOnBackInvoked(() -> (controller != null && (controller.isRequestPending() ||
-                    controller.isAnimationInProgress() || controller.isAnimationInProgress())));
+        if (!Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+            search.addOnKeyUp(KeyEvent.KEYCODE_BACK, this::onBackPressed);
         }
 
         search.addTextChangedListener(new TextWatcher() {
-            private static final int INTERVAL = 300;
+            private static final int WEB_PROCESS_INTERVAL = 300;
             private long lastRegisteredTimestamp = 0;
 
             @Override
@@ -465,7 +487,7 @@ public class SearchFragment extends Fragment {
                             if (timeStamp == lastRegisteredTimestamp) {
                                 webAdapter.update(query);
                             }
-                        }, INTERVAL);
+                        }, WEB_PROCESS_INTERVAL);
                     }
 
                     lastRegisteredTimestamp = System.currentTimeMillis();
@@ -479,14 +501,63 @@ public class SearchFragment extends Fragment {
             startPostponedEnterTransition();
 
             UiUtils.showKeyboard(search);
+
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+                heightProvider.addKeyboardHeightObserver(height -> {
+                    content.post(() -> {
+                        if (height > 0 && controller != null &&
+                                !(controller.isAnimationInProgress() || controller.isRequestPending())) {
+                            updateContentTranslation(-height);
+                        }
+                    });
+                });
+            }
         });
 
         return root;
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
+    private void updateContentTranslation(float translation) {
+        if (translation != searchContainer.getTranslationY()) {
+            content.setTranslationY(-translation);
+            searchContainer.setTranslationY(translation);
+        }
+    }
+
+    private boolean isKeyboardVisible() {
+        View view = getView();
+
+        if (view != null) {
+            WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(getView());
+
+            if (insets != null) {
+                return insets.isVisible(WindowInsetsCompat.Type.ime());
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return true if this instance wants to prevent the back event
+     */
+    public boolean onBackPressed() {
+        if (!isKeyboardVisible()) {
+            return false;
+        }
+
+        UiUtils.hideKeyboard(search);
+
+        return true;
+    }
+
     @Override
     public void onStop() {
+        UiUtils.hideKeyboard(search);
+
         super.onStop();
+
         search.setText(null);
     }
 

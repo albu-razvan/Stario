@@ -131,6 +131,11 @@ public class SplashScreen extends ThemedActivity {
     }
 
     @Override
+    protected boolean isAffectedByBackGesture() {
+        return false;
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 

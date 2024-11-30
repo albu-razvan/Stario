@@ -26,15 +26,19 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PaintDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
+import androidx.activity.BackEventCompat;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,6 +48,7 @@ import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
+import com.stario.launcher.utils.animation.Animation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,8 +56,8 @@ import java.util.HashMap;
 abstract public class ThemedActivity extends AppCompatActivity {
     public static final String THEME = "com.stario.THEME";
     public static final String FORCE_DARK = "com.stario.FORCE_DARK";
+    private final HashMap<Integer, OnActivityResult> activityResultListeners;
     private final ArrayList<OnDestroyListener> destroyListeners;
-    private HashMap<Integer, OnActivityResult> activityResultListeners;
     private boolean dispatchTouchEvents;
     private Theme theme;
 
@@ -83,15 +88,14 @@ abstract public class ThemedActivity extends AppCompatActivity {
         theme = Theme.from(themePreferences.getString(THEME, THEME_BLUE.toString()));
         setTheme(isDarkModeOn ? theme.getDarkResourceID() : theme.getLightResourceID());
 
+        int backgroundColor = getAttributeData(com.google.android.material.R.attr.colorSurface);
+        Drawable background = new ColorDrawable(backgroundColor);
+
         Window window = getWindow();
 
         if (window != null) {
             UiUtils.setWindowTransitions(window);
             UiUtils.makeSysUITransparent(window);
-
-            Drawable background = new ColorDrawable(
-                    getAttributeData(com.google.android.material.R.attr.colorSurface, false)
-            );
 
             if (isOpaque()) {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER);
@@ -102,6 +106,92 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
             window.setBackgroundDrawable(background);
             window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+        }
+
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+            getOnBackPressedDispatcher().addCallback(this,
+                    new OnBackPressedCallback(true) {
+                        private int startingWindowBackgroundAlpha = background.getAlpha();
+                        private Drawable startingRootBackground;
+                        private PaintDrawable progressRootBackground;
+
+                        @Override
+                        public void handleOnBackStarted(@NonNull BackEventCompat backEvent) {
+                            if (isAffectedByBackGesture()) {
+                                View root = getRoot();
+
+                                if (root != null) {
+                                    startingWindowBackgroundAlpha = background.getAlpha();
+
+                                    startingRootBackground = root.getBackground();
+                                    progressRootBackground = new PaintDrawable(backgroundColor);
+                                    progressRootBackground.setCornerRadius(0);
+
+                                    root.setBackground(progressRootBackground);
+
+                                    if (backEvent.getSwipeEdge() == BackEventCompat.EDGE_RIGHT) {
+                                        root.setPivotX(root.getMeasuredWidth() * 0.25f);
+                                    } else if (backEvent.getSwipeEdge() == BackEventCompat.EDGE_LEFT) {
+                                        root.setPivotX(root.getMeasuredWidth() * 0.75f);
+                                    }
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void handleOnBackProgressed(@NonNull BackEventCompat backEvent) {
+                            if (isAffectedByBackGesture()) {
+                                View root = getRoot();
+
+                                float progress = backEvent.getProgress();
+
+                                if (root != null) {
+                                    background.setAlpha((int) ((1f - progress * 0.5f) * 255));
+
+                                    root.setPivotY(backEvent.getTouchY() / 1.3f);
+
+                                    root.setScaleX(1f - progress * 0.2f);
+                                    root.setScaleY(1f - progress * 0.2f);
+
+                                    progressRootBackground.setCornerRadius(progress *
+                                            Measurements.dpToPx(30));
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void handleOnBackCancelled() {
+                            if (isAffectedByBackGesture()) {
+                                View root = getRoot();
+
+                                if (root != null) {
+                                    int alpha = background.getAlpha();
+
+                                    root.animate()
+                                            .scaleX(1)
+                                            .scaleY(1)
+                                            .setDuration(Animation.MEDIUM.getDuration())
+                                            .setUpdateListener(animation -> {
+                                                float fraction = animation.getAnimatedFraction();
+
+                                                background.setAlpha(alpha +
+                                                        (int) ((startingWindowBackgroundAlpha - alpha) * fraction));
+                                            })
+                                            .withEndAction(() -> {
+                                                root.setBackground(startingRootBackground);
+                                                background.setAlpha(startingWindowBackgroundAlpha);
+                                            });
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void handleOnBackPressed() {
+                            if (isAffectedByBackGesture()) {
+                                finishAfterTransition();
+                            }
+                        }
+                    });
         }
 
         super.onCreate(savedInstanceState);
@@ -213,6 +303,8 @@ abstract public class ThemedActivity extends AppCompatActivity {
     }
 
     protected abstract boolean isOpaque();
+
+    protected abstract boolean isAffectedByBackGesture();
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

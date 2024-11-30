@@ -17,8 +17,10 @@
 
 package com.stario.launcher.sheet.drawer.dialog;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.transition.Transition;
 import android.transition.TransitionListenerAdapter;
@@ -27,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,6 +50,7 @@ import com.stario.launcher.sheet.drawer.search.SearchEngine;
 import com.stario.launcher.sheet.drawer.search.SearchFragment;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.pager.CustomDurationViewPager;
+import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.animation.Animation;
 import com.stario.launcher.utils.animation.FragmentTransition;
 
@@ -182,7 +186,7 @@ public class ApplicationsDialog extends SheetDialogFragment {
             }
         });
 
-        addOnShowListener(dialog -> {
+        addOnShowListener(dialogInterface -> {
             SheetBehavior<?> behavior = getBehavior();
 
             if (behavior != null) {
@@ -262,6 +266,21 @@ public class ApplicationsDialog extends SheetDialogFragment {
 
                 if (fragment == null) {
                     fragment = new SearchFragment();
+
+                    if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+                        Dialog dialog = getDialog();
+
+                        if (dialog != null) {
+                            dialog.getOnBackInvokedDispatcher()
+                                    .registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_OVERLAY,
+                                            () -> {
+                                                if (!fragment.onBackPressed()) {
+                                                    //noinspection deprecation
+                                                    dialog.onBackPressed();
+                                                }
+                                            });
+                        }
+                    }
                 }
 
                 Transition transition = new FragmentTransition(true)

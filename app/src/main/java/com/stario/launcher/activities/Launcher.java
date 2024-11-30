@@ -70,7 +70,7 @@ public class Launcher extends ThemedActivity {
         coordinator = findViewById(R.id.coordinator);
         decorView = window.getDecorView();
 
-        if(Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
         }
 
@@ -186,6 +186,11 @@ public class Launcher extends ThemedActivity {
 
     @Override
     protected boolean isOpaque() {
+        return false;
+    }
+
+    @Override
+    protected boolean isAffectedByBackGesture() {
         return false;
     }
 
