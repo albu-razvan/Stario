@@ -21,6 +21,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.ViewConfiguration;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,33 +31,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SheetsFocusController extends ConstraintLayout {
-    private static final int INTERCEPT_THRESHOLD = 15;
     private List<Integer> targetPointers;
     private SheetType sheetType;
+    private float interceptSlop;
     private float X, Y;
     private float deltaX, deltaY;
 
     public SheetsFocusController(@NonNull Context context) {
         super(context);
 
-        init();
+        init(context);
     }
 
     public SheetsFocusController(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
-        init();
+        init(context);
     }
 
     public SheetsFocusController(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        init();
+        init(context);
     }
 
-    private void init() {
+    private void init(Context context) {
         targetPointers = new ArrayList<>();
         sheetType = SheetType.UNDEFINED;
+        interceptSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     }
 
     @Override
@@ -87,8 +89,8 @@ public class SheetsFocusController extends ConstraintLayout {
                 deltaX += X - ev.getX(getPointer(ev));
 
                 super.onInterceptTouchEvent(ev);
-                return Math.abs(deltaY) > INTERCEPT_THRESHOLD ||
-                        Math.abs(deltaX) > INTERCEPT_THRESHOLD;
+                return Math.abs(deltaY) > interceptSlop ||
+                        Math.abs(deltaX) > interceptSlop;
             }
         }
     }

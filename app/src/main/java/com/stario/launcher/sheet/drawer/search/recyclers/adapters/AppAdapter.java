@@ -87,26 +87,17 @@ public class AppAdapter extends RecyclerApplicationAdapter
 
                     if (lowercaseLabel.startsWith(filterPattern)) {
                         filteredList.add(starting++, application);
-
-                        if (filteredList.size() >= SearchFragment.MAX_LIST_ITEMS) {
-                            break;
-                        }
                     } else if (lowercaseLabel.contains(filterPattern)) {
                         filteredList.add(starting + containing++, application);
-
-                        if (filteredList.size() >=
-                                SearchFragment.MAX_LIST_ITEMS) {
-                            break;
-                        }
                     } else if (JaroWinklerDistance.getScore(lowercaseLabel, filterPattern) > 0.87d) {
                         filteredList.add(starting + containing + close++, application);
-
-                        if (filteredList.size() >=
-                                SearchFragment.MAX_LIST_ITEMS) {
-                            break;
-                        }
                     }
                 }
+            }
+
+            if (filteredList.size() >
+                    SearchFragment.MAX_APP_QUERY_ITEMS) {
+                filteredList = filteredList.subList(0, SearchFragment.MAX_APP_QUERY_ITEMS);
             }
         }
 

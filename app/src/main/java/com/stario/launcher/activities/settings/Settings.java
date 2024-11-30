@@ -368,4 +368,9 @@ public class Settings extends ThemedActivity {
     protected boolean isOpaque() {
         return true;
     }
+
+    @Override
+    protected boolean isAffectedByBackGesture() {
+        return true;
+    }
 }

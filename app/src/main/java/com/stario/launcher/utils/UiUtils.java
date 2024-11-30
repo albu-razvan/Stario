@@ -60,7 +60,7 @@ public class UiUtils {
         window.setReenterTransition(enterTransform);
         window.setReturnTransition(enterTransform);
 
-        MaterialSharedAxis exitTransform = new MaterialSharedAxis(MaterialSharedAxis.Z, true);
+        MaterialSharedAxis exitTransform = new MaterialSharedAxis(MaterialSharedAxis.Z, false);
         exitTransform.setInterpolator(new AccelerateInterpolator());
         exitTransform.setDuration(Animation.LONG.getDuration());
 

@@ -31,12 +31,14 @@ import com.stario.launcher.utils.animation.Animation;
 @SuppressLint("ViewConstructor")
 public class WidgetHostView extends RoundedWidgetHost {
     static final float STARTING_SCALE = 0.9f;
-    private static final float MOVE_THRESHOLD = 10;
-    private boolean mHasPerformedLongPress;
     private CheckForLongPress mPendingCheckForLongPress;
+    private boolean mHasPerformedLongPress;
+    private float moveSlop;
 
     public WidgetHostView(Context context, WidgetContainer.LayoutParams params) {
         super(context, params);
+
+        this.moveSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     }
 
     @Override
@@ -91,8 +93,8 @@ public class WidgetHostView extends RoundedWidgetHost {
 
                 return super.dispatchTouchEvent(ev);
             } else if (ev.getAction() == MotionEvent.ACTION_MOVE &&
-                    (Math.abs(X - ev.getRawX()) >= MOVE_THRESHOLD ||
-                            Math.abs(Y - ev.getRawY()) >= MOVE_THRESHOLD)) {
+                    (Math.abs(X - ev.getRawX()) >= moveSlop ||
+                            Math.abs(Y - ev.getRawY()) >= moveSlop)) {
                 removeCheck();
             }
         }

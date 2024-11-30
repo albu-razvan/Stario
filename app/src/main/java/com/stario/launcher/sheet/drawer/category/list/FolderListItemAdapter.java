@@ -133,7 +133,7 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
             if (application != LauncherApplication.FALLBACK_APP) {
                 Drawable appIcon = application.getIcon();
 
-                if (position >= SOFT_LIMIT && category.getSize() > HARD_LIMIT) {
+                if (position >= SOFT_LIMIT && category.getSize() >= HARD_LIMIT) {
                     holder.itemView.setOnClickListener((view) -> {
                         View folder = (View) holder.itemView.getParent();
 

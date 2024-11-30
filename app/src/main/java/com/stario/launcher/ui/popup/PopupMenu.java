@@ -79,6 +79,7 @@ public class PopupMenu {
     private final LinearLayout root;
     private final PopupWindow popupWindow;
     private final LifecycleObserver observer;
+    private int oldOrientationFlags;
     private int shortcutCount;
 
     public PopupMenu(ThemedActivity activity) {
@@ -92,6 +93,8 @@ public class PopupMenu {
         this.root = (LinearLayout) inflater.inflate(R.layout.popup_window, null);
         this.popupWindow = new PopupWindow(root, ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+        popupWindow.setInputMethodMode(PopupWindow.INPUT_METHOD_NOT_NEEDED);
 
         Transition enter = new MaterialElevationScale(true);
         enter.setDuration(Animation.SHORT.getDuration());
@@ -233,7 +236,7 @@ public class PopupMenu {
 
     public void setOnDismissListener(PopupWindow.OnDismissListener listener) {
         popupWindow.setOnDismissListener(() -> {
-            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+            activity.setRequestedOrientation(oldOrientationFlags);
             activity.getLifecycle().removeObserver(observer);
 
             if (listener != null) {
@@ -380,6 +383,8 @@ public class PopupMenu {
             popupWindow.setWidth(Measurements.dpToPx(WIDTH) + padding * 2);
             popupWindow.showAtLocation(parent, gravity, location[0], location[1]);
             root.setPadding(padding, padding, padding, padding);
+
+            oldOrientationFlags = activity.getRequestedOrientation();
 
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
             activity.getLifecycle().addObserver(observer);

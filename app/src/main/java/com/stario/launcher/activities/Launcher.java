@@ -46,7 +46,6 @@ import dev.rikka.tools.refine.Refine;
 
 public class Launcher extends ThemedActivity {
     public final static int MAX_BACKGROUND_ALPHA = 230;
-    private static final String TAG = "Launcher";
     private SheetsFocusController coordinator;
     private ClosingAnimationView main;
     private View decorView;
@@ -70,6 +69,10 @@ public class Launcher extends ThemedActivity {
         main = findViewById(R.id.main);
         coordinator = findViewById(R.id.coordinator);
         decorView = window.getDecorView();
+
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+        }
 
         Measurements.measure(getRoot(), (insets) -> {
             coordinator.setPadding(0, Measurements.getSysUIHeight(), 0,
@@ -183,6 +186,11 @@ public class Launcher extends ThemedActivity {
 
     @Override
     protected boolean isOpaque() {
+        return false;
+    }
+
+    @Override
+    protected boolean isAffectedByBackGesture() {
         return false;
     }
 
