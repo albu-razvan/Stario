@@ -76,6 +76,7 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 updateTitleTransforms(recyclerView);
+                recyclerView.post(() -> updateTitleTransforms(recyclerView)); // make sure it did position itself right
             }
         });
 

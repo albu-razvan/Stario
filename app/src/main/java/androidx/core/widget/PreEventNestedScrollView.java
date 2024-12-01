@@ -25,8 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class PreEventNestedScrollView extends NestedScrollView {
-    public static final float UP = 1;
-    public static final float DOWN = -1;
     private boolean ignore;
     private PreEvent listener;
 

@@ -89,8 +89,8 @@ public class SheetsFocusController extends ConstraintLayout {
                 deltaX += X - ev.getX(getPointer(ev));
 
                 super.onInterceptTouchEvent(ev);
-                return Math.abs(deltaY) > interceptSlop ||
-                        Math.abs(deltaX) > interceptSlop;
+                return Math.abs(deltaY) >= interceptSlop ||
+                        Math.abs(deltaX) >= interceptSlop;
             }
         }
     }
