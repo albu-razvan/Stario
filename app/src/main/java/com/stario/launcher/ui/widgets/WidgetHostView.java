@@ -33,7 +33,7 @@ public class WidgetHostView extends RoundedWidgetHost {
     static final float STARTING_SCALE = 0.9f;
     private CheckForLongPress mPendingCheckForLongPress;
     private boolean mHasPerformedLongPress;
-    private float moveSlop;
+    private final float moveSlop;
 
     public WidgetHostView(Context context, WidgetContainer.LayoutParams params) {
         super(context, params);

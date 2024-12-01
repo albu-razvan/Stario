@@ -25,6 +25,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -40,40 +41,42 @@ public class FastScroller extends RelativeLayout {
     private TextView popup;
     private View trackRight;
     private View trackLeft;
-    private float xPos;
-    private float yPos;
+    private Float x;
+    private Float y;
     private float alphaLeft;
     private float alphaRight;
     private int currentPosition;
     private int trackLength;
     private int popupHeight;
+    private int swipeSlop;
     private boolean isEngaged;
 
     public FastScroller(Context context) {
         super(context);
 
-        init();
+        init(context);
     }
 
     public FastScroller(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        init();
+        init(context);
     }
 
     public FastScroller(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        init();
+        init(context);
     }
 
-    private void init() {
-        this.xPos = 0;
-        this.yPos = 0;
+    private void init(Context context) {
+        this.x = null;
+        this.y = null;
         this.alphaLeft = 0;
         this.alphaRight = 0;
         this.currentPosition = -1;
         this.isEngaged = false;
+        this.swipeSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
         addPopupLayout();
         addTrack();
@@ -155,23 +158,28 @@ public class FastScroller extends RelativeLayout {
             OnTouchListener listener = (view, motionEvent) -> {
                 if (recyclerView != null &&
                         recyclerView.getAdapter() != null) {
-                    recyclerView.stopScroll();
+                    if ((x == null && y == null) ||
+                            motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                        x = motionEvent.getRawX();
+                        y = motionEvent.getRawY();
+                    } else {
+                        float absDeltaX = Math.abs(motionEvent.getRawX() - x);
+                        float absDeltaY = Math.abs(motionEvent.getRawY() - y);
 
-                    if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                        xPos = motionEvent.getRawX();
-                        yPos = motionEvent.getRawY();
-                    }
+                        if (absDeltaX > absDeltaY && absDeltaX >= swipeSlop) {
+                            x = Float.MIN_VALUE;
 
-                    if (((motionEvent.getRawX() - xPos) != 0f) &&
-                            ((motionEvent.getRawY() - yPos) != 0f)) {
-
-                        if (yPos != Float.MIN_VALUE && xPos != Float.MIN_VALUE &&
-                                Math.abs(motionEvent.getRawX() - xPos) > Math.abs(motionEvent.getRawY() - yPos)) {
-                            xPos = Float.MIN_VALUE;
+                            if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
+                                    motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
+                                x = null;
+                                y = null;
+                            }
 
                             return false;
-                        } else {
-                            yPos = Float.MIN_VALUE;
+                        } else if (absDeltaY > absDeltaX && absDeltaY >= swipeSlop) {
+                            y = Float.MIN_VALUE;
+
+                            recyclerView.stopScroll();
 
                             switch (motionEvent.getAction()) {
                                 case MotionEvent.ACTION_MOVE: {
@@ -205,6 +213,9 @@ public class FastScroller extends RelativeLayout {
                                                 .onReset(currentPosition);
                                     }
 
+                                    x = null;
+                                    y = null;
+
                                     return FastScroller.super.onTouchEvent(motionEvent);
                                 }
 
@@ -213,12 +224,18 @@ public class FastScroller extends RelativeLayout {
                                 }
                             }
                         }
-                    } else {
+
                         return true;
                     }
                 } else {
-                    return false;
+                    if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
+                            motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
+                        x = null;
+                        y = null;
+                    }
                 }
+
+                return true;
             };
 
             trackLeft.setOnTouchListener(listener);
