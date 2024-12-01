@@ -111,7 +111,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
         if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
             getOnBackPressedDispatcher().addCallback(this,
                     new OnBackPressedCallback(true) {
-                        private int startingWindowBackgroundAlpha = background.getAlpha();
+                        private int startingWindowBackgroundAlpha;
                         private Drawable startingRootBackground;
                         private PaintDrawable progressRootBackground;
 
@@ -121,7 +121,8 @@ abstract public class ThemedActivity extends AppCompatActivity {
                                 View root = getRoot();
 
                                 if (root != null) {
-                                    startingWindowBackgroundAlpha = background.getAlpha();
+                                    startingWindowBackgroundAlpha = isActivityTransitionRunning() ?
+                                            (isOpaque() ? 255 : 0) : background.getAlpha();
 
                                     startingRootBackground = root.getBackground();
                                     progressRootBackground = new PaintDrawable(backgroundColor);
