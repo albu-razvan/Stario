@@ -502,16 +502,18 @@ public class SearchFragment extends Fragment {
 
             UiUtils.showKeyboard(search);
 
-            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
-                heightProvider.addKeyboardHeightObserver(height -> {
-                    content.post(() -> {
-                        if (height > 0 && controller != null &&
-                                !(controller.isAnimationInProgress() || controller.isRequestPending())) {
-                            updateContentTranslation(-height);
-                        }
+            search.post(() -> {
+                if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+                    heightProvider.addKeyboardHeightObserver(height -> {
+                        content.post(() -> {
+                            if (height > 0 && controller != null &&
+                                    !(controller.isAnimationInProgress() || controller.isRequestPending())) {
+                                updateContentTranslation(-height);
+                            }
+                        });
                     });
-                });
-            }
+                }
+            });
         });
 
         return root;

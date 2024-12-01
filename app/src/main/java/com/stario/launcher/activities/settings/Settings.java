@@ -27,8 +27,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.transition.Transition;
-import android.transition.TransitionListenerAdapter;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.CompoundButton;
@@ -63,7 +61,14 @@ import com.stario.launcher.utils.Utils;
 public class Settings extends ThemedActivity {
     private MaterialSwitch mediaSwitch;
     private MaterialSwitch lockSwitch;
+    private boolean shouldRebirth;
     private TextView iconPackName;
+
+    public Settings() {
+        super();
+
+        this.shouldRebirth = false;
+    }
 
     @SuppressLint({"ClickableViewAccessibility", "SetTextI18n"})
     @Override
@@ -246,38 +251,9 @@ public class Settings extends ThemedActivity {
             }
         });
 
-        findViewById(R.id.restart).setOnClickListener(new View.OnClickListener() {
-            private void triggerRebirth() {
-                PackageManager packageManager = getPackageManager();
-                Intent intent = packageManager.getLaunchIntentForPackage(getPackageName());
-
-                if (intent != null) {
-                    ComponentName componentName = intent.getComponent();
-                    Intent mainIntent = Intent.makeRestartActivityTask(componentName);
-                    mainIntent.setPackage(getPackageName());
-
-                    startActivity(mainIntent);
-                    System.exit(0);
-                }
-            }
-
-            @Override
-            public void onClick(View view) {
-                getOnBackPressedDispatcher().onBackPressed();
-
-                Transition transition = getWindow().getReturnTransition();
-
-                if (transition != null) {
-                    transition.addListener(new TransitionListenerAdapter() {
-                        @Override
-                        public void onTransitionEnd(Transition transition) {
-                            triggerRebirth();
-                        }
-                    });
-                } else {
-                    triggerRebirth();
-                }
-            }
+        findViewById(R.id.restart).setOnClickListener(view -> {
+            shouldRebirth = true;
+            finishAfterTransition();
         });
 
         findViewById(R.id.def_launcher).setOnClickListener((view) -> {
@@ -367,6 +343,26 @@ public class Settings extends ThemedActivity {
     @Override
     protected boolean isOpaque() {
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (shouldRebirth) {
+            PackageManager packageManager = getPackageManager();
+            Intent intent = packageManager.getLaunchIntentForPackage(getPackageName());
+
+            if (intent != null) {
+                ComponentName componentName = intent.getComponent();
+                Intent mainIntent = Intent.makeRestartActivityTask(componentName);
+                mainIntent.setPackage(getPackageName());
+
+                startActivity(mainIntent);
+
+                System.exit(0);
+            }
+        }
     }
 
     @Override
