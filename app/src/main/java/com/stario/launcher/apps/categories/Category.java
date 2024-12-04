@@ -20,10 +20,9 @@ package com.stario.launcher.apps.categories;
 import androidx.annotation.Nullable;
 
 import com.stario.launcher.apps.LauncherApplication;
+import com.stario.launcher.utils.ThreadSafeArrayList;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Category {
     public final int id;
@@ -32,8 +31,8 @@ public class Category {
 
     public Category(int categoryID) {
         this.id = categoryID;
-        this.applications = new ArrayList<>();
-        this.listeners = new CopyOnWriteArrayList<>(); // stupid, but I can't figure out where the ConcurrentModification occurs
+        this.applications = new ThreadSafeArrayList<>();
+        this.listeners = new ThreadSafeArrayList<>();
     }
 
     public int getSize() {
@@ -114,6 +113,10 @@ public class Category {
         if (listener != null) {
             listeners.remove(listener);
         }
+    }
+
+    void clearListeners() {
+        listeners.clear();
     }
 
     @Override

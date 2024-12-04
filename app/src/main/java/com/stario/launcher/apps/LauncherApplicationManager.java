@@ -39,14 +39,13 @@ import com.stario.launcher.BuildConfig;
 import com.stario.launcher.apps.categories.CategoryData;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.utils.ThreadSafeArrayList;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class LauncherApplicationManager {
     private static final String TAG = "Applications";
@@ -61,10 +60,10 @@ public final class LauncherApplicationManager {
     private final IconPackManager iconPacks;
 
     private LauncherApplicationManager(ThemedActivity activity) {
-        this.applicationList = new ArrayList<>();
-        this.applicationListHidden = new ArrayList<>();
+        this.applicationList = new ThreadSafeArrayList<>();
+        this.applicationListHidden = new ThreadSafeArrayList<>();
         this.applicationMap = new HashMap<>();
-        this.listeners = new CopyOnWriteArrayList<>(); // stupid, but I can't figure out where the ConcurrentModification occurs
+        this.listeners = new ThreadSafeArrayList<>();
         this.hiddenSettings = activity.getSharedPreferences(Entry.HIDDEN_APPS);
         this.iconPacks = IconPackManager.from(activity, this::updateIcons);
 

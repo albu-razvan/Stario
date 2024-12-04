@@ -328,8 +328,8 @@ public class FastScroller extends RelativeLayout {
     }
 
     public void animateVisibility(boolean makeVisible) {
-        animateVisibility(makeVisible, false, 0.3f, 0f);
-        animateVisibility(makeVisible, true, 0.3f, 0f);
+        animateVisibility(makeVisible, false, 0.2f, 0f);
+        animateVisibility(makeVisible, true, 0.2f, 0f);
     }
 
     private void animateVisibility(boolean makeVisible, boolean rightSide,
@@ -356,17 +356,19 @@ public class FastScroller extends RelativeLayout {
     }
 
     private void animatePopupVisibility(boolean makeVisible, boolean rightSide) {
-        float scaleFactor = makeVisible ? 1f : 0f;
+        float scaleFactor = makeVisible ? 1f : 0.5f;
+        float alpha = makeVisible ? 1f : 0f;
 
         alignPopupLayout(rightSide);
-        popup.setPivotX(rightSide ? popup.getWidth() : 0);
+        popup.setPivotX(popup.getWidth() * (rightSide ? 0.75f : 0.25f));
 
         popup.animate()
                 .scaleX(scaleFactor)
                 .scaleY(scaleFactor)
+                .alpha(alpha)
                 .setDuration(Animation.MEDIUM.getDuration());
 
-        animateVisibility(makeVisible, rightSide, 0.7f, 0.3f);
+        animateVisibility(makeVisible, rightSide, 0.6f, 0.3f);
     }
 
     private void moveViewToRelativePositionWithBounds(float offset) {
