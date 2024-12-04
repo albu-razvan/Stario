@@ -25,6 +25,7 @@ import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.utils.ThreadSafeArrayList;
 import com.stario.launcher.utils.UiUtils;
 
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class CategoryData {
     private CategoryListener categoryListener;
 
     private CategoryData(ThemedActivity activity) {
-        this.categories = new ArrayList<>();
+        this.categories = new ThreadSafeArrayList<>();
         this.hiddenPreferences = activity.getSharedPreferences(Entry.HIDDEN_APPS);
         this.categoryResources = new HashMap<>() {{
             putIfAbsent(-1, R.string.unsorted);
@@ -187,15 +188,17 @@ public class CategoryData {
 
     public synchronized void addApplication(LauncherApplication application) {
         if (!hiddenPreferences.contains(application.getInfo().packageName)) {
-            int index = containsCategory(application.getCategory());
+            UiUtils.runOnUIThread(() -> {
+                int index = containsCategory(application.getCategory());
 
-            if (index == NO_CATEGORY) {
-                index = addCategory(application.getCategory());
-            }
+                if (index == NO_CATEGORY) {
+                    index = addCategory(application.getCategory());
+                }
 
-            Category category = get(index);
-            UiUtils.runOnUIThread(() ->
-                    category.addApplication(application));
+                Category category = get(index);
+
+                category.addApplication(application);
+            });
         }
     }
 
@@ -203,9 +206,9 @@ public class CategoryData {
         int index = containsCategory(application.getCategory());
 
         if (index != NO_CATEGORY) {
-            Category category = get(index);
-
             UiUtils.runOnUIThread(() -> {
+                Category category = get(index);
+
                 category.removeApplication(application.getInfo().packageName);
 
                 if (category.getSize() == 0) {
@@ -213,6 +216,7 @@ public class CategoryData {
                         categoryListener.onPrepareRemoval(category);
                     }
 
+                    category.clearListeners();
                     categories.remove(index);
 
                     if (categoryListener != null) {
