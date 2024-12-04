@@ -50,21 +50,18 @@ import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.animation.Animation;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 abstract public class ThemedActivity extends AppCompatActivity {
     public static final String THEME = "com.stario.THEME";
     public static final String FORCE_DARK = "com.stario.FORCE_DARK";
     private final HashMap<Integer, OnActivityResult> activityResultListeners;
-    private final ArrayList<OnDestroyListener> destroyListeners;
     private boolean dispatchTouchEvents;
     private Theme theme;
 
     public ThemedActivity() {
         this.dispatchTouchEvents = true;
         this.activityResultListeners = new HashMap<>();
-        this.destroyListeners = new ArrayList<>();
     }
 
     @Override
@@ -244,19 +241,6 @@ abstract public class ThemedActivity extends AppCompatActivity {
         return (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
     }
 
-    @Override
-    protected void onDestroy() {
-        for (OnDestroyListener listener : destroyListeners) {
-            if (listener != null) {
-                listener.onDestroy();
-            }
-        }
-
-        destroyListeners.clear();
-
-        super.onDestroy();
-    }
-
     //disallow the usage of malformed preference store
     @Override
     public SharedPreferences getSharedPreferences(String name, int mode) {
@@ -297,10 +281,6 @@ abstract public class ThemedActivity extends AppCompatActivity {
         theme.resolveAttribute(attr, typedValue, true);
 
         return typedValue.data;
-    }
-
-    public void addDestroyListener(OnDestroyListener listener) {
-        destroyListeners.add(listener);
     }
 
     protected abstract boolean isOpaque();

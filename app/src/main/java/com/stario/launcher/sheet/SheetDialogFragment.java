@@ -23,7 +23,6 @@ import static com.stario.launcher.ui.dialogs.FullscreenDialog.STEP_COUNT;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -40,7 +39,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.core.widget.NestedScrollView;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.activities.Launcher;
@@ -53,24 +51,17 @@ import com.stario.launcher.utils.Utils;
 import java.util.ArrayList;
 
 public abstract class SheetDialogFragment extends AppCompatDialogFragment {
-    public final static String SHEET_EVENT = "SheetDialogFragment.SHEET_EVENT";
-    public final static String CLASS = "SheetDialogFragment.CLASS";
-    public final static String OFFSET = "SheetDialogFragment.OFFSET";
-    public final static float PUBLISH_STEP = 0.05f;
     private final static String TYPE_KEY = "com.stario.launcher.SheetDialog.TYPE_KEY";
     private final ArrayList<DialogInterface.OnShowListener> showListeners;
     private final ArrayList<OnDestroyListener> destroyListeners;
-    private LocalBroadcastManager localBroadcastManager;
     private boolean capturing;
     private SheetType type;
-    private float lastPublishedOffset;
     protected ThemedActivity activity;
     protected SheetDialog dialog;
 
     public SheetDialogFragment() {
         showListeners = new ArrayList<>();
         destroyListeners = new ArrayList<>();
-        lastPublishedOffset = -1;
     }
 
     protected SheetDialogFragment(@NonNull SheetType type) {
@@ -86,7 +77,6 @@ public abstract class SheetDialogFragment extends AppCompatDialogFragment {
         }
 
         activity = (ThemedActivity) context;
-        localBroadcastManager = LocalBroadcastManager.getInstance(activity);
 
         super.onAttach(context);
     }
@@ -207,21 +197,6 @@ public abstract class SheetDialogFragment extends AppCompatDialogFragment {
                         wasCollapsed = false;
                     }
 
-                    int slidePercentage = (int) (slideOffset * 100);
-                    int stepPercentage = (int) (PUBLISH_STEP * 100);
-                    float publishOffset = (slidePercentage - slidePercentage % stepPercentage) / 100f;
-
-                    if (lastPublishedOffset != publishOffset &&
-                            shouldPublishSheetEvents()) {
-                        Intent intent = new Intent(SHEET_EVENT);
-                        intent.putExtra(CLASS, SheetDialogFragment.this.getClass().getName());
-                        intent.putExtra(OFFSET, publishOffset);
-
-                        localBroadcastManager.sendBroadcast(intent);
-
-                        lastPublishedOffset = publishOffset;
-                    }
-
                     sheet.setAlpha(slideOffset * 3 - 1.5f);
 
                     SheetWrapper.dispatchSlide(type, slideOffset);
@@ -315,7 +290,9 @@ public abstract class SheetDialogFragment extends AppCompatDialogFragment {
     }
 
     public void show() {
-        dialog.showDialog();
+        if (dialog != null) {
+            dialog.showDialog();
+        }
     }
 
     public void requestIgnoreCurrentTouchEvent(boolean enabled) {
@@ -339,8 +316,6 @@ public abstract class SheetDialogFragment extends AppCompatDialogFragment {
     protected void setOnBackPressed(SheetDialog.OnBackPressed listener) {
         dialog.setOnBackPressed(listener);
     }
-
-    protected abstract boolean shouldPublishSheetEvents();
 
     public interface OnDestroyListener {
         void onDestroy(SheetType type);

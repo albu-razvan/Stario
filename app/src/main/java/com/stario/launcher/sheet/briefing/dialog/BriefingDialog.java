@@ -275,11 +275,6 @@ public class BriefingDialog extends SheetDialogFragment {
         super.onResume();
     }
 
-    @Override
-    protected boolean shouldPublishSheetEvents() {
-        return false;
-    }
-
     public class BriefingDialogPageListener implements ViewPager.OnPageChangeListener {
         private Float startingTranslationTitle = Float.NaN;
         private Float startingTranslationTabs = Float.NaN;

@@ -34,6 +34,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.stario.launcher.BuildConfig;
 import com.stario.launcher.apps.categories.CategoryData;
@@ -185,13 +188,19 @@ public final class LauncherApplicationManager {
             activity.registerReceiver(receiver, intentFilter);
         }
 
-        activity.addDestroyListener(() -> {
-            try {
-                activity.unregisterReceiver(receiver);
+        Lifecycle lifecycle = activity.getLifecycle();
+        lifecycle.addObserver(new DefaultLifecycleObserver() {
+            @Override
+            public void onDestroy(@NonNull LifecycleOwner owner) {
+                try {
+                    activity.unregisterReceiver(receiver);
 
-                listeners.clear();
-            } catch (Exception exception) {
-                Log.e(TAG, "Receiver not registered");
+                    listeners.clear();
+                } catch (Exception exception) {
+                    Log.e(TAG, "Receiver not registered");
+                }
+
+                lifecycle.removeObserver(this);
             }
         });
 

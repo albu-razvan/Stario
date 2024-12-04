@@ -42,15 +42,7 @@ public class SheetWrapper {
             dialog = SheetDialogFactory.forType(type, launcher.getSharedPreferences(Entry.STARIO));
             dialog.setCancelable(false);
 
-            showRequest = () -> {
-                FragmentManager manager = launcher.getSupportFragmentManager();
-
-                if (!manager.isDestroyed() && manager.findFragmentByTag(type.toString()) == null) {
-                    dialog.show(manager, type.toString());
-                }
-
-                showRequest = null;
-            };
+            updateShowListener(this, type, launcher);
         } catch (IllegalArgumentException exception) {
             Log.e(TAG, "Cannot inflate dialog.\n", exception);
         }
@@ -58,22 +50,30 @@ public class SheetWrapper {
 
     public static void wrapInDialog(Launcher launcher, SheetType type,
                                     @NonNull SheetDialogFragment.OnSlideListener slideListener) {
+        SheetWrapper wrapper;
+
         if (instances[type.ordinal()] != null) {
-            SheetWrapper wrapper = instances[type.ordinal()];
+            wrapper = instances[type.ordinal()];
             wrapper.slideListener = slideListener;
 
-            wrapper.showRequest = () -> {
-                FragmentManager manager = launcher.getSupportFragmentManager();
-
-                if (!manager.isDestroyed() && manager.findFragmentByTag(type.toString()) == null) {
-                    wrapper.dialog.show(manager, type.toString());
-                }
-
-                wrapper.showRequest = null;
-            };
+            updateShowListener(wrapper, type, launcher);
         } else {
-            instances[type.ordinal()] = new SheetWrapper(launcher, type, slideListener);
+            wrapper = new SheetWrapper(launcher, type, slideListener);
         }
+
+        instances[type.ordinal()] = wrapper;
+    }
+
+    private static void updateShowListener(SheetWrapper wrapper, SheetType type, Launcher launcher) {
+        wrapper.showRequest = () -> {
+            FragmentManager manager = launcher.getSupportFragmentManager();
+
+            if (!manager.isDestroyed() && manager.findFragmentByTag(type.toString()) == null) {
+                wrapper.dialog.show(manager, type.toString());
+            }
+
+            wrapper.showRequest = null;
+        };
     }
 
     static boolean update(SheetDialogFragment dialog, SheetType type) {
@@ -119,8 +119,6 @@ public class SheetWrapper {
                 wrapper.dialog.sendMotionEvent(event);
             } else if (wrapper.showRequest != null) {
                 wrapper.showRequest.show();
-            } else {
-                instances[type.ordinal()] = null;
             }
         }
     }

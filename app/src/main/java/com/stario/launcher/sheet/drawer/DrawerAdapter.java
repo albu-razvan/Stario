@@ -18,6 +18,7 @@
 package com.stario.launcher.sheet.drawer;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Size;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -35,7 +36,7 @@ public class DrawerAdapter extends FragmentPagerAdapter {
     public static final int CATEGORIES_POSITION = 2;
     public static final int PAGES = 4;
     private final FragmentManager fragmentManager;
-    private final Fragment[] fragments;
+    private final @Size(PAGES) Fragment[] fragments;
 
     public DrawerAdapter(FragmentManager fragmentManager) {
         super(fragmentManager);

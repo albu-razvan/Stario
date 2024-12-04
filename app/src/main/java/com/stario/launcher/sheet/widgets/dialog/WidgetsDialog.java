@@ -377,11 +377,6 @@ public class WidgetsDialog extends SheetDialogFragment {
         super.onStop();
     }
 
-    @Override
-    protected boolean shouldPublishSheetEvents() {
-        return false;
-    }
-
     private class AttachRunnable implements Runnable {
         private final PriorityQueue<Widget> widgets;
 
