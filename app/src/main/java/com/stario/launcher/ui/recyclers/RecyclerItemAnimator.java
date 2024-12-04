@@ -35,8 +35,8 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
     public static int DISAPPEARANCE = 0x01;
     private final ArrayList<RecyclerView.ViewHolder> pendingRemovals;
     private final ArrayList<RecyclerView.ViewHolder> pendingAdditions;
-    private final ArrayList<ViewPropertyAnimator> removeAnimations;
-    private final ArrayList<ViewPropertyAnimator> addAnimations;
+    private final ArrayList<RecyclerView.ViewHolder> removeAnimations;
+    private final ArrayList<RecyclerView.ViewHolder> addAnimations;
     private final Animation animation;
     private final int flags;
 
@@ -74,13 +74,49 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
     }
 
     @Override
-    public void endAnimations() {
-        for (ViewPropertyAnimator animation: removeAnimations) {
-            animation.cancel();
+    public void endAnimation(RecyclerView.ViewHolder item) {
+        if (pendingRemovals.remove(item)) {
+            item.itemView.setAlpha(getTargetAlpha());
+            item.itemView.setScaleX(getTargetScaleX());
+            item.itemView.setScaleY(getTargetScaleY());
+
+            dispatchRemoveFinished(item);
         }
 
-        for (ViewPropertyAnimator animation: addAnimations) {
-            animation.cancel();
+        if (pendingAdditions.remove(item)) {
+            item.itemView.setAlpha(getTargetAlpha());
+            item.itemView.setScaleX(getTargetScaleX());
+            item.itemView.setScaleY(getTargetScaleY());
+
+            dispatchAddFinished(item);
+        }
+
+        removeAnimations.remove(item);
+        addAnimations.remove(item);
+
+        super.endAnimation(item);
+    }
+
+    @Override
+    public void endAnimations() {
+        for (RecyclerView.ViewHolder holder : removeAnimations) {
+            holder.itemView.setAlpha(getTargetAlpha());
+            holder.itemView.setScaleX(getTargetScaleX());
+            holder.itemView.setScaleY(getTargetScaleY());
+
+            dispatchAddFinished(holder);
+
+            removeAnimations.remove(holder);
+        }
+
+        for (RecyclerView.ViewHolder holder : addAnimations) {
+            holder.itemView.setAlpha(getTargetAlpha());
+            holder.itemView.setScaleX(getTargetScaleX());
+            holder.itemView.setScaleY(getTargetScaleY());
+
+            dispatchRemoveFinished(holder);
+
+            addAnimations.remove(holder);
         }
 
         super.endAnimations();
@@ -110,7 +146,7 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
         View view = holder.itemView;
 
         final ViewPropertyAnimator animation = view.animate();
-        addAnimations.add(animation);
+        addAnimations.add(holder);
 
         animation.alpha(getTargetAlpha())
                 .scaleY(getTargetScaleY())
@@ -121,13 +157,6 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
                     @Override
                     public void onAnimationStart(Animator animator) {
                         dispatchAddStarting(holder);
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animator) {
-                        view.setAlpha(getTargetAlpha());
-                        view.setScaleY(getTargetScaleY());
-                        view.setScaleX(getTargetScaleX());
                     }
 
                     @Override
@@ -162,7 +191,7 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
         View view = holder.itemView;
 
         final ViewPropertyAnimator animation = view.animate();
-        removeAnimations.add(animation);
+        removeAnimations.add(holder);
 
         animation.alpha(getRemovedAlpha())
                 .scaleY(getRemovedScaleY())
@@ -176,15 +205,13 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
                     }
 
                     @Override
-                    public void onAnimationCancel(Animator animator) {
-                        view.setAlpha(getRemovedAlpha());
-                        view.setScaleX(getRemovedScaleX());
-                        view.setScaleY(getRemovedScaleY());
-                    }
-
-                    @Override
                     public void onAnimationEnd(Animator animator) {
                         animation.setListener(null);
+
+                        view.setAlpha(getTargetAlpha());
+                        view.setScaleX(getTargetScaleX());
+                        view.setScaleY(getTargetScaleY());
+
                         dispatchRemoveFinished(holder);
                         removeAnimations.remove(holder);
 

@@ -38,6 +38,8 @@ import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.recyclers.FastScroller;
+import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
+import com.stario.launcher.utils.animation.Animation;
 
 public class List extends DrawerPage {
     private LocalBroadcastManager broadcastManager;
@@ -96,7 +98,7 @@ public class List extends DrawerPage {
         Measurements.addListColumnCountChangeListener(manager::setSpanCount);
 
         drawer.setLayoutManager(manager);
-        drawer.setItemAnimator(null);
+        drawer.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE, Animation.MEDIUM));
 
         ListAdapter adapter = new ListAdapter(activity, drawer);
 
