@@ -123,8 +123,11 @@ public class WidgetsDialog extends SheetDialogFragment {
         WidgetScroller scroller = view.findViewById(R.id.scroller);
         FadingEdgeLayout fader = view.findViewById(R.id.fader);
 
+        View.OnClickListener showConfiguratorListener = (v) -> showConfigurator();
+
+        placeholder.setOnClickListener(showConfiguratorListener);
         placeholder.findViewById(R.id.add_button)
-                .setOnClickListener((v) -> showConfigurator());
+                .setOnClickListener(showConfiguratorListener);
 
         content.setOnLongClickListener(v -> {
             showConfigurator();
