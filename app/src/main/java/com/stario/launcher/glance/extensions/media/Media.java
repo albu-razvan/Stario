@@ -49,6 +49,9 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.MultiTransformation;
@@ -205,13 +208,19 @@ public class Media extends GlanceDialogExtension {
                     new IntentFilter(NotificationService.UPDATE_NOTIFICATIONS));
         }
 
-        activity.addDestroyListener(() -> {
-            try {
-                activity.unregisterReceiver(receiver);
+        Lifecycle lifecycle = activity.getLifecycle();
+        lifecycle.addObserver(new DefaultLifecycleObserver() {
+            @Override
+            public void onDestroy(@NonNull LifecycleOwner owner) {
+                try {
+                    activity.unregisterReceiver(receiver);
 
-                disable();
-            } catch (Exception exception) {
-                Log.e(TAG, "Receiver not registered");
+                    disable();
+                } catch (Exception exception) {
+                    Log.e(TAG, "Receiver not registered");
+                }
+
+                lifecycle.removeObserver(this);
             }
         });
 

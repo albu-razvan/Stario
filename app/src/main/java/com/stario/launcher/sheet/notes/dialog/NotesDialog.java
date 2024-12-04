@@ -39,9 +39,4 @@ public class NotesDialog extends SheetDialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.notes, container, false);
     }
-
-    @Override
-    protected boolean shouldPublishSheetEvents() {
-        return false;
-    }
 }

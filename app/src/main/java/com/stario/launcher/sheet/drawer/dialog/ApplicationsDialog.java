@@ -123,7 +123,8 @@ public class ApplicationsDialog extends SheetDialogFragment {
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             float positionOffset = 0;
             float selectedPosition = pager.getCurrentItem();
-            boolean skipVibration = false;
+            // skip the first vibration on page selected
+            boolean skipVibration = true;
 
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -377,10 +378,5 @@ public class ApplicationsDialog extends SheetDialogFragment {
 
     private interface ResumeListener {
         void onResume();
-    }
-
-    @Override
-    protected boolean shouldPublishSheetEvents() {
-        return true;
     }
 }
