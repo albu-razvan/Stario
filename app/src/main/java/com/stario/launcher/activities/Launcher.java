@@ -29,8 +29,10 @@ import android.view.WindowManager;
 import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.glance.Glance;
-import com.stario.launcher.glance.extensions.GlanceDialogExtensionType;
-import com.stario.launcher.glance.extensions.GlanceViewExtensionType;
+import com.stario.launcher.glance.extensions.GlanceDialogExtension;
+import com.stario.launcher.glance.extensions.calendar.Calendar;
+import com.stario.launcher.glance.extensions.media.Media;
+import com.stario.launcher.glance.extensions.weather.Weather;
 import com.stario.launcher.hidden.WallpaperManagerHidden;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.SheetType;
@@ -46,6 +48,7 @@ import dev.rikka.tools.refine.Refine;
 
 public class Launcher extends ThemedActivity {
     public final static int MAX_BACKGROUND_ALPHA = 230;
+    private WallpaperManagerHidden wallpaperManager;
     private SheetsFocusController coordinator;
     private ClosingAnimationView main;
     private View decorView;
@@ -83,11 +86,14 @@ public class Launcher extends ThemedActivity {
 
         UiUtils.applyNotchMargin(coordinator);
 
-        attachSheets(Refine.unsafeCast(
+        wallpaperManager = Refine.unsafeCast(
                 WallpaperManagerHidden.getInstance(Launcher.this)
-        ));
+        );
 
+        attachSheets();
         attachGlance();
+
+        main.post(() -> updateWallpaperZoom(0));
     }
 
     private void attachGlance() {
@@ -95,12 +101,13 @@ public class Launcher extends ThemedActivity {
 
         glance.attach(findViewById(R.id.detector));
 
-        glance.attachViewExtension(GlanceViewExtensionType.CALENDAR);
-        glance.attachDialogExtension(GlanceDialogExtensionType.MEDIA_PLAYER, Gravity.BOTTOM);
-        glance.attachDialogExtension(GlanceDialogExtensionType.WEATHER, Gravity.BOTTOM);
+        GlanceDialogExtension.TransitionListener listener = this::updateWallpaperZoom;
+        glance.attachViewExtension(new Calendar());
+        glance.attachDialogExtension(new Media(), Gravity.BOTTOM, listener);
+        glance.attachDialogExtension(new Weather(), Gravity.BOTTOM, listener);
     }
 
-    private void attachSheets(WallpaperManagerHidden wallpaperManager) {
+    private void attachSheets() {
         // load sheets
         SheetWrapper.wrapInDialog(this, SheetType.BOTTOM_SHEET, (slideOffset) ->
                 animateSheet(SheetType.BOTTOM_SHEET, slideOffset * slideOffset, wallpaperManager));
@@ -110,8 +117,6 @@ public class Launcher extends ThemedActivity {
                 animateSheet(SheetType.LEFT_SHEET, slideOffset * slideOffset, wallpaperManager));
         /*SheetWrapper.wrapInDialog(this, SheetType.RIGHT_SHEET, (slideOffset) ->
                 animateSheet(SheetType.RIGHT_SHEET, coordinator, slideOffset * slideOffset, wallpaperManager));*/
-
-        animateSheet(SheetType.UNDEFINED, 0, wallpaperManager);
     }
 
     private void animateSheet(SheetType type, float slideOffset,
@@ -155,10 +160,18 @@ public class Launcher extends ThemedActivity {
                 decorView.setTranslationX(0);
             }
 
-            if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
-                slideOffset = Math.min(1, slideOffset);
+            updateWallpaperZoom(slideOffset);
+        }
+    }
 
-                wallpaperManager.setWallpaperZoomOut(windowToken, slideOffset);
+    private void updateWallpaperZoom(float zoom) {
+        if (decorView.getWindowToken() != null) {
+            IBinder windowToken = decorView.getWindowToken();
+
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
+                zoom = Math.max(Math.min(1, zoom), 0);
+
+                wallpaperManager.setWallpaperZoomOut(windowToken, zoom);
             }
         }
     }

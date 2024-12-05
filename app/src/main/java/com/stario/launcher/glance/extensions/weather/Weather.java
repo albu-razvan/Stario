@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,7 +42,7 @@ import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
 import com.stario.launcher.R;
 import com.stario.launcher.glance.extensions.GlanceDialogExtension;
-import com.stario.launcher.glance.extensions.GlanceViewExtensionType;
+import com.stario.launcher.glance.extensions.GlanceViewExtension;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.glance.GlanceConstraintLayout;
 import com.stario.launcher.utils.UiUtils;
@@ -285,27 +284,33 @@ public class Weather extends GlanceDialogExtension {
             put(SUMMARY, R.string.snow_showers_and_thunder);
         }});
     }};
+
     private static double lat = -1;
     private static double lon = -1;
-    private static Address address;
-    private SharedPreferences preferences;
+
+    private final WeatherPreview preview;
     private final DateParser dateParser;
+
+    private SharedPreferences preferences;
     private ArrayList<Data> weatherData;
-    private ImageView icon;
+    private RecyclerView recycler;
     private TextView temperature;
     private TextView location;
     private TextView summary;
+    private boolean updating;
+    private Address address;
+    private long lastUpdate;
     private View direction;
     private TextView speed;
-    private RecyclerView recycler;
     private View container;
-    private long lastUpdate;
-    private boolean updating;
+    private ImageView icon;
 
     public Weather() {
         this.weatherData = new ArrayList<>();
         this.dateParser = DateParser.newBuilder().build();
         this.lastUpdate = -UPDATE_INTERVAL;
+
+        this.preview = new WeatherPreview();
     }
 
     @Override
@@ -314,8 +319,8 @@ public class Weather extends GlanceDialogExtension {
     }
 
     @Override
-    protected GlanceViewExtensionType getPreviewType() {
-        return GlanceViewExtensionType.WEATHER_PREVIEW;
+    protected GlanceViewExtension getViewExtensionPreview() {
+        return preview;
     }
 
     @Override
@@ -353,11 +358,8 @@ public class Weather extends GlanceDialogExtension {
                         int index = getFirstIndexInTime();
 
                         if (index > 0) {
-                            Bundle data = new Bundle();
-                            data.putDouble(TEMPERATURE_KEY, weatherData.get(index).temperature);
-                            data.putString(ICON_CODE_KEY, weatherData.get(index).iconCode);
-
-                            UiUtils.runOnUIThread(() -> sendDataToPreview(data));
+                            preview.updateTemperature(weatherData.get(index).temperature);
+                            preview.updateIcon(weatherData.get(index).iconCode);
                         }
                     }
                 });
@@ -447,12 +449,10 @@ public class Weather extends GlanceDialogExtension {
                     int index = getFirstIndexInTime();
 
                     if (index > 0) {
-                        Bundle data = new Bundle();
-                        data.putDouble(TEMPERATURE_KEY, this.weatherData.get(index).temperature);
-                        data.putString(ICON_CODE_KEY, this.weatherData.get(index).iconCode);
-
                         UiUtils.runOnUIThread(() -> {
-                            sendDataToPreview(data);
+                            preview.updateTemperature(this.weatherData.get(index).temperature);
+                            preview.updateIcon(this.weatherData.get(index).iconCode);
+
                             updateData();
                         });
                     }
@@ -538,34 +538,34 @@ public class Weather extends GlanceDialogExtension {
         Calendar sunrise = calculator.getOfficialSunriseCalendarForDate(calendar);
         Calendar sunset = calculator.getOfficialSunsetCalendarForDate(calendar);
 
-        Integer icon;
         HashMap<Integer, Integer> dataForCode = weatherResources.get(iconCode);
 
         if (dataForCode == null) {
-            icon = R.drawable.unavailable;
-        } else {
-            if (sunrise.getTimeInMillis() < calendar.getTimeInMillis() &&
-                    calendar.getTimeInMillis() < sunset.getTimeInMillis()) {
-                icon = dataForCode.getOrDefault(DAY, R.drawable.unavailable);
-            } else {
-                icon = dataForCode.getOrDefault(NIGHT, R.drawable.unavailable);
-            }
+            return R.drawable.unavailable;
         }
 
-        return icon;
+        Integer icon;
+        if (sunrise.getTimeInMillis() < calendar.getTimeInMillis() &&
+                calendar.getTimeInMillis() < sunset.getTimeInMillis()) {
+            icon = dataForCode.getOrDefault(DAY, R.drawable.unavailable);
+        } else {
+            icon = dataForCode.getOrDefault(NIGHT, R.drawable.unavailable);
+        }
+
+        return icon != null ? icon : 0;
     }
 
     public static int getSummary(String iconCode) {
-        Integer summary;
         HashMap<Integer, Integer> dataForCode = weatherResources.get(iconCode);
 
+        Integer summary;
         if (dataForCode == null) {
             summary = R.string.unavailable;
         } else {
             summary = dataForCode.getOrDefault(SUMMARY, R.string.unavailable);
         }
 
-        return summary;
+        return summary != null ? summary : 0;
     }
 
     private void updateLocation(String ip) {
@@ -609,7 +609,6 @@ public class Weather extends GlanceDialogExtension {
             }
         } catch (Exception exception) {
             Log.e(TAG, "getLocationInfo: ", exception);
-
         }
     }
 

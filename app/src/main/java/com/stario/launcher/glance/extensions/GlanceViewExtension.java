@@ -17,7 +17,6 @@
 
 package com.stario.launcher.glance.extensions;
 
-import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -26,7 +25,4 @@ import com.stario.launcher.themes.ThemedActivity;
 public interface GlanceViewExtension extends GlanceExtension {
 
     View inflate(ThemedActivity activity, LinearLayout container);
-
-    default void updateData(Bundle data) {
-    }
 }

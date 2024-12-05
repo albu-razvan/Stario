@@ -25,13 +25,10 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.stario.launcher.R;
 import com.stario.launcher.glance.extensions.GlanceDialogExtension;
-import com.stario.launcher.glance.extensions.GlanceDialogExtensionType;
 import com.stario.launcher.glance.extensions.GlanceExtension;
 import com.stario.launcher.glance.extensions.GlanceViewExtension;
-import com.stario.launcher.glance.extensions.GlanceViewExtensionType;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.glance.GlanceConstraintLayout;
-import com.stario.launcher.utils.animation.Animation;
 
 import java.util.ArrayList;
 
@@ -55,12 +52,11 @@ public class Glance {
         container.addView(root);
     }
 
-    public GlanceViewExtension attachViewExtension(GlanceViewExtensionType type, View.OnClickListener listener) {
+    public GlanceViewExtension attachViewExtension(GlanceViewExtension extension, View.OnClickListener listener) {
         if (root == null) {
             throw new RuntimeException("Glance should attach itself first before attaching extensions.");
         }
 
-        GlanceViewExtension extension = GlanceViewExtensionType.forType(type);
         View view = extension.inflate(activity, extensionContainer);
 
         extensionContainer.addView(view);
@@ -71,17 +67,26 @@ public class Glance {
         return extension;
     }
 
-    public void attachViewExtension(GlanceViewExtensionType type) {
-        attachViewExtension(type, null);
+    public void attachViewExtension(GlanceViewExtension extension) {
+        attachViewExtension(extension, null);
     }
 
-    public void attachDialogExtension(GlanceDialogExtensionType type, int gravity) {
+    public void attachDialogExtension(GlanceDialogExtension extension, int gravity,
+                                      GlanceDialogExtension.TransitionListener listener) {
         if (root == null) {
             throw new RuntimeException("Glance should attach itself first before attaching extensions.");
         }
 
-        GlanceDialogExtension extension = GlanceDialogExtensionType.forType(type);
-        extension.attach(this, gravity);
+        extension.attach(this, gravity, progress -> {
+            // hide the blur
+            root.setScaleX(1f - progress);
+            root.setScaleY(1f - progress);
+            root.setPivotY(0);
+
+            if (listener != null) {
+                listener.onProgressFraction(progress);
+            }
+        });
 
         extensions.add(extension);
 
@@ -98,19 +103,6 @@ public class Glance {
 
     public FragmentActivity getActivity() {
         return activity;
-    }
-
-    public void show(Animation animation) {
-        extensionContainer.setAlpha(0f);
-        root.setVisibility(View.VISIBLE);
-
-        extensionContainer.animate().alpha(1)
-                .setDuration(animation.getDuration());
-    }
-
-    public void hide() {
-        extensionContainer.setAlpha(0);
-        root.setVisibility(View.INVISIBLE);
     }
 
     public void post(Runnable runnable) {
