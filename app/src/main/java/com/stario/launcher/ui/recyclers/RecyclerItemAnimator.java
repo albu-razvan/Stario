@@ -31,8 +31,9 @@ import com.stario.launcher.utils.animation.Animation;
 import java.util.ArrayList;
 
 public class RecyclerItemAnimator extends DefaultItemAnimator {
-    public static int APPEARANCE = 0x10;
-    public static int DISAPPEARANCE = 0x01;
+    public static int APPEARANCE = 0x100;
+    public static int DISAPPEARANCE = 0x010;
+    public static int CHANGING = 0x001;
     private final ArrayList<RecyclerView.ViewHolder> pendingRemovals;
     private final ArrayList<RecyclerView.ViewHolder> pendingAdditions;
     private final ArrayList<RecyclerView.ViewHolder> removeAnimations;
@@ -49,6 +50,11 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
         this.pendingAdditions = new ArrayList<>();
         this.removeAnimations = new ArrayList<>();
         this.addAnimations = new ArrayList<>();
+
+        if ((flags & CHANGING) != CHANGING) {
+            setChangeDuration(0);
+            setMoveDuration(0);
+        }
     }
 
     @Override
@@ -154,20 +160,34 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
                 .setDuration((flags & APPEARANCE) == APPEARANCE ? this.animation.getDuration() : 0)
                 .setInterpolator(new DecelerateInterpolator(3))
                 .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationStart(Animator animator) {
-                        dispatchAddStarting(holder);
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animator) {
+                    private void cleanup() {
                         animation.setListener(null);
+
+                        holder.itemView.setAlpha(getTargetAlpha());
+                        holder.itemView.setScaleX(getTargetScaleX());
+                        holder.itemView.setScaleY(getTargetScaleY());
+
                         dispatchAddFinished(holder);
                         addAnimations.remove(holder);
 
                         if (!isRunning()) {
                             dispatchAnimationsFinished();
                         }
+                    }
+
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+                        dispatchAddStarting(holder);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                        cleanup();
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        cleanup();
                     }
                 });
     }
@@ -199,13 +219,7 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
                 .setDuration((flags & DISAPPEARANCE) == DISAPPEARANCE ? this.animation.getDuration() : 0)
                 .setInterpolator(new DecelerateInterpolator(3))
                 .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationStart(Animator animator) {
-                        dispatchRemoveStarting(holder);
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animator) {
+                    private void cleanup() {
                         animation.setListener(null);
 
                         view.setAlpha(getTargetAlpha());
@@ -218,6 +232,21 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
                         if (!isRunning()) {
                             dispatchAnimationsFinished();
                         }
+                    }
+
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+                        dispatchRemoveStarting(holder);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                        cleanup();
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        cleanup();
                     }
                 });
     }

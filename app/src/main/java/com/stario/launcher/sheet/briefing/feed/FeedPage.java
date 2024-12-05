@@ -100,7 +100,7 @@ public class FeedPage extends Fragment {
         exception = root.findViewById(R.id.exception);
 
         recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        recyclerView.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE, Animation.MEDIUM));
+        recyclerView.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE | RecyclerItemAnimator.CHANGING, Animation.MEDIUM));
 
         final int baseTopPadding = Measurements.dpToPx(15);
 

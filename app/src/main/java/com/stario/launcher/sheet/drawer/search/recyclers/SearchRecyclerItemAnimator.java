@@ -23,9 +23,6 @@ import com.stario.launcher.utils.animation.Animation;
 public class SearchRecyclerItemAnimator extends RecyclerItemAnimator {
     public SearchRecyclerItemAnimator(Animation animation) {
         super(RecyclerItemAnimator.DISAPPEARANCE | RecyclerItemAnimator.APPEARANCE, animation);
-
-        setChangeDuration(0);
-        setMoveDuration(0);
     }
 
     @Override

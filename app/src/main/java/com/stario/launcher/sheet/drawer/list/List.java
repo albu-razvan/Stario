@@ -38,8 +38,6 @@ import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.recyclers.FastScroller;
-import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
-import com.stario.launcher.utils.animation.Animation;
 
 public class List extends DrawerPage {
     private LocalBroadcastManager broadcastManager;
@@ -98,7 +96,7 @@ public class List extends DrawerPage {
         Measurements.addListColumnCountChangeListener(manager::setSpanCount);
 
         drawer.setLayoutManager(manager);
-        drawer.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE, Animation.MEDIUM));
+        drawer.setItemAnimator(null);
 
         ListAdapter adapter = new ListAdapter(activity, drawer);
 
@@ -110,9 +108,16 @@ public class List extends DrawerPage {
 
         View searchContainer = (View) search.getParent();
 
-        search.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
+        search.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if (Measurements.isLandscape() && Measurements.getWidth() >
+                    // FastScroller popup size * 2 + search width
+                    Measurements.spToPx(200) + searchContainer.getMeasuredWidth()) {
+                fastScroller.setBottomOffset(searchContainer.getPaddingBottom() + (bottom - top));
+            } else {
                 fastScroller.setBottomOffset(searchContainer.getPaddingBottom() + (bottom - top) +
-                        Measurements.spToPx(32) + Measurements.dpToPx(20)));
+                        Measurements.spToPx(32) + Measurements.dpToPx(20));
+            }
+        });
 
         positionReceiver = new BroadcastReceiver() {
             @Override
