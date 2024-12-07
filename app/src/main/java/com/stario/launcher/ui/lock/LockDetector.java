@@ -174,7 +174,7 @@ public class LockDetector extends LinearLayout {
                 ResourcesCompat.getDrawable(resources, R.drawable.ic_palette, activity.getTheme()),
                 view -> {
                     Intent intent = new Intent(Intent.ACTION_SET_WALLPAPER)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             .putExtra("com.android.wallpaper.LAUNCH_SOURCE", "app_launched_launcher");
 
                     activity.startActivity(intent,

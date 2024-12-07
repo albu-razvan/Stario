@@ -42,14 +42,18 @@ public final class MediaPreview implements GlanceViewExtension {
 
     void setEnabled(boolean enabled) {
         this.enabled = enabled;
+
+        update();
     }
 
     @Override
     public void update() {
-        if (enabled) {
-            root.setVisibility(View.VISIBLE);
-        } else {
-            root.setVisibility(View.GONE);
+        if (root != null) {
+            if (enabled) {
+                root.setVisibility(View.VISIBLE);
+            } else {
+                root.setVisibility(View.GONE);
+            }
         }
     }
 }

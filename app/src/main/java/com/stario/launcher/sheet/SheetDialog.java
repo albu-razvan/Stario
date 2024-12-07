@@ -21,7 +21,6 @@ import android.annotation.SuppressLint;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,11 +29,10 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.dialogs.FullscreenDialog;
+import com.stario.launcher.ui.dialogs.PersistentFullscreenDialog;
 
-public abstract class SheetDialog extends FullscreenDialog {
+public abstract class SheetDialog extends PersistentFullscreenDialog {
     private boolean dispatchedDownEvent;
-    private boolean receivedMoveEvent;
     protected ConstraintLayout sheet;
     protected SheetBehavior<ConstraintLayout> behavior;
 
@@ -42,7 +40,6 @@ public abstract class SheetDialog extends FullscreenDialog {
         super(activity, theme, true);
 
         this.dispatchedDownEvent = false;
-        this.receivedMoveEvent = false;
     }
 
     @Override
@@ -81,18 +78,12 @@ public abstract class SheetDialog extends FullscreenDialog {
         behavior.addSheetCallback(new SheetBehavior.SheetCallback() {
             @Override
             public void onStateChanged(@NonNull View sheet, int newState) {
-                Window window = getWindow();
-
                 if (newState == SheetBehavior.STATE_COLLAPSED) {
-                    if (window != null) {
-                        window.getDecorView().setVisibility(View.GONE);
-                    }
+                    hide();
 
                     container.intercept(SheetCoordinator.ALL);
                 } else {
-                    if (window != null) {
-                        window.getDecorView().setVisibility(View.VISIBLE);
-                    }
+                    showDialog();
 
                     if (newState == SheetBehavior.STATE_EXPANDED) {
                         container.intercept(SheetCoordinator.OWN);
@@ -116,26 +107,21 @@ public abstract class SheetDialog extends FullscreenDialog {
             } else if (!dispatchedDownEvent &&
                     motionEvent.getAction() != MotionEvent.ACTION_UP &&
                     motionEvent.getAction() != MotionEvent.ACTION_CANCEL) {
+                if (!isShowing()) {
+                    showDialog();
+
+                    return;
+                }
+
                 motionEvent.setAction(MotionEvent.ACTION_DOWN);
 
-                showDialog();
-
                 dispatchedDownEvent = behavior.isDragHelperInstantiated();
-                receivedMoveEvent = false;
             }
 
             coordinator.dispatchTouchEvent(motionEvent);
 
-            if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
-                receivedMoveEvent = true;
-            }
-
             if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
                     motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
-                if (!receivedMoveEvent) {
-                    hide();
-                }
-
                 dispatchedDownEvent = false;
             }
         }

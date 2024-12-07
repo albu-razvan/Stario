@@ -79,7 +79,6 @@ public class Glance {
 
         extension.attach(this, gravity, progress -> {
             // hide the blur
-            root.setScaleX(1f - progress);
             root.setScaleY(1f - progress);
             root.setPivotY(0);
 

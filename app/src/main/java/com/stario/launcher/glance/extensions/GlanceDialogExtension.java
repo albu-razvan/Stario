@@ -17,12 +17,11 @@
 
 package com.stario.launcher.glance.extensions;
 
-import static com.stario.launcher.ui.dialogs.FullscreenDialog.BLUR_STEP;
-import static com.stario.launcher.ui.dialogs.FullscreenDialog.STEP_COUNT;
+import static com.stario.launcher.ui.dialogs.PersistentFullscreenDialog.BLUR_STEP;
+import static com.stario.launcher.ui.dialogs.PersistentFullscreenDialog.STEP_COUNT;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -39,18 +38,18 @@ import android.view.animation.PathInterpolator;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.DialogFragment;
 
 import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.glance.Glance;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.dialogs.FullscreenDialog;
+import com.stario.launcher.ui.dialogs.PersistentFullscreenDialog;
 import com.stario.launcher.ui.glance.GlanceConstraintLayout;
 import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.animation.Animation;
 
-public abstract class GlanceDialogExtension extends AppCompatDialogFragment
+public abstract class GlanceDialogExtension extends DialogFragment
         implements GlanceExtension {
     private static final float X1 = 0.2f;
     private static final float Y1 = 1f;
@@ -59,9 +58,9 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
 
     protected ThemedActivity activity;
 
+    private PersistentFullscreenDialog dialog;
     private GlanceConstraintLayout container;
     private TransitionListener listener;
-    private FullscreenDialog dialog;
     private Glance glance;
     private int gravity;
 
@@ -70,7 +69,7 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
 
     @Nullable
     @Override
-    public FullscreenDialog getDialog() {
+    public PersistentFullscreenDialog getDialog() {
         return dialog;
     }
 
@@ -120,7 +119,7 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        dialog = new FullscreenDialog(activity, getTheme(), true);
+        dialog = new PersistentFullscreenDialog(activity, getTheme(), true);
 
         dialog.setOnBackPressed(() -> {
             hide();
@@ -131,7 +130,6 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
         return dialog;
     }
 
-    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,

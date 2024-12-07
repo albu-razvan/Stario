@@ -75,7 +75,6 @@ import java.util.List;
 
 public class Media extends GlanceDialogExtension {
     public static final String PREFERENCE_ENTRY = "com.stario.Media.MEDIA";
-    protected static final String ENABLED_KEY = "com.stario.launcher.media.enabled";
     private static final String TAG = "com.stario.launcher.media";
     private static final long SEEK_TIME = 5000;
     private static final float MIN_BITMAP_SIZE = 256;
