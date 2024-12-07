@@ -17,8 +17,8 @@
 
 package com.stario.launcher.sheet;
 
-import static com.stario.launcher.ui.dialogs.FullscreenDialog.BLUR_STEP;
-import static com.stario.launcher.ui.dialogs.FullscreenDialog.STEP_COUNT;
+import static com.stario.launcher.ui.dialogs.PersistentFullscreenDialog.BLUR_STEP;
+import static com.stario.launcher.ui.dialogs.PersistentFullscreenDialog.STEP_COUNT;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -32,13 +32,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.activities.Launcher;
@@ -50,7 +49,7 @@ import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
 
-public abstract class SheetDialogFragment extends AppCompatDialogFragment {
+public abstract class SheetDialogFragment extends DialogFragment {
     private final static String TYPE_KEY = "com.stario.launcher.SheetDialog.TYPE_KEY";
     private final ArrayList<DialogInterface.OnShowListener> showListeners;
     private final ArrayList<OnDestroyListener> destroyListeners;
@@ -159,17 +158,7 @@ public abstract class SheetDialogFragment extends AppCompatDialogFragment {
                 @Override
                 public void onStateChanged(@NonNull View view, int newState) {
                     if (newState == SheetBehavior.STATE_COLLAPSED) {
-                        if (window != null) {
-                            window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                            window.getDecorView().setVisibility(View.GONE);
-                        }
-
-                        dialog.hide();
-
                         wasCollapsed = true;
-                    } else if (window != null) {
-                        window.getDecorView().setVisibility(View.VISIBLE);
-                        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     }
                 }
 

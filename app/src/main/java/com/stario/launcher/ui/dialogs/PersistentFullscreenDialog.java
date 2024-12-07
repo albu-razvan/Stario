@@ -20,8 +20,11 @@ package com.stario.launcher.ui.dialogs;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -30,20 +33,29 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialog;
 
 import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
-public class FullscreenDialog extends AppCompatDialog {
-    public final static int STEP_COUNT = 50;
+public class PersistentFullscreenDialog extends AppCompatDialog {
     public final static float BLUR_STEP = 1.3f;
-    private boolean dispatchTouchEvents;
-    private final boolean blur;
-    protected OnBackPressed listener;
+    public final static int STEP_COUNT = 50;
 
-    public FullscreenDialog(ThemedActivity activity, int theme, boolean blur) {
+    private boolean dispatchTouchEvents;
+    private boolean hideTouchableFlag;
+    private boolean showing;
+    private boolean hiding;
+
+    protected OnBackPressed listener;
+    private final boolean blur;
+
+    public PersistentFullscreenDialog(ThemedActivity activity, int theme, boolean blur) {
         super(activity, getThemeResId(activity, theme));
 
         this.blur = blur;
+        this.hiding = false;
+        this.showing = false;
+        this.hideTouchableFlag = false;
 
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         supportRequestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
@@ -57,8 +69,6 @@ public class FullscreenDialog extends AppCompatDialog {
 
         if (window != null) {
             window.setWindowAnimations(0);
-
-            UiUtils.setWindowTransitions(window);
 
             if (blur && Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
                 window.setDimAmount(0.001f); // some devices do not blur if the dim value is equal to 0
@@ -122,10 +132,81 @@ public class FullscreenDialog extends AppCompatDialog {
     }
 
     public void showDialog() {
-        super.show();
+        if (!isShowing() && !showing) {
+            showing = true;
+
+            Window window = getWindow();
+
+            if (window != null) {
+                if (hideTouchableFlag) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                }
+
+                View decor = window.getDecorView();
+
+                decor.setTranslationX(0);
+                UiUtils.runOnUIThread(() -> {
+                    decor.setTranslationX(0); // MAKE SURE
+                    super.show();
+
+                    showing = false;
+                });
+            } else {
+                super.show();
+
+                showing = false;
+            }
+        }
     }
 
-    public void setOnBackPressed(FullscreenDialog.OnBackPressed listener) {
+    // If the dialog is hidden, parent activity is paused, but not stopped,
+    // the decorView will be visible despite it having View.GONE on activity
+    // resume. It is not just visual, it behaves as if the dialog is shown.
+    // A workaround is to toggle between visibility states onResume, but that results
+    // in a small flicker. This half-baked solution sends the dialog window way off-screen
+    // and disables window touches when hidden, so that no one can see it when it happens.
+
+    // If you wanna waste your next couple days, debug this :]
+
+    @Override
+    public void hide() {
+        if (isShowing() && !hiding) {
+            hiding = true;
+
+            Window window = getWindow();
+
+            if (window != null) {
+                hideTouchableFlag = (window.getAttributes().flags &
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE) != 0;
+
+                window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+                View decor = window.getDecorView();
+                final float translation = 1_000_000_000;
+
+                decor.setTranslationX(translation);
+                UiUtils.runOnUIThread(() -> {
+                    decor.setTranslationX(translation); // MAKE SURE
+                    super.hide();
+
+                    hiding = false;
+                });
+            } else {
+                super.hide();
+
+                hiding = false;
+            }
+        }
+    }
+
+    @Override
+    public boolean isShowing() {
+        return super.isShowing() && !hiding && !showing;
+    }
+
+    public void setOnBackPressed(PersistentFullscreenDialog.OnBackPressed listener) {
         this.listener = listener;
     }
 

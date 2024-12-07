@@ -108,9 +108,16 @@ public class List extends DrawerPage {
 
         View searchContainer = (View) search.getParent();
 
-        search.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
+        search.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if (Measurements.isLandscape() && Measurements.getWidth() >
+                    // FastScroller popup size * 2 + search width
+                    Measurements.spToPx(200) + searchContainer.getMeasuredWidth()) {
+                fastScroller.setBottomOffset(searchContainer.getPaddingBottom() + (bottom - top));
+            } else {
                 fastScroller.setBottomOffset(searchContainer.getPaddingBottom() + (bottom - top) +
-                        Measurements.spToPx(32) + Measurements.dpToPx(20)));
+                        Measurements.spToPx(32) + Measurements.dpToPx(20));
+            }
+        });
 
         positionReceiver = new BroadcastReceiver() {
             @Override

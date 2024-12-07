@@ -50,6 +50,7 @@ public class FastScroller extends RelativeLayout {
     private int popupHeight;
     private int swipeSlop;
     private boolean isEngaged;
+    private int lastPositionScrolled;
 
     public FastScroller(Context context) {
         super(context);
@@ -77,6 +78,7 @@ public class FastScroller extends RelativeLayout {
         this.currentPosition = -1;
         this.isEngaged = false;
         this.swipeSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+        this.lastPositionScrolled = -1;
 
         addPopupLayout();
         addTrack();
@@ -280,12 +282,21 @@ public class FastScroller extends RelativeLayout {
     }
 
     private void safeScrollToPosition(int position) {
-        if (recyclerView != null &&
-                currentPosition != position) {
-            RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (position != lastPositionScrolled) {
+            if (recyclerView != null &&
+                    currentPosition != position) {
+                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
 
-            if (layoutManager != null) {
-                recyclerView.scrollToPosition(position);
+                if (layoutManager != null) {
+                    if (layoutManager instanceof LinearLayoutManager) {
+                        ((LinearLayoutManager) layoutManager)
+                                .scrollToPositionWithOffset(position, 0);
+                    } else {
+                        layoutManager.scrollToPosition(position);
+                    }
+
+                    lastPositionScrolled = position;
+                }
             }
         }
     }

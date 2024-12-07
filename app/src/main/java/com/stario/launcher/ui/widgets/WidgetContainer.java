@@ -66,10 +66,10 @@ class WidgetContainer extends RelativeLayout implements Comparable<WidgetContain
 
         int cellSize = ((WidgetGrid) getParent()).getCellSize();
 
-        params.rowSpec = WidgetGrid.spec(origin.row, widget.size.y);
-        params.columnSpec = WidgetGrid.spec(origin.column, widget.size.x);
-        params.width = cellSize * widget.size.x;
-        params.height = cellSize * widget.size.y;
+        params.rowSpec = WidgetGrid.spec(origin.row, widget.size.height);
+        params.columnSpec = WidgetGrid.spec(origin.column, widget.size.width);
+        params.width = cellSize * widget.size.width;
+        params.height = cellSize * widget.size.height;
 
         setLayoutParams(params);
 

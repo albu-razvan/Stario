@@ -108,7 +108,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
         if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
             getOnBackPressedDispatcher().addCallback(this,
                     new OnBackPressedCallback(true) {
-                        private int startingWindowBackgroundAlpha;
+                        private int startingWindowBackgroundAlpha = isOpaque() ? 255 : 0;
                         private Drawable startingRootBackground;
                         private PaintDrawable progressRootBackground;
 
@@ -308,10 +308,6 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
     public void removeOnActivityResultListener(int configurationCode) {
         activityResultListeners.remove(configurationCode);
-    }
-
-    public interface OnDestroyListener {
-        void onDestroy();
     }
 
     public interface OnActivityResult {

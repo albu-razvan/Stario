@@ -19,7 +19,6 @@ package com.stario.launcher.glance.extensions.weather;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -33,17 +32,20 @@ import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.Utils;
 
-public final class WeatherPreview implements GlanceViewExtension {
+final class WeatherPreview implements GlanceViewExtension {
     private static final String CELSIUS = "°C";
     private static final String FAHRENHEIT = "°F";
-    private View root;
-    private ImageView icon;
-    private TextView temperature;
-    private boolean enabled;
+
     private SharedPreferences preferences;
+    private boolean hasTemperature;
+    private TextView temperature;
+    private boolean hasIcon;
+    private ImageView icon;
+    private View root;
 
     public WeatherPreview() {
-        this.enabled = false;
+        this.hasTemperature = false;
+        this.hasIcon = false;
     }
 
     @Override
@@ -66,29 +68,32 @@ public final class WeatherPreview implements GlanceViewExtension {
     }
 
     @SuppressLint("SetTextI18n")
-    @Override
-    public void updateData(Bundle data) {
-        String iconCode = data.getString(Weather.ICON_CODE_KEY, null);
-        double temperatureValue = data.getDouble(Weather.TEMPERATURE_KEY, Double.NaN);
-
-        if (iconCode != null && !Double.isNaN(temperatureValue)) {
-            icon.setImageResource(Weather.getIcon(iconCode));
-
+    void updateTemperature(double temperature) {
+        if (!Double.isNaN(temperature)) {
             if (preferences.getBoolean(Weather.IMPERIAL_KEY, false)) {
-                temperature.setText((int) Math.round(Utils.toFahrenheit(temperatureValue)) + FAHRENHEIT);
+                this.temperature.setText((int) Math.round(Utils.toFahrenheit(temperature)) + FAHRENHEIT);
             } else {
-                temperature.setText((int) Math.round(temperatureValue) + CELSIUS);
+                this.temperature.setText((int) Math.round(temperature) + CELSIUS);
             }
+
+            hasTemperature = true;
         }
 
-        enabled = true;
+        update();
+    }
+
+    void updateIcon(String code) {
+        if (code != null) {
+            icon.setImageResource(Weather.getIcon(code));
+            hasIcon = true;
+        }
 
         update();
     }
 
     @Override
     public void update() {
-        if (enabled) {
+        if (hasIcon && hasTemperature) {
             root.setVisibility(View.VISIBLE);
         } else {
             root.setVisibility(View.GONE);

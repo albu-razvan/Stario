@@ -22,11 +22,11 @@ public enum WidgetSize {
     MEDIUM(2, 1),
     LARGE(2, 2);
 
-    public final int x;
-    public final int y;
+    public final int width;
+    public final int height;
 
     WidgetSize(int width, int height) {
-        this.x = width;
-        this.y = height;
+        this.width = width;
+        this.height = height;
     }
 }

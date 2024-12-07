@@ -17,6 +17,8 @@
 
 package com.stario.launcher.sheet.drawer.list;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.view.View;
 import android.widget.TextView;
 
@@ -35,8 +37,8 @@ import com.stario.launcher.utils.animation.Animation;
 public class ListAdapter extends RecyclerApplicationAdapter
         implements FastScroller.OnPopupViewUpdate,
         FastScroller.OnPopupViewReset {
-    private final RecyclerView recyclerView;
     private final LauncherApplicationManager applicationManager;
+    private final RecyclerView recyclerView;
     private int oldScrollerPosition;
 
     public ListAdapter(ThemedActivity activity, RecyclerView recyclerView) {
@@ -76,6 +78,8 @@ public class ListAdapter extends RecyclerApplicationAdapter
 
     @Override
     public void onUpdate(int index, @NonNull TextView textView) {
+        removeLimit();
+
         int size = applicationManager.getSize() - 1;
 
         if (index > size) {
@@ -126,7 +130,14 @@ public class ListAdapter extends RecyclerApplicationAdapter
             if (currentView != null) {
                 currentView.animate().scaleX(1)
                         .scaleY(1)
-                        .setDuration(Animation.MEDIUM.getDuration());
+                        .setDuration(Animation.MEDIUM.getDuration())
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationCancel(Animator animation) {
+                                currentView.setScaleX(1);
+                                currentView.setScaleY(1);
+                            }
+                        });
             }
         }
     }

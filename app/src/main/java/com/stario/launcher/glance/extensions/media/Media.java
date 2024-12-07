@@ -34,7 +34,6 @@ import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -60,7 +59,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory;
 import com.stario.launcher.R;
 import com.stario.launcher.glance.extensions.GlanceDialogExtension;
-import com.stario.launcher.glance.extensions.GlanceViewExtensionType;
+import com.stario.launcher.glance.extensions.GlanceViewExtension;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.services.NotificationService;
 import com.stario.launcher.ui.glance.GlanceConstraintLayout;
@@ -76,28 +75,30 @@ import java.util.List;
 
 public class Media extends GlanceDialogExtension {
     public static final String PREFERENCE_ENTRY = "com.stario.Media.MEDIA";
-    protected static final String ENABLED_KEY = "com.stario.launcher.media.enabled";
     private static final String TAG = "com.stario.launcher.media";
     private static final long SEEK_TIME = 5000;
     private static final float MIN_BITMAP_SIZE = 256;
     private static final Integer PLAYING = 1;
     private static final Integer PAUSED = 0;
+
     private final MediaController.Callback callback;
+    private final MediaPreview preview;
     private final Handler handler;
-    private List<MediaController> controllers;
-    private ViewGroup interactions;
-    private ConstraintLayout coverParent;
-    private ImageView cover;
-    private TextView song;
-    private TextView artist;
-    private SliderComposeView slider;
-    private ImageView rewind;
-    private ImageView playPause;
-    private ImageView skip;
-    private ImageView forward;
-    private boolean skipUpdate;
-    private MediaController session;
+
     private MediaSessionManager mediaSessionManager;
+    private List<MediaController> controllers;
+    private ConstraintLayout coverParent;
+    private SliderComposeView slider;
+    private MediaController session;
+    private ViewGroup interactions;
+    private ImageView playPause;
+    private boolean skipUpdate;
+    private ImageView forward;
+    private ImageView rewind;
+    private ImageView cover;
+    private TextView artist;
+    private ImageView skip;
+    private TextView song;
 
     public Media() {
         super();
@@ -135,6 +136,8 @@ public class Media extends GlanceDialogExtension {
                 super.onMetadataChanged(metadata);
             }
         };
+
+        this.preview = new MediaPreview();
     }
 
     @Override
@@ -143,8 +146,8 @@ public class Media extends GlanceDialogExtension {
     }
 
     @Override
-    protected GlanceViewExtensionType getPreviewType() {
-        return GlanceViewExtensionType.MEDIA_PLAYER_PREVIEW;
+    protected GlanceViewExtension getViewExtensionPreview() {
+        return preview;
     }
 
     @Override
@@ -288,9 +291,7 @@ public class Media extends GlanceDialogExtension {
             disable();
         }
 
-        Bundle data = new Bundle();
-        data.putBoolean(ENABLED_KEY, isEnabled());
-        sendDataToPreview(data);
+        preview.setEnabled(isEnabled());
 
         this.controllers = controllers;
     }
@@ -584,9 +585,7 @@ public class Media extends GlanceDialogExtension {
     public void disable() {
         session = null;
 
-        Bundle data = new Bundle();
-        data.putBoolean(ENABLED_KEY, isEnabled());
-        sendDataToPreview(data);
+        preview.setEnabled(isEnabled());
 
         hide();
     }

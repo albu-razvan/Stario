@@ -17,19 +17,16 @@
 
 package com.stario.launcher.glance.extensions.media;
 
-import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
-
-import androidx.annotation.NonNull;
 
 import com.stario.launcher.R;
 import com.stario.launcher.glance.extensions.GlanceViewExtension;
 import com.stario.launcher.themes.ThemedActivity;
 
 public final class MediaPreview implements GlanceViewExtension {
-    private View root;
     private boolean enabled;
+    private View root;
 
     public MediaPreview() {
         this.enabled = false;
@@ -43,19 +40,20 @@ public final class MediaPreview implements GlanceViewExtension {
         return root;
     }
 
-    @Override
-    public void updateData(@NonNull Bundle data) {
-        enabled = data.getBoolean(Media.ENABLED_KEY, false);
+    void setEnabled(boolean enabled) {
+        this.enabled = enabled;
 
         update();
     }
 
     @Override
     public void update() {
-        if (enabled) {
-            root.setVisibility(View.VISIBLE);
-        } else {
-            root.setVisibility(View.GONE);
+        if (root != null) {
+            if (enabled) {
+                root.setVisibility(View.VISIBLE);
+            } else {
+                root.setVisibility(View.GONE);
+            }
         }
     }
 }

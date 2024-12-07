@@ -108,8 +108,8 @@ public abstract class ActionDialog extends BottomSheetDialog {
                     WindowManager.LayoutParams attributes = window.getAttributes();
 
                     attributes.setBlurBehindRadius(
-                            (int) (FullscreenDialog.STEP_COUNT / 2 *
-                                    FullscreenDialog.BLUR_STEP));
+                            (int) (PersistentFullscreenDialog.STEP_COUNT / 2 *
+                                    PersistentFullscreenDialog.BLUR_STEP));
 
                     window.setAttributes(attributes);
                 }

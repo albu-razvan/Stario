@@ -213,6 +213,7 @@ public class BriefingDialog extends SheetDialogFragment {
 
         title.setOnClickListener(clickListener);
         placeholder.setOnClickListener(clickListener);
+        placeholder.findViewById(R.id.add_button).setOnClickListener(clickListener);
 
         title.setOnLongClickListener(view -> false);
         title.setOnTouchListener((v, event) -> {

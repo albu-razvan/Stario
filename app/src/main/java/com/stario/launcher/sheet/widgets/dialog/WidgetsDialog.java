@@ -23,7 +23,6 @@ import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.ActivityNotFoundException;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -67,48 +66,23 @@ public class WidgetsDialog extends SheetDialogFragment {
     private static final int HOST_ID = 219672;
     private static final int MAX_COUNT = 15;
     private static final int CONFIGURATION_CODE = 3264614;
-    private static final String WIDGET_SIZE = "com.stario.launcher.WIDGET_SIZE";
     private static int columnSize = 0;
     private ActivityResultLauncher<Intent> bindWidgetRequest;
     private WidgetConfigurator configurator;
     private SharedPreferences widgetStore;
+    private WidgetSize pendingWidgetSize;
     private AppWidgetManager manager;
     private ViewGroup placeholder;
+    private LinearLayout content;
     private WidgetHost host;
     private WidgetGrid grid;
-    private LinearLayout content;
 
     public WidgetsDialog() {
         super();
-
-        init();
     }
 
     public WidgetsDialog(SheetType type) {
         super(type);
-
-        init();
-    }
-
-    private void init() {
-        bindWidgetRequest = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Intent data = result.getData();
-
-                        if (data != null) {
-                            int identifier = data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-                            ComponentName provider = data.getParcelableExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER);
-
-                            if (provider != null) {
-                                WidgetSize size = (WidgetSize) data.getSerializableExtra(WIDGET_SIZE);
-
-                                configureWidget(manager, identifier, size);
-                            }
-                        }
-                    }
-                });
     }
 
     @Override
@@ -117,6 +91,24 @@ public class WidgetsDialog extends SheetDialogFragment {
 
         this.manager = AppWidgetManager.getInstance(activity);
         this.widgetStore = activity.getSharedPreferences(Entry.WIDGETS);
+
+        bindWidgetRequest = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+
+                        if (data != null) {
+                            int identifier = data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+
+                            if (identifier != -1 && pendingWidgetSize != null) {
+                                configureWidget(manager, identifier, pendingWidgetSize);
+                            }
+
+                            pendingWidgetSize = null;
+                        }
+                    }
+                });
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -131,8 +123,11 @@ public class WidgetsDialog extends SheetDialogFragment {
         WidgetScroller scroller = view.findViewById(R.id.scroller);
         FadingEdgeLayout fader = view.findViewById(R.id.fader);
 
+        View.OnClickListener showConfiguratorListener = (v) -> showConfigurator();
+
+        placeholder.setOnClickListener(showConfiguratorListener);
         placeholder.findViewById(R.id.add_button)
-                .setOnClickListener((v) -> showConfigurator());
+                .setOnClickListener(showConfiguratorListener);
 
         content.setOnLongClickListener(v -> {
             showConfigurator();
@@ -233,13 +228,15 @@ public class WidgetsDialog extends SheetDialogFragment {
             boolean allowed = manager.bindAppWidgetIdIfAllowed(identifier, info.getProfile(), info.provider, null);
 
             if (!allowed) {
-                Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
+                if (bindWidgetRequest != null) {
+                    Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
 
-                intent.putExtra(WIDGET_SIZE, size);
-                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, identifier);
-                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider);
+                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, identifier);
+                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider);
 
-                bindWidgetRequest.launch(intent);
+                    pendingWidgetSize = size;
+                    bindWidgetRequest.launch(intent);
+                }
             } else {
                 configureWidget(manager, identifier, size);
             }
@@ -371,7 +368,11 @@ public class WidgetsDialog extends SheetDialogFragment {
     @Override
     public void onStop() {
         if (host != null) {
-            host.stopListening();
+            try {
+                host.stopListening();
+            } catch (Exception exception) {
+                Log.e(TAG, "onStop: " + exception.getMessage());
+            }
         }
 
         super.onStop();

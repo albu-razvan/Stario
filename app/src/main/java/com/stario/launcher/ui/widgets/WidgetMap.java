@@ -33,8 +33,8 @@ public class WidgetMap {
     }
 
     void add(Cell origin, WidgetSize size) {
-        for (int row = origin.row; row < origin.row + size.y; row++) {
-            for (int column = origin.column; column < origin.column + size.x; column++) {
+        for (int row = origin.row; row < origin.row + size.height; row++) {
+            for (int column = origin.column; column < origin.column + size.width; column++) {
                 set.add(new Cell(row, column));
             }
         }
@@ -62,12 +62,12 @@ public class WidgetMap {
 
 
     private boolean checkFreeSpace(Cell origin, WidgetSize size) {
-        if (origin.column + size.x > Measurements.getWidgetColumnCount()) {
+        if (origin.column + size.width > Measurements.getWidgetColumnCount()) {
             return false;
         }
 
-        for (int row = origin.row; row < origin.row + size.y; row++) {
-            for (int column = origin.column; column < origin.column + size.x; column++) {
+        for (int row = origin.row; row < origin.row + size.height; row++) {
+            for (int column = origin.column; column < origin.column + size.width; column++) {
                 if (set.contains(new Cell(row, column))) {
                     return false;
                 }

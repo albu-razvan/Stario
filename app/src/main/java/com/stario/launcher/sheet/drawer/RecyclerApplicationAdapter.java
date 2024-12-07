@@ -150,6 +150,7 @@ public abstract class RecyclerApplicationAdapter
                     view -> {
                         Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                         intent.setData(Uri.parse("package:" + application.getInfo().packageName));
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                         activity.startActivity(intent);
                     }));
@@ -160,6 +161,7 @@ public abstract class RecyclerApplicationAdapter
                         view -> {
                             Intent intent = new Intent(Intent.ACTION_DELETE);
                             intent.setData(Uri.parse("package:" + application.getInfo().packageName));
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                             activity.startActivity(intent);
                         }));

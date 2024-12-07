@@ -17,6 +17,7 @@
 
 package com.stario.launcher.ui.recyclers.async;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,7 +42,8 @@ import java.util.function.Supplier;
 public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.AsyncViewHolder>
         extends RecyclerView.Adapter<AVH> {
     private final static int VIEW_TYPE = 0;
-    private final static int MIN_POOL_SIZE = 6;
+    private final static int MIN_POOL_SIZE = 10;
+    private final static int MAX_POOL_SIZE = 20;
     private int holderHeight;
     private final Activity activity;
     private final AsyncLayoutInflater layoutInflater;
@@ -54,7 +56,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
         this.type = InflationType.ASYNC;
         this.layoutInflater = new AsyncLayoutInflater(activity);
         this.holderHeight = AsyncViewHolder.HEIGHT_UNMEASURED;
-        this.limit = 0;
+        this.limit = 1;
     }
 
     public void setInflationType(InflationType type) {
@@ -142,24 +144,19 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
         return root;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         this.recyclerView = recyclerView;
 
         recyclerView.getRecycledViewPool()
-                .setMaxRecycledViews(VIEW_TYPE, 20);
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                if (dy != 0) {
-                    int oldLimit = limit;
+                .setMaxRecycledViews(VIEW_TYPE, MAX_POOL_SIZE);
 
-                    limit = getSize();
-                    recyclerView.post(() -> notifyItemRangeInserted(oldLimit, limit - oldLimit));
+        recyclerView.setOnTouchListener((v, event) -> {
+            removeLimit();
 
-                    recyclerView.removeOnScrollListener(this);
-                }
-            }
+            recyclerView.setOnTouchListener(null);
+            return false;
         });
 
         ensureMinimumViewPool();
@@ -168,6 +165,15 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         this.recyclerView = null;
+    }
+
+    protected void removeLimit() {
+        if (limit > 0) {
+            int oldLimit = limit;
+
+            limit = -1;
+            recyclerView.post(() -> notifyItemRangeInserted(oldLimit, getSize() - oldLimit));
+        }
     }
 
     @NonNull
@@ -184,16 +190,20 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     @Override
     public final void onBindViewHolder(@NonNull AVH holder, int position) {
         holder.setOnInflatedInternal(() -> {
-            if (type == InflationType.ASYNC && limit < getSize()) {
-                recyclerView.post(() -> {
-                    limit++;
+            if (type == InflationType.ASYNC && limit > 0 && limit < getSize()) {
+                limit++;
 
-                    if (limit < getSize()) {
-                        if (recyclerView != null) {
+                if (limit < getSize()) {
+                    if (recyclerView != null) {
+                        if (recyclerView.isComputingLayout()) {
                             recyclerView.post(() -> notifyItemInserted(limit));
+                        } else {
+                            notifyItemInserted(limit);
                         }
                     }
-                });
+                } else {
+                    limit = -1;
+                }
             }
 
             onBind(holder, position);
@@ -206,7 +216,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
             return getSize();
         }
 
-        return Math.min(limit + 1, getSize());
+        return limit > 0 ? Math.min(limit, getSize()) : getSize();
     }
 
     private void ensureMinimumViewPool() {

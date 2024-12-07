@@ -17,10 +17,11 @@
 
 package com.stario.launcher.glance.extensions;
 
-import static com.stario.launcher.ui.dialogs.FullscreenDialog.BLUR_STEP;
-import static com.stario.launcher.ui.dialogs.FullscreenDialog.STEP_COUNT;
+import static com.stario.launcher.ui.dialogs.PersistentFullscreenDialog.BLUR_STEP;
+import static com.stario.launcher.ui.dialogs.PersistentFullscreenDialog.STEP_COUNT;
 
-import android.annotation.SuppressLint;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -37,28 +38,30 @@ import android.view.animation.PathInterpolator;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.DialogFragment;
 
 import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.glance.Glance;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.dialogs.FullscreenDialog;
+import com.stario.launcher.ui.dialogs.PersistentFullscreenDialog;
 import com.stario.launcher.ui.glance.GlanceConstraintLayout;
 import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.animation.Animation;
 
-public abstract class GlanceDialogExtension extends AppCompatDialogFragment
+public abstract class GlanceDialogExtension extends DialogFragment
         implements GlanceExtension {
     private static final float X1 = 0.2f;
     private static final float Y1 = 1f;
     private static final float X2 = 0.7f;
     private static final float Y2 = 1f;
+
     protected ThemedActivity activity;
-    private GlanceViewExtension preview;
-    private FullscreenDialog dialog;
-    private Glance glance;
+
+    private PersistentFullscreenDialog dialog;
     private GlanceConstraintLayout container;
+    private TransitionListener listener;
+    private Glance glance;
     private int gravity;
 
     protected GlanceDialogExtension() {
@@ -66,13 +69,14 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
 
     @Nullable
     @Override
-    public FullscreenDialog getDialog() {
+    public PersistentFullscreenDialog getDialog() {
         return dialog;
     }
 
-    public void attach(Glance glance, int gravity) {
+    public void attach(Glance glance, int gravity, TransitionListener listener) {
         this.glance = glance;
         this.gravity = gravity;
+        this.listener = listener;
 
         show(glance.getActivity().getSupportFragmentManager(), getTag());
     }
@@ -102,6 +106,7 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        //noinspection deprecation
         setRetainInstance(true);
 
         super.onCreate(savedInstanceState);
@@ -114,7 +119,7 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        dialog = new FullscreenDialog(activity, getTheme(), true);
+        dialog = new PersistentFullscreenDialog(activity, getTheme(), true);
 
         dialog.setOnBackPressed(() -> {
             hide();
@@ -125,7 +130,6 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
         return dialog;
     }
 
-    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -139,15 +143,9 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
 
         root.setOnClickListener(v -> hide());
 
-        preview = glance.attachViewExtension(getPreviewType(), v -> show());
+        glance.attachViewExtension(getViewExtensionPreview(), v -> show());
 
         return root;
-    }
-
-    protected void sendDataToPreview(Bundle data) {
-        if (preview != null) {
-            preview.updateData(data);
-        }
     }
 
     public void updateLayout(int[] location, int width, int height) {
@@ -201,7 +199,6 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
 
                     if (scale >= 0 && !Float.isInfinite(scale)) {
                         container.setScaleY(scale);
-                        updateScalingInternal(scale);
 
                         container.setVisibility(View.VISIBLE);
 
@@ -215,12 +212,19 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
                                     updateScalingInternal(fraction);
                                     container.setRadiusPercentage(1f - fraction);
                                 })
-                                .withEndAction(() -> {
-                                    updateScalingInternal(1);
-                                    container.setRadiusPercentage(0);
-                                });
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationCancel(Animator animation) {
+                                        updateScalingInternal(1);
+                                        container.setRadiusPercentage(0);
+                                    }
 
-                        container.post(() -> glance.hide());
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        updateScalingInternal(1);
+                                        container.setRadiusPercentage(0);
+                                    }
+                                });
                     } else {
                         container.setVisibility(View.INVISIBLE);
 
@@ -239,19 +243,15 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
             if (animate) {
                 hide();
             } else {
-                glance.show(Animation.NONE);
+                float scale = glance.getHeight() /
+                        container.getMeasuredHeight();
 
-                glance.post(() -> {
-                    float scale = glance.getHeight() /
-                            container.getMeasuredHeight();
+                if (scale >= 0 && !Float.isInfinite(scale)) {
+                    container.setScaleY(scale);
+                    updateScalingInternal(0);
+                }
 
-                    if (scale >= 0 && !Float.isInfinite(scale)) {
-                        container.setScaleY(scale);
-                        updateScalingInternal(0);
-                    }
-
-                    dialog.hide();
-                });
+                dialog.hide();
             }
 
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -271,10 +271,16 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
 
                         updateScalingInternal(fraction);
                         container.setRadiusPercentage(1f - fraction);
-                    }).withEndAction(() -> {
-                        glance.show(Animation.SHORT);
+                    }).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+                            dialog.hide();
+                        }
 
-                        glance.post(() -> dialog.hide());
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            dialog.hide();
+                        }
                     });
 
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -305,7 +311,16 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
             }
         }
 
+        if (listener != null) {
+            listener.onProgressFraction(fraction);
+        }
+
         container.invalidate();
+    }
+
+    public interface TransitionListener {
+
+        void onProgressFraction(float fraction);
     }
 
     abstract public String getTAG();
@@ -313,10 +328,9 @@ public abstract class GlanceDialogExtension extends AppCompatDialogFragment
     abstract protected GlanceConstraintLayout inflateExpanded(LayoutInflater inflater,
                                                               ConstraintLayout container);
 
-    abstract protected GlanceViewExtensionType getPreviewType();
+    abstract protected GlanceViewExtension getViewExtensionPreview();
 
     abstract protected boolean isEnabled();
 
-    abstract protected void updateScaling(@FloatRange(from = 0f, to = 1f) float fraction,
-                                          float scale);
+    abstract protected void updateScaling(@FloatRange(from = 0f, to = 1f) float fraction, float scale);
 }

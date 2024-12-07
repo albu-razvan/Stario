@@ -17,6 +17,7 @@
 
 package com.stario.launcher.glance.extensions.calendar;
 
+import android.app.ActivityOptions;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.net.Uri;
@@ -55,8 +56,9 @@ public final class Calendar implements GlanceViewExtension {
                 ContentUris.appendId(builder,
                         java.util.Calendar.getInstance().getTimeInMillis());
 
-                text.getContext().startActivity(new Intent(Intent.ACTION_VIEW)
-                        .setData(builder.build()));
+                activity.startActivity(new Intent(Intent.ACTION_VIEW)
+                        .setData(builder.build()), ActivityOptions.makeScaleUpAnimation(container,
+                        0, 0, container.getMeasuredWidth(), container.getMeasuredHeight()).toBundle());
             } catch (Exception exception) {
                 Log.e("Calendar", "inflate: ", exception);
             }
