@@ -37,8 +37,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.stario.launcher.R;
 import com.stario.launcher.activities.settings.dialogs.icons.IconsDialog;
-import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.apps.IconPackManager;
+import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.utils.objects.ObjectInvalidateDelegate;
 import com.stario.launcher.utils.objects.ObjectRemeasureDelegate;
@@ -264,16 +264,22 @@ public class AdaptiveIconView extends View {
 
     @Override
     public void onDraw(@NonNull Canvas canvas) {
-        super.onDraw(canvas);
-
         if (icon.getValue() != null) {
             Drawable icon = this.icon.getValue();
 
             if (icon instanceof AdaptiveIconDrawable) {
                 AdaptiveIconDrawable adaptiveIconDrawable = (AdaptiveIconDrawable) icon;
 
-                adaptiveIconDrawable.getBackground().draw(canvas);
-                adaptiveIconDrawable.getForeground().draw(canvas);
+                Drawable background = adaptiveIconDrawable.getBackground();
+                Drawable foreground = adaptiveIconDrawable.getForeground();
+
+                if (background != null) {
+                    background.draw(canvas);
+                }
+
+                if (foreground != null) {
+                    foreground.draw(canvas);
+                }
             } else {
                 icon.draw(canvas);
             }

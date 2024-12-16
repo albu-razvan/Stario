@@ -1,4 +1,5 @@
 -keep class android.app.WallpaperManager { *; }
+-keep class android.animation.LayoutTransition { *; }
 -keep class org.chickenhook.restrictionbypass.** { *; }
 -keep class com.ctc.wstx.stax.** { *; }
 -dontwarn aQute.bnd.annotation.spi.ServiceProvider
