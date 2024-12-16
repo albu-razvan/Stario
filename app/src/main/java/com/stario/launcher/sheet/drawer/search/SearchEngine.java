@@ -29,10 +29,13 @@ import com.stario.launcher.themes.ThemedActivity;
 public enum SearchEngine {
     GOOGLE("Google", "google.com", "/search?q=", R.drawable.ic_google),
     DUCK_DUCK_GO("DuckDuckGo", "duckduckgo.com", "/?q=", R.drawable.ic_duck),
-    YANDEX("Yandex", "yandex.com", "/search/?text=", R.drawable.ic_yandex),
     BING("Bing", "bing.com", "/search?q=", R.drawable.ic_bing),
-    YAHOO("Yahoo", "search.yahoo.com", "/search?p=", R.drawable.ic_yahoo),
-    BRAVE("Brave", "search.brave.com", "/search?q=", R.drawable.ic_brave);
+    BRAVE("Brave", "search.brave.com", "/search?q=", R.drawable.ic_brave),
+    KAGI("Kagi", "kagi.com", "/search?q=", R.drawable.ic_kagi),
+    PERPLEXITY("Perplexity AI", "perplexity.ai", "/?s=o&q=", R.drawable.ic_perplexity),
+    ECOSIA("Ecosia", "ecosia.org", "/search?q=", R.drawable.ic_ecosia),
+    YANDEX("Yandex", "yandex.com", "/search/?text=", R.drawable.ic_yandex),
+    YAHOO("Yahoo", "search.yahoo.com", "/search?p=", R.drawable.ic_yahoo);
     public static final String PREFERENCE_ENTRY = "com.stario.SEARCH_ENGINE";
     private final String label;
     private final String url;
@@ -79,6 +82,12 @@ public enum SearchEngine {
             engine = BING;
         } else if (YAHOO.url.equals(string)) {
             engine = YAHOO;
+        } else if (ECOSIA.url.equals(string)) {
+            engine = ECOSIA;
+        } else if (PERPLEXITY.url.equals(string)) {
+            engine = PERPLEXITY;
+        } else if (KAGI.url.equals(string)) {
+            engine = KAGI;
         } else if (BRAVE.url.equals(string)) {
             engine = BRAVE;
         }
