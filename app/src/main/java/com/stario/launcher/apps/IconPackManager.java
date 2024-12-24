@@ -252,7 +252,7 @@ public final class IconPackManager {
 
     synchronized void refresh() {
         for (IconPack pack : iconPacks) {
-            pack.packageDrawables.clear();
+            pack.exactComponentDrawable.clear();
             pack.loaded = false;
         }
     }
@@ -314,7 +314,11 @@ public final class IconPackManager {
 
             if (drawableNames != null && drawableNames.size() > 0) {
                 for (String drawableName : drawableNames) {
-                    result.add(new Pair<>(pack, new Pair<>(drawableName, pack.getDrawable(drawableName))));
+                    Drawable drawable = pack.getDrawable(drawableName);
+
+                    if (drawable != null) {
+                        result.add(new Pair<>(pack, new Pair<>(drawableName, drawable)));
+                    }
                 }
             }
         }
@@ -330,13 +334,15 @@ public final class IconPackManager {
     public class IconPack {
         private static final String TAG = "IconPackManager";
         private final LauncherApplication application;
-        private final HashMap<String, List<String>> packageDrawables;
+        private final HashMap<String, List<String>> exactComponentDrawable;
+        private final HashMap<String, List<String>> packageNameDrawables;
         private Resources resources;
         private boolean loaded;
 
         private IconPack(LauncherApplication application) {
             this.application = application;
-            this.packageDrawables = new HashMap<>();
+            this.exactComponentDrawable = new HashMap<>();
+            this.packageNameDrawables = new HashMap<>();
             this.loaded = false;
         }
 
@@ -370,9 +376,10 @@ public final class IconPackManager {
 
                     while (eventType != XmlPullParser.END_DOCUMENT) {
                         if (eventType == XmlPullParser.START_TAG) {
-                            if (parser.getName().equals("item")) {
+                            if (parser.getName().equals("item") || parser.getName().equals("calendar")) {
                                 String componentName = null;
                                 String drawableName = null;
+                                String prefix = null;
 
                                 for (int i = 0; i < parser.getAttributeCount(); i++) {
                                     if (parser.getAttributeName(i).equals("component")) {
@@ -384,34 +391,19 @@ public final class IconPackManager {
                                         }
                                     } else if (parser.getAttributeName(i).equals("drawable")) {
                                         drawableName = parser.getAttributeValue(i);
+                                    } else if (parser.getAttributeName(i).equals("prefix")) {
+                                        prefix = parser.getAttributeValue(i);
                                     }
                                 }
 
-                                List<String> drawables = packageDrawables.get(componentName);
-                                if (drawables == null) {
-                                    drawables = new ArrayList<>();
-
-                                    drawables.add(drawableName);
-
-                                    packageDrawables.put(componentName, drawables);
-                                } else {
-                                    if (!drawables.contains(drawableName)) {
-                                        drawables.add(drawableName);
+                                if (componentName != null && componentName.contains("/")) {
+                                    if (drawableName != null) {
+                                        saveDrawable(componentName, drawableName);
                                     }
-                                }
 
-                                if (changedComponents.containsKey(componentName)) {
-                                    String changedComponent = changedComponents.get(componentName);
-
-                                    List<String> changedComponentDrawables = packageDrawables.get(changedComponent);
-                                    if (changedComponentDrawables == null) {
-                                        changedComponentDrawables = new ArrayList<>();
-                                        changedComponentDrawables.add(drawableName);
-
-                                        packageDrawables.put(componentName, changedComponentDrawables);
-                                    } else {
-                                        if (!changedComponentDrawables.contains(drawableName)) {
-                                            changedComponentDrawables.add(drawableName);
+                                    if (prefix != null) {
+                                        for (int day = 1; day <= 31; day++) {
+                                            saveDrawable(componentName, prefix + day);
                                         }
                                     }
                                 }
@@ -428,6 +420,51 @@ public final class IconPackManager {
                 Log.d(TAG, "Cannot parse icon pack appfilter.xml");
             } catch (IOException exception) {
                 Log.e(TAG, "", exception);
+            }
+        }
+
+        private void saveDrawable(String componentName, String drawableName) {
+            List<String> drawables = exactComponentDrawable.get(componentName);
+            if (drawables == null) {
+                drawables = new ArrayList<>();
+
+                drawables.add(drawableName);
+
+                exactComponentDrawable.put(componentName, drawables);
+            } else {
+                if (!drawables.contains(drawableName)) {
+                    drawables.add(drawableName);
+                }
+            }
+
+            if (changedComponents.containsKey(componentName)) {
+                String changedComponent = changedComponents.get(componentName);
+
+                drawables = exactComponentDrawable.get(changedComponent);
+                if (drawables == null) {
+                    drawables = new ArrayList<>();
+                    drawables.add(drawableName);
+
+                    exactComponentDrawable.put(changedComponent, drawables);
+                } else {
+                    if (!drawables.contains(drawableName)) {
+                        drawables.add(drawableName);
+                    }
+                }
+            }
+
+            String packageName = componentName.substring(0, componentName.indexOf('/'));
+            drawables = packageNameDrawables.get(packageName);
+            if (drawables == null) {
+                drawables = new ArrayList<>();
+
+                drawables.add(drawableName);
+
+                packageNameDrawables.put(packageName, drawables);
+            } else {
+                if (!drawables.contains(drawableName)) {
+                    drawables.add(drawableName);
+                }
             }
         }
 
@@ -460,7 +497,7 @@ public final class IconPackManager {
                         ComponentName component = launchIntent.getComponent();
 
                         if (component != null) {
-                            List<String> drawableNames = packageDrawables.get(component.getPackageName() + '/' + component.getClassName());
+                            List<String> drawableNames = exactComponentDrawable.get(component.getPackageName() + '/' + component.getClassName());
 
                             if (drawableNames != null && drawableNames.size() > 0) {
                                 drawableName = drawableNames.get(0);
@@ -490,7 +527,7 @@ public final class IconPackManager {
                 ComponentName component = launchIntent.getComponent();
 
                 if (component != null) {
-                    return packageDrawables.get(component.getPackageName() + '/' + component.getClassName());
+                    return packageNameDrawables.get(component.getPackageName());
                 }
             }
 
@@ -510,12 +547,12 @@ public final class IconPackManager {
 
             UiUtils.runOnUIThread(() -> {
                 if (loaded) {
-                    future.complete(packageDrawables.size());
+                    future.complete(exactComponentDrawable.size());
                 } else {
                     Utils.submitTask(() -> {
                         load();
 
-                        future.complete(packageDrawables.size());
+                        future.complete(exactComponentDrawable.size());
                     });
                 }
             });
