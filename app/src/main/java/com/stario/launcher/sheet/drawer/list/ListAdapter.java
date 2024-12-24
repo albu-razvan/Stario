@@ -148,6 +148,11 @@ public class ListAdapter extends RecyclerApplicationAdapter
     }
 
     @Override
+    protected boolean allowApplicationStateEditing() {
+        return true;
+    }
+
+    @Override
     public long getItemId(int position) {
         LauncherApplication application = applicationManager.get(position, true);
 

@@ -39,6 +39,7 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplication;
+import com.stario.launcher.apps.popup.ApplicationCustomizationDialog;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
@@ -155,16 +156,22 @@ public abstract class RecyclerApplicationAdapter
                         activity.startActivity(intent);
                     }));
 
-            if (!application.systemPackage) {
-                menu.add(new PopupMenu.Item(resources.getString(R.string.uninstall),
-                        ResourcesCompat.getDrawable(resources, R.drawable.ic_delete, activity.getTheme()),
-                        view -> {
-                            Intent intent = new Intent(Intent.ACTION_DELETE);
-                            intent.setData(Uri.parse("package:" + application.getInfo().packageName));
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            if (allowApplicationStateEditing()) {
+                menu.add(new PopupMenu.Item(resources.getString(R.string.customize),
+                        ResourcesCompat.getDrawable(resources, R.drawable.ic_edit, activity.getTheme()),
+                        view -> new ApplicationCustomizationDialog(activity, application).show()));
 
-                            activity.startActivity(intent);
-                        }));
+                if (!application.systemPackage) {
+                    menu.add(new PopupMenu.Item(resources.getString(R.string.uninstall),
+                            ResourcesCompat.getDrawable(resources, R.drawable.ic_delete, activity.getTheme()),
+                            view -> {
+                                Intent intent = new Intent(Intent.ACTION_DELETE);
+                                intent.setData(Uri.parse("package:" + application.getInfo().packageName));
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                                activity.startActivity(intent);
+                            }));
+                }
             }
 
             menu.setOnDismissListener(() -> {
@@ -239,4 +246,6 @@ public abstract class RecyclerApplicationAdapter
     }
 
     abstract protected LauncherApplication getApplication(int index);
+
+    abstract protected boolean allowApplicationStateEditing();
 }

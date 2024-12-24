@@ -17,8 +17,7 @@
         <com.stario.launcher.ui.icons.AdaptiveIconView
             android:id="@+id/preview"
             android:layout_width="50dp"
-            android:layout_height="50dp"
-            app:sizeRestricted="true" />
+            android:layout_height="50dp" />
 
         <TextView
             android:id="@+id/label"

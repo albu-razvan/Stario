@@ -29,11 +29,13 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.WindowCompat;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.stario.launcher.R;
-import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.utils.UiUtils;
@@ -41,21 +43,37 @@ import com.stario.launcher.utils.Utils;
 
 public abstract class ActionDialog extends BottomSheetDialog {
     protected final ThemedActivity activity;
+    private boolean canCollapse;
     private View root;
 
     public ActionDialog(@NonNull ThemedActivity activity) {
         super(activity);
 
         this.activity = activity;
+        this.canCollapse = false;
+
+        activity.addOnConfigurationChangedListener(
+                configuration -> ActionDialog.super.dismiss());
+
+        Lifecycle lifecycle = activity.getLifecycle();
+        lifecycle.addObserver(new DefaultLifecycleObserver() {
+            @Override
+            public void onDestroy(@NonNull LifecycleOwner owner) {
+                lifecycle.removeObserver(this);
+            }
+
+            @Override
+            public void onPause(@NonNull LifecycleOwner owner) {
+                ActionDialog.super.dismiss();
+            }
+        });
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        BottomSheetBehavior<?> behavior = getBehavior();
-
-        behavior.setSkipCollapsed(true);
+        getBehavior().setSkipCollapsed(true);
 
         LayoutInflater inflater = activity.getLayoutInflater();
 
@@ -71,11 +89,66 @@ public abstract class ActionDialog extends BottomSheetDialog {
         params.leftMargin = Measurements.dpToPx(10);
         params.rightMargin = Measurements.dpToPx(10);
         ((View) root.getParent()).setBackgroundColor(Color.TRANSPARENT);
+
+        getBehavior().addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED ||
+                        newState == BottomSheetBehavior.STATE_HALF_EXPANDED ||
+                        newState == BottomSheetBehavior.STATE_DRAGGING) {
+                    canCollapse = true;
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                if (slideOffset <= -1 && canCollapse) {
+                    ActionDialog.super.dismiss();
+                    canCollapse = false;
+                }
+
+                slideOffset = Math.min(slideOffset, 0);
+
+                Window window = getWindow();
+
+                if (window != null && blurBehind() && Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
+                    root.setScaleX(1 + slideOffset * 0.08f);
+                    root.setScaleY(1 + slideOffset * 0.08f);
+
+                    window.setDimAmount((1 + slideOffset) * 0.5f);
+
+                    WindowManager.LayoutParams attributes = window.getAttributes();
+
+                    attributes.setBlurBehindRadius(
+                            (int) ((1 + slideOffset) * PersistentFullscreenDialog.STEP_COUNT / 2 *
+                                    PersistentFullscreenDialog.BLUR_STEP));
+
+                    window.setAttributes(attributes);
+                }
+            }
+        });
     }
 
     @Override
     public void onAttachedToWindow() {
         Window window = getWindow();
+
+        if (window != null) {
+            WindowCompat.setDecorFitsSystemWindows(window, false);
+
+            if (blurBehind()) {
+                window.setWindowAnimations(0);
+                window.setDimAmount(0);
+
+                window.getDecorView().setVisibility(View.INVISIBLE);
+                getBehavior().setState(BottomSheetBehavior.STATE_HIDDEN);
+
+                window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND |
+                        WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+            } else {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            }
+        }
 
         root.post(() -> {
             ViewParent frame = root.getParent();
@@ -95,28 +168,17 @@ public abstract class ActionDialog extends BottomSheetDialog {
                     }
                 }
             }
-        });
-
-        if (window != null) {
-            WindowCompat.setDecorFitsSystemWindows(window, false);
 
             if (blurBehind()) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-                window.setDimAmount(0.5f);
+                root.post(() -> {
+                    if (window != null) {
+                        window.getDecorView().setVisibility(View.VISIBLE);
 
-                if (Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
-                    WindowManager.LayoutParams attributes = window.getAttributes();
-
-                    attributes.setBlurBehindRadius(
-                            (int) (PersistentFullscreenDialog.STEP_COUNT / 2 *
-                                    PersistentFullscreenDialog.BLUR_STEP));
-
-                    window.setAttributes(attributes);
-                }
-            } else {
-                window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                        getBehavior().setState(getDesiredInitialState());
+                    }
+                });
             }
-        }
+        });
     }
 
     // hack to remove STATE_EXPANDED fit to system window jitter on layout pass
@@ -151,16 +213,18 @@ public abstract class ActionDialog extends BottomSheetDialog {
 
     @Override
     public void hide() {
-        super.dismiss();
+        dismiss();
     }
 
     @Override
-    public void show() {
-        super.show();
+    public void dismiss() {
+        BottomSheetBehavior<?> behavior = getBehavior();
 
-        Vibrations.getInstance().vibrate();
-
-        getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+        if (canCollapse || behavior.getState() == BottomSheetBehavior.STATE_EXPANDED
+                || behavior.getState() == BottomSheetBehavior.STATE_HALF_EXPANDED) {
+            canCollapse = true;
+            getBehavior().setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
     }
 
     @Override
@@ -180,6 +244,8 @@ public abstract class ActionDialog extends BottomSheetDialog {
     }
 
     protected abstract @NonNull View inflateContent(LayoutInflater inflater);
+
+    protected abstract int getDesiredInitialState();
 
     protected abstract boolean blurBehind();
 }

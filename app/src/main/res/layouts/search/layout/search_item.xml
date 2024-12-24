@@ -15,8 +15,7 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_gravity="center_vertical"
-        android:layout_margin="10dp"
-        android:background="?attr/colorSecondaryContainer" />
+        android:layout_margin="10dp" />
 
     <TextView
         android:id="@+id/textView"

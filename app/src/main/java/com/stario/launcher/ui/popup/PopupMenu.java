@@ -42,7 +42,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.Space;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Size;
@@ -138,19 +137,7 @@ public class PopupMenu {
         recycler.setBackground(AppCompatResources.getDrawable(activity, R.drawable.popup_background));
         recycler.setAdapter(adapter);
 
-        if (recyclers.size() > 0) {
-            Space space = new Space(activity);
-            space.setLayoutParams((new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, padding / 2)));
-
-            root.addView(space);
-        }
-
-        root.addView(recycler);
-
-        Map.Entry<RecyclerView, RecyclerAdapter> entry =
-                Map.entry(recycler, adapter);
-
+        Map.Entry<RecyclerView, RecyclerAdapter> entry = Map.entry(recycler, adapter);
         recyclers.put(identifier, entry);
 
         return entry;
@@ -361,6 +348,14 @@ public class PopupMenu {
     }
 
     private void showAtLocation(View parent, @Size(2) int[] location, int padding, int gravity, int pivotAxis) {
+        for (Map.Entry<RecyclerView, RecyclerAdapter> entry : recyclers.values()) {
+            if ((gravity & Gravity.TOP) == Gravity.TOP) { // flip options when popup expands upwards
+                root.addView(entry.getKey(), 0);
+            } else {
+                root.addView(entry.getKey());
+            }
+        }
+
         if (popupWindow != null && !popupWindow.isShowing()) {
             root.post(() -> {
                 if ((pivotAxis & PIVOT_CENTER_HORIZONTAL) == PIVOT_DEFAULT) {

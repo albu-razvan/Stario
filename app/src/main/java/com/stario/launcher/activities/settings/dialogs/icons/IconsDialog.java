@@ -179,4 +179,9 @@ public class IconsDialog extends ActionDialog {
     protected boolean blurBehind() {
         return true;
     }
+
+    @Override
+    protected int getDesiredInitialState() {
+        return BottomSheetBehavior.STATE_EXPANDED;
+    }
 }

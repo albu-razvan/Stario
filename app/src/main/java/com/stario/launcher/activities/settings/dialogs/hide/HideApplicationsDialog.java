@@ -59,16 +59,16 @@ public class HideApplicationsDialog extends ActionDialog {
     }
 
     @Override
-    public void show() {
-        super.show();
-
-        if (!Measurements.isLandscape()) {
-            getBehavior().setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
-        }
+    protected boolean blurBehind() {
+        return true;
     }
 
     @Override
-    protected boolean blurBehind() {
-        return true;
+    protected int getDesiredInitialState() {
+        if (!Measurements.isLandscape()) {
+            return BottomSheetBehavior.STATE_HALF_EXPANDED;
+        }
+
+        return BottomSheetBehavior.STATE_EXPANDED;
     }
 }

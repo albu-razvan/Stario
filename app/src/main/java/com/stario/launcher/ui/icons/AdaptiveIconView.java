@@ -55,6 +55,7 @@ public class AdaptiveIconView extends View {
     private BroadcastReceiver squircleReceiver;
     private SharedPreferences preferences;
     private boolean sizeRestricted;
+    private boolean looseClipping;
     private Path path;
 
     public AdaptiveIconView(Context context) {
@@ -101,10 +102,12 @@ public class AdaptiveIconView extends View {
             TypedArray attributes = context.getApplicationContext().obtainStyledAttributes(attrs, R.styleable.AdaptiveIconView);
 
             sizeRestricted = attributes.getBoolean(R.styleable.AdaptiveIconView_sizeRestricted, true);
+            looseClipping = attributes.getBoolean(R.styleable.AdaptiveIconView_looseClipping, true);
 
             attributes.recycle();
         } else {
             sizeRestricted = true;
+            looseClipping = true;
         }
 
         this.path = new Path();
@@ -252,14 +255,27 @@ public class AdaptiveIconView extends View {
         invalidate();
     }
 
+    public void setLooseClipping(boolean value) {
+        this.looseClipping = value;
+    }
+
+    public void setSizeRestricted(boolean value) {
+        this.sizeRestricted = value;
+    }
+
     @Override
     public void draw(@NonNull Canvas canvas) {
-        int save = canvas.save();
+        if (!looseClipping ||
+                (icon != null && icon.getValue() instanceof AdaptiveIconDrawable)) {
+            int save = canvas.save();
 
-        canvas.clipPath(path);
+            canvas.clipPath(path);
 
-        super.draw(canvas);
-        canvas.restoreToCount(save);
+            super.draw(canvas);
+            canvas.restoreToCount(save);
+        } else {
+            super.draw(canvas);
+        }
     }
 
     @Override

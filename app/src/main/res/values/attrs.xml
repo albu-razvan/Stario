@@ -2,5 +2,6 @@
 <resources>
     <declare-styleable name="AdaptiveIconView">
         <attr name="sizeRestricted" format="boolean" />
+        <attr name="looseClipping" format="boolean" />
     </declare-styleable>
 </resources>

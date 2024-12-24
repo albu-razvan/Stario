@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
@@ -57,5 +58,10 @@ public class EngineDialog extends ActionDialog {
     @Override
     protected boolean blurBehind() {
         return true;
+    }
+
+    @Override
+    protected int getDesiredInitialState() {
+        return BottomSheetBehavior.STATE_EXPANDED;
     }
 }

@@ -81,12 +81,17 @@ public class WidgetConfigurator extends ActionDialog {
     public void show() {
         super.show();
 
-        if (!Measurements.isLandscape()) {
-            getBehavior().setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
-        }
-
         scroller.scrollTo(0, 0);
         adapter.update();
+    }
+
+    @Override
+    protected int getDesiredInitialState() {
+        if (!Measurements.isLandscape()) {
+            return BottomSheetBehavior.STATE_HALF_EXPANDED;
+        }
+
+        return BottomSheetBehavior.STATE_EXPANDED;
     }
 
     public interface Request {

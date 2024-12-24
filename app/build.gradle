@@ -48,6 +48,7 @@ android {
                            'src/main/res/layouts/notes',
                            'src/main/res/layouts/editor',
                            'src/main/res/layouts/interactions',
+                           'src/main/res/layouts/interactions/drawer',
                            'src/main/res/layouts/widgets',
                            'src/main/res/layouts/media',
                            'src/main/res/layouts/weather',

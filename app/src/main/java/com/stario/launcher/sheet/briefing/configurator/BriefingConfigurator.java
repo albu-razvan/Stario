@@ -36,6 +36,7 @@ import androidx.core.widget.NestedScrollView;
 
 import com.apptasticsoftware.rssreader.Channel;
 import com.apptasticsoftware.rssreader.Item;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
 import com.stario.launcher.R;
 import com.stario.launcher.sheet.briefing.BriefingFeedList;
@@ -257,5 +258,10 @@ public class BriefingConfigurator extends ActionDialog {
         query.setText(null);
 
         super.dismiss();
+    }
+
+    @Override
+    protected int getDesiredInitialState() {
+        return BottomSheetBehavior.STATE_EXPANDED;
     }
 }

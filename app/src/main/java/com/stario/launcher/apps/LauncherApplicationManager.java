@@ -63,6 +63,11 @@ public final class LauncherApplicationManager {
     private final IconPackManager iconPacks;
 
     private LauncherApplicationManager(ThemedActivity activity) {
+        // CategoryData and IconPackManager needs LauncherApplicationManager
+        // to be instantiated. Assign the instance in the constructor before
+        // everything else to guarantee that the instance will be supplied.
+        instance = this;
+
         this.applicationList = new ThreadSafeArrayList<>();
         this.applicationListHidden = new ThreadSafeArrayList<>();
         this.applicationMap = new HashMap<>();
@@ -167,10 +172,6 @@ public final class LauncherApplicationManager {
             }
         };
 
-        // CategoryData needs LauncherApplicationManager to be instantiated
-        // we assign the object to the instance reference in the constructor
-        // so that we guarantee that the instance will be supplied.
-        instance = this;
         categoryData = CategoryData.from(activity);
 
         IntentFilter intentFilter = new IntentFilter();
@@ -213,6 +214,15 @@ public final class LauncherApplicationManager {
             for (int index = 0; index < activityInfoList.size(); index++) {
                 ApplicationInfo applicationInfo = activityInfoList.get(index).getApplicationInfo();
 
+                if (iconPacks.checkPackValidity(applicationInfo.packageName)) {
+                    LauncherActivityInfo activityInfo = activityInfoList.remove(index);
+                    activityInfoList.add(0, activityInfo);
+                }
+            }
+
+            for (int index = 0; index < activityInfoList.size(); index++) {
+                ApplicationInfo applicationInfo = activityInfoList.get(index).getApplicationInfo();
+
                 if (applicationInfo != null) {
                     if (!BuildConfig.APPLICATION_ID.equals(applicationInfo.packageName)) {
                         if (applicationMap.containsKey(applicationInfo.packageName)) {
@@ -231,6 +241,7 @@ public final class LauncherApplicationManager {
             instance = new LauncherApplicationManager(activity);
         } else {
             instance.iconPacks.refresh();
+            instance.updateIcons();
         }
 
         return instance;
@@ -247,6 +258,14 @@ public final class LauncherApplicationManager {
     void updateIcons() {
         for (LauncherApplication application : applicationListHidden) {
             iconPacks.updateIcon(application, this::notifyUpdate);
+        }
+    }
+
+    void updateIcon(String packageName) {
+        for (LauncherApplication application : applicationListHidden) {
+            if (application.info.packageName.equals(packageName)) {
+                iconPacks.updateIcon(application, this::notifyUpdate);
+            }
         }
     }
 

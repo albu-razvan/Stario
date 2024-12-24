@@ -100,6 +100,11 @@ class FolderAdapter extends RecyclerApplicationAdapter {
     }
 
     @Override
+    protected boolean allowApplicationStateEditing() {
+        return true;
+    }
+
+    @Override
     protected int getSize() {
         return category.getSize();
     }

@@ -24,6 +24,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.stario.launcher.R;
 import com.stario.launcher.services.AccessibilityService;
 import com.stario.launcher.themes.ThemedActivity;
@@ -71,5 +72,10 @@ public class AccessibilityConfigurator extends ActionDialog {
     @Override
     protected boolean blurBehind() {
         return true;
+    }
+
+    @Override
+    protected int getDesiredInitialState() {
+        return BottomSheetBehavior.STATE_EXPANDED;
     }
 }
