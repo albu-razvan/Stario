@@ -74,6 +74,7 @@ public abstract class ActionDialog extends BottomSheetDialog {
         super.onCreate(savedInstanceState);
 
         getBehavior().setSkipCollapsed(true);
+        getBehavior().setPeekHeight(100_000_000);
 
         LayoutInflater inflater = activity.getLayoutInflater();
 
@@ -137,17 +138,17 @@ public abstract class ActionDialog extends BottomSheetDialog {
             WindowCompat.setDecorFitsSystemWindows(window, false);
 
             if (blurBehind()) {
-                window.setWindowAnimations(0);
                 window.setDimAmount(0);
-
-                window.getDecorView().setVisibility(View.INVISIBLE);
-                getBehavior().setState(BottomSheetBehavior.STATE_HIDDEN);
 
                 window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND |
                         WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
             } else {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             }
+
+            window.setWindowAnimations(0);
+            window.getDecorView().setVisibility(View.INVISIBLE);
+            getBehavior().setState(BottomSheetBehavior.STATE_HIDDEN);
         }
 
         root.post(() -> {
@@ -169,15 +170,13 @@ public abstract class ActionDialog extends BottomSheetDialog {
                 }
             }
 
-            if (blurBehind()) {
-                root.post(() -> {
-                    if (window != null) {
-                        window.getDecorView().setVisibility(View.VISIBLE);
+            root.post(() -> {
+                if (window != null) {
+                    window.getDecorView().setVisibility(View.VISIBLE);
 
-                        getBehavior().setState(getDesiredInitialState());
-                    }
-                });
-            }
+                    getBehavior().setState(getDesiredInitialState());
+                }
+            });
         });
     }
 
