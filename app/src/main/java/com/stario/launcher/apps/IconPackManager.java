@@ -31,6 +31,7 @@ import android.util.Xml;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.stario.launcher.BuildConfig;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.ImageUtils;
@@ -141,7 +142,7 @@ public final class IconPackManager {
                     .apply();
         } else {
             preferences.edit()
-                    .remove(packageName)
+                    .putString(packageName, BuildConfig.APPLICATION_ID)
                     .apply();
         }
 
@@ -176,20 +177,24 @@ public final class IconPackManager {
             String packagePreference = preferences.getString(application.info.packageName, null);
 
             if (packagePreference != null) {
-                try {
-                    JSONObject json = new JSONObject(packagePreference);
+                if (packagePreference.equals(BuildConfig.APPLICATION_ID)) {
+                    pack = null;
+                } else {
+                    try {
+                        JSONObject json = new JSONObject(packagePreference);
 
-                    IconPack target = getPack((String) json.get(JSON_ICON_PACK));
-                    if (target != null) {
-                        pack = target;
+                        IconPack target = getPack((String) json.get(JSON_ICON_PACK));
+                        if (target != null) {
+                            pack = target;
 
-                        if (json.has(JSON_ICON_DRAWABLE_NAME)) {
-                            drawableName = (String) json.get(JSON_ICON_DRAWABLE_NAME);
+                            if (json.has(JSON_ICON_DRAWABLE_NAME)) {
+                                drawableName = (String) json.get(JSON_ICON_DRAWABLE_NAME);
+                            }
                         }
+                    } catch (Exception exception) {
+                        Log.e("IconPackManager", "loadDrawable: Malformed JSON icon store for package " +
+                                application.info.packageName);
                     }
-                } catch (Exception exception) {
-                    Log.e("IconPackManager", "loadDrawable: Malformed JSON icon store for package " +
-                            application.info.packageName);
                 }
             }
         }

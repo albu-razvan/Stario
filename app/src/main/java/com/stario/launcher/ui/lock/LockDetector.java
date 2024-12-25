@@ -38,6 +38,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 
+import com.stario.launcher.BuildConfig;
 import com.stario.launcher.R;
 import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.activities.settings.Settings;
@@ -205,7 +206,7 @@ public class LockDetector extends LinearLayout {
     private boolean isAccessibilitySettingsOn(Context context) {
         int accessibilityEnabled = 0;
 
-        final String service = context.getPackageName() + "/" +
+        final String service = BuildConfig.APPLICATION_ID + "/" +
                 AccessibilityService.class.getCanonicalName();
         try {
             accessibilityEnabled = android.provider.Settings.Secure.getInt(context.getContentResolver(),

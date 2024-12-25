@@ -25,6 +25,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.stario.launcher.BuildConfig;
 import com.stario.launcher.R;
 import com.stario.launcher.services.NotificationService;
 import com.stario.launcher.themes.ThemedActivity;
@@ -57,7 +58,7 @@ public class NotificationConfigurator extends ActionDialog {
 
     private void showNotificationSettingsActivity() {
         Bundle bundle = new Bundle();
-        String showArgs = activity.getPackageName() + "/" + NotificationService.class.getName();
+        String showArgs = BuildConfig.APPLICATION_ID + "/" + NotificationService.class.getName();
         bundle.putString(":settings:fragment_args_key", showArgs);
 
         Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);

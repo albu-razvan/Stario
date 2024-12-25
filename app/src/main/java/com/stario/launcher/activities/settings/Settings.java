@@ -351,12 +351,12 @@ public class Settings extends ThemedActivity {
 
         if (shouldRebirth) {
             PackageManager packageManager = getPackageManager();
-            Intent intent = packageManager.getLaunchIntentForPackage(getPackageName());
+            Intent intent = packageManager.getLaunchIntentForPackage(BuildConfig.APPLICATION_ID);
 
             if (intent != null) {
                 ComponentName componentName = intent.getComponent();
                 Intent mainIntent = Intent.makeRestartActivityTask(componentName);
-                mainIntent.setPackage(getPackageName());
+                mainIntent.setPackage(BuildConfig.APPLICATION_ID);
 
                 startActivity(mainIntent);
 

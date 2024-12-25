@@ -25,6 +25,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.stario.launcher.BuildConfig;
 import com.stario.launcher.R;
 import com.stario.launcher.services.AccessibilityService;
 import com.stario.launcher.themes.ThemedActivity;
@@ -57,7 +58,7 @@ public class AccessibilityConfigurator extends ActionDialog {
 
     private void showAccessibilitySettingsActivity() {
         Bundle bundle = new Bundle();
-        String showArgs = activity.getPackageName() + "/" + AccessibilityService.class.getName();
+        String showArgs = BuildConfig.APPLICATION_ID + "/" + AccessibilityService.class.getName();
         bundle.putString(":settings:fragment_args_key", showArgs);
 
         Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
