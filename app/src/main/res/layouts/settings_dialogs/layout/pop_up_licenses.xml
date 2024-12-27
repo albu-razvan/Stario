@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<carbon.widget.RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:carbon_maxHeight="400dp">
+
+    <com.bosphere.fadingedgelayout.FadingEdgeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:fel_edge="bottom|top"
+        app:fel_size_bottom="20dp"
+        app:fel_size_top="20dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:overScrollMode="never"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp" />
+
+    </com.bosphere.fadingedgelayout.FadingEdgeLayout>
+
+</carbon.widget.RelativeLayout>

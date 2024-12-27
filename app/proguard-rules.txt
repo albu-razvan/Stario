@@ -5,4 +5,3 @@
 -dontwarn aQute.bnd.annotation.spi.ServiceProvider
 -dontwarn org.osgi.util.tracker.ServiceTracker
 -dontwarn org.apache.geronimo.osgi.registry.api.ProviderRegistry
--dontwarn lombok.**

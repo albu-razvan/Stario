@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.library'
+    id 'com.autonomousapps.dependency-analysis'
 }
 
 android {
@@ -11,13 +12,14 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_14
-        targetCompatibility JavaVersion.VERSION_14
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 
 dependencies {
-    implementation('com.github.ChickenHook:RestrictionBypass:2.2')
-    annotationProcessor 'dev.rikka.tools.refine:annotation-processor:4.4.0'
     compileOnly 'dev.rikka.tools.refine:annotation:4.4.0'
+    runtimeOnly 'com.github.ChickenHook:RestrictionBypass:2.2'
+
+    annotationProcessor 'dev.rikka.tools.refine:annotation-processor:4.4.0'
 }
