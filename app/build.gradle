@@ -37,26 +37,6 @@ android {
                 srcDirs = ['src/main/res/common',
                            'src/main/res/themes',
                            'src/main/res/strings',
-<<<<<<< Updated upstream
-                           'src/main/res/layouts/launcher',
-                           'src/main/res/layouts/drawer',
-                           'src/main/res/layouts/briefing',
-                           'src/main/res/layouts/briefing/configurator',
-                           'src/main/res/layouts/settings',
-                           'src/main/res/layouts/settings/dialogs',
-                           'src/main/res/layouts/search',
-                           'src/main/res/layouts/scroller',
-                           'src/main/res/layouts/sheet',
-                           'src/main/res/layouts/splash',
-                           'src/main/res/layouts/notes',
-                           'src/main/res/layouts/editor',
-                           'src/main/res/layouts/interactions',
-                           'src/main/res/layouts/widgets',
-                           'src/main/res/layouts/media',
-                           'src/main/res/layouts/weather',
-                           'src/main/res/layouts/glance',
-                           'src/main/res/layouts/calendar']
-=======
                            'src/main/res/launcher',
                            'src/main/res/drawer',
                            'src/main/res/drawer_interactions',
@@ -76,7 +56,6 @@ android {
                            'src/main/res/weather',
                            'src/main/res/glance',
                            'src/main/res/calendar']
->>>>>>> Stashed changes
             }
         }
     }
