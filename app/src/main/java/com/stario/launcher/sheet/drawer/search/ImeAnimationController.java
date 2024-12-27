@@ -44,7 +44,7 @@ public class ImeAnimationController {
     private boolean isImeShownAtStart;
 
     public ImeAnimationController() {
-        if(!Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
+        if (!Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
             throw new RuntimeException("Keyboard animation controller requires at least API 30.");
         }
     }
@@ -142,6 +142,15 @@ public class ImeAnimationController {
         return cancellationSignal != null;
     }
 
+    public float getExpandedFraction() {
+        if (!isAnimationInProgress()) {
+            throw new RuntimeException("Fraction can only be returned if the animation is running.");
+        }
+
+        return (float) insetsAnimationController.getCurrentInsets().bottom /
+                (insetsAnimationController.getShownStateInsets().bottom - insetsAnimationController.getHiddenStateInsets().bottom);
+    }
+
     public boolean isCurrentPositionFullyHidden() {
         return isAnimationInProgress() &&
                 insetsAnimationController.getCurrentInsets().bottom ==
@@ -161,7 +170,6 @@ public class ImeAnimationController {
     }
 
     private void finish(boolean shown) {
-        statusListener.onPreFinish();
         insetsAnimationController.finish(shown);
     }
 
@@ -177,10 +185,8 @@ public class ImeAnimationController {
         if (insetsAnimationController != null) {
             if (velocity != null) {
                 if (velocity > 0 && isCurrentPositionFullyShown()) {
-                    statusListener.onPreFinish();
                     insetsAnimationController.finish(true);
                 } else if (velocity < 0 && isCurrentPositionFullyHidden()) {
-                    statusListener.onPreFinish();
                     insetsAnimationController.finish(false);
                 } else {
                     setVisibilityWithAnimation(velocity > 0, velocity);
@@ -249,9 +255,6 @@ public class ImeAnimationController {
 
     public interface StateListener {
         default void onReady() {
-        }
-
-        default void onPreFinish() {
         }
 
         default void onFinish() {

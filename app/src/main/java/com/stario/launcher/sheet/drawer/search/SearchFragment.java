@@ -248,7 +248,6 @@ public class SearchFragment extends Fragment {
             AtomicReference<Integer> lastVelocity = new AtomicReference<>(null);
             AtomicBoolean isPointerDown = new AtomicBoolean(false);
             AtomicBoolean isAScroll = new AtomicBoolean(false);
-            AtomicBoolean skipNextAnimationFrame = new AtomicBoolean(false);
 
             scrollView.setOnPreScrollListener(new PreEventNestedScrollView.PreEvent() {
                 @Override
@@ -347,12 +346,6 @@ public class SearchFragment extends Fragment {
                                                 lastVelocity.set(null);
                                             }
                                         }
-
-                                        @Override
-                                        public void onPreFinish() {
-                                            // prevent animation bug frame after finishing the inset controller animation
-                                            skipNextAnimationFrame.set(true);
-                                        }
                                     });
                                 }
                             }
@@ -398,9 +391,11 @@ public class SearchFragment extends Fragment {
                     heightProvider.addKeyboardHeightObserver(new KeyboardHeightProvider.KeyboardHeightObserver() {
                         @Override
                         public void onKeyboardHeightChanged(int height) {
-                            endBottom = height;
+                            if (height != startBottom) {
+                                endBottom = height;
 
-                            heightProvider.removeKeyboardHeightObserver(this);
+                                heightProvider.removeKeyboardHeightObserver(this);
+                            }
                         }
                     });
 
@@ -421,15 +416,19 @@ public class SearchFragment extends Fragment {
                         }
                     }
 
-                    if (!skipNextAnimationFrame.get()) {
-                        if (imeAnimation != null) {
+                    if (imeAnimation != null) {
+                        if (imeAnimation.getDurationMillis() > 0) {
                             float delta = endBottom - startBottom;
                             float translation = delta * ((delta < 0 ? 1 : 0) - imeAnimation.getInterpolatedFraction());
 
                             updateContentTranslation(translation);
+                        } else if (controller.isAnimationInProgress()) {
+                            float delta = endBottom - startBottom;
+                            float fraction = controller.getExpandedFraction();
+                            float translation = Math.abs(delta) * -fraction;
+
+                            updateContentTranslation(translation);
                         }
-                    } else {
-                        skipNextAnimationFrame.set(false);
                     }
 
                     return insets;
@@ -501,19 +500,6 @@ public class SearchFragment extends Fragment {
             startPostponedEnterTransition();
 
             UiUtils.showKeyboard(search);
-
-            search.post(() -> {
-                if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
-                    heightProvider.addKeyboardHeightObserver(height -> {
-                        content.post(() -> {
-                            if (height > 0 && controller != null &&
-                                    !(controller.isAnimationInProgress() || controller.isRequestPending())) {
-                                updateContentTranslation(-height);
-                            }
-                        });
-                    });
-                }
-            });
         });
 
         return root;

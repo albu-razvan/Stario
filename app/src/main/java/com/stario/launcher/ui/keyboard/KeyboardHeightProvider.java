@@ -106,22 +106,32 @@ public class KeyboardHeightProvider extends PopupWindow {
     }
 
     public int getKeyboardHeight() {
-        Point screenSize = new Point();
-        Display display = activity.getWindowManager().getDefaultDisplay();
-        display.getSize(screenSize);
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
+            Rect windowRect = new Rect();
+            parentView.getWindowVisibleDisplayFrame(windowRect);
 
-        if (Utils.isMinimumSDK(Build.VERSION_CODES.Q)) {
-            DisplayCutout displayCutout = display.getCutout();
+            Rect rect = new Rect();
+            popupView.getWindowVisibleDisplayFrame(rect);
 
-            if (displayCutout != null) {
-                screenSize.y += displayCutout.getSafeInsetTop();
+            return windowRect.bottom - rect.bottom;
+        } else {
+            Point screenSize = new Point();
+            Display display = activity.getWindowManager().getDefaultDisplay();
+            display.getSize(screenSize);
+
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.Q)) {
+                DisplayCutout displayCutout = display.getCutout();
+
+                if (displayCutout != null) {
+                    screenSize.y += displayCutout.getSafeInsetTop();
+                }
             }
+
+            Rect rect = new Rect();
+            popupView.getWindowVisibleDisplayFrame(rect);
+
+            return screenSize.y - rect.bottom;
         }
-
-        Rect rect = new Rect();
-        popupView.getWindowVisibleDisplayFrame(rect);
-
-        return screenSize.y - rect.bottom;
     }
 
     public interface KeyboardHeightObserver {
