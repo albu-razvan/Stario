@@ -24,6 +24,7 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.stario.launcher.preferences.Vibrations;
@@ -31,15 +32,16 @@ import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.utils.Utils;
 
-import lombok.NonNull;
-
 public class LauncherApplication {
     public static final String LEGACY_LAUNCH_ANIMATION = "com.stario.LauncherApplication.LEGACY_LAUNCH_ANIMATION";
     public static final LauncherApplication FALLBACK_APP = null;
     public final boolean systemPackage;
-    @NonNull ApplicationInfo info;
-    @NonNull String label;
-    @NonNull Drawable icon;
+    @NonNull
+    ApplicationInfo info;
+    @NonNull
+    String label;
+    @NonNull
+    Drawable icon;
     int category;
     int notificationCount;
 
