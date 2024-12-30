@@ -43,17 +43,17 @@ public class HideApplicationsDialog extends ActionDialog {
     @Override
     protected View inflateContent(LayoutInflater inflater) {
         View root = inflater.inflate(R.layout.pop_up_hide, null);
-        NestedScrollView scroller = root.findViewById(R.id.scroller);
-        RecyclerView recycler = root.findViewById(R.id.recycler);
 
-        scroller.setClipToOutline(true);
-        Measurements.addNavListener(value -> scroller.setPadding(0, 0, 0, value));
+        RecyclerView recycler = root.findViewById(R.id.recycler);
 
         recycler.setLayoutManager(new LinearLayoutManager(activity,
                 LinearLayoutManager.VERTICAL, false));
         recycler.addItemDecoration(new DividerItemDecorator(activity,
                 MaterialDividerItemDecoration.VERTICAL));
         recycler.setAdapter(new HiddenRecyclerAdapter(activity));
+
+        NestedScrollView scroller = root.findViewById(R.id.scroller);
+        scroller.setClipToOutline(true);
 
         return root;
     }

@@ -28,7 +28,10 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsAnimationCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -37,12 +40,17 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
+import java.util.List;
+
 public abstract class ActionDialog extends BottomSheetDialog {
     protected final ThemedActivity activity;
+
+    private KeyboardHeightProvider heightProvider;
     private boolean canCollapse;
     private View root;
 
@@ -53,7 +61,13 @@ public abstract class ActionDialog extends BottomSheetDialog {
         this.canCollapse = false;
 
         activity.addOnConfigurationChangedListener(
-                configuration -> ActionDialog.super.dismiss());
+                configuration -> {
+                    ActionDialog.super.dismiss();
+
+                    if (heightProvider != null) {
+                        heightProvider.dismiss();
+                    }
+                });
 
         Lifecycle lifecycle = activity.getLifecycle();
         lifecycle.addObserver(new DefaultLifecycleObserver() {
@@ -65,6 +79,10 @@ public abstract class ActionDialog extends BottomSheetDialog {
             @Override
             public void onPause(@NonNull LifecycleOwner owner) {
                 ActionDialog.super.dismiss();
+
+                if (heightProvider != null) {
+                    heightProvider.dismiss();
+                }
             }
         });
     }
@@ -79,8 +97,85 @@ public abstract class ActionDialog extends BottomSheetDialog {
         LayoutInflater inflater = activity.getLayoutInflater();
 
         root = inflater.inflate(R.layout.pop_up_root, null, false);
-        ((ViewGroup) root.findViewById(R.id.content)).addView(inflateContent(activity.getLayoutInflater()));
-        UiUtils.applyNotchMargin(root);
+        ViewGroup content = root.findViewById(R.id.content);
+        content.addView(inflateContent(activity.getLayoutInflater()));
+
+        heightProvider = new KeyboardHeightProvider(activity);
+
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
+            ViewCompat.setWindowInsetsAnimationCallback(getWindow().getDecorView(), new WindowInsetsAnimationCompat
+                    .Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
+                private WindowInsetsAnimationCompat imeAnimation;
+                private float startBottom;
+                private float endBottom;
+
+                @Override
+                public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
+                    startBottom = heightProvider.getKeyboardHeight();
+                }
+
+                @NonNull
+                @Override
+                public WindowInsetsAnimationCompat.BoundsCompat onStart(@NonNull WindowInsetsAnimationCompat animation, @NonNull WindowInsetsAnimationCompat.BoundsCompat bounds) {
+                    endBottom = 0;
+
+                    heightProvider.addKeyboardHeightObserver(new KeyboardHeightProvider.KeyboardHeightObserver() {
+                        @Override
+                        public void onKeyboardHeightChanged(int height) {
+                            if (height != startBottom) {
+                                endBottom = height;
+
+                                heightProvider.removeKeyboardHeightObserver(this);
+                            }
+                        }
+                    });
+
+                    return bounds;
+                }
+
+                @NonNull
+                @Override
+                public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets, @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
+                    if (imeAnimation == null) {
+                        for (WindowInsetsAnimationCompat animation : runningAnimations) {
+                            if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) != 0) {
+                                imeAnimation = animation;
+
+                                break;
+                            }
+                        }
+                    }
+
+                    if (imeAnimation != null) {
+                        float delta = endBottom - startBottom;
+                        float translation = delta * ((delta < 0 ? 1 : 0) - imeAnimation.getInterpolatedFraction());
+
+                        content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
+                                content.getPaddingRight(), (int) (Measurements.getNavHeight() - translation));
+                    }
+
+                    return insets;
+                }
+
+                @Override
+                public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
+                    imeAnimation = null;
+                }
+            });
+
+            heightProvider.addKeyboardHeightObserver(height -> getBehavior().setDraggable(height == 0));
+        } else {
+            heightProvider.addKeyboardHeightObserver(height -> {
+                content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
+                        content.getPaddingRight(), Measurements.getNavHeight() + height);
+
+                getBehavior().setDraggable(height == 0);
+            });
+        }
+
+        Measurements.addNavListener(value ->
+                content.setPadding(content.getPaddingLeft(),
+                        content.getPaddingTop(), content.getPaddingRight(), value));
 
         root.setOnClickListener(view -> dismiss());
 
@@ -90,6 +185,8 @@ public abstract class ActionDialog extends BottomSheetDialog {
         params.leftMargin = Measurements.dpToPx(10);
         params.rightMargin = Measurements.dpToPx(10);
         ((View) root.getParent()).setBackgroundColor(Color.TRANSPARENT);
+
+        UiUtils.applyNotchMargin(root, true);
 
         getBehavior().addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
@@ -105,6 +202,11 @@ public abstract class ActionDialog extends BottomSheetDialog {
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
                 if (slideOffset <= -1 && canCollapse) {
                     ActionDialog.super.dismiss();
+
+                    if (heightProvider != null) {
+                        heightProvider.dismiss();
+                    }
+
                     canCollapse = false;
                 }
 
@@ -112,19 +214,21 @@ public abstract class ActionDialog extends BottomSheetDialog {
 
                 Window window = getWindow();
 
-                if (window != null && blurBehind() && Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
+                if (window != null) {
                     root.setScaleX(1 + slideOffset * 0.08f);
                     root.setScaleY(1 + slideOffset * 0.08f);
 
                     window.setDimAmount((1 + slideOffset) * 0.5f);
 
-                    WindowManager.LayoutParams attributes = window.getAttributes();
+                    if (blurBehind() && Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
+                        WindowManager.LayoutParams attributes = window.getAttributes();
 
-                    attributes.setBlurBehindRadius(
-                            (int) ((1 + slideOffset) * PersistentFullscreenDialog.STEP_COUNT / 2 *
-                                    PersistentFullscreenDialog.BLUR_STEP));
+                        attributes.setBlurBehindRadius(
+                                (int) ((1 + slideOffset) * PersistentFullscreenDialog.STEP_COUNT / 2 *
+                                        PersistentFullscreenDialog.BLUR_STEP));
 
-                    window.setAttributes(attributes);
+                        window.setAttributes(attributes);
+                    }
                 }
             }
         });
@@ -137,16 +241,18 @@ public abstract class ActionDialog extends BottomSheetDialog {
         if (window != null) {
             WindowCompat.setDecorFitsSystemWindows(window, false);
 
+            window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+
             if (blurBehind()) {
                 window.setDimAmount(0);
 
-                window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND |
-                        WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+                window.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
             } else {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             }
 
-            window.setWindowAnimations(0);
+            window.setWindowAnimations(R.style.ActionDialogAnimations);
+
             window.getDecorView().setVisibility(View.INVISIBLE);
             getBehavior().setState(BottomSheetBehavior.STATE_HIDDEN);
         }
@@ -211,6 +317,15 @@ public abstract class ActionDialog extends BottomSheetDialog {
     }
 
     @Override
+    public void show() {
+        super.show();
+
+        if (heightProvider != null) {
+            heightProvider.start();
+        }
+    }
+
+    @Override
     public void hide() {
         dismiss();
     }
@@ -219,7 +334,9 @@ public abstract class ActionDialog extends BottomSheetDialog {
     public void dismiss() {
         BottomSheetBehavior<?> behavior = getBehavior();
 
-        if (canCollapse || behavior.getState() == BottomSheetBehavior.STATE_EXPANDED
+        if (heightProvider.getKeyboardHeight() > 0) {
+            UiUtils.hideKeyboard(root);
+        } else if (canCollapse || behavior.getState() == BottomSheetBehavior.STATE_EXPANDED
                 || behavior.getState() == BottomSheetBehavior.STATE_HALF_EXPANDED) {
             canCollapse = true;
             getBehavior().setState(BottomSheetBehavior.STATE_HIDDEN);

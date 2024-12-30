@@ -53,12 +53,9 @@ public class WidgetConfigurator extends ActionDialog {
         View contentView = inflater.inflate(R.layout.widget_picker, null);
 
         scroller = contentView.findViewById(R.id.scroller);
-        RecyclerView recycler = contentView.findViewById(R.id.container_widgets);
-
         scroller.setClipToOutline(true);
 
-        Measurements.addNavListener(value ->
-                scroller.setPadding(0, 0, 0, value));
+        RecyclerView recycler = contentView.findViewById(R.id.container_widgets);
 
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false);

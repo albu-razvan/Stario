@@ -30,7 +30,6 @@ import com.stario.launcher.R;
 import com.stario.launcher.services.AccessibilityService;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
-import com.stario.launcher.ui.measurements.Measurements;
 
 public class AccessibilityConfigurator extends ActionDialog {
     public AccessibilityConfigurator(@NonNull ThemedActivity activity) {
@@ -41,9 +40,6 @@ public class AccessibilityConfigurator extends ActionDialog {
     @Override
     protected View inflateContent(LayoutInflater inflater) {
         View root = inflater.inflate(R.layout.pop_up_accesibility, null);
-        View content = root.findViewById(R.id.content);
-
-        Measurements.addNavListener(value -> content.setPadding(0, 0, 0, value));
 
         root.findViewById(R.id.proceed)
                 .setOnClickListener(v -> {

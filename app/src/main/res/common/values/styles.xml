@@ -24,4 +24,9 @@
     <style name="Theme.Dialog.Button" parent="Widget.Material3.Button.TextButton.Dialog">
         <item name="android:fontFamily">@font/dm_sans_regular</item>
     </style>
+
+    <style name="ActionDialogAnimations">
+        <item name="android:windowEnterAnimation">@null</item>
+        <item name="android:windowExitAnimation">@anim/action_dialog_exit</item>
+    </style>
 </resources>

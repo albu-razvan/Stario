@@ -146,7 +146,11 @@ public final class IconPackManager {
                     .apply();
         }
 
-        launcherApplicationManager.updateIcon(packageName);
+        LauncherApplication application = launcherApplicationManager.get(packageName);
+
+        if (application != null) {
+            updateIcon(application, launcherApplicationManager::notifyUpdate);
+        }
     }
 
     public int getCount() {
@@ -169,7 +173,7 @@ public final class IconPackManager {
         return null;
     }
 
-    synchronized void updateIcon(LauncherApplication application, OnUpdate listener) {
+    synchronized void updateIcon(@NonNull LauncherApplication application, OnUpdate listener) {
         IconPack pack = activeIconPack;
         String drawableName = null;
 
@@ -212,7 +216,9 @@ public final class IconPackManager {
                     if (drawable != null && !drawable.equals(application.getIcon())) {
                         application.icon = drawable;
 
-                        listener.onUpdate(application);
+                        if (listener != null) {
+                            listener.onUpdate(application);
+                        }
                     }
                 });
             });
@@ -222,7 +228,9 @@ public final class IconPackManager {
             if (icon != null && !icon.equals(application.getIcon())) {
                 application.icon = icon;
 
-                listener.onUpdate(application);
+                if (listener != null) {
+                    listener.onUpdate(application);
+                }
             }
         }
     }

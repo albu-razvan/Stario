@@ -20,14 +20,88 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="16dp"
                 android:layout_marginBottom="16dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:translationY="10dp">
 
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_label" />
+
                 <Space
-                    android:layout_width="30dp"
+                    android:layout_width="10dp"
                     android:layout_height="0dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:letterSpacing="-0.03"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:text="@string/label"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/label"
+                    android:layout_width="0px"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/label_background"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:imeOptions="actionGo"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:padding="15dp"
+                    android:singleLine="true"
+                    android:textColor="?attr/colorOnPrimaryContainer"
+                    android:textSize="18sp" />
+
+                <Space
+                    android:layout_width="10dp"
+                    android:layout_height="0dp" />
+
+
+                <carbon.widget.ImageView
+                    android:id="@+id/reset"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/transparent_ripple"
+                    android:padding="13dp"
+                    android:src="@drawable/ic_reset"
+                    app:carbon_cornerRadius="9999dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:translationY="10dp">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -52,23 +126,29 @@
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="20sp" />
 
-                <Space
-                    android:layout_width="16dp"
-                    android:layout_height="0dp" />
-
             </LinearLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/icons"
+            <com.bosphere.fadingedgelayout.FadingEdgeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:clipToPadding="false"
-                android:nestedScrollingEnabled="true"
-                android:orientation="horizontal"
-                android:overScrollMode="never"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp" />
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="10dp"
+                app:fel_edge="left|right"
+                app:fel_size_left="30dp"
+                app:fel_size_right="30dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/icons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:nestedScrollingEnabled="true"
+                    android:orientation="horizontal"
+                    android:overScrollMode="never"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp" />
+
+            </com.bosphere.fadingedgelayout.FadingEdgeLayout>
 
         </LinearLayout>
 

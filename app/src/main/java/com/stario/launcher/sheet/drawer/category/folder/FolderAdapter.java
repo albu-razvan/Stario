@@ -17,6 +17,8 @@
 
 package com.stario.launcher.sheet.drawer.category.folder;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,11 +27,12 @@ import com.stario.launcher.apps.categories.Category;
 import com.stario.launcher.apps.categories.CategoryData;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.utils.UiUtils;
 
 class FolderAdapter extends RecyclerApplicationAdapter {
     private final Category.CategoryItemListener listener;
     private final Category category;
+
+    private RecyclerView recyclerView;
 
     public FolderAdapter(ThemedActivity activity, int categoryID) {
         super(activity);
@@ -42,10 +45,14 @@ class FolderAdapter extends RecyclerApplicationAdapter {
 
             @Override
             public void onInserted(LauncherApplication application) {
-                int index = category.indexOf(application);
+                if (recyclerView != null) {
+                    recyclerView.post(() -> {
+                        int index = category.indexOf(application);
 
-                if (index >= 0) {
-                    notifyItemInserted(index);
+                        if (index >= 0) {
+                            notifyItemInserted(index);
+                        }
+                    });
                 }
             }
 
@@ -54,23 +61,32 @@ class FolderAdapter extends RecyclerApplicationAdapter {
                 preparedRemovalIndex = category.indexOf(application);
             }
 
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onRemoved(LauncherApplication application) {
-                if (preparedRemovalIndex >= 0) {
-                    UiUtils.runOnUIThread(() -> notifyItemRemoved(preparedRemovalIndex));
+                if (recyclerView != null) {
+                    recyclerView.post(() -> {
+                        if (preparedRemovalIndex >= 0) {
+                            notifyItemRemoved(preparedRemovalIndex);
 
-                    preparedRemovalIndex = -1;
-                } else {
-                    notifyDataSetChanged();
+                            preparedRemovalIndex = -1;
+                        } else {
+                            notifyDataSetChanged();
+                        }
+                    });
                 }
             }
 
             @Override
             public void onUpdated(LauncherApplication application) {
-                int index = category.indexOf(application);
+                if (recyclerView != null) {
+                    recyclerView.post(() -> {
+                        int index = category.indexOf(application);
 
-                if (index >= 0) {
-                    notifyItemChanged(index);
+                        if (index >= 0) {
+                            notifyItemChanged(index);
+                        }
+                    });
                 }
             }
         };
@@ -79,6 +95,8 @@ class FolderAdapter extends RecyclerApplicationAdapter {
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
+
+        this.recyclerView = recyclerView;
 
         if (category != null && listener != null) {
             category.addCategoryItemListener(listener);
@@ -92,6 +110,8 @@ class FolderAdapter extends RecyclerApplicationAdapter {
         if (category != null && listener != null) {
             category.removeCategoryItemListener(listener);
         }
+
+        this.recyclerView = null;
     }
 
     @Override

@@ -20,18 +20,18 @@ package com.stario.launcher.preferences;
 import androidx.annotation.NonNull;
 
 public enum Entry {
-    CATEGORIES("CATEGORIES"),
+    APPLICATION_LABELS("APPLICATION_LABELS"),
     CATEGORY_NAMES("CATEGORY_NAMES"),
     CATEGORY_MAP("CATEGORY_MAP"),
+    HIDDEN_APPS("HIDDEN_APPS"),
+    CATEGORIES("CATEGORIES"),
+    BRIEFING("BRIEFING"),
+    WEATHER("WEATHER"),
+    WIDGETS("WIDGETS"),
     STARIO("STARIO"),
     DRAWER("DRAWER"),
-    HIDDEN_APPS("HIDDEN_APPS"),
-    SETTINGS("SETTINGS"),
     THEME("THEME"),
-    WIDGETS("WIDGETS"),
-    ICONS("ICONS"),
-    WEATHER("WEATHER"),
-    BRIEFING("BRIEFING");
+    ICONS("ICONS");
 
     private final String serialized;
 

@@ -40,7 +40,6 @@ public class ImeAnimationController {
     private WindowInsetsAnimationControllerCompat insetsAnimationController;
     private CancellationSignal cancellationSignal;
     private SpringAnimation springAnimation;
-    private StateListener statusListener;
     private boolean isImeShownAtStart;
 
     public ImeAnimationController() {
@@ -54,7 +53,6 @@ public class ImeAnimationController {
 
         if (insets != null) {
             isImeShownAtStart = insets.isVisible(WindowInsetsCompat.Type.ime());
-            statusListener = listener;
 
             cancellationSignal = new CancellationSignal();
 
@@ -214,7 +212,6 @@ public class ImeAnimationController {
         insetsAnimationController = null;
         cancellationSignal = null;
         isImeShownAtStart = false;
-        statusListener = null;
     }
 
     private void setVisibilityWithAnimation(boolean visible, Integer velocity) {

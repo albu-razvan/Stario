@@ -119,34 +119,38 @@ public class OptionAdapter extends AbstractSearchListAdapter {
         LauncherApplicationManager.from(activity)
                 .addApplicationListener(new LauncherApplicationManager.ApplicationListener() {
                     private void insert(LauncherApplication application) {
-                        String[] filters = new String[]{Intent.ACTION_WEB_SEARCH, Intent.ACTION_SEARCH};
+                        recyclerView.post(() -> {
+                            String[] filters = new String[]{Intent.ACTION_WEB_SEARCH, Intent.ACTION_SEARCH};
 
-                        for (String filter : filters) {
-                            Intent intent = new Intent(filter);
-                            intent.setPackage(application.getInfo().packageName);
+                            for (String filter : filters) {
+                                Intent intent = new Intent(filter);
+                                intent.setPackage(application.getInfo().packageName);
 
-                            List<ResolveInfo> resolveInfo = packageManager.queryIntentActivities(intent, PackageManager.GET_RESOLVED_FILTER);
+                                List<ResolveInfo> resolveInfo = packageManager.queryIntentActivities(intent, PackageManager.GET_RESOLVED_FILTER);
 
-                            if (!resolveInfo.isEmpty()) {
-                                options.add(new OptionEntry(application, resolveInfo.get(0).activityInfo, filter));
+                                if (!resolveInfo.isEmpty()) {
+                                    options.add(new OptionEntry(application, resolveInfo.get(0).activityInfo, filter));
 
-                                notifyInternal();
+                                    notifyInternal();
+                                }
                             }
-                        }
+                        });
                     }
 
                     private void remove(LauncherApplication application) {
-                        Iterator<OptionEntry> iterator = options.iterator();
+                        recyclerView.post(() -> {
+                            Iterator<OptionEntry> iterator = options.iterator();
 
-                        while (iterator.hasNext()) {
-                            OptionEntry entry = iterator.next();
+                            while (iterator.hasNext()) {
+                                OptionEntry entry = iterator.next();
 
-                            if (entry.application.equals(application)) {
-                                iterator.remove();
+                                if (entry.application.equals(application)) {
+                                    iterator.remove();
 
-                                return;
+                                    return;
+                                }
                             }
-                        }
+                        });
                     }
 
                     @Override
@@ -171,15 +175,17 @@ public class OptionAdapter extends AbstractSearchListAdapter {
 
                     @Override
                     public void onUpdated(LauncherApplication application) {
-                        for (int index = 0; index < options.size(); index++) {
-                            OptionEntry entry = options.get(index);
+                        recyclerView.post(() -> {
+                            for (int index = 0; index < options.size(); index++) {
+                                OptionEntry entry = options.get(index);
 
-                            if (entry.application.equals(application)) {
-                                notifyItemChanged(index);
+                                if (entry.application.equals(application)) {
+                                    notifyItemChanged(index);
 
-                                return;
+                                    return;
+                                }
                             }
-                        }
+                        });
                     }
                 });
     }

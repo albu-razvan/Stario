@@ -32,7 +32,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.widget.NestedScrollView;
 
 import com.apptasticsoftware.rssreader.Channel;
 import com.apptasticsoftware.rssreader.Item;
@@ -44,8 +43,6 @@ import com.stario.launcher.sheet.briefing.feed.Feed;
 import com.stario.launcher.sheet.briefing.rss.Parser;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
-import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
-import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.utils.Utils;
 
 import org.jsoup.Jsoup;
@@ -61,8 +58,6 @@ import java.util.stream.Stream;
 public class BriefingConfigurator extends ActionDialog {
     private static final String TAG = "BriefingConfigurator";
     private final BriefingFeedList list;
-    private KeyboardHeightProvider heightProvider;
-    private NestedScrollView scroller;
     private Future<?> runningTask;
     private ViewGroup contentView;
     private LinearLayout preview;
@@ -82,19 +77,10 @@ public class BriefingConfigurator extends ActionDialog {
         contentView = (ViewGroup) inflater.inflate(R.layout.briefing_configurator, null);
 
         MaterialButton add = contentView.findViewById(R.id.add);
-        scroller = contentView.findViewById(R.id.scroller);
         query = contentView.findViewById(R.id.query);
         preview = contentView.findViewById(R.id.preview);
         title = contentView.findViewById(R.id.title);
         limit = contentView.findViewById(R.id.limit);
-
-        heightProvider = new KeyboardHeightProvider(activity);
-        heightProvider.addKeyboardHeightObserver((height) -> {
-            scroller.setPadding(0, 0, 0, Measurements.getNavHeight() + height);
-        });
-
-        Measurements.addNavListener(value ->
-                scroller.setPadding(0, 0, 0, value + heightProvider.getKeyboardHeight()));
 
         query.addTextChangedListener(new TextWatcher() {
             @Override
@@ -245,16 +231,7 @@ public class BriefingConfigurator extends ActionDialog {
     }
 
     @Override
-    public void show() {
-        super.show();
-
-        contentView.post(() -> scroller.setPadding(0, 0, 0, Measurements.getNavHeight()));
-        heightProvider.start();
-    }
-
-    @Override
     public void dismiss() {
-        heightProvider.close();
         query.setText(null);
 
         super.dismiss();

@@ -405,7 +405,6 @@ public class SearchFragment extends Fragment {
                 @NonNull
                 @Override
                 public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets, @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
-                    // prevent controller animation bug frame here
                     if (imeAnimation == null) {
                         for (WindowInsetsAnimationCompat animation : runningAnimations) {
                             if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) != 0) {

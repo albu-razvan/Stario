@@ -35,19 +35,20 @@ import com.stario.launcher.utils.Utils;
 public class LauncherApplication {
     public static final String LEGACY_LAUNCH_ANIMATION = "com.stario.LauncherApplication.LEGACY_LAUNCH_ANIMATION";
     public static final LauncherApplication FALLBACK_APP = null;
+
     public final boolean systemPackage;
+
     @NonNull
     ApplicationInfo info;
     @NonNull
     String label;
-    @NonNull
     Drawable icon;
     int category;
     int notificationCount;
 
-    public LauncherApplication(@NonNull ApplicationInfo info, PackageManager packageManager) {
+    public LauncherApplication(@NonNull ApplicationInfo info, @NonNull String label) {
         this.info = info;
-        this.label = info.loadLabel(packageManager).toString();
+        this.label = label;
         this.category = ApplicationInfo.CATEGORY_UNDEFINED;
         this.icon = null;
         this.notificationCount = 0;
@@ -76,10 +77,12 @@ public class LauncherApplication {
         }
     }
 
+    @NonNull
     public ApplicationInfo getInfo() {
         return info;
     }
 
+    @NonNull
     public String getLabel() {
         return label;
     }

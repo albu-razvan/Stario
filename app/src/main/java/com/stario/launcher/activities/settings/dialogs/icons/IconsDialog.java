@@ -23,7 +23,6 @@ import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -40,7 +39,6 @@ import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
 import com.stario.launcher.ui.icons.PathCornerTreatmentAlgorithm;
-import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 
 public class IconsDialog extends ActionDialog {
@@ -76,9 +74,10 @@ public class IconsDialog extends ActionDialog {
     @Override
     protected View inflateContent(LayoutInflater inflater) {
         View root = inflater.inflate(R.layout.pop_up_icons, null);
-        ViewGroup content = root.findViewById(R.id.content);
+
         Slider slider = root.findViewById(R.id.slider);
         MaterialButtonToggleGroup algorithm = root.findViewById(R.id.algorithm);
+
         RecyclerView recycler = root.findViewById(R.id.recycler);
         recycler.setOnTouchListener(new View.OnTouchListener() {
             private final BottomSheetBehavior<?> behavior;
@@ -108,8 +107,6 @@ public class IconsDialog extends ActionDialog {
                 return false;
             }
         });
-
-        Measurements.addNavListener(value -> content.setPadding(0, 0, 0, value));
 
         adapter = new IconsRecyclerAdapter(activity, v -> dismiss());
 

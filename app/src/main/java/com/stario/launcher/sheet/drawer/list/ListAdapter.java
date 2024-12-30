@@ -19,6 +19,7 @@ package com.stario.launcher.sheet.drawer.list;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -51,27 +52,28 @@ public class ListAdapter extends RecyclerApplicationAdapter
         applicationManager.addApplicationListener(new LauncherApplicationManager.ApplicationListener() {
             @Override
             public void onHidden(LauncherApplication application) {
-                notifyItemRangeRemoved(0, getItemCount());
+                Log.e("TAG", "onHidden: " + recyclerView);
+                recyclerView.post(() -> notifyItemRangeRemoved(0, getItemCount()));
             }
 
             @Override
             public void onInserted(LauncherApplication application) {
-                notifyItemInserted(applicationManager.indexOf(application));
+                recyclerView.post(() -> notifyItemInserted(applicationManager.indexOf(application)));
             }
 
             @Override
             public void onRemoved(LauncherApplication application) {
-                notifyItemRangeRemoved(0, getItemCount());
+                recyclerView.post(() -> notifyItemRangeRemoved(0, getItemCount()));
             }
 
             @Override
             public void onShowed(LauncherApplication application) {
-                notifyItemInserted(applicationManager.indexOf(application));
+                recyclerView.post(() -> notifyItemInserted(applicationManager.indexOf(application)));
             }
 
             @Override
             public void onUpdated(LauncherApplication application) {
-                notifyItemChanged(applicationManager.indexOf(application));
+                recyclerView.post(() -> notifyItemChanged(applicationManager.indexOf(application)));
             }
         });
     }
@@ -113,7 +115,7 @@ public class ListAdapter extends RecyclerApplicationAdapter
         if (application != LauncherApplication.FALLBACK_APP) {
             String label = application.getLabel();
 
-            if (label.length() > 0) {
+            if (!label.isEmpty()) {
                 textView.setText(String.valueOf(label.charAt(0)).toUpperCase());
             }
         }

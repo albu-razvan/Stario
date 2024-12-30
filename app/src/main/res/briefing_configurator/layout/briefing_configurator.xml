@@ -78,7 +78,7 @@
             android:fontFamily="@font/dm_sans_regular"
             android:gravity="center"
             android:hint="@string/link"
-            android:imeOptions="flagNoExtractUi|actionGo"
+            android:imeOptions="actionGo"
             android:lines="1"
             android:maxLines="1"
             android:padding="15dp"
