@@ -56,6 +56,7 @@ import com.stario.launcher.sheet.drawer.search.recyclers.adapters.AppAdapter;
 import com.stario.launcher.sheet.drawer.search.recyclers.adapters.OptionAdapter;
 import com.stario.launcher.sheet.drawer.search.recyclers.adapters.WebAdapter;
 import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.ui.keyboard.ImeAnimationController;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
 import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;

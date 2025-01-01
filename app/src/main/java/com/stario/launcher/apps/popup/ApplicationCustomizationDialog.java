@@ -21,10 +21,23 @@ import com.stario.launcher.ui.dialogs.ActionDialog;
 public class ApplicationCustomizationDialog extends ActionDialog {
     private final LauncherApplication application;
 
+    private EditText label;
+
     public ApplicationCustomizationDialog(@NonNull ThemedActivity activity, LauncherApplication application) {
         super(activity);
 
         this.application = application;
+
+        setOnDismissListener(dialog -> {
+            if (label != null) {
+                Editable newLabel = label.getText();
+
+                if (newLabel != null) {
+                    LauncherApplicationManager.getInstance()
+                            .updateLabel(application, newLabel.toString());
+                }
+            }
+        });
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -37,7 +50,9 @@ public class ApplicationCustomizationDialog extends ActionDialog {
         icons.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false));
         icons.setAdapter(new IconsRecyclerAdapter(activity, application, v -> dismiss()));
 
-        EditText label = root.findViewById(R.id.label);
+        View warning = root.findViewById(R.id.warning);
+
+        label = root.findViewById(R.id.label);
         label.setText(application.getLabel());
 
         label.addTextChangedListener(new TextWatcher() {
@@ -51,16 +66,17 @@ public class ApplicationCustomizationDialog extends ActionDialog {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                LauncherApplicationManager.getInstance()
-                        .updateLabel(application, editable.toString());
+                if (editable.length() > 0) {
+                    warning.setVisibility(View.GONE);
+                } else {
+                    warning.setVisibility(View.VISIBLE);
+                }
             }
         });
 
         root.findViewById(R.id.reset).setOnClickListener(view -> {
-            LauncherApplicationManager.getInstance()
-                    .updateLabel(application, null);
-
-            String applicationLabel = application.getLabel();
+            String applicationLabel = application.getInfo()
+                    .loadLabel(activity.getPackageManager()).toString();
 
             label.setText(applicationLabel);
             label.setSelection(applicationLabel.length());

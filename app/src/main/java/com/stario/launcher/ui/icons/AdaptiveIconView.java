@@ -99,7 +99,8 @@ public class AdaptiveIconView extends View {
         };
 
         if (attrs != null) {
-            TypedArray attributes = context.getApplicationContext().obtainStyledAttributes(attrs, R.styleable.AdaptiveIconView);
+            TypedArray attributes = context.getApplicationContext()
+                    .obtainStyledAttributes(attrs, R.styleable.AdaptiveIconView);
 
             sizeRestricted = attributes.getBoolean(R.styleable.AdaptiveIconView_sizeRestricted, true);
             looseClipping = attributes.getBoolean(R.styleable.AdaptiveIconView_looseClipping, true);

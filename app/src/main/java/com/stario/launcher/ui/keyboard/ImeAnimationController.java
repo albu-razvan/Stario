@@ -15,7 +15,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.sheet.drawer.search;
+package com.stario.launcher.ui.keyboard;
 
 import android.os.Build;
 import android.os.CancellationSignal;

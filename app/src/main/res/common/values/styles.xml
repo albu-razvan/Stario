@@ -29,4 +29,9 @@
         <item name="android:windowEnterAnimation">@null</item>
         <item name="android:windowExitAnimation">@anim/action_dialog_exit</item>
     </style>
+
+    <style name="ExtractedEditTextDialogAnimations">
+        <item name="android:windowEnterAnimation">@anim/extracted_dialog_enter</item>
+        <item name="android:windowExitAnimation">@anim/extracted_dialog_exit</item>
+    </style>
 </resources>

@@ -20,9 +20,7 @@ package com.stario.launcher.ui.dialogs;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +31,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialog;
 
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
