@@ -19,7 +19,7 @@ package com.stario.launcher.sheet.drawer.list;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.util.Log;
+import android.os.Parcelable;
 import android.view.View;
 import android.widget.TextView;
 
@@ -52,23 +52,22 @@ public class ListAdapter extends RecyclerApplicationAdapter
         applicationManager.addApplicationListener(new LauncherApplicationManager.ApplicationListener() {
             @Override
             public void onHidden(LauncherApplication application) {
-                Log.e("TAG", "onHidden: " + recyclerView);
-                recyclerView.post(() -> notifyItemRangeRemoved(0, getItemCount()));
+                recyclerView.post(() -> notifyItemRemovedInternal());
             }
 
             @Override
             public void onInserted(LauncherApplication application) {
-                recyclerView.post(() -> notifyItemInserted(applicationManager.indexOf(application)));
+                recyclerView.post(() -> notifyItemInsertedInternal(applicationManager.indexOf(application)));
             }
 
             @Override
             public void onRemoved(LauncherApplication application) {
-                recyclerView.post(() -> notifyItemRangeRemoved(0, getItemCount()));
+                recyclerView.post(() -> notifyItemRemovedInternal());
             }
 
             @Override
             public void onShowed(LauncherApplication application) {
-                recyclerView.post(() -> notifyItemInserted(applicationManager.indexOf(application)));
+                recyclerView.post(() -> notifyItemInsertedInternal(applicationManager.indexOf(application)));
             }
 
             @Override
@@ -76,6 +75,30 @@ public class ListAdapter extends RecyclerApplicationAdapter
                 recyclerView.post(() -> notifyItemChanged(applicationManager.indexOf(application)));
             }
         });
+    }
+
+    private void notifyItemRemovedInternal() {
+        if (recyclerView != null) {
+            RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
+
+            if (manager != null) {
+                Parcelable state = manager.onSaveInstanceState();
+                notifyItemRangeRemoved(0, getItemCount());
+                manager.onRestoreInstanceState(state);
+            }
+        }
+    }
+
+    private void notifyItemInsertedInternal(int position) {
+        if (recyclerView != null) {
+            RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
+
+            if (manager != null) {
+                Parcelable state = manager.onSaveInstanceState();
+                notifyItemInserted(position);
+                manager.onRestoreInstanceState(state);
+            }
+        }
     }
 
     @Override

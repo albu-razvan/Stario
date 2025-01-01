@@ -63,6 +63,7 @@ public final class LauncherApplicationManager {
     private final PackageManager packageManager;
     private final CategoryData categoryData;
     private final IconPackManager iconPacks;
+    private boolean registered;
 
     private LauncherApplicationManager(ThemedActivity activity) {
         // CategoryData and IconPackManager needs LauncherApplicationManager
@@ -78,6 +79,8 @@ public final class LauncherApplicationManager {
         this.applicationLabels = activity.getSharedPreferences(Entry.APPLICATION_LABELS);
         this.hiddenApplications = activity.getSharedPreferences(Entry.HIDDEN_APPS);
         this.packageManager = activity.getPackageManager();
+
+        this.registered = false;
 
         this.iconPacks = IconPackManager.from(activity, this::updateIcons);
 
@@ -175,37 +178,6 @@ public final class LauncherApplicationManager {
 
         categoryData = CategoryData.from(activity);
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_VERIFIED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-        intentFilter.addDataScheme("package");
-
-        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
-            activity.registerReceiver(receiver, intentFilter, Context.RECEIVER_EXPORTED);
-        } else {
-            activity.registerReceiver(receiver, intentFilter);
-        }
-
-        Lifecycle lifecycle = activity.getLifecycle();
-        lifecycle.addObserver(new DefaultLifecycleObserver() {
-            @Override
-            public void onDestroy(@NonNull LifecycleOwner owner) {
-                try {
-                    activity.unregisterReceiver(receiver);
-
-                    listeners.clear();
-                } catch (Exception exception) {
-                    Log.e(TAG, "Receiver not registered");
-                }
-
-                lifecycle.removeObserver(this);
-            }
-        });
-
         Utils.submitTask(() -> {
             //TODO multiple user support
             LauncherApps launcherApps = (LauncherApps) activity.getSystemService(Context.LAUNCHER_APPS_SERVICE);
@@ -245,6 +217,32 @@ public final class LauncherApplicationManager {
             instance.updateIcons();
         }
 
+        if (!instance.registered) {
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+                activity.registerReceiver(instance.receiver, getIntentFilter(), Context.RECEIVER_EXPORTED);
+            } else {
+                //noinspection UnspecifiedRegisterReceiverFlag
+                activity.registerReceiver(instance.receiver, getIntentFilter());
+            }
+
+            Lifecycle lifecycle = activity.getLifecycle();
+            lifecycle.addObserver(new DefaultLifecycleObserver() {
+                @Override
+                public void onDestroy(@NonNull LifecycleOwner owner) {
+                    try {
+                        activity.unregisterReceiver(instance.receiver);
+                        instance.registered = false;
+
+                        instance.listeners.clear();
+                    } catch (Exception exception) {
+                        Log.e(TAG, "Receiver not registered");
+                    }
+
+                    lifecycle.removeObserver(this);
+                }
+            });
+        }
+
         return instance;
     }
 
@@ -254,6 +252,19 @@ public final class LauncherApplicationManager {
         }
 
         return instance;
+    }
+
+    private static IntentFilter getIntentFilter() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_VERIFIED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        intentFilter.addDataScheme("package");
+
+        return intentFilter;
     }
 
     void updateIcons() {
