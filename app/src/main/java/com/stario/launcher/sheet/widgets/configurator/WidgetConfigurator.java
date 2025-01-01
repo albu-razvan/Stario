@@ -53,12 +53,9 @@ public class WidgetConfigurator extends ActionDialog {
         View contentView = inflater.inflate(R.layout.widget_picker, null);
 
         scroller = contentView.findViewById(R.id.scroller);
-        RecyclerView recycler = contentView.findViewById(R.id.container_widgets);
-
         scroller.setClipToOutline(true);
 
-        Measurements.addNavListener(value ->
-                scroller.setPadding(0, 0, 0, value));
+        RecyclerView recycler = contentView.findViewById(R.id.container_widgets);
 
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false);
@@ -81,12 +78,17 @@ public class WidgetConfigurator extends ActionDialog {
     public void show() {
         super.show();
 
-        if (!Measurements.isLandscape()) {
-            getBehavior().setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
-        }
-
         scroller.scrollTo(0, 0);
         adapter.update();
+    }
+
+    @Override
+    protected int getDesiredInitialState() {
+        if (!Measurements.isLandscape()) {
+            return BottomSheetBehavior.STATE_HALF_EXPANDED;
+        }
+
+        return BottomSheetBehavior.STATE_EXPANDED;
     }
 
     public interface Request {

@@ -100,21 +100,22 @@ public class SplashScreen extends ThemedActivity {
                 transition.addListener(new TransitionListenerAdapter() {
                     @Override
                     public void onTransitionEnd(Transition transition) {
-                        getRoot().post(() -> {
-                            ActivityOptions activityOptions =
-                                    ActivityOptions.makeScaleUpAnimation(container, 1, 1,
-                                            container.getMeasuredWidth() - 1, container.getMeasuredHeight() - 1);
+                        UiUtils.runOnUIThread(() -> {
+                            ActivityOptions activityOptions = ActivityOptions
+                                    .makeScaleUpAnimation(container, 1, 1,
+                                            container.getMeasuredWidth() - 2, container.getMeasuredHeight() - 2);
 
                             if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
                                 activityOptions.setSplashScreenStyle(android.window.SplashScreen.SPLASH_SCREEN_STYLE_SOLID_COLOR);
                             }
 
                             PackageManager packageManager = getPackageManager();
-                            Intent intent = packageManager
-                                    .getLaunchIntentForPackage(application.info.packageName);
+                            Intent intent = packageManager.getLaunchIntentForPackage(application.info.packageName);
 
                             if (intent != null) {
                                 startActivity(intent, activityOptions.toBundle());
+                            } else {
+                                finish();
                             }
                         });
                     }

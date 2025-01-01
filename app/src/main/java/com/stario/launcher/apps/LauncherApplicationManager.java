@@ -43,7 +43,6 @@ import com.stario.launcher.apps.categories.CategoryData;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.ThreadSafeArrayList;
-import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 import java.util.HashMap;
@@ -57,17 +56,32 @@ public final class LauncherApplicationManager {
     private final List<LauncherApplication> applicationList;
     private final List<LauncherApplication> applicationListHidden;
     private final Map<String, LauncherApplication> applicationMap;
+    private final SharedPreferences hiddenApplications;
+    private final SharedPreferences applicationLabels;
+    private final SharedPreferences categorySettings;
     private final List<ApplicationListener> listeners;
-    private final SharedPreferences hiddenSettings;
+    private final PackageManager packageManager;
     private final CategoryData categoryData;
     private final IconPackManager iconPacks;
+    private boolean registered;
 
     private LauncherApplicationManager(ThemedActivity activity) {
+        // CategoryData and IconPackManager needs LauncherApplicationManager
+        // to be instantiated. Assign the instance in the constructor before
+        // everything else to guarantee that the instance will be supplied.
+        instance = this;
+
         this.applicationList = new ThreadSafeArrayList<>();
         this.applicationListHidden = new ThreadSafeArrayList<>();
         this.applicationMap = new HashMap<>();
         this.listeners = new ThreadSafeArrayList<>();
-        this.hiddenSettings = activity.getSharedPreferences(Entry.HIDDEN_APPS);
+        this.categorySettings = activity.getSharedPreferences(Entry.CATEGORIES);
+        this.applicationLabels = activity.getSharedPreferences(Entry.APPLICATION_LABELS);
+        this.hiddenApplications = activity.getSharedPreferences(Entry.HIDDEN_APPS);
+        this.packageManager = activity.getPackageManager();
+
+        this.registered = false;
+
         this.iconPacks = IconPackManager.from(activity, this::updateIcons);
 
         this.receiver = new BroadcastReceiver() {
@@ -80,7 +94,6 @@ public final class LauncherApplicationManager {
                 }
 
                 LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
-                PackageManager packageManager = context.getPackageManager();
 
                 String packageName = data.getSchemeSpecificPart();
                 String action = intent.getAction();
@@ -101,7 +114,7 @@ public final class LauncherApplicationManager {
                                 applicationInfo = packageManager.getApplicationInfo(packageName, 0);
 
                                 if (launcherApps.getActivityList(packageName,
-                                        UserHandle.getUserHandleForUid(Process.myUid())).size() == 0) {
+                                        UserHandle.getUserHandleForUid(Process.myUid())).isEmpty()) {
                                     // Doesn't have any activity that specifies
                                     // Intent.ACTION_MAIN and Intent.CATEGORY_LAUNCHER
 
@@ -130,10 +143,7 @@ public final class LauncherApplicationManager {
                                     } else {
                                         application.info = applicationInfo;
 
-                                        SharedPreferences categories = context
-                                                .getSharedPreferences(Entry.CATEGORIES.toString(), Context.MODE_PRIVATE);
-
-                                        int category = categories.getInt(applicationInfo.packageName,
+                                        int category = categorySettings.getInt(applicationInfo.packageName,
                                                 applicationInfo.category);
 
                                         if (application.category != category &&
@@ -147,8 +157,7 @@ public final class LauncherApplicationManager {
 
                                         for (ApplicationListener listener : listeners) {
                                             if (listener != null) {
-                                                UiUtils.runOnUIThread(() ->
-                                                        listener.onUpdated(application));
+                                                listener.onUpdated(application);
                                             }
                                         }
                                     }
@@ -158,7 +167,7 @@ public final class LauncherApplicationManager {
                                     (!containsPackage && action.equals(Intent.ACTION_PACKAGE_CHANGED))) {
 
                                 if (applicationInfo.enabled) {
-                                    addApplication(createApplication(context, applicationInfo));
+                                    addApplication(createApplication(applicationInfo));
                                 }
                             }
                         }
@@ -167,42 +176,7 @@ public final class LauncherApplicationManager {
             }
         };
 
-        // CategoryData needs LauncherApplicationManager to be instantiated
-        // we assign the object to the instance reference in the constructor
-        // so that we guarantee that the instance will be supplied.
-        instance = this;
         categoryData = CategoryData.from(activity);
-
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_VERIFIED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-        intentFilter.addDataScheme("package");
-
-        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
-            activity.registerReceiver(receiver, intentFilter, Context.RECEIVER_EXPORTED);
-        } else {
-            activity.registerReceiver(receiver, intentFilter);
-        }
-
-        Lifecycle lifecycle = activity.getLifecycle();
-        lifecycle.addObserver(new DefaultLifecycleObserver() {
-            @Override
-            public void onDestroy(@NonNull LifecycleOwner owner) {
-                try {
-                    activity.unregisterReceiver(receiver);
-
-                    listeners.clear();
-                } catch (Exception exception) {
-                    Log.e(TAG, "Receiver not registered");
-                }
-
-                lifecycle.removeObserver(this);
-            }
-        });
 
         Utils.submitTask(() -> {
             //TODO multiple user support
@@ -213,12 +187,21 @@ public final class LauncherApplicationManager {
             for (int index = 0; index < activityInfoList.size(); index++) {
                 ApplicationInfo applicationInfo = activityInfoList.get(index).getApplicationInfo();
 
+                if (iconPacks.checkPackValidity(applicationInfo.packageName)) {
+                    LauncherActivityInfo activityInfo = activityInfoList.remove(index);
+                    activityInfoList.add(0, activityInfo);
+                }
+            }
+
+            for (int index = 0; index < activityInfoList.size(); index++) {
+                ApplicationInfo applicationInfo = activityInfoList.get(index).getApplicationInfo();
+
                 if (applicationInfo != null) {
                     if (!BuildConfig.APPLICATION_ID.equals(applicationInfo.packageName)) {
                         if (applicationMap.containsKey(applicationInfo.packageName)) {
                             iconPacks.updateIcon(get(applicationInfo.packageName), this::notifyUpdate);
                         } else {
-                            addApplication(createApplication(activity, applicationInfo));
+                            addApplication(createApplication(applicationInfo));
                         }
                     }
                 }
@@ -231,6 +214,33 @@ public final class LauncherApplicationManager {
             instance = new LauncherApplicationManager(activity);
         } else {
             instance.iconPacks.refresh();
+            instance.updateIcons();
+        }
+
+        if (!instance.registered) {
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+                activity.registerReceiver(instance.receiver, getIntentFilter(), Context.RECEIVER_EXPORTED);
+            } else {
+                //noinspection UnspecifiedRegisterReceiverFlag
+                activity.registerReceiver(instance.receiver, getIntentFilter());
+            }
+
+            Lifecycle lifecycle = activity.getLifecycle();
+            lifecycle.addObserver(new DefaultLifecycleObserver() {
+                @Override
+                public void onDestroy(@NonNull LifecycleOwner owner) {
+                    try {
+                        activity.unregisterReceiver(instance.receiver);
+                        instance.registered = false;
+
+                        instance.listeners.clear();
+                    } catch (Exception exception) {
+                        Log.e(TAG, "Receiver not registered");
+                    }
+
+                    lifecycle.removeObserver(this);
+                }
+            });
         }
 
         return instance;
@@ -244,29 +254,68 @@ public final class LauncherApplicationManager {
         return instance;
     }
 
+    private static IntentFilter getIntentFilter() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_VERIFIED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        intentFilter.addDataScheme("package");
+
+        return intentFilter;
+    }
+
     void updateIcons() {
         for (LauncherApplication application : applicationListHidden) {
             iconPacks.updateIcon(application, this::notifyUpdate);
         }
     }
 
-    private void notifyUpdate(LauncherApplication application) {
-        for (ApplicationListener listener : listeners) {
-            if (listener != null) {
-                UiUtils.runOnUIThread(() ->
-                        listener.onUpdated(application));
+    public void updateLabel(LauncherApplication application, String label) {
+        String oldLabel = application.label;
+
+        if (label != null) {
+            if (!label.isEmpty() && !application.label.equals(label)) {
+                application.label = label;
+            }
+        } else {
+            application.label = application.info.loadLabel(packageManager).toString();
+        }
+
+        if (!oldLabel.equals(application.label)) {
+            applicationLabels.edit()
+                    .putString(application.info.packageName, label)
+                    .apply();
+
+            if (!hiddenApplications.contains(application.info.packageName)) {
+                hideApplication(application);
+                showApplication(application);
             }
         }
     }
 
-    private LauncherApplication createApplication(Context context, ApplicationInfo applicationInfo) {
-        SharedPreferences categories = context
-                .getSharedPreferences(Entry.CATEGORIES.toString(), Context.MODE_PRIVATE);
-        PackageManager packageManager = context.getPackageManager();
+    void notifyUpdate(LauncherApplication application) {
+        for (ApplicationListener listener : listeners) {
+            if (listener != null) {
+                listener.onUpdated(application);
+            }
+        }
+    }
 
-        LauncherApplication application = new LauncherApplication(applicationInfo, packageManager);
+    private LauncherApplication createApplication(ApplicationInfo applicationInfo) {
+        LauncherApplication application;
+        String label = applicationLabels.getString(applicationInfo.packageName, null);
 
-        application.category = categories.getInt(applicationInfo.packageName,
+        if (label != null) {
+            application = new LauncherApplication(applicationInfo, label);
+        } else {
+            application = new LauncherApplication(applicationInfo,
+                    applicationInfo.loadLabel(packageManager).toString());
+        }
+
+        application.category = categorySettings.getInt(applicationInfo.packageName,
                 applicationInfo.category);
 
         return application;
@@ -327,7 +376,7 @@ public final class LauncherApplicationManager {
     }
 
     private synchronized void addApplication(LauncherApplication application) {
-        boolean hidden = hiddenSettings.contains(application.info.packageName);
+        boolean hidden = hiddenApplications.contains(application.info.packageName);
 
         applicationMap.put(application.info.packageName, application);
 
@@ -337,8 +386,7 @@ public final class LauncherApplicationManager {
 
             for (ApplicationListener listener : listeners) {
                 if (listener != null) {
-                    UiUtils.runOnUIThread(() ->
-                            listener.onInserted(application));
+                    listener.onInserted(application);
                 }
             }
         }
@@ -376,32 +424,30 @@ public final class LauncherApplicationManager {
         LauncherApplication application = applicationMap.getOrDefault(packageName, LauncherApplication.FALLBACK_APP);
 
         if (application != LauncherApplication.FALLBACK_APP) {
-            UiUtils.runOnUIThread(() -> {
-                for (ApplicationListener listener : listeners) {
-                    if (listener != null) {
-                        listener.onPrepareRemoval(application);
-                    }
+            for (ApplicationListener listener : listeners) {
+                if (listener != null) {
+                    listener.onPrepareRemoval(application);
                 }
+            }
 
-                applicationMap.remove(packageName);
-                applicationList.remove(application);
-                applicationListHidden.remove(application);
+            applicationMap.remove(packageName);
+            applicationList.remove(application);
+            applicationListHidden.remove(application);
 
-                iconPacks.remove(application);
+            iconPacks.remove(application);
 
-                categoryData.removeApplication(application);
+            categoryData.removeApplication(application);
 
-                for (ApplicationListener listener : listeners) {
-                    if (listener != null) {
-                        listener.onRemoved(application);
-                    }
+            for (ApplicationListener listener : listeners) {
+                if (listener != null) {
+                    listener.onRemoved(application);
                 }
-            });
+            }
         }
     }
 
     public synchronized void showApplication(LauncherApplication application) {
-        hiddenSettings.edit()
+        hiddenApplications.edit()
                 .remove(application.info.packageName)
                 .apply();
 
@@ -411,34 +457,31 @@ public final class LauncherApplicationManager {
 
             for (ApplicationListener listener : listeners) {
                 if (listener != null) {
-                    UiUtils.runOnUIThread(() ->
-                            listener.onShowed(application));
+                    listener.onShowed(application);
                 }
             }
         }
     }
 
     public synchronized void hideApplication(LauncherApplication application) {
-        hiddenSettings.edit()
+        hiddenApplications.edit()
                 .putBoolean(application.info.packageName, true)
                 .apply();
 
-        UiUtils.runOnUIThread(() -> {
-            for (ApplicationListener listener : listeners) {
-                if (listener != null) {
-                    listener.onPrepareHiding(application);
-                }
+        for (ApplicationListener listener : listeners) {
+            if (listener != null) {
+                listener.onPrepareHiding(application);
             }
+        }
 
-            applicationListHidden.remove(application);
-            categoryData.removeApplication(application);
+        applicationListHidden.remove(application);
+        categoryData.removeApplication(application);
 
-            for (ApplicationListener listener : listeners) {
-                if (listener != null) {
-                    listener.onHidden(application);
-                }
+        for (ApplicationListener listener : listeners) {
+            if (listener != null) {
+                listener.onHidden(application);
             }
-        });
+        }
     }
 
     public void addApplicationListener(ApplicationListener listener) {

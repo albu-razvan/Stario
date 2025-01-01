@@ -57,6 +57,7 @@ import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory;
+import com.stario.launcher.BuildConfig;
 import com.stario.launcher.R;
 import com.stario.launcher.glance.extensions.GlanceDialogExtension;
 import com.stario.launcher.glance.extensions.GlanceViewExtension;
@@ -251,7 +252,7 @@ public class Media extends GlanceDialogExtension {
     @Override
     public void onDestroy() {
         if (callback != null && NotificationManagerCompat
-                .getEnabledListenerPackages(activity).contains(activity.getPackageName())) {
+                .getEnabledListenerPackages(activity).contains(BuildConfig.APPLICATION_ID)) {
             List<MediaController> controllers = mediaSessionManager.getActiveSessions(
                     new ComponentName(activity, NotificationService.class));
 
@@ -265,8 +266,9 @@ public class Media extends GlanceDialogExtension {
 
     @SuppressLint("ClickableViewAccessibility")
     public void update() {
-        if (activity == null || !NotificationManagerCompat.getEnabledListenerPackages(activity)
-                .contains(activity.getPackageName()) ||
+        if (activity == null || !NotificationManagerCompat
+                .getEnabledListenerPackages(activity)
+                .contains(BuildConfig.APPLICATION_ID) ||
                 !activity.getSettings().getBoolean(PREFERENCE_ENTRY, false)) {
             disable();
 

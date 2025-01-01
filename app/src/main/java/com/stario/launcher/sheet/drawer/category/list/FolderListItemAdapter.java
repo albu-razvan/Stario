@@ -37,8 +37,10 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
     public static final int SOFT_LIMIT = 3;
     public static final int HARD_LIMIT = 5;
     private final ThemedActivity activity;
-    private Category category;
+
     private Category.CategoryItemListener listener;
+    private RecyclerView recyclerView;
+    private Category category;
 
     public FolderListItemAdapter(ThemedActivity activity) {
         super(activity);
@@ -72,15 +74,19 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
 
                 @Override
                 public void onInserted(LauncherApplication application) {
-                    if (!skipInsertion) {
-                        int index = category.indexOf(application);
+                    if (recyclerView != null) {
+                        recyclerView.post(() -> {
+                            if (!skipInsertion) {
+                                int index = category.indexOf(application);
 
-                        if (index >= 0 && index < HARD_LIMIT) {
-                            notifyItemInserted(index);
-                        }
+                                if (index >= 0 && index < HARD_LIMIT) {
+                                    notifyItemInserted(index);
+                                }
+                            }
+
+                            skipInsertion = false;
+                        });
                     }
-
-                    skipInsertion = false;
                 }
 
                 @Override
@@ -90,18 +96,24 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
 
                 @Override
                 public void onRemoved(LauncherApplication application) {
-                    if (preparedRemovalIndex >= 0 && preparedRemovalIndex < HARD_LIMIT) {
-                        notifyItemRemoved(preparedRemovalIndex);
+                    if (recyclerView != null) {
+                        recyclerView.post(() -> {
+                            if (preparedRemovalIndex >= 0 && preparedRemovalIndex < HARD_LIMIT) {
+                                notifyItemRemoved(preparedRemovalIndex);
 
-                        preparedRemovalIndex = -1;
-                    } else {
-                        notifyDataSetChanged();
+                                preparedRemovalIndex = -1;
+                            } else {
+                                notifyDataSetChanged();
+                            }
+                        });
                     }
                 }
 
                 @Override
                 public void onUpdated(LauncherApplication application) {
-                    notifyDataSetChanged();
+                    if (recyclerView != null) {
+                        recyclerView.post(() -> notifyDataSetChanged());
+                    }
                 }
             };
 
@@ -173,10 +185,19 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
     }
 
     @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+
+        this.recyclerView = recyclerView;
+    }
+
+    @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         if (category != null && listener != null) {
             category.removeCategoryItemListener(listener);
         }
+
+        this.recyclerView = null;
     }
 
     @Override

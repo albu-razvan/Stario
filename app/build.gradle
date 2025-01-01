@@ -37,6 +37,7 @@ android {
                 srcDirs = ['src/main/res/common',
                            'src/main/res/themes',
                            'src/main/res/strings',
+                           'src/main/res/extract',
                            'src/main/res/launcher',
                            'src/main/res/drawer',
                            'src/main/res/drawer_interactions',

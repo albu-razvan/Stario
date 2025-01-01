@@ -19,6 +19,7 @@ package com.stario.launcher.sheet.drawer.list;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.os.Parcelable;
 import android.view.View;
 import android.widget.TextView;
 
@@ -51,29 +52,53 @@ public class ListAdapter extends RecyclerApplicationAdapter
         applicationManager.addApplicationListener(new LauncherApplicationManager.ApplicationListener() {
             @Override
             public void onHidden(LauncherApplication application) {
-                notifyItemRangeRemoved(0, getItemCount());
+                recyclerView.post(() -> notifyItemRemovedInternal());
             }
 
             @Override
             public void onInserted(LauncherApplication application) {
-                notifyItemInserted(applicationManager.indexOf(application));
+                recyclerView.post(() -> notifyItemInsertedInternal(applicationManager.indexOf(application)));
             }
 
             @Override
             public void onRemoved(LauncherApplication application) {
-                notifyItemRangeRemoved(0, getItemCount());
+                recyclerView.post(() -> notifyItemRemovedInternal());
             }
 
             @Override
             public void onShowed(LauncherApplication application) {
-                notifyItemInserted(applicationManager.indexOf(application));
+                recyclerView.post(() -> notifyItemInsertedInternal(applicationManager.indexOf(application)));
             }
 
             @Override
             public void onUpdated(LauncherApplication application) {
-                notifyItemChanged(applicationManager.indexOf(application));
+                recyclerView.post(() -> notifyItemChanged(applicationManager.indexOf(application)));
             }
         });
+    }
+
+    private void notifyItemRemovedInternal() {
+        if (recyclerView != null) {
+            RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
+
+            if (manager != null) {
+                Parcelable state = manager.onSaveInstanceState();
+                notifyItemRangeRemoved(0, getItemCount());
+                manager.onRestoreInstanceState(state);
+            }
+        }
+    }
+
+    private void notifyItemInsertedInternal(int position) {
+        if (recyclerView != null) {
+            RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
+
+            if (manager != null) {
+                Parcelable state = manager.onSaveInstanceState();
+                notifyItemInserted(position);
+                manager.onRestoreInstanceState(state);
+            }
+        }
     }
 
     @Override
@@ -113,7 +138,7 @@ public class ListAdapter extends RecyclerApplicationAdapter
         if (application != LauncherApplication.FALLBACK_APP) {
             String label = application.getLabel();
 
-            if (label.length() > 0) {
+            if (!label.isEmpty()) {
                 textView.setText(String.valueOf(label.charAt(0)).toUpperCase());
             }
         }
@@ -145,6 +170,11 @@ public class ListAdapter extends RecyclerApplicationAdapter
     @Override
     protected LauncherApplication getApplication(int index) {
         return applicationManager.get(index, true);
+    }
+
+    @Override
+    protected boolean allowApplicationStateEditing() {
+        return true;
     }
 
     @Override

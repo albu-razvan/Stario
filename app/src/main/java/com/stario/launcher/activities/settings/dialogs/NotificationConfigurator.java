@@ -24,11 +24,12 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.stario.launcher.BuildConfig;
 import com.stario.launcher.R;
 import com.stario.launcher.services.NotificationService;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
-import com.stario.launcher.ui.measurements.Measurements;
 
 public class NotificationConfigurator extends ActionDialog {
     public NotificationConfigurator(@NonNull ThemedActivity activity) {
@@ -39,9 +40,6 @@ public class NotificationConfigurator extends ActionDialog {
     @Override
     protected View inflateContent(LayoutInflater inflater) {
         View root = inflater.inflate(R.layout.pop_up_notifications, null);
-        View content = root.findViewById(R.id.content);
-
-        Measurements.addNavListener(value -> content.setPadding(0, 0, 0, value));
 
         root.findViewById(R.id.proceed)
                 .setOnClickListener(v -> {
@@ -56,7 +54,7 @@ public class NotificationConfigurator extends ActionDialog {
 
     private void showNotificationSettingsActivity() {
         Bundle bundle = new Bundle();
-        String showArgs = activity.getPackageName() + "/" + NotificationService.class.getName();
+        String showArgs = BuildConfig.APPLICATION_ID + "/" + NotificationService.class.getName();
         bundle.putString(":settings:fragment_args_key", showArgs);
 
         Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
@@ -71,5 +69,10 @@ public class NotificationConfigurator extends ActionDialog {
     @Override
     protected boolean blurBehind() {
         return true;
+    }
+
+    @Override
+    protected int getDesiredInitialState() {
+        return BottomSheetBehavior.STATE_EXPANDED;
     }
 }

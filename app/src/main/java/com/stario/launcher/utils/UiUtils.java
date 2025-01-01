@@ -132,37 +132,74 @@ public class UiUtils {
         });
     }
 
-    public static void applyNotchMargin(View view) {
-        view.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-            int startingMarginLeft = -1;
-            int startingMarginRight = -1;
+    public static void applyNotchMargin(@NonNull View view) {
+        applyNotchMargin(view, false);
+    }
+
+    public static void applyNotchMargin(@NonNull View view, boolean center) {
+        View.OnApplyWindowInsetsListener listener = new View.OnApplyWindowInsetsListener() {
+            Integer startingMarginLeft = null;
+            Integer startingMarginRight = null;
 
             @NonNull
             @Override
             public WindowInsets onApplyWindowInsets(@NonNull View v, @NonNull WindowInsets insets) {
-                Insets compatInset = WindowInsetsCompat.toWindowInsetsCompat(insets)
-                        .getInsets(WindowInsetsCompat.Type.displayCutout());
+                WindowInsetsCompat compatInset = WindowInsetsCompat.toWindowInsetsCompat(insets);
+                Insets cutoutInsets = compatInset.getInsets(WindowInsetsCompat.Type.displayCutout());
+                Insets navigationInsets = compatInset.getInsets(WindowInsetsCompat.Type.navigationBars());
 
                 ViewGroup.LayoutParams params = view.getLayoutParams();
 
                 if (params != null) {
                     ViewGroup.MarginLayoutParams marginParams = (ViewGroup.MarginLayoutParams) params;
 
-                    if (startingMarginLeft == -1 ||
-                            startingMarginRight == -1) {
+                    if (startingMarginLeft == null ||
+                            startingMarginRight == null) {
                         startingMarginLeft = marginParams.leftMargin;
                         startingMarginRight = marginParams.rightMargin;
                     }
 
-                    marginParams.leftMargin = startingMarginLeft + compatInset.left;
-                    marginParams.rightMargin = startingMarginRight + compatInset.right;
+                    if (center) {
+                        int margin = Math.max(startingMarginLeft + cutoutInsets.left + navigationInsets.left,
+                                startingMarginRight + cutoutInsets.right + navigationInsets.right);
 
-                    view.setLayoutParams(marginParams);
+                        marginParams.leftMargin = margin;
+                        marginParams.rightMargin = margin;
+                    } else {
+                        marginParams.leftMargin = startingMarginLeft + cutoutInsets.left + navigationInsets.left;
+                        marginParams.rightMargin = startingMarginRight + cutoutInsets.right + navigationInsets.right;
+                    }
+
+                    view.requestLayout();
                 }
 
                 return insets;
             }
-        });
+        };
+
+        view.setOnApplyWindowInsetsListener(listener);
+
+        if (view.isAttachedToWindow()) {
+            if (view.getRootWindowInsets() != null) {
+                listener.onApplyWindowInsets(view, view.getRootWindowInsets());
+            }
+        } else {
+            view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(@NonNull View view) {
+                    if (view.getRootWindowInsets() != null) {
+                        listener.onApplyWindowInsets(view, view.getRootWindowInsets());
+                    }
+
+                    view.removeOnAttachStateChangeListener(this);
+                }
+
+                @Override
+                public void onViewDetachedFromWindow(@NonNull View view) {
+                    view.removeOnAttachStateChangeListener(this);
+                }
+            });
+        }
     }
 
     public interface Condition {

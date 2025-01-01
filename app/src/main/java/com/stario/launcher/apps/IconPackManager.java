@@ -25,17 +25,20 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import android.util.Pair;
 import android.util.Xml;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.stario.launcher.BuildConfig;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.ImageUtils;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
+import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -44,13 +47,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public final class IconPackManager {
     public static final String ICON_PACK_ENTRY = "com.stario.ICON_PACK";
     public static final String CORNER_RADIUS_ENTRY = "com.stario.CORNER_RADIUS";
     public static final String PATH_ALGORITHM_ENTRY = "com.stario.PATH_ALGORITHM";
+
+    private static final String JSON_ICON_PACK = "pack";
+    private static final String JSON_ICON_DRAWABLE_NAME = "drawable";
 
     /*Applications that changed their launch components along the years.
       Feel free to update this whenever you find other apps that did so.*/
@@ -61,6 +67,8 @@ public final class IconPackManager {
                 "com.google.android.apps.safetyhub/com.google.android.apps.safetyhub.home.HomePageAppInfoEntry");
     }};
     private static IconPackManager instance = null;
+
+    private final LauncherApplicationManager launcherApplicationManager;
     private final PackageManager packageManager;
     private final SharedPreferences preferences;
     private final ArrayList<IconPack> iconPacks;
@@ -72,6 +80,7 @@ public final class IconPackManager {
         this.listener = listener;
         this.preferences = activity.getSharedPreferences(Entry.ICONS);
         this.packageManager = activity.getPackageManager();
+        this.launcherApplicationManager = LauncherApplicationManager.getInstance();
 
         this.activeIconPack = null;
     }
@@ -108,6 +117,42 @@ public final class IconPackManager {
         }
     }
 
+    public void setIconFor(LauncherApplication application, IconPack pack) {
+        setIconFor(application.info.packageName, pack);
+    }
+
+    public void setIconFor(LauncherApplication application, IconPack pack, String drawableName) {
+        setIconFor(application.info.packageName, pack, drawableName);
+    }
+
+    public void setIconFor(String packageName, IconPack pack) {
+        setIconFor(packageName, pack, null);
+    }
+
+    public void setIconFor(String packageName, IconPack pack, String drawableName) {
+        if (pack != null) {
+            String json = '{' + JSON_ICON_PACK + ":\"" + pack.application.info.packageName + "\"";
+
+            if (drawableName != null) {
+                json = json + ',' + JSON_ICON_DRAWABLE_NAME + ":\"" + drawableName + "\"";
+            }
+
+            preferences.edit()
+                    .putString(packageName, json + "}")
+                    .apply();
+        } else {
+            preferences.edit()
+                    .putString(packageName, BuildConfig.APPLICATION_ID)
+                    .apply();
+        }
+
+        LauncherApplication application = launcherApplicationManager.get(packageName);
+
+        if (application != null) {
+            updateIcon(application, launcherApplicationManager::notifyUpdate);
+        }
+    }
+
     public int getCount() {
         return iconPacks.size();
     }
@@ -128,9 +173,38 @@ public final class IconPackManager {
         return null;
     }
 
-    synchronized void updateIcon(LauncherApplication application, OnUpdate listener) {
-        if (activeIconPack != null) {
-            CompletableFuture<Drawable> future = activeIconPack.getDrawable(application.getInfo().packageName);
+    synchronized void updateIcon(@NonNull LauncherApplication application, OnUpdate listener) {
+        IconPack pack = activeIconPack;
+        String drawableName = null;
+
+        if (preferences.contains(application.info.packageName)) {
+            String packagePreference = preferences.getString(application.info.packageName, null);
+
+            if (packagePreference != null) {
+                if (packagePreference.equals(BuildConfig.APPLICATION_ID)) {
+                    pack = null;
+                } else {
+                    try {
+                        JSONObject json = new JSONObject(packagePreference);
+
+                        IconPack target = getPack((String) json.get(JSON_ICON_PACK));
+                        if (target != null) {
+                            pack = target;
+
+                            if (json.has(JSON_ICON_DRAWABLE_NAME)) {
+                                drawableName = (String) json.get(JSON_ICON_DRAWABLE_NAME);
+                            }
+                        }
+                    } catch (Exception exception) {
+                        Log.e("IconPackManager", "loadDrawable: Malformed JSON icon store for package " +
+                                application.info.packageName);
+                    }
+                }
+            }
+        }
+
+        if (pack != null) {
+            CompletableFuture<Drawable> future = pack.loadDrawable(application.getInfo().packageName, drawableName);
 
             future.thenAccept(icon -> {
                 if (icon == null) {
@@ -142,7 +216,9 @@ public final class IconPackManager {
                     if (drawable != null && !drawable.equals(application.getIcon())) {
                         application.icon = drawable;
 
-                        listener.onUpdate(application);
+                        if (listener != null) {
+                            listener.onUpdate(application);
+                        }
                     }
                 });
             });
@@ -152,7 +228,9 @@ public final class IconPackManager {
             if (icon != null && !icon.equals(application.getIcon())) {
                 application.icon = icon;
 
-                listener.onUpdate(application);
+                if (listener != null) {
+                    listener.onUpdate(application);
+                }
             }
         }
     }
@@ -187,17 +265,78 @@ public final class IconPackManager {
 
     synchronized void refresh() {
         for (IconPack pack : iconPacks) {
-            pack.packageDrawables.clear();
+            pack.exactComponentDrawable.clear();
+            pack.loaded = false;
         }
     }
 
     public boolean checkPackValidity(LauncherApplication application) {
+        return checkPackValidity(application.info.packageName);
+    }
+
+    public boolean checkPackValidity(String packageName) {
+        //ADW Launcher
         return new Intent("org.adw.launcher.THEMES")
-                .setPackage(application.info.packageName)
+                .setPackage(packageName)
                 .resolveActivity(packageManager) != null ||
+                //Lawnchair Launcher 14
+                new Intent("app.lawnchair.icons.THEMED_ICON")
+                        .setPackage(packageName)
+                        .resolveActivity(packageManager) != null ||
+                //Lawnchair Launcher Legacy
+                new Intent("ch.deletescape.lawnchair.ICONPACK")
+                        .setPackage(packageName)
+                        .resolveActivity(packageManager) != null ||
+                //Nova Launcher
+                new Intent("com.novalauncher.THEME")
+                        .setPackage(packageName)
+                        .resolveActivity(packageManager) != null ||
+                //GO Launcher
                 new Intent("com.gau.go.launcherex.theme")
-                        .setPackage(application.info.packageName)
+                        .setPackage(packageName)
+                        .resolveActivity(packageManager) != null ||
+                //Smart Launcher
+                new Intent("ginlemon.smartlauncher.THEMES")
+                        .setPackage(packageName)
+                        .resolveActivity(packageManager) != null ||
+                //TSF Shell
+                new Intent("com.tsf.shell.themes")
+                        .setPackage(packageName)
+                        .resolveActivity(packageManager) != null ||
+                //OnePlus Launcher
+                new Intent("net.oneplus.launcher.icons.ACTION_PICK_ICON")
+                        .setPackage(packageName)
+                        .resolveActivity(packageManager) != null ||
+                //Moto Launcher
+                new Intent("com.motorola.launcher3.ACTION_ICON_PACK")
+                        .setPackage(packageName)
                         .resolveActivity(packageManager) != null;
+    }
+
+    public List<Pair<IconPack, Pair<String, Drawable>>> getIcons(LauncherApplication application) {
+        return getIcons(application.info.packageName);
+    }
+
+    public List<Pair<IconPack, Pair<String, Drawable>>> getIcons(String packageName) {
+        List<Pair<IconPack, Pair<String, Drawable>>> result = new ArrayList<>();
+
+        result.add(new Pair<>(null, new Pair<>(null, ImageUtils.getIcon(packageName, packageManager))));
+
+        for (IconPack pack : iconPacks) {
+            List<String> drawableNames = pack.getDrawableNameList(packageName);
+
+            if (drawableNames != null && drawableNames.size() > 0) {
+                for (String drawableName : drawableNames) {
+                    Drawable drawable = pack.getDrawable(drawableName);
+
+                    if (drawable != null) {
+                        result.add(new Pair<>(pack, new Pair<>(drawableName, drawable)));
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     public interface OnUpdate {
@@ -208,13 +347,15 @@ public final class IconPackManager {
     public class IconPack {
         private static final String TAG = "IconPackManager";
         private final LauncherApplication application;
-        private final HashMap<String, String> packageDrawables;
+        private final HashMap<String, List<String>> exactComponentDrawable;
+        private final HashMap<String, List<String>> packageNameDrawables;
         private Resources resources;
         private boolean loaded;
 
         private IconPack(LauncherApplication application) {
             this.application = application;
-            this.packageDrawables = new HashMap<>();
+            this.exactComponentDrawable = new HashMap<>();
+            this.packageNameDrawables = new HashMap<>();
             this.loaded = false;
         }
 
@@ -248,9 +389,10 @@ public final class IconPackManager {
 
                     while (eventType != XmlPullParser.END_DOCUMENT) {
                         if (eventType == XmlPullParser.START_TAG) {
-                            if (parser.getName().equals("item")) {
+                            if (parser.getName().equals("item") || parser.getName().equals("calendar")) {
                                 String componentName = null;
                                 String drawableName = null;
+                                String prefix = null;
 
                                 for (int i = 0; i < parser.getAttributeCount(); i++) {
                                     if (parser.getAttributeName(i).equals("component")) {
@@ -262,14 +404,20 @@ public final class IconPackManager {
                                         }
                                     } else if (parser.getAttributeName(i).equals("drawable")) {
                                         drawableName = parser.getAttributeValue(i);
+                                    } else if (parser.getAttributeName(i).equals("prefix")) {
+                                        prefix = parser.getAttributeValue(i);
                                     }
                                 }
 
-                                if (!packageDrawables.containsKey(componentName)) {
-                                    packageDrawables.put(componentName, drawableName);
+                                if (componentName != null && componentName.contains("/")) {
+                                    if (drawableName != null) {
+                                        saveDrawable(componentName, drawableName);
+                                    }
 
-                                    if (changedComponents.containsKey(componentName)) {
-                                        packageDrawables.put(changedComponents.get(componentName), drawableName);
+                                    if (prefix != null) {
+                                        for (int day = 1; day <= 31; day++) {
+                                            saveDrawable(componentName, prefix + day);
+                                        }
                                     }
                                 }
                             }
@@ -288,7 +436,53 @@ public final class IconPackManager {
             }
         }
 
-        private Drawable loadDrawable(String drawableName) {
+        private void saveDrawable(String componentName, String drawableName) {
+            List<String> drawables = exactComponentDrawable.get(componentName);
+            if (drawables == null) {
+                drawables = new ArrayList<>();
+
+                drawables.add(drawableName);
+
+                exactComponentDrawable.put(componentName, drawables);
+            } else {
+                if (!drawables.contains(drawableName)) {
+                    drawables.add(drawableName);
+                }
+            }
+
+            if (changedComponents.containsKey(componentName)) {
+                String changedComponent = changedComponents.get(componentName);
+
+                drawables = exactComponentDrawable.get(changedComponent);
+                if (drawables == null) {
+                    drawables = new ArrayList<>();
+                    drawables.add(drawableName);
+
+                    exactComponentDrawable.put(changedComponent, drawables);
+                } else {
+                    if (!drawables.contains(drawableName)) {
+                        drawables.add(drawableName);
+                    }
+                }
+            }
+
+            String packageName = componentName.substring(0, componentName.indexOf('/'));
+            drawables = packageNameDrawables.get(packageName);
+            if (drawables == null) {
+                drawables = new ArrayList<>();
+
+                drawables.add(drawableName);
+
+                packageNameDrawables.put(packageName, drawables);
+            } else {
+                if (!drawables.contains(drawableName)) {
+                    drawables.add(drawableName);
+                }
+            }
+        }
+
+        @SuppressLint("UseCompatLoadingForDrawables")
+        private Drawable getDrawable(String drawableName) {
             int id = resources.getIdentifier(drawableName,
                     "drawable", application.info.packageName);
 
@@ -299,10 +493,12 @@ public final class IconPackManager {
             }
         }
 
-        public CompletableFuture<Drawable> getDrawable(String packageName) {
+        public CompletableFuture<Drawable> loadDrawable(String packageName, String drawable) {
             CompletableFuture<Drawable> future = new CompletableFuture<>();
 
             Utils.submitTask(() -> {
+                String drawableName = drawable;
+
                 if (!loaded) {
                     load();
                 }
@@ -310,28 +506,20 @@ public final class IconPackManager {
                 Intent launchIntent = packageManager.getLaunchIntentForPackage(packageName);
 
                 if (launchIntent != null) {
-                    ComponentName component = launchIntent.getComponent();
+                    if (drawableName == null) {
+                        ComponentName component = launchIntent.getComponent();
 
-                    if (component != null) {
-                        String drawableName = packageDrawables.get(component.getPackageName() + '/' + component.getClassName());
+                        if (component != null) {
+                            List<String> drawableNames = exactComponentDrawable.get(component.getPackageName() + '/' + component.getClassName());
 
-                        if (drawableName != null) {
-                            future.complete(loadDrawable(drawableName));
-                        } else {
-                            // try to get a resource with the component filename
-                            String componentName = component.getClassName();
-
-                            int start = componentName.indexOf("{") + 1;
-                            int end = componentName.indexOf("}", start);
-                            if (end > start) {
-                                drawableName = componentName.substring(start, end)
-                                        .toLowerCase(Locale.getDefault()).replace(".", "_")
-                                        .replace("/", "_");
-                                if (resources.getIdentifier(drawableName, "drawable", packageName) > 0) {
-                                    future.complete(loadDrawable(drawableName));
-                                }
+                            if (drawableNames != null && drawableNames.size() > 0) {
+                                drawableName = drawableNames.get(0);
                             }
                         }
+                    }
+
+                    if (drawableName != null) {
+                        future.complete(getDrawable(drawableName));
                     }
                 }
 
@@ -339,6 +527,24 @@ public final class IconPackManager {
             });
 
             return future;
+        }
+
+        private List<String> getDrawableNameList(String packageName) {
+            if (!loaded) {
+                load();
+            }
+
+            Intent launchIntent = packageManager.getLaunchIntentForPackage(packageName);
+
+            if (launchIntent != null) {
+                ComponentName component = launchIntent.getComponent();
+
+                if (component != null) {
+                    return packageNameDrawables.get(component.getPackageName());
+                }
+            }
+
+            return null;
         }
 
         public String getLabel() {
@@ -354,12 +560,12 @@ public final class IconPackManager {
 
             UiUtils.runOnUIThread(() -> {
                 if (loaded) {
-                    future.complete(packageDrawables.size());
+                    future.complete(exactComponentDrawable.size());
                 } else {
                     Utils.submitTask(() -> {
                         load();
 
-                        future.complete(packageDrawables.size());
+                        future.complete(exactComponentDrawable.size());
                     });
                 }
             });

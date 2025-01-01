@@ -94,6 +94,10 @@
 
     <!-- Applications -->
     <string name="uninstall">Uninstall</string>
+    <string name="customize">Customize</string>
+    <string name="available_icons">Available icons</string>
+    <string name="application_label">Label</string>
+    <string name="application_label_warning">Label must be at least one character long.</string>
 
     <!-- Briefing -->
     <string name="briefing">Your briefing ↗</string>
@@ -109,6 +113,9 @@
     <!-- Search -->
     <string name="apps">Applications</string>
     <string name="search_on">Search on</string>
+
+    <!-- Keyboard -->
+    <string name="done">Done</string>
 
     <!-- Weather -->
     <string name="clear_sky">Clear</string>

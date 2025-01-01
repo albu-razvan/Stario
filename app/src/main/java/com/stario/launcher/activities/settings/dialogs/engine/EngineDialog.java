@@ -19,17 +19,16 @@ package com.stario.launcher.activities.settings.dialogs.engine;
 
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
-import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 
 public class EngineDialog extends ActionDialog {
@@ -41,10 +40,7 @@ public class EngineDialog extends ActionDialog {
     @Override
     protected View inflateContent(LayoutInflater inflater) {
         View root = inflater.inflate(R.layout.pop_up_engine, null);
-        ViewGroup content = root.findViewById(R.id.content);
         RecyclerView recycler = root.findViewById(R.id.recycler);
-
-        Measurements.addNavListener(value -> content.setPadding(0, 0, 0, value));
 
         recycler.setLayoutManager(new LinearLayoutManager(activity,
                 LinearLayoutManager.VERTICAL, false));
@@ -57,5 +53,10 @@ public class EngineDialog extends ActionDialog {
     @Override
     protected boolean blurBehind() {
         return true;
+    }
+
+    @Override
+    protected int getDesiredInitialState() {
+        return BottomSheetBehavior.STATE_EXPANDED;
     }
 }

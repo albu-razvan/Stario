@@ -19,6 +19,9 @@ package com.stario.launcher.sheet.drawer.search.recyclers.adapters;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
@@ -201,7 +204,11 @@ public class WebAdapter extends AbstractSearchListAdapter {
     public AbstractSearchListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup container, int viewType) {
         AbstractSearchListAdapter.ViewHolder holder = super.onCreateViewHolder(container, viewType);
 
-        holder.icon.setIcon(AppCompatResources.getDrawable(activity, R.drawable.ic_search));
+        holder.icon.setLooseClipping(false);
+        holder.icon.setIcon(new LayerDrawable(new Drawable[]{
+                new ColorDrawable(activity.getAttributeData(com.google.android.material.R.attr.colorSecondaryContainer)),
+                AppCompatResources.getDrawable(activity, R.drawable.ic_search)
+        }));
 
         return holder;
     }

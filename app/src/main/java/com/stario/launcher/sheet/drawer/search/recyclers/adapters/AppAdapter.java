@@ -56,6 +56,11 @@ public class AppAdapter extends RecyclerApplicationAdapter
     }
 
     @Override
+    protected boolean allowApplicationStateEditing() {
+        return false;
+    }
+
+    @Override
     protected int getLabelLineCount() {
         return 1;
     }

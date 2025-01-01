@@ -29,6 +29,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.google.gson.Gson;
+import com.stario.launcher.BuildConfig;
 import com.stario.launcher.services.AccessibilityService;
 
 import java.io.BufferedReader;
@@ -105,16 +106,17 @@ public class Utils {
     }
 
     public static boolean isNotificationServiceEnabled(Context context) {
-        String pkgName = context.getPackageName();
-        final String flat = android.provider.Settings.Secure.getString(context.getContentResolver(),
+        String flat = android.provider.Settings.Secure.getString(context.getContentResolver(),
                 "enabled_notification_listeners");
 
         if (!TextUtils.isEmpty(flat)) {
-            final String[] names = flat.split(":");
+            String[] names = flat.split(":");
+
             for (String name : names) {
-                final ComponentName cn = ComponentName.unflattenFromString(name);
-                if (cn != null) {
-                    if (TextUtils.equals(pkgName, cn.getPackageName())) {
+                final ComponentName component = ComponentName.unflattenFromString(name);
+
+                if (component != null) {
+                    if (TextUtils.equals(BuildConfig.APPLICATION_ID, component.getPackageName())) {
                         return true;
                     }
                 }
@@ -124,16 +126,14 @@ public class Utils {
     }
 
     public static boolean isAccessibilityServiceEnabled(Context context) {
-        int accessibilityEnabled;
-        final String service = context.getPackageName() + "/" + AccessibilityService.class.getCanonicalName();
+        int accessibilityEnabled = 0;
+        String service = BuildConfig.APPLICATION_ID + "/" + AccessibilityService.class.getCanonicalName();
 
         try {
             accessibilityEnabled = android.provider.Settings.Secure
                     .getInt(context.getApplicationContext().getContentResolver(),
                             android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
         } catch (android.provider.Settings.SettingNotFoundException exception) {
-            accessibilityEnabled = 0;
-
             Log.e(TAG, "Error finding setting, default accessibility not found: " + exception.getMessage());
         }
 
