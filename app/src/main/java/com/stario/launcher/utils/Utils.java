@@ -36,6 +36,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -48,6 +50,18 @@ public class Utils {
 
     public static Future<?> submitTask(Runnable runnable) {
         return executorPool.submit(runnable);
+    }
+
+    public static <O> CompletableFuture<O> submitTask(Callable<O> callable) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return callable.call();
+            } catch (Exception exception) {
+                Log.e(TAG, "submitTask: ", exception);
+
+                return null;
+            }
+        }, executorPool);
     }
 
     public static Gson getGsonInstance() {

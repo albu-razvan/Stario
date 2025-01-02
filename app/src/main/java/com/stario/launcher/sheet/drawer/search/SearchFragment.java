@@ -54,7 +54,7 @@ import com.stario.launcher.sheet.drawer.search.recyclers.OnSearchRecyclerVisibil
 import com.stario.launcher.sheet.drawer.search.recyclers.SearchRecyclerItemAnimator;
 import com.stario.launcher.sheet.drawer.search.recyclers.adapters.AppAdapter;
 import com.stario.launcher.sheet.drawer.search.recyclers.adapters.OptionAdapter;
-import com.stario.launcher.sheet.drawer.search.recyclers.adapters.WebAdapter;
+import com.stario.launcher.sheet.drawer.search.recyclers.adapters.AutosuggestAdapter;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.keyboard.ImeAnimationController;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
@@ -156,18 +156,20 @@ public class SearchFragment extends Fragment {
 
         apps.setAdapter(appAdapter);
 
-        RecyclerView web = root.findViewById(R.id.web);
+        RecyclerView suggestions = root.findViewById(R.id.web);
 
         LinearLayoutManager webLinearLayoutManager = new LinearLayoutManager(activity);
 
-        web.setLayoutManager(webLinearLayoutManager);
-        web.addItemDecoration(new DividerItemDecorator(activity, MaterialDividerItemDecoration.VERTICAL));
-        web.setItemAnimator(new SearchRecyclerItemAnimator(Animation.MEDIUM));
+        suggestions.setLayoutManager(webLinearLayoutManager);
+        suggestions.addItemDecoration(new DividerItemDecorator(activity, MaterialDividerItemDecoration.VERTICAL));
+        suggestions.setItemAnimator(new SearchRecyclerItemAnimator(Animation.MEDIUM));
 
-        WebAdapter webAdapter = new WebAdapter(activity);
-        webAdapter.setOnVisibilityChangeListener(new OnSearchRecyclerVisibilityChangeListener(searchLayoutTransition));
+        AutosuggestAdapter autosuggestAdapter = new AutosuggestAdapter(activity);
+        autosuggestAdapter.setOnVisibilityChangeListener(
+                new OnSearchRecyclerVisibilityChangeListener(searchLayoutTransition)
+        );
 
-        web.setAdapter(webAdapter);
+        suggestions.setAdapter(autosuggestAdapter);
 
         RecyclerView options = root.findViewById(R.id.options);
 
@@ -443,7 +445,7 @@ public class SearchFragment extends Fragment {
 
         search.setOnEditorActionListener((view, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_GO) {
-                return appAdapter.submit() || webAdapter.submit() || optionAdapter.submit();
+                return appAdapter.submit() || autosuggestAdapter.submit() || optionAdapter.submit();
             }
 
             return false;
@@ -479,12 +481,12 @@ public class SearchFragment extends Fragment {
                     long timeStamp = System.currentTimeMillis();
 
                     if (query.isBlank() || appAdapter.getItemCount() == 0) {
-                        webAdapter.update(query);
+                        autosuggestAdapter.update(query);
                     } else {
                         // don't process text changes too often
                         search.postDelayed(() -> {
                             if (timeStamp == lastRegisteredTimestamp) {
-                                webAdapter.update(query);
+                                autosuggestAdapter.update(query);
                             }
                         }, WEB_PROCESS_INTERVAL);
                     }

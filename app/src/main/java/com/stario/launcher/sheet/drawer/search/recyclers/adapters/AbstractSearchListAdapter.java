@@ -36,6 +36,7 @@ public abstract class AbstractSearchListAdapter extends
         RecyclerView.Adapter<AbstractSearchListAdapter.ViewHolder> implements Searchable {
     private final ThemedActivity activity;
     private final boolean hasLinkArrow;
+
     private OnVisibilityChangeListener listener;
     private RecyclerView recyclerView;
 
@@ -44,18 +45,13 @@ public abstract class AbstractSearchListAdapter extends
         this.hasLinkArrow = hasLinkArrow;
     }
 
-    protected class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         final TextView label;
         final AdaptiveIconView icon;
 
         @SuppressLint("ClickableViewAccessibility")
         public ViewHolder(ViewGroup itemView) {
             super(itemView);
-
-            // if recyclable, the implementation of item animator of RecyclerView
-            // will throw a "View should be removed before recycling" exception
-            // cheap workaround, already tried fixing it for a day
-            setIsRecyclable(false);
 
             label = itemView.findViewById(R.id.textView);
             icon = itemView.findViewById(R.id.icon);

@@ -51,9 +51,11 @@ import java.util.List;
 public class OptionAdapter extends AbstractSearchListAdapter {
     private static final String TAG = "com.stario.launcher.OptionAdapter";
     private static final String[] PREDEFINED_URIS = new String[]{"market://search?q=", "geo:?q="};
+
     private final ArrayList<OptionEntry> options;
     private final ThemedActivity activity;
     private final PackageManager packageManager;
+
     private RecyclerView recyclerView;
     private boolean show;
     private String query;
@@ -67,8 +69,6 @@ public class OptionAdapter extends AbstractSearchListAdapter {
         this.activity = activity;
 
         this.packageManager = activity.getPackageManager();
-
-        setHasStableIds(true);
 
         LauncherApplicationManager manager = LauncherApplicationManager.getInstance();
 
@@ -195,7 +195,7 @@ public class OptionAdapter extends AbstractSearchListAdapter {
     public void update(String query) {
         this.query = query;
 
-        if (query.length() > 0) {
+        if (!query.isEmpty()) {
             if (!show) {
                 show = true;
 

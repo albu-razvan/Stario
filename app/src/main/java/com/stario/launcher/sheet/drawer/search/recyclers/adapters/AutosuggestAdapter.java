@@ -37,105 +37,67 @@ import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.Locator;
-import org.xml.sax.XMLReader;
+import org.json.JSONArray;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-public class WebAdapter extends AbstractSearchListAdapter {
+public class AutosuggestAdapter extends AbstractSearchListAdapter {
     private final static String TAG = "com.stario.launcher.WebAdapter";
-    private final static int MAX_RESULTS = 4;
-    private final static String TOOLBAR = "https://suggestqueries.google.com/complete/search?output=toolbar&q=";
-    private final static String ENCODING = "ISO-8859-1";
+    private final static int MAX_RESULTS = 5;
+    private final static String AUTOSUGGEST_URL = "https://kagi.com/api/autosuggest?q=";
     private final List<WebEntry> searchResults;
     private final ThemedActivity activity;
+
+    private CompletableFuture<ArrayList<WebEntry>> runningTask;
     private String currentQuery;
 
-    public WebAdapter(ThemedActivity activity) {
+    public AutosuggestAdapter(ThemedActivity activity) {
         super(activity, true);
 
         this.activity = activity;
         this.searchResults = new ArrayList<>();
+        this.currentQuery = "";
 
         setHasStableIds(true);
-
-        currentQuery = "";
     }
 
     @Override
     public void update(String query) {
-        if (query != null && query.length() > 0) {
+        if (runningTask != null && !runningTask.isDone()) {
+            runningTask.cancel(true);
+        }
+
+        if (query != null && !query.isEmpty()) {
+            SearchEngine engine = SearchEngine.engineFor(activity);
             String constraint = query.toLowerCase();
             currentQuery = constraint;
 
-            Utils.submitTask(() -> {
+            runningTask = Utils.submitTask(() -> {
+                ArrayList<WebEntry> results = new ArrayList<>();
+
                 try {
-                    SearchEngine engine = SearchEngine.engineFor(activity);
+                    URLConnection connection = new URL(AUTOSUGGEST_URL + constraint).openConnection();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-                    ArrayList<WebEntry> results = new ArrayList<>();
+                    JSONArray root = new JSONArray(reader.lines().collect(Collectors.joining("\n")));
+                    if (root.length() > 1) {
+                        Object tester = root.get(1);
 
-                    InputSource inputSource =
-                            new InputSource(new URL(TOOLBAR + constraint).openStream());
-                    inputSource.setEncoding(ENCODING);
+                        if (tester instanceof JSONArray) {
+                            JSONArray target = (JSONArray) tester;
 
-                    SAXParserFactory factory = SAXParserFactory.newInstance();
-                    SAXParser saxParser = factory.newSAXParser();
-                    XMLReader xmlReader = saxParser.getXMLReader();
+                            for (int index = 0; index < target.length() &&
+                                    index < MAX_RESULTS; index++) {
+                                String result = target.getString(index);
 
-                    xmlReader.setContentHandler(new ContentHandler() {
-                        @Override
-                        public void setDocumentLocator(Locator locator) {
-
-                        }
-
-                        @Override
-                        public void startDocument() {
-
-                        }
-
-                        @Override
-                        public void endDocument() {
-                            UiUtils.runOnUIThread(() -> {
-                                if (currentQuery.equals(constraint)) {
-                                    searchResults.clear();
-
-                                    for (WebEntry entry : results) {
-                                        searchResults.add(0, entry);
-
-                                        if (searchResults.size() >= MAX_RESULTS) {
-                                            break;
-                                        }
-                                    }
-
-                                    notifyInternal();
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void startPrefixMapping(String prefix, String uri) {
-
-                        }
-
-                        @Override
-                        public void endPrefixMapping(String prefix) {
-
-                        }
-
-                        @Override
-                        public void startElement(String uriString, String localName,
-                                                 String queryName, Attributes attributes) {
-                            String result = attributes.getValue("data");
-
-                            if (result != null) {
                                 Uri uri = Uri.parse(engine.getQuery(result));
 
                                 if (uri != null) {
@@ -143,35 +105,30 @@ public class WebAdapter extends AbstractSearchListAdapter {
                                 }
                             }
                         }
-
-                        @Override
-                        public void endElement(String uri, String localName, String qName) {
-                        }
-
-                        @Override
-                        public void characters(char[] ch, int start, int length) {
-                        }
-
-                        @Override
-                        public void ignorableWhitespace(char[] ch, int start, int length) {
-
-                        }
-
-                        @Override
-                        public void processingInstruction(String target, String data) {
-
-                        }
-
-                        @Override
-                        public void skippedEntity(String name) {
-
-                        }
-                    });
-
-                    xmlReader.parse(inputSource);
+                    }
                 } catch (Exception exception) {
                     Log.e(TAG, "update: ", exception);
                 }
+
+                return results;
+            });
+
+            runningTask.thenApply(results -> {
+                UiUtils.runOnUIThread(() -> {
+                    if (currentQuery.equals(constraint)) {
+                        searchResults.clear();
+
+                        for (WebEntry entry : results) {
+                            searchResults.add(0, entry);
+                        }
+
+                        notifyInternal();
+                    }
+
+                    runningTask = null;
+                });
+
+                return results;
             });
         } else {
             currentQuery = "";
@@ -239,16 +196,24 @@ public class WebAdapter extends AbstractSearchListAdapter {
 
     @Override
     public long getItemId(int position) {
-        return searchResults.get(position).uri.hashCode();
+        return searchResults.get(position).hashCode();
     }
 
     private static class WebEntry {
         private final String label;
         private final Uri uri;
+        private final int hash;
 
         private WebEntry(String label, Uri uri) {
             this.label = label;
             this.uri = uri;
+
+            this.hash = Objects.hash(label, uri);
+        }
+
+        @Override
+        public int hashCode() {
+            return hash;
         }
     }
 }
