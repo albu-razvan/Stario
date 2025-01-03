@@ -27,7 +27,7 @@ import androidx.annotation.NonNull;
 
 import com.stario.launcher.sheet.widgets.Widget;
 import com.stario.launcher.sheet.widgets.WidgetSize;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 
 @SuppressLint("ViewConstructor")
 class WidgetContainer extends RelativeLayout implements Comparable<WidgetContainer> {

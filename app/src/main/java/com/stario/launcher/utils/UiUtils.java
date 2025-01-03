@@ -40,7 +40,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
 import com.google.android.material.transition.platform.MaterialSharedAxis;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.utils.animation.Animation;
 
 public class UiUtils {

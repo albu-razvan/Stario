@@ -35,7 +35,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.sheet.behavior.SheetDragHelper;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 
 public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
     private Boolean rememberInterceptResult = null;

@@ -13,7 +13,7 @@
         app:fel_size_bottom="100dp"
         app:fel_size_top="20dp">
 
-        <com.stario.launcher.ui.pager.CustomDurationViewPager
+        <com.stario.launcher.ui.common.pager.CustomDurationViewPager
             android:id="@+id/pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

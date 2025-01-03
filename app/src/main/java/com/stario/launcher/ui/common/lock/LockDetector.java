@@ -15,7 +15,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.ui.lock;
+package com.stario.launcher.ui.common.lock;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityOptions;

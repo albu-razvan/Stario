@@ -44,7 +44,7 @@ import com.stario.launcher.R;
 import com.stario.launcher.glance.extensions.GlanceDialogExtension;
 import com.stario.launcher.glance.extensions.GlanceViewExtension;
 import com.stario.launcher.preferences.Entry;
-import com.stario.launcher.ui.glance.GlanceConstraintLayout;
+import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
@@ -66,8 +66,6 @@ import java.util.List;
 
 public class Weather extends GlanceDialogExtension {
     private static final String TAG = "com.stario.launcher.Weather";
-    public static final String TEMPERATURE_KEY = "com.stario.TEMPERATURE";
-    public static final String ICON_CODE_KEY = "com.stario.WEATHER_ICON";
     private static final String LATITUDE_KEY = "com.stario.LATITUDE";
     private static final String LONGITUDE_KEY = "com.stario.LONGITUDE";
     public static final String IMPERIAL_KEY = "com.stario.IMPERIAL";
@@ -291,8 +289,9 @@ public class Weather extends GlanceDialogExtension {
     private final WeatherPreview preview;
     private final DateParser dateParser;
 
-    private SharedPreferences preferences;
+    private SharedPreferences coordinates;
     private ArrayList<Data> weatherData;
+    private SharedPreferences settings;
     private RecyclerView recycler;
     private TextView temperature;
     private TextView location;
@@ -328,7 +327,8 @@ public class Weather extends GlanceDialogExtension {
         GlanceConstraintLayout root = (GlanceConstraintLayout) inflater.inflate(R.layout.weather,
                 container, false);
 
-        preferences = activity.getSharedPreferences(Entry.WEATHER);
+        coordinates = activity.getSharedPreferences(Entry.WEATHER);
+        settings = activity.getSharedPreferences(Entry.STARIO);
 
         this.container = root.findViewById(R.id.container);
         temperature = root.findViewById(R.id.temperature);
@@ -389,12 +389,12 @@ public class Weather extends GlanceDialogExtension {
             if (Math.abs(System.currentTimeMillis() - lastUpdate) > UPDATE_INTERVAL) {
                 updating = true;
 
-                if (preferences.contains(LATITUDE_KEY) &&
-                        preferences.contains(LONGITUDE_KEY)) {
+                if (coordinates.contains(LATITUDE_KEY) &&
+                        coordinates.contains(LONGITUDE_KEY)) {
                     lat = Double.longBitsToDouble(
-                            preferences.getLong(LATITUDE_KEY, -1));
+                            coordinates.getLong(LATITUDE_KEY, -1));
                     lon = Double.longBitsToDouble(
-                            preferences.getLong(LONGITUDE_KEY, -1));
+                            coordinates.getLong(LONGITUDE_KEY, -1));
                 } else {
                     updateLocation(Utils.getPublicIPAddress());
                 }
@@ -476,7 +476,7 @@ public class Weather extends GlanceDialogExtension {
 
             icon.setImageResource(getIcon(data.iconCode));
 
-            if (preferences.getBoolean(Weather.IMPERIAL_KEY, false)) {
+            if (settings.getBoolean(Weather.IMPERIAL_KEY, false)) {
                 temperature.setText((int) Math.round(Utils.toFahrenheit(data.temperature)) + "°");
             } else {
                 temperature.setText((int) Math.round(data.temperature) + "°");
@@ -497,8 +497,8 @@ public class Weather extends GlanceDialogExtension {
             }
 
             direction.setRotation((float) data.windDirection + 180f);
-            if (preferences.getBoolean(Weather.IMPERIAL_KEY, false)) {
-                speed.setText((int) Math.round(Utils.msToMph(data.windSpeed)) + "mph");
+            if (settings.getBoolean(Weather.IMPERIAL_KEY, false)) {
+                speed.setText((int) Math.round(Utils.msToMph(data.windSpeed)) + "mi/h");
             } else {
                 speed.setText((int) Math.round(data.windSpeed) + "m/s");
             }

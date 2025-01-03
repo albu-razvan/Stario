@@ -45,7 +45,7 @@ import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.glance.Glance;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.PersistentFullscreenDialog;
-import com.stario.launcher.ui.glance.GlanceConstraintLayout;
+import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
 import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.animation.Animation;
 

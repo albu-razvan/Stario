@@ -58,7 +58,7 @@ import com.stario.launcher.sheet.drawer.search.recyclers.adapters.AutosuggestAda
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.keyboard.ImeAnimationController;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 import com.stario.launcher.ui.recyclers.async.InflationType;
 import com.stario.launcher.utils.UiUtils;

@@ -39,8 +39,8 @@ import com.stario.launcher.sheet.SheetType;
 import com.stario.launcher.sheet.SheetWrapper;
 import com.stario.launcher.sheet.SheetsFocusController;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.lock.ClosingAnimationView;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.common.lock.ClosingAnimationView;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
@@ -126,7 +126,7 @@ public class Launcher extends ThemedActivity {
             slideOffset = 0;
         }
 
-        main.setAlpha(1f - slideOffset * 1.5f);
+        main.setAlpha(1f - slideOffset * 3f);
         main.setScaleX(1f - slideOffset * slideOffset / 5f);
         main.setScaleY(1f - slideOffset * slideOffset / 5f);
 

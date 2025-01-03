@@ -45,7 +45,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.stario.launcher.preferences.Entry;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.animation.Animation;
@@ -123,7 +123,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
                                     startingRootBackground = root.getBackground();
                                     progressRootBackground = new PaintDrawable(backgroundColor);
-                                    progressRootBackground.setCornerRadius(0);
+                                    progressRootBackground.setCornerRadius(Measurements.dpToPx(10));
 
                                     root.setBackground(progressRootBackground);
 
@@ -148,11 +148,11 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
                                     root.setPivotY(backEvent.getTouchY() / 1.3f);
 
-                                    root.setScaleX(1f - progress * 0.2f);
-                                    root.setScaleY(1f - progress * 0.2f);
+                                    root.setScaleX(1f - progress * 0.15f);
+                                    root.setScaleY(1f - progress * 0.15f);
 
-                                    progressRootBackground.setCornerRadius(progress *
-                                            Measurements.dpToPx(30));
+                                    progressRootBackground.setCornerRadius(Measurements.dpToPx(10) +
+                                            progress * Measurements.dpToPx(20));
                                 }
                             }
                         }

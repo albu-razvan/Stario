@@ -10,6 +10,8 @@
     <string name="licenses">Licenses</string>
     <string name="restart">Restart</string>
     <string name="animations">Animations</string>
+    <string name="drawer">Drawer</string>
+    <string name="search">Search</string>
     <string name="miscellaneous">Miscellaneous</string>
     <string name="something_went_wrong">Something went wrong!</string>
     <string name="refresh">Refresh</string>
@@ -23,15 +25,15 @@
     <string name="media_player">Media player</string>
     <string name="notification_dots">Notification dots</string>
     <string name="lock_gesture">Double tap to lock</string>
-    <string name="use_imperial_units">Imperial units</string>
+    <string name="imperial_units">Imperial units</string>
     <string name="vibrations">Vibrations</string>
     <string name="change_color">Change accent color</string>
-    <string name="search_engine">↗ Search engine</string>
-    <string name="hide_applications">↗ Hide applications</string>
+    <string name="search_engine">Search engine</string>
+    <string name="hide_applications">Hide applications</string>
     <string name="legacy_lock_animation">Legacy lock animation</string>
     <string name="legacy_launch_animations">Legacy launch animations</string>
-    <string name="icons">↗ Icons</string>
-    <string name="system_launcher">↗ Reassign system launcher</string>
+    <string name="icons">Icons</string>
+    <string name="system_launcher">Reassign system launcher</string>
     <string name="app_info">App info</string>
 
     <!-- Settings pop-up -->
@@ -64,6 +66,8 @@
 
     <!-- License pop-up -->
     <string name="license">License</string>
+    <string name="main_dependencies">Main dependencies</string>
+    <string name="all_dependencies">All dependencies</string>
 
     <!-- Widgets -->
     <string name="nothing_here_yet">Nothing here yet!</string>

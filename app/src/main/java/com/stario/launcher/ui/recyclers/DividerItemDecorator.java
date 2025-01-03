@@ -22,7 +22,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.google.android.material.divider.MaterialDividerItemDecoration;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 
 public class DividerItemDecorator extends MaterialDividerItemDecoration {
     private static final int THICKNESS = 2;

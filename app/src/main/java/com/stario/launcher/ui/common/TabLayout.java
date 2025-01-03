@@ -15,7 +15,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.ui.tabs;
+package com.stario.launcher.ui.common;
 
 import android.content.Context;
 import android.util.AttributeSet;

@@ -33,7 +33,7 @@ import androidx.customview.widget.ViewDragHelper;
 
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.sheet.behavior.SheetDragHelper;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 
 public class TopSheetBehavior<V extends View> extends SheetBehavior<V> {
     private Boolean rememberInterceptResult = null;

@@ -15,7 +15,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.ui.measurements;
+package com.stario.launcher.ui;
 
 import android.app.Activity;
 import android.os.Build;
@@ -30,8 +30,7 @@ import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.objects.ObservableObject;
 
 public class Measurements {
-    public static final String IMPERIAL_PREFERENCE_ENTRY = "com.stario.IMPERIAL";
-    public static final int HEADER_SIZE_DP = 200;
+    public static final int HEADER_SIZE_DP = 250;
     private static final ObservableObject<Integer> NAV_HEIGHT = new ObservableObject<>(0);
     private static final ObservableObject<Integer> SYS_UI_HEIGHT = new ObservableObject<>(0);
     private static final ObservableObject<Integer> LIST_COLUMNS = new ObservableObject<>(0);

@@ -28,7 +28,7 @@ import com.stario.launcher.glance.extensions.GlanceDialogExtension;
 import com.stario.launcher.glance.extensions.GlanceExtension;
 import com.stario.launcher.glance.extensions.GlanceViewExtension;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.glance.GlanceConstraintLayout;
+import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
 
 import java.util.ArrayList;
 

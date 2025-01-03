@@ -48,6 +48,7 @@
             android:alwaysRetainTaskState="false"
             android:exported="true"
             android:launchMode="standard"
+            android:rotationAnimation="crossfade"
             android:supportsPictureInPicture="false"
             android:taskAffinity=".settings"
             android:theme="@style/Theme.Light.Blue.Opaque"

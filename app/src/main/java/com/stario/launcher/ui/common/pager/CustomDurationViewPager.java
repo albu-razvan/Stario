@@ -15,7 +15,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.ui.pager;
+package com.stario.launcher.ui.common.pager;
 
 import android.content.Context;
 import android.util.AttributeSet;

@@ -28,7 +28,7 @@ import android.view.ViewGroup;
 import android.widget.GridLayout;
 
 import com.stario.launcher.sheet.widgets.Widget;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.utils.animation.Animation;
 
 import java.util.PriorityQueue;

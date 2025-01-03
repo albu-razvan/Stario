@@ -58,7 +58,7 @@ public class LicensesRecyclerAdapter extends RecyclerView.Adapter<LicensesRecycl
         this.inflater = LayoutInflater.from(context);
     }
 
-    protected static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView name;
         private final TextView user;
         private final TextView license;

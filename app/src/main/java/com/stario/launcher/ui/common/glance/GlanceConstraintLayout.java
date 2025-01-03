@@ -15,7 +15,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.ui.glance;
+package com.stario.launcher.ui.common.glance;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -26,7 +26,7 @@ import android.util.AttributeSet;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 
 import carbon.widget.ConstraintLayout;
 

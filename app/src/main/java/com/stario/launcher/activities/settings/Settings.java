@@ -50,15 +50,18 @@ import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.glance.extensions.media.Media;
+import com.stario.launcher.glance.extensions.weather.Weather;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.search.SearchEngine;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.lock.LockDetector;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.common.collapsible.CollapsibleTitleBar;
+import com.stario.launcher.ui.common.lock.LockDetector;
 import com.stario.launcher.utils.Utils;
 
 public class Settings extends ThemedActivity {
+    private CollapsibleTitleBar titleBar;
     private MaterialSwitch mediaSwitch;
     private MaterialSwitch lockSwitch;
     private boolean shouldRebirth;
@@ -83,6 +86,7 @@ public class Settings extends ThemedActivity {
         boolean lock = settings.getBoolean(LockDetector.PREFERENCE_ENTRY, false);
         boolean legacyLaunchAnim = settings.getBoolean(LauncherApplication.LEGACY_LAUNCH_ANIMATION, false);
         boolean legacyLockAnim = settings.getBoolean(LockDetector.LEGACY_ANIMATION, true);
+        boolean imperialUnits = settings.getBoolean(Weather.IMPERIAL_KEY, false);
         boolean vibrations = settings.getBoolean(Vibrations.PREFERENCE_ENTRY, true);
 
         ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
@@ -95,13 +99,16 @@ public class Settings extends ThemedActivity {
 
         mediaSwitch = findViewById(R.id.media);
         lockSwitch = findViewById(R.id.lock);
-        MaterialSwitch switchLaunchAnim = findViewById(R.id.lock_animations);
-        MaterialSwitch switchLockAnim = findViewById(R.id.lock_animation);
+        MaterialSwitch imperialSwitch = findViewById(R.id.imperial);
+        MaterialSwitch launchAnimSwitch = findViewById(R.id.launch_animation);
+        MaterialSwitch lockAnimSwitch = findViewById(R.id.lock_animation);
         MaterialSwitch switchVibrations = findViewById(R.id.vibrations);
+
+        View lockAnimSwitchContainer = findViewById(R.id.lock_animation_container);
+        View fader = findViewById(R.id.fader);
 
         TextView searchEngineName = findViewById(R.id.engine_name);
         iconPackName = findViewById(R.id.pack_name);
-        View close = findViewById(R.id.close);
         TextView hideCount = findViewById(R.id.hidden_count);
 
         hideCount.setText(getResources().getString(R.string.hidden_apps) +
@@ -110,22 +117,25 @@ public class Settings extends ThemedActivity {
 
         updateIconPackName();
 
-        close.setMinimumHeight(Measurements.dpToPx(Measurements.HEADER_SIZE_DP));
-        close.setOnClickListener((view) -> onBackPressed());
+        titleBar = findViewById(R.id.title_bar);
+        titleBar.setOnOffsetChangeListener(offset ->
+                fader.setTranslationY(titleBar.getMeasuredHeight() - titleBar.getCollapsedHeight() + offset));
 
         mediaSwitch.setChecked(Utils.isNotificationServiceEnabled(this) && mediaAllowed);
         lockSwitch.setChecked(Utils.isAccessibilityServiceEnabled(this) && lock);
-        switchLockAnim.setChecked(legacyLockAnim);
-        switchLaunchAnim.setChecked(legacyLaunchAnim);
+        imperialSwitch.setChecked(imperialUnits);
+        lockAnimSwitch.setChecked(legacyLockAnim);
+        launchAnimSwitch.setChecked(legacyLaunchAnim);
         switchVibrations.setChecked(vibrations);
 
         lockSwitch.jumpDrawablesToCurrentState();
         mediaSwitch.jumpDrawablesToCurrentState();
-        switchLockAnim.jumpDrawablesToCurrentState();
-        switchLaunchAnim.jumpDrawablesToCurrentState();
+        imperialSwitch.jumpDrawablesToCurrentState();
+        lockAnimSwitch.jumpDrawablesToCurrentState();
+        launchAnimSwitch.jumpDrawablesToCurrentState();
         switchVibrations.jumpDrawablesToCurrentState();
 
-        switchLockAnim.setVisibility(lockSwitch.isChecked() ? View.VISIBLE : View.GONE);
+        lockAnimSwitchContainer.setVisibility(lockSwitch.isChecked() ? View.VISIBLE : View.GONE);
 
         mediaSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             private NotificationConfigurator dialog;
@@ -167,17 +177,23 @@ public class Settings extends ThemedActivity {
                         .putBoolean(LockDetector.PREFERENCE_ENTRY, isChecked)
                         .apply();
 
-                switchLockAnim.setVisibility(lockSwitch.isChecked() ? View.VISIBLE : View.GONE);
+                lockAnimSwitchContainer.setVisibility(lockSwitch.isChecked() ? View.VISIBLE : View.GONE);
             }
         });
 
-        switchLockAnim.setOnCheckedChangeListener((compound, isChecked) -> {
+        imperialSwitch.setOnCheckedChangeListener((compound, isChecked) -> {
+            settings.edit()
+                    .putBoolean(Weather.IMPERIAL_KEY, isChecked)
+                    .apply();
+        });
+
+        lockAnimSwitch.setOnCheckedChangeListener((compound, isChecked) -> {
             settings.edit()
                     .putBoolean(LockDetector.LEGACY_ANIMATION, isChecked)
                     .apply();
         });
 
-        switchLaunchAnim.setOnCheckedChangeListener((compound, isChecked) -> {
+        launchAnimSwitch.setOnCheckedChangeListener((compound, isChecked) -> {
             settings.edit()
                     .putBoolean(LauncherApplication.LEGACY_LAUNCH_ANIMATION, isChecked)
                     .apply();
@@ -286,20 +302,28 @@ public class Settings extends ThemedActivity {
 
         ((TextView) findViewById(R.id.version)).setText(BuildConfig.VERSION_NAME + " • Răzvan Albu");
 
-        findViewById(R.id.donate).setOnClickListener((view) -> {
+        findViewById(R.id.github).setOnClickListener((view) -> {
             view.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce_small));
-            startActivity(new Intent(Intent.ACTION_DEFAULT, Uri.parse("https://www.buymeacoffee.com/razvanalbu")));
+            startActivity(new Intent(Intent.ACTION_DEFAULT, Uri.parse("https://github.com/albu-razvan/Stario")));
         });
 
-        findViewById(R.id.twitter).setOnClickListener((view) -> {
+        findViewById(R.id.website).setOnClickListener((view) -> {
             view.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce_small));
-            startActivity(new Intent(Intent.ACTION_DEFAULT, Uri.parse("https://twitter.com/razvan_albu_")));
+            startActivity(new Intent(Intent.ACTION_DEFAULT, Uri.parse("https://www.razvanalbu.com")));
         });
 
         findViewById(R.id.discord).setOnClickListener((view) -> {
             view.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce_small));
             startActivity(new Intent(Intent.ACTION_DEFAULT, Uri.parse("https://discord.gg/WuVapMt9gY")));
         });
+
+        // delegates
+        findViewById(R.id.media_container).setOnClickListener((view) -> mediaSwitch.performClick());
+        findViewById(R.id.lock_container).setOnClickListener((view) -> lockSwitch.performClick());
+        findViewById(R.id.imperial_container).setOnClickListener((view) -> imperialSwitch.performClick());
+        findViewById(R.id.vibrations_container).setOnClickListener((view) -> switchVibrations.performClick());
+        findViewById(R.id.launch_animation_container).setOnClickListener((view) -> launchAnimSwitch.performClick());
+        lockAnimSwitchContainer.setOnClickListener((view) -> lockAnimSwitch.performClick());
     }
 
     private void updateIconPackName() {
@@ -338,6 +362,14 @@ public class Settings extends ThemedActivity {
 
         checkNotificationPermission();
         checkAccessibilityPermission();
+
+        if (Measurements.isLandscape()) {
+            titleBar.getLayoutParams().height = Measurements.dpToPx(Measurements.HEADER_SIZE_DP / 3f);
+            titleBar.requestLayout();
+        } else {
+            titleBar.getLayoutParams().height = Measurements.dpToPx(Measurements.HEADER_SIZE_DP);
+            titleBar.requestLayout();
+        }
     }
 
     @Override

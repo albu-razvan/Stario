@@ -15,7 +15,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.ui.scrollers;
+package com.stario.launcher.ui.common.scrollers;
 
 import android.content.Context;
 import android.os.Build;

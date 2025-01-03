@@ -29,7 +29,7 @@ import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 
 import carbon.widget.NestedScrollView;

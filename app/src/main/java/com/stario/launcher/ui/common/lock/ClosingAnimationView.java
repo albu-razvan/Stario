@@ -15,7 +15,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.ui.lock;
+package com.stario.launcher.ui.common.lock;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

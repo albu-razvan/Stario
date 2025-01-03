@@ -55,7 +55,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.transition.platform.MaterialElevationScale;
 import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.utils.animation.Animation;
 
 import java.util.HashMap;

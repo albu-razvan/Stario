@@ -20,7 +20,7 @@ package com.stario.launcher.ui.widgets;
 import androidx.annotation.Nullable;
 
 import com.stario.launcher.sheet.widgets.WidgetSize;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 
 import java.util.HashSet;
 import java.util.Set;

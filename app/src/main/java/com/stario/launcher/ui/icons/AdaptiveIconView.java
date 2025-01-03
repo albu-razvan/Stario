@@ -39,7 +39,7 @@ import com.stario.launcher.R;
 import com.stario.launcher.activities.settings.dialogs.icons.IconsDialog;
 import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.preferences.Entry;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.utils.objects.ObjectInvalidateDelegate;
 import com.stario.launcher.utils.objects.ObjectRemeasureDelegate;
 
