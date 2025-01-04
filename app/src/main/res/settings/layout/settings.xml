@@ -51,7 +51,7 @@
 
         </LinearLayout>
 
-        <com.stario.launcher.ui.common.collapsible.CollapsibleTitleBar
+        <com.stario.launcher.ui.common.CollapsibleTitleBar
             android:id="@+id/title_bar"
             android:layout_width="match_parent"
             android:layout_height="200dp"
@@ -69,7 +69,7 @@
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="30sp" />
 
-        </com.stario.launcher.ui.common.collapsible.CollapsibleTitleBar>
+        </com.stario.launcher.ui.common.CollapsibleTitleBar>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

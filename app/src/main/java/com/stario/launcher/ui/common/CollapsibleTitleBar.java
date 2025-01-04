@@ -1,4 +1,4 @@
-package com.stario.launcher.ui.common.collapsible;
+package com.stario.launcher.ui.common;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -94,20 +94,7 @@ public class CollapsibleTitleBar extends RelativeLayout {
         int consumed = (int) (getTranslationY() - newTranslation);
 
         setTranslationY(newTranslation);
-
-        View child = getChildAt(0);
-        if (child != null) {
-            float scale;
-
-            if (expandedDelta != 0) {
-                scale = 1 - 0.3f * -newTranslation / expandedDelta;
-            } else {
-                scale = 1;
-            }
-
-            child.setScaleY(scale);
-            child.setScaleX(scale);
-        }
+        updateScaling(newTranslation);
 
         if (offsetListener != null) {
             offsetListener.onChange(newTranslation);
@@ -116,16 +103,36 @@ public class CollapsibleTitleBar extends RelativeLayout {
         return consumed;
     }
 
+    private void updateScaling(int translation) {
+        View child = getChildAt(0);
+        if (child != null) {
+            float scale;
+
+            if (expandedDelta != 0) {
+                scale = 1 - 0.3f * -translation / expandedDelta;
+            } else {
+                scale = 1;
+            }
+
+            child.setScaleY(scale);
+            child.setScaleX(scale);
+        }
+    }
+
     private void settle() {
         float translation = getTranslationY();
 
         if (-expandedDelta != translation && 0 != translation) {
-            animate().translationY(-expandedDelta / 2f < getTranslationY() ? 0 : -expandedDelta)
+            animator = animate().translationY(-expandedDelta / 2f < translation ? 0 : -expandedDelta)
                     .setDuration(Animation.MEDIUM.getDuration())
                     .setInterpolator(new FastOutSlowInInterpolator())
                     .setUpdateListener(animation -> {
+                        int newTranslation = (int) getTranslationY();
+
+                        updateScaling(newTranslation);
+
                         if (offsetListener != null) {
-                            offsetListener.onChange((int) getTranslationY());
+                            offsetListener.onChange(newTranslation);
                         }
                     })
                     .withEndAction(() -> animator = null);
@@ -149,6 +156,7 @@ public class CollapsibleTitleBar extends RelativeLayout {
     }
 
     private class CollapsibleTitleBehavior extends CoordinatorLayout.Behavior<CollapsibleTitleBar> {
+        private boolean flinging = false;
 
         @Override
         public void onNestedPreScroll(@NonNull CoordinatorLayout coordinatorLayout, @NonNull CollapsibleTitleBar child, @NonNull View target, int dx, int dy, @NonNull int[] consumed, int type) {
@@ -171,11 +179,22 @@ public class CollapsibleTitleBar extends RelativeLayout {
             return true;
         }
 
-        /*@Override
-        public void onStopNestedScroll(@NonNull CoordinatorLayout coordinatorLayout, @NonNull CollapsibleTitleBarView child, @NonNull View target, int type) {
-            settle();
+        @Override
+        public boolean onNestedPreFling(@NonNull CoordinatorLayout coordinatorLayout, @NonNull CollapsibleTitleBar child, @NonNull View target, float velocityX, float velocityY) {
+            flinging = true;
+
+            return super.onNestedPreFling(coordinatorLayout, child, target, velocityX, velocityY);
+        }
+
+        @Override
+        public void onStopNestedScroll(@NonNull CoordinatorLayout coordinatorLayout, @NonNull CollapsibleTitleBar child, @NonNull View target, int type) {
+            if (!flinging) {
+                settle();
+            }
+
+            flinging = false;
 
             super.onStopNestedScroll(coordinatorLayout, child, target, type);
-        }*/
+        }
     }
 }

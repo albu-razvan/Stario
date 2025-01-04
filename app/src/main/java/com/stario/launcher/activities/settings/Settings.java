@@ -56,7 +56,7 @@ import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.search.SearchEngine;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
-import com.stario.launcher.ui.common.collapsible.CollapsibleTitleBar;
+import com.stario.launcher.ui.common.CollapsibleTitleBar;
 import com.stario.launcher.ui.common.lock.LockDetector;
 import com.stario.launcher.utils.Utils;
 
