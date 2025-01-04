@@ -8,7 +8,7 @@
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:padding="16dp"
-    app:carbon_cornerRadius="10dp">
+    app:carbon_cornerRadius="5dp">
 
     <com.stario.launcher.ui.icons.AdaptiveIconView
         android:id="@+id/icon"

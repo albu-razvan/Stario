@@ -555,7 +555,7 @@ public class SearchFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        SearchEngine engine = SearchEngine.engineFor(activity);
+        SearchEngine engine = SearchEngine.getEngine(activity);
         search.setCompoundDrawablesWithIntrinsicBounds(
                 engine.getDrawable(activity), null, null, null);
     }

@@ -42,10 +42,11 @@ import com.stario.launcher.BuildConfig;
 import com.stario.launcher.R;
 import com.stario.launcher.activities.settings.dialogs.AccessibilityConfigurator;
 import com.stario.launcher.activities.settings.dialogs.NotificationConfigurator;
-import com.stario.launcher.activities.settings.dialogs.engine.EngineDialog;
+import com.stario.launcher.activities.settings.dialogs.search.engine.SearchEngineDialog;
 import com.stario.launcher.activities.settings.dialogs.hide.HideApplicationsDialog;
 import com.stario.launcher.activities.settings.dialogs.icons.IconsDialog;
 import com.stario.launcher.activities.settings.dialogs.license.LicensesDialog;
+import com.stario.launcher.activities.settings.dialogs.search.results.SearchResultsDialog;
 import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.LauncherApplicationManager;
@@ -81,12 +82,14 @@ public class Settings extends ThemedActivity {
 
         SharedPreferences settings = getSettings();
         SharedPreferences hiddenApps = getSharedPreferences(Entry.HIDDEN_APPS);
+        SharedPreferences search = getSharedPreferences(Entry.SEARCH);
 
         boolean mediaAllowed = settings.getBoolean(Media.PREFERENCE_ENTRY, false);
         boolean lock = settings.getBoolean(LockDetector.PREFERENCE_ENTRY, false);
         boolean legacyLaunchAnim = settings.getBoolean(LauncherApplication.LEGACY_LAUNCH_ANIMATION, false);
         boolean legacyLockAnim = settings.getBoolean(LockDetector.LEGACY_ANIMATION, true);
         boolean imperialUnits = settings.getBoolean(Weather.IMPERIAL_KEY, false);
+        boolean searchResults = search.getBoolean(SearchResultsDialog.SEARCH_RESULTS, false);
         boolean vibrations = settings.getBoolean(Vibrations.PREFERENCE_ENTRY, true);
 
         ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
@@ -100,6 +103,7 @@ public class Settings extends ThemedActivity {
         mediaSwitch = findViewById(R.id.media);
         lockSwitch = findViewById(R.id.lock);
         MaterialSwitch imperialSwitch = findViewById(R.id.imperial);
+        MaterialSwitch searchResultsSwitch = findViewById(R.id.search_results);
         MaterialSwitch launchAnimSwitch = findViewById(R.id.launch_animation);
         MaterialSwitch lockAnimSwitch = findViewById(R.id.lock_animation);
         MaterialSwitch switchVibrations = findViewById(R.id.vibrations);
@@ -113,7 +117,7 @@ public class Settings extends ThemedActivity {
 
         hideCount.setText(getResources().getString(R.string.hidden_apps) +
                 ": " + hiddenApps.getAll().size());
-        searchEngineName.setText(SearchEngine.engineFor(this).toString());
+        searchEngineName.setText(SearchEngine.getEngine(this).toString());
 
         updateIconPackName();
 
@@ -124,6 +128,7 @@ public class Settings extends ThemedActivity {
         mediaSwitch.setChecked(Utils.isNotificationServiceEnabled(this) && mediaAllowed);
         lockSwitch.setChecked(Utils.isAccessibilityServiceEnabled(this) && lock);
         imperialSwitch.setChecked(imperialUnits);
+        searchResultsSwitch.setChecked(searchResults);
         lockAnimSwitch.setChecked(legacyLockAnim);
         launchAnimSwitch.setChecked(legacyLaunchAnim);
         switchVibrations.setChecked(vibrations);
@@ -131,6 +136,7 @@ public class Settings extends ThemedActivity {
         lockSwitch.jumpDrawablesToCurrentState();
         mediaSwitch.jumpDrawablesToCurrentState();
         imperialSwitch.jumpDrawablesToCurrentState();
+        searchResultsSwitch.jumpDrawablesToCurrentState();
         lockAnimSwitch.jumpDrawablesToCurrentState();
         launchAnimSwitch.jumpDrawablesToCurrentState();
         switchVibrations.jumpDrawablesToCurrentState();
@@ -187,6 +193,12 @@ public class Settings extends ThemedActivity {
                     .apply();
         });
 
+        searchResultsSwitch.setOnCheckedChangeListener((compound, isChecked) -> {
+            search.edit()
+                    .putBoolean(SearchResultsDialog.SEARCH_RESULTS, isChecked)
+                    .apply();
+        });
+
         lockAnimSwitch.setOnCheckedChangeListener((compound, isChecked) -> {
             settings.edit()
                     .putBoolean(LockDetector.LEGACY_ANIMATION, isChecked)
@@ -206,15 +218,30 @@ public class Settings extends ThemedActivity {
         });
 
         findViewById(R.id.search_engine).setOnClickListener(new View.OnClickListener() {
-            private EngineDialog dialog;
+            private SearchEngineDialog dialog;
 
             @Override
             public void onClick(View view) {
                 if (dialog == null || !Settings.this.equals(dialog.getContext())) {
-                    dialog = new EngineDialog(Settings.this);
+                    dialog = new SearchEngineDialog(Settings.this);
 
                     dialog.setOnDismissListener(dialog ->
-                            searchEngineName.setText(SearchEngine.engineFor(Settings.this).toString()));
+                            searchEngineName.setText(SearchEngine.getEngine(Settings.this).toString()));
+                }
+
+                dialog.show();
+            }
+        });
+
+        findViewById(R.id.search_results_container).setOnClickListener(new View.OnClickListener() {
+            private SearchResultsDialog dialog;
+
+            @Override
+            public void onClick(View view) {
+                if (dialog == null || !Settings.this.equals(dialog.getContext())) {
+                    dialog = new SearchResultsDialog(Settings.this);
+
+                    dialog.setStatusListener(searchResultsSwitch::setChecked);
                 }
 
                 dialog.show();

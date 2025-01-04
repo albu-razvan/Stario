@@ -13,6 +13,7 @@
     <string name="drawer">Drawer</string>
     <string name="search">Search</string>
     <string name="miscellaneous">Miscellaneous</string>
+    <string name="apps">Applications</string>
     <string name="something_went_wrong">Something went wrong!</string>
     <string name="refresh">Refresh</string>
 
@@ -29,6 +30,8 @@
     <string name="vibrations">Vibrations</string>
     <string name="change_color">Change accent color</string>
     <string name="search_engine">Search engine</string>
+    <string name="search_results">Search results</string>
+    <string name="kagi_integration">Powered by Kagi</string>
     <string name="hide_applications">Hide applications</string>
     <string name="legacy_lock_animation">Legacy lock animation</string>
     <string name="legacy_launch_animations">Legacy launch animations</string>
@@ -115,8 +118,10 @@
     <string name="already_subscribed">You are already subscribed to this feed!</string>
 
     <!-- Search -->
-    <string name="apps">Applications</string>
     <string name="search_on">Search on</string>
+    <string name="kagi_dependency">Stario relies on data supplied by Kagi to provide search results.</string>
+    <string name="kagi_api_key">Kagi API key</string>
+    <string name="api_key">API key</string>
 
     <!-- Keyboard -->
     <string name="done">Done</string>

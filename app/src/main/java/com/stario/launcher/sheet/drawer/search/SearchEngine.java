@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 
 import com.stario.launcher.R;
+import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 
 public enum SearchEngine {
@@ -36,7 +37,7 @@ public enum SearchEngine {
     ECOSIA("Ecosia", "ecosia.org", "/search?q=", R.drawable.ic_ecosia),
     YANDEX("Yandex", "yandex.com", "/search/?text=", R.drawable.ic_yandex),
     YAHOO("Yahoo", "search.yahoo.com", "/search?p=", R.drawable.ic_yahoo);
-    public static final String PREFERENCE_ENTRY = "com.stario.SEARCH_ENGINE";
+    public static final String SEARCH_ENGINE = "com.stario.SEARCH_ENGINE";
     private final String label;
     private final String url;
     private final String query;
@@ -68,11 +69,11 @@ public enum SearchEngine {
     }
 
     // Defaults to GOOGLE
-    public static SearchEngine engineFor(ThemedActivity activity) {
+    public static SearchEngine getEngine(ThemedActivity activity) {
         SearchEngine engine = GOOGLE;
 
-        String string = activity.getSettings()
-                .getString(PREFERENCE_ENTRY, null);
+        String string = activity.getSharedPreferences(Entry.SEARCH)
+                .getString(SEARCH_ENGINE, null);
 
         if (DUCK_DUCK_GO.url.equals(string)) {
             engine = DUCK_DUCK_GO;
@@ -95,10 +96,10 @@ public enum SearchEngine {
         return engine;
     }
 
-    public void setDefaultFor(ThemedActivity activity) {
-        activity.getSettings()
+    public static void setEngine(ThemedActivity activity, SearchEngine engine) {
+        activity.getSharedPreferences(Entry.SEARCH)
                 .edit()
-                .putString(PREFERENCE_ENTRY, url)
+                .putString(SEARCH_ENGINE, engine.url)
                 .apply();
     }
 }

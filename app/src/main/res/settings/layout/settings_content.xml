@@ -285,7 +285,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_hidden" />
+                android:src="@drawable/ic_search_engine" />
 
             <Space
                 android:layout_width="10dp"
@@ -316,6 +316,62 @@
                     android:textSize="16sp" />
 
             </LinearLayout>
+
+        </carbon.widget.LinearLayout>
+
+        <carbon.widget.LinearLayout
+            android:id="@+id/search_results_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="15dp"
+            android:paddingTop="7dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="7dp"
+            app:carbon_cornerRadius="5dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_search_results" />
+
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="0px" />
+
+            <LinearLayout
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:letterSpacing="-0.03"
+                    android:paddingTop="10dp"
+                    android:text="@string/search_results"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:paddingBottom="10dp"
+                    android:text="@string/kagi_integration"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/search_results"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
         </carbon.widget.LinearLayout>
 

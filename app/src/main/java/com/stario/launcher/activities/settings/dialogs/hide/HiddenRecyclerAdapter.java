@@ -48,7 +48,7 @@ public class HiddenRecyclerAdapter extends RecyclerView.Adapter<HiddenRecyclerAd
         this.manager = LauncherApplicationManager.getInstance();
     }
 
-    protected static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         private final MaterialSwitch materialSwitch;
         private final AdaptiveIconView icon;
         private final TextView category;

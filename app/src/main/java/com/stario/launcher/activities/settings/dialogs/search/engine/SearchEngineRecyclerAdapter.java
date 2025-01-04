@@ -15,7 +15,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.activities.settings.dialogs.engine;
+package com.stario.launcher.activities.settings.dialogs.search.engine;
 
 import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
@@ -31,17 +31,17 @@ import com.stario.launcher.R;
 import com.stario.launcher.sheet.drawer.search.SearchEngine;
 import com.stario.launcher.themes.ThemedActivity;
 
-public class EngineRecyclerAdapter extends RecyclerView.Adapter<EngineRecyclerAdapter.ViewHolder> {
+public class SearchEngineRecyclerAdapter extends RecyclerView.Adapter<SearchEngineRecyclerAdapter.ViewHolder> {
     private final ThemedActivity activity;
     private final View.OnClickListener listener;
 
-    public EngineRecyclerAdapter(ThemedActivity activity,
-                                 View.OnClickListener listener) {
+    public SearchEngineRecyclerAdapter(ThemedActivity activity,
+                                       View.OnClickListener listener) {
         this.activity = activity;
         this.listener = listener;
     }
 
-    protected static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         private final ImageView icon;
         private final TextView label;
         private final TextView url;
@@ -65,7 +65,7 @@ public class EngineRecyclerAdapter extends RecyclerView.Adapter<EngineRecyclerAd
         viewHolder.url.setText(engine.getUrl());
 
         viewHolder.itemView.setOnClickListener(v -> {
-            engine.setDefaultFor(activity);
+            SearchEngine.setEngine(activity, engine);
 
             if (listener != null) {
                 listener.onClick(v);

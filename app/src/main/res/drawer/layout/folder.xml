@@ -13,7 +13,7 @@
         android:id="@+id/items"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@drawable/background"
+        android:background="@drawable/background_large_corners"
         android:clickable="false"
         android:descendantFocusability="blocksDescendants"
         android:nestedScrollingEnabled="false"

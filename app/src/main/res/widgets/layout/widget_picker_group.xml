@@ -6,7 +6,7 @@
     android:background="@drawable/ripple"
     android:forceDarkAllowed="false"
     android:orientation="vertical"
-    app:carbon_cornerRadius="10dp">
+    app:carbon_cornerRadius="5dp">
 
     <LinearLayout
         android:layout_width="match_parent"

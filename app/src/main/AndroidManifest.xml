@@ -36,23 +36,22 @@
             android:name=".apps.SplashScreen"
             android:allowEmbedded="false"
             android:alwaysRetainTaskState="false"
+            android:excludeFromRecents="true"
             android:exported="true"
             android:launchMode="standard"
             android:supportsPictureInPicture="false"
-            android:theme="@style/Theme.Light.Blue.Opaque"
-            android:windowSoftInputMode="stateAlwaysHidden" />
+            android:theme="@style/Theme.Light.Blue.Opaque" />
 
         <activity
             android:name=".activities.settings.Settings"
             android:allowEmbedded="false"
             android:alwaysRetainTaskState="false"
+            android:excludeFromRecents="true"
             android:exported="true"
             android:launchMode="standard"
             android:rotationAnimation="crossfade"
             android:supportsPictureInPicture="false"
-            android:taskAffinity=".settings"
-            android:theme="@style/Theme.Light.Blue.Opaque"
-            android:windowSoftInputMode="stateAlwaysHidden" />
+            android:theme="@style/Theme.Light.Blue.Opaque" />
 
         <activity
             android:name=".activities.Launcher"

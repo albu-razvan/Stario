@@ -103,6 +103,10 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
             window.setBackgroundDrawable(background);
             window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
+                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+            }
         }
 
         if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {

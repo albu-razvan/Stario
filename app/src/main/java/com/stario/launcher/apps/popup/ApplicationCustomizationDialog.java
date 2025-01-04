@@ -44,7 +44,7 @@ public class ApplicationCustomizationDialog extends ActionDialog {
     @NonNull
     @Override
     protected View inflateContent(LayoutInflater inflater) {
-        View root = inflater.inflate(R.layout.customize_pop_up, null);
+        View root = inflater.inflate(R.layout.pop_up_customize, null);
 
         RecyclerView icons = root.findViewById(R.id.icons);
         icons.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false));

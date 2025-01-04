@@ -15,7 +15,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.activities.settings.dialogs.engine;
+package com.stario.launcher.activities.settings.dialogs.search.engine;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,8 +31,8 @@ import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 
-public class EngineDialog extends ActionDialog {
-    public EngineDialog(@NonNull ThemedActivity activity) {
+public class SearchEngineDialog extends ActionDialog {
+    public SearchEngineDialog(@NonNull ThemedActivity activity) {
         super(activity);
     }
 
@@ -45,7 +45,7 @@ public class EngineDialog extends ActionDialog {
         recycler.setLayoutManager(new LinearLayoutManager(activity,
                 LinearLayoutManager.VERTICAL, false));
         recycler.addItemDecoration(new DividerItemDecorator(activity, MaterialDividerItemDecoration.VERTICAL));
-        recycler.setAdapter(new EngineRecyclerAdapter(activity, v -> dismiss()));
+        recycler.setAdapter(new SearchEngineRecyclerAdapter(activity, v -> dismiss()));
 
         return root;
     }

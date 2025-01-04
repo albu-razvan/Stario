@@ -12,7 +12,7 @@
         android:layout_marginLeft="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginRight="20dp"
-        android:background="@drawable/background_sheet"
+        android:background="@drawable/background_medium_corners"
         app:carbon_overScroll="never">
 
         <LinearLayout
@@ -36,7 +36,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                app:carbon_cornerRadius="30dp">
+                app:carbon_cornerRadius="20dp">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler"

@@ -73,10 +73,6 @@ public class Launcher extends ThemedActivity {
         coordinator = findViewById(R.id.coordinator);
         decorView = window.getDecorView();
 
-        if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-        }
-
         Measurements.measure(getRoot(), (insets) -> {
             coordinator.setPadding(0, Measurements.getSysUIHeight(), 0,
                     Measurements.getNavHeight() + Measurements.dpToPx(20));
