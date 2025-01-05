@@ -22,7 +22,7 @@
                 android:layout_width="40dp"
                 android:layout_height="4dp"
                 android:layout_marginTop="20dp"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="5dp"
                 android:alpha="0.5"
                 android:background="?attr/colorOnSurface"
                 app:carbon_cornerRadius="2dp"

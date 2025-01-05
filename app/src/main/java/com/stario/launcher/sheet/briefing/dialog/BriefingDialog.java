@@ -42,10 +42,10 @@ import com.stario.launcher.sheet.briefing.BriefingFeedList;
 import com.stario.launcher.sheet.briefing.configurator.BriefingConfigurator;
 import com.stario.launcher.sheet.briefing.feed.BriefingAdapter;
 import com.stario.launcher.sheet.briefing.feed.FeedPage;
-import com.stario.launcher.ui.measurements.Measurements;
-import com.stario.launcher.ui.pager.CustomDurationViewPager;
+import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.common.pager.CustomDurationViewPager;
 import com.stario.launcher.ui.popup.PopupMenu;
-import com.stario.launcher.ui.tabs.TabLayout;
+import com.stario.launcher.ui.common.TabLayout;
 import com.stario.launcher.utils.animation.Animation;
 import com.stario.launcher.utils.objects.ObservableObject;
 

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.bosphere.fadingedgelayout.FadingEdgeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:fel_edge="top|bottom"
+    app:fel_size_bottom="20dp"
+    app:fel_size_top="15dp">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="15dp"
+            android:paddingBottom="20dp">
+
+            <carbon.widget.RelativeLayout
+                android:id="@+id/search_results_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:background="@drawable/ripple"
+                android:padding="7dp"
+                app:carbon_cornerRadius="20dp">
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/search_results"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:drawableStart="@drawable/ic_search_results"
+                    android:drawablePadding="10dp"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:letterSpacing="-0.03"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="@string/search_results"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp" />
+
+            </carbon.widget.RelativeLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginBottom="10dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/kagi_logo" />
+
+                <Space
+                    android:layout_width="20dp"
+                    android:layout_height="0px" />
+
+                <TextView
+                    android:layout_width="0px"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:gravity="start"
+                    android:text="@string/kagi_dependency"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:translationY="10dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_api" />
+
+                <Space
+                    android:layout_width="10dp"
+                    android:layout_height="0dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:letterSpacing="-0.03"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:text="@string/kagi_api_key"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.stario.launcher.ui.keyboard.extract.ExtractEditText
+                    android:id="@+id/edit_text"
+                    android:layout_width="0px"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/label_background"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:hint="@string/api_key"
+                    android:imeOptions="actionGo"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:padding="15dp"
+                    android:singleLine="true"
+                    android:textColor="?attr/colorOnPrimaryContainer"
+                    android:textSize="18sp" />
+
+                <Space
+                    android:layout_width="10dp"
+                    android:layout_height="0dp" />
+
+
+                <carbon.widget.ImageView
+                    android:id="@+id/paste"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/transparent_ripple"
+                    android:padding="13dp"
+                    android:src="@drawable/ic_paste"
+                    app:carbon_cornerRadius="9999dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</com.bosphere.fadingedgelayout.FadingEdgeLayout>

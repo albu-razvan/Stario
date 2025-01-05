@@ -141,6 +141,8 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
             holder.itemView.setScaleY(getRemovedScaleY());
             holder.itemView.setScaleX(getRemovedScaleX());
             holder.itemView.setAlpha(getRemovedAlpha());
+
+            holder.itemView.setTranslationZ(0);
         }
 
         pendingAdditions.add(holder);
@@ -163,9 +165,9 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
                     private void cleanup() {
                         animation.setListener(null);
 
-                        holder.itemView.setAlpha(getTargetAlpha());
-                        holder.itemView.setScaleX(getTargetScaleX());
-                        holder.itemView.setScaleY(getTargetScaleY());
+                        view.setAlpha(getTargetAlpha());
+                        view.setScaleX(getTargetScaleX());
+                        view.setScaleY(getTargetScaleY());
 
                         dispatchAddFinished(holder);
                         addAnimations.remove(holder);
@@ -200,6 +202,9 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
             holder.itemView.setScaleY(getTargetScaleY());
             holder.itemView.setScaleX(getTargetScaleX());
             holder.itemView.setAlpha(getTargetAlpha());
+
+            // keep in front without adding elevation shadow
+            holder.itemView.setTranslationZ(-100_000_000);
         }
 
         pendingRemovals.add(holder);
@@ -225,6 +230,8 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
                         view.setAlpha(getTargetAlpha());
                         view.setScaleX(getTargetScaleX());
                         view.setScaleY(getTargetScaleY());
+
+                        view.setTranslationZ(0);
 
                         dispatchRemoveFinished(holder);
                         removeAnimations.remove(holder);

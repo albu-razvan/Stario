@@ -40,12 +40,13 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
-import com.stario.launcher.ui.measurements.Measurements;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 import java.util.List;
+import java.util.Objects;
 
 public abstract class ActionDialog extends BottomSheetDialog {
     protected final ThemedActivity activity;
@@ -103,8 +104,8 @@ public abstract class ActionDialog extends BottomSheetDialog {
         heightProvider = new KeyboardHeightProvider(activity);
 
         if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
-            ViewCompat.setWindowInsetsAnimationCallback(getWindow().getDecorView(), new WindowInsetsAnimationCompat
-                    .Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
+            ViewCompat.setWindowInsetsAnimationCallback(Objects.requireNonNull(getWindow()).getDecorView(),
+                    new WindowInsetsAnimationCompat.Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
                 private WindowInsetsAnimationCompat imeAnimation;
                 private float startBottom;
                 private float endBottom;

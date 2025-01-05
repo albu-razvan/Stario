@@ -30,7 +30,7 @@ import com.stario.launcher.R;
 import com.stario.launcher.apps.categories.CategoryData;
 import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.DrawerPage;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.async.InflationType;
 
 public class Folder extends DrawerPage {

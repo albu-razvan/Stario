@@ -1,0 +1,646 @@
+<?xml version="1.0" encoding="utf-8"?>
+<carbon.widget.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:animateLayoutChanges="true"
+    android:orientation="vertical"
+    android:padding="20dp"
+    app:carbon_maxWidth="500dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="@font/dm_sans_regular"
+        android:text="@string/preferences"
+        android:textColor="?attr/colorSecondary"
+        android:textSize="16sp" />
+
+    <carbon.widget.LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@drawable/transparent_divider_small"
+        android:orientation="vertical"
+        android:showDividers="middle"
+        app:carbon_cornerRadius="20dp">
+
+        <carbon.widget.RelativeLayout
+            android:id="@+id/media_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:padding="7dp"
+            app:carbon_cornerRadius="5dp">
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/media"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:drawableStart="@drawable/ic_media"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/dm_sans_medium"
+                android:letterSpacing="-0.03"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/media_player"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
+
+        </carbon.widget.RelativeLayout>
+
+        <carbon.widget.RelativeLayout
+            android:id="@+id/lock_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:padding="7dp"
+            app:carbon_cornerRadius="5dp">
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/lock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:drawableStart="@drawable/ic_lock"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/dm_sans_medium"
+                android:letterSpacing="-0.03"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/lock_gesture"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
+
+        </carbon.widget.RelativeLayout>
+
+        <carbon.widget.RelativeLayout
+            android:id="@+id/imperial_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:padding="7dp"
+            app:carbon_cornerRadius="5dp">
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/imperial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:drawableStart="@drawable/ic_ruler"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/dm_sans_medium"
+                android:letterSpacing="-0.03"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/imperial_units"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
+
+        </carbon.widget.RelativeLayout>
+
+        <carbon.widget.RelativeLayout
+            android:id="@+id/vibrations_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:padding="7dp"
+            app:carbon_cornerRadius="5dp">
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/vibrations"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:drawableStart="@drawable/ic_vibrations"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/dm_sans_medium"
+                android:letterSpacing="-0.03"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/vibrations"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
+
+        </carbon.widget.RelativeLayout>
+
+    </carbon.widget.LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="@font/dm_sans_regular"
+        android:paddingTop="40dp"
+        android:text="@string/drawer"
+        android:textColor="?attr/colorSecondary"
+        android:textSize="16sp" />
+
+    <carbon.widget.LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@drawable/transparent_divider_small"
+        android:orientation="vertical"
+        android:showDividers="middle"
+        app:carbon_cornerRadius="20dp">
+
+        <carbon.widget.LinearLayout
+            android:id="@+id/hidden_apps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="15dp"
+            android:paddingTop="7dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="7dp"
+            app:carbon_cornerRadius="5dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_hidden" />
+
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="0px" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:letterSpacing="-0.03"
+                    android:paddingTop="10dp"
+                    android:text="@string/hide_applications"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/hidden_count"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:paddingBottom="10dp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+        </carbon.widget.LinearLayout>
+
+        <carbon.widget.LinearLayout
+            android:id="@+id/icons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="15dp"
+            android:paddingTop="7dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="7dp"
+            app:carbon_cornerRadius="5dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_icons" />
+
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="0px" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:letterSpacing="-0.03"
+                    android:paddingTop="10dp"
+                    android:text="@string/icons"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/pack_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:paddingBottom="10dp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+        </carbon.widget.LinearLayout>
+
+    </carbon.widget.LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="@font/dm_sans_regular"
+        android:paddingTop="40dp"
+        android:text="@string/search"
+        android:textColor="?attr/colorSecondary"
+        android:textSize="16sp" />
+
+    <carbon.widget.LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@drawable/transparent_divider_small"
+        android:orientation="vertical"
+        android:showDividers="middle"
+        app:carbon_cornerRadius="20dp">
+
+        <carbon.widget.LinearLayout
+            android:id="@+id/search_engine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="15dp"
+            android:paddingTop="7dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="7dp"
+            app:carbon_cornerRadius="5dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_search_engine" />
+
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="0px" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:letterSpacing="-0.03"
+                    android:paddingTop="10dp"
+                    android:text="@string/search_engine"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/engine_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:paddingBottom="10dp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+        </carbon.widget.LinearLayout>
+
+        <carbon.widget.LinearLayout
+            android:id="@+id/search_results_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="15dp"
+            android:paddingTop="7dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="7dp"
+            app:carbon_cornerRadius="5dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_search_results" />
+
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="0px" />
+
+            <LinearLayout
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:letterSpacing="-0.03"
+                    android:paddingTop="10dp"
+                    android:text="@string/search_results"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:paddingBottom="10dp"
+                    android:text="@string/kagi_integration"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/search_results"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </carbon.widget.LinearLayout>
+
+    </carbon.widget.LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="@font/dm_sans_regular"
+        android:paddingTop="40dp"
+        android:text="@string/animations"
+        android:textColor="?attr/colorSecondary"
+        android:textSize="16sp" />
+
+    <carbon.widget.LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:divider="@drawable/transparent_divider_small"
+        android:orientation="vertical"
+        android:showDividers="middle"
+        app:carbon_cornerRadius="20dp">
+
+        <carbon.widget.RelativeLayout
+            android:id="@+id/launch_animation_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:padding="7dp"
+            app:carbon_cornerRadius="5dp">
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/launch_animation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:drawableStart="@drawable/ic_launch"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/dm_sans_medium"
+                android:letterSpacing="-0.03"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/legacy_launch_animations"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
+
+        </carbon.widget.RelativeLayout>
+
+        <carbon.widget.RelativeLayout
+            android:id="@+id/lock_animation_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:padding="7dp"
+            app:carbon_cornerRadius="5dp">
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/lock_animation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:drawableStart="@drawable/ic_lock"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/dm_sans_medium"
+                android:letterSpacing="-0.03"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/legacy_lock_animation"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
+
+        </carbon.widget.RelativeLayout>
+
+    </carbon.widget.LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="@font/dm_sans_regular"
+        android:paddingTop="40dp"
+        android:text="@string/miscellaneous"
+        android:textColor="?attr/colorSecondary"
+        android:textSize="16sp" />
+
+    <carbon.widget.LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@drawable/transparent_divider_small"
+        android:orientation="vertical"
+        android:showDividers="middle"
+        app:carbon_cornerRadius="20dp">
+
+        <carbon.widget.TextView
+            android:id="@+id/restart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:drawableStart="@drawable/ic_restart"
+            android:drawablePadding="10dp"
+            android:fontFamily="@font/dm_sans_medium"
+            android:letterSpacing="-0.03"
+            android:padding="15dp"
+            android:text="@string/restart"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="20sp"
+            app:carbon_cornerRadius="5dp" />
+
+        <carbon.widget.TextView
+            android:id="@+id/def_launcher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:drawableStart="@drawable/ic_launch"
+            android:drawablePadding="10dp"
+            android:fontFamily="@font/dm_sans_medium"
+            android:letterSpacing="-0.03"
+            android:padding="15dp"
+            android:text="@string/system_launcher"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="20sp"
+            app:carbon_cornerRadius="5dp" />
+
+    </carbon.widget.LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="@font/dm_sans_regular"
+        android:paddingTop="40dp"
+        android:text="@string/about"
+        android:textColor="?attr/colorSecondary"
+        android:textSize="16sp" />
+
+    <carbon.widget.LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@drawable/transparent_divider_small"
+        android:orientation="vertical"
+        android:showDividers="middle"
+        app:carbon_cornerRadius="20dp">
+
+        <carbon.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            app:carbon_cornerRadius="5dp">
+
+            <com.stario.launcher.ui.common.GradientView
+                android:id="@+id/gradient_background"
+                android:layout_width="match_parent"
+                android:layout_height="0px"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <carbon.widget.LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="10dp"
+                    android:src="@drawable/ic_stario"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:gravity="center"
+                    android:letterSpacing="-0.03"
+                    android:text="@string/app_name"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="30sp" />
+
+                <TextView
+                    android:id="@+id/version"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:gravity="center"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="4dp">
+
+                    <carbon.widget.ImageView
+                        android:id="@+id/website"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_margin="6dp"
+                        android:background="?attr/colorSurfaceContainer"
+                        android:padding="7dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_website"
+                        app:carbon_cornerRadius="15dp" />
+
+                    <carbon.widget.ImageView
+                        android:id="@+id/github"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_margin="6dp"
+                        android:background="?attr/colorSurfaceContainer"
+                        android:padding="11dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_github"
+                        app:carbon_cornerRadius="15dp" />
+
+                    <carbon.widget.ImageView
+                        android:id="@+id/discord"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_margin="6dp"
+                        android:background="?attr/colorSurfaceContainer"
+                        android:padding="11dp"
+                        android:src="@drawable/ic_discord"
+                        app:carbon_cornerRadius="15dp" />
+
+                </LinearLayout>
+
+            </carbon.widget.LinearLayout>
+
+        </carbon.widget.ConstraintLayout>
+
+        <carbon.widget.TextView
+            android:id="@+id/about"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:drawableStart="@drawable/ic_about"
+            android:drawablePadding="10dp"
+            android:fontFamily="@font/dm_sans_medium"
+            android:letterSpacing="-0.03"
+            android:padding="15dp"
+            android:text="@string/about"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="20sp"
+            app:carbon_cornerRadius="5dp" />
+
+        <carbon.widget.TextView
+            android:id="@+id/licenses"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:drawableStart="@drawable/ic_license"
+            android:drawablePadding="10dp"
+            android:fontFamily="@font/dm_sans_medium"
+            android:letterSpacing="-0.03"
+            android:padding="15dp"
+            android:text="@string/licenses"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="20sp"
+            app:carbon_cornerRadius="5dp" />
+
+    </carbon.widget.LinearLayout>
+
+</carbon.widget.LinearLayout>

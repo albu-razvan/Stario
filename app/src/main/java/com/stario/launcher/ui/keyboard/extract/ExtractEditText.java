@@ -12,7 +12,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.utils.UiUtils;
 
 public class ExtractEditText extends AppCompatEditText {

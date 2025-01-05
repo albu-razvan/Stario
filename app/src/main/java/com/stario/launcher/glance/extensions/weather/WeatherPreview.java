@@ -53,7 +53,7 @@ final class WeatherPreview implements GlanceViewExtension {
         root = activity.getLayoutInflater()
                 .inflate(R.layout.weather_preview, container, false);
 
-        preferences = activity.getSharedPreferences(Entry.WEATHER);
+        preferences = activity.getSharedPreferences(Entry.STARIO);
 
         icon = root.findViewById(R.id.icon);
         temperature = root.findViewById(R.id.temperature);

@@ -1,386 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.bosphere.fadingedgelayout.FadingEdgeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:forceDarkAllowed="false"
-    app:fel_edge="bottom|top"
-    app:fel_size_bottom="20dp"
-    app:fel_size_top="20dp">
+    app:fel_edge="bottom"
+    app:fel_size_bottom="20dp">
 
-    <ScrollView
-        android:id="@+id/scroll_view"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:overScrollMode="never"
-        android:paddingBottom="20dp"
-        android:scrollbars="none"
         android:transitionGroup="true">
 
-        <carbon.widget.LinearLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp"
-            android:animateLayoutChanges="true"
-            android:orientation="vertical"
-            app:carbon_maxWidth="500dp">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/close"
+            <carbon.widget.TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
-                android:gravity="center"
                 android:letterSpacing="-0.03"
-                android:paddingTop="30dp"
-                android:paddingBottom="30dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:text="@string/settings"
+                android:textSize="30sp"
+                android:visibility="invisible" />
+
+            <com.bosphere.fadingedgelayout.FadingEdgeLayout
+                android:id="@+id/fader"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:fel_edge="top"
+                app:fel_size_top="20dp">
+
+                <androidx.core.widget.NestedScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:overScrollMode="never"
+                    android:scrollbars="none">
+
+                    <include layout="@layout/settings_content" />
+
+                </androidx.core.widget.NestedScrollView>
+
+            </com.bosphere.fadingedgelayout.FadingEdgeLayout>
+
+        </LinearLayout>
+
+        <com.stario.launcher.ui.common.CollapsibleTitleBar
+            android:id="@+id/title_bar"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp">
+
+            <carbon.widget.TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/dm_sans_medium"
+                android:gravity="center_horizontal"
+                android:letterSpacing="-0.03"
+                android:paddingTop="10dp"
                 android:text="@string/settings"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="30sp" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_regular"
-                android:paddingTop="20dp"
-                android:text="@string/preferences"
-                android:textColor="?attr/colorSecondary"
-                android:textSize="16sp" />
+        </com.stario.launcher.ui.common.CollapsibleTitleBar>
 
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/media"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_medium"
-                android:letterSpacing="-0.03"
-                android:text="@string/media_player"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/notifications"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_medium"
-                android:letterSpacing="-0.03"
-                android:text="@string/notification_dots"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp"
-                android:visibility="gone" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/lock"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_medium"
-                android:letterSpacing="-0.03"
-                android:text="@string/lock_gesture"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/imperial"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_medium"
-                android:letterSpacing="-0.03"
-                android:text="@string/use_imperial_units"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp"
-                android:visibility="gone" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/vibrations"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_medium"
-                android:letterSpacing="-0.03"
-                android:text="@string/vibrations"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp" />
-
-            <TextView
-                android:id="@+id/theme"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:drawableEnd="@drawable/color_preview"
-                android:fontFamily="@font/dm_sans_medium"
-                android:gravity="center_vertical"
-                android:letterSpacing="-0.03"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:text="@string/change_color"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:id="@+id/icons"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/dm_sans_medium"
-                    android:letterSpacing="-0.03"
-                    android:paddingTop="10dp"
-                    android:text="@string/icons"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/pack_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/dm_sans_regular"
-                    android:paddingBottom="10dp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/search_engine"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/dm_sans_medium"
-                    android:letterSpacing="-0.03"
-                    android:paddingTop="10dp"
-                    android:text="@string/search_engine"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/engine_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/dm_sans_regular"
-                    android:paddingBottom="10dp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/hidden_apps"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/dm_sans_medium"
-                    android:letterSpacing="-0.03"
-                    android:paddingTop="10dp"
-                    android:text="@string/hide_applications"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/hidden_count"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/dm_sans_regular"
-                    android:paddingBottom="10dp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/def_launcher"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:drawablePadding="5dp"
-                android:fontFamily="@font/dm_sans_medium"
-                android:letterSpacing="-0.03"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:text="@string/system_launcher"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_regular"
-                android:paddingTop="40dp"
-                android:text="@string/animations"
-                android:textColor="?attr/colorSecondary"
-                android:textSize="16sp" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/lock_animations"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_medium"
-                android:letterSpacing="-0.03"
-                android:text="@string/legacy_launch_animations"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/lock_animation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_medium"
-                android:letterSpacing="-0.03"
-                android:text="@string/legacy_lock_animation"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_regular"
-                android:paddingTop="40dp"
-                android:text="@string/about"
-                android:textColor="?attr/colorSecondary"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/about"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_medium"
-                android:letterSpacing="-0.03"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:text="@string/app_info"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp" />
-
-            <TextView
-                android:id="@+id/licenses"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_medium"
-                android:letterSpacing="-0.03"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:text="@string/licenses"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_regular"
-                android:paddingTop="40dp"
-                android:text="@string/miscellaneous"
-                android:textColor="?attr/colorSecondary"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/restart"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_medium"
-                android:letterSpacing="-0.03"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:text="@string/restart"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp" />
-
-            <carbon.widget.LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="100dp"
-                android:background="?attr/colorPrimaryContainer"
-                android:orientation="vertical"
-                android:padding="20dp"
-                app:carbon_cornerRadius="20dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:layout_marginTop="10dp"
-                    android:src="@drawable/ic_stario"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/dm_sans_regular"
-                    android:gravity="center"
-                    android:letterSpacing="-0.03"
-                    android:text="@string/app_name"
-                    android:textColor="?attr/colorOnPrimaryContainer"
-                    android:textSize="30sp" />
-
-                <TextView
-                    android:id="@+id/version"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/dm_sans_regular"
-                    android:gravity="center"
-                    android:textColor="?attr/colorOnPrimaryContainer"
-                    android:textSize="16sp" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="4dp">
-
-                    <carbon.widget.ImageView
-                        android:id="@+id/twitter"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_margin="6dp"
-                        android:background="?attr/colorSurfaceContainer"
-                        android:padding="16dp"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/ic_twitter"
-                        app:carbon_cornerRadius="15dp" />
-
-                    <carbon.widget.ImageView
-                        android:id="@+id/donate"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_margin="6dp"
-                        android:background="?attr/colorSurfaceContainer"
-                        android:padding="5dp"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/ic_buy_me_a_coffee"
-                        app:carbon_cornerRadius="15dp" />
-
-                    <carbon.widget.ImageView
-                        android:id="@+id/discord"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_margin="6dp"
-                        android:background="?attr/colorSurfaceContainer"
-                        android:padding="11dp"
-                        android:src="@drawable/ic_discord"
-                        app:carbon_cornerRadius="15dp" />
-
-                </LinearLayout>
-
-            </carbon.widget.LinearLayout>
-
-        </carbon.widget.LinearLayout>
-
-    </ScrollView>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </com.bosphere.fadingedgelayout.FadingEdgeLayout>

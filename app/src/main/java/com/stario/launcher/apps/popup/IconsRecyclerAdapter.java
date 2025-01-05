@@ -68,6 +68,6 @@ public class IconsRecyclerAdapter extends RecyclerView.Adapter<IconsRecyclerAdap
     @Override
     public IconsRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup container, int viewType) {
         return new IconsRecyclerAdapter.ViewHolder(LayoutInflater.from(activity)
-                .inflate(R.layout.icon_item_pop_up, container, false));
+                .inflate(R.layout.pop_up_icon_item, container, false));
     }
 }

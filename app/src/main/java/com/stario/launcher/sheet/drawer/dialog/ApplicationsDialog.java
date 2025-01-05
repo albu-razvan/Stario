@@ -33,6 +33,7 @@ import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -48,8 +49,8 @@ import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.search.SearchEngine;
 import com.stario.launcher.sheet.drawer.search.SearchFragment;
-import com.stario.launcher.ui.measurements.Measurements;
-import com.stario.launcher.ui.pager.CustomDurationViewPager;
+import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.common.pager.CustomDurationViewPager;
 import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.animation.Animation;
 import com.stario.launcher.utils.animation.FragmentTransition;
@@ -263,7 +264,8 @@ public class ApplicationsDialog extends SheetDialogFragment {
 
             @Override
             public void onClick(View v) {
-                FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+                FragmentManager manager = getChildFragmentManager();
+                FragmentTransaction transaction = manager.beginTransaction();
 
                 if (fragment == null) {
                     fragment = new SearchFragment();
@@ -281,6 +283,12 @@ public class ApplicationsDialog extends SheetDialogFragment {
                                                 }
                                             });
                         }
+                    }
+                }
+
+                for (Fragment target : manager.getFragments()) {
+                    if (target == fragment) {
+                        return;
                     }
                 }
 
@@ -346,7 +354,7 @@ public class ApplicationsDialog extends SheetDialogFragment {
     public void onResume() {
         super.onResume();
 
-        SearchEngine engine = SearchEngine.engineFor(activity);
+        SearchEngine engine = SearchEngine.getEngine(activity);
         search.setCompoundDrawablesWithIntrinsicBounds(
                 engine.getDrawable(activity), null, null, null);
 

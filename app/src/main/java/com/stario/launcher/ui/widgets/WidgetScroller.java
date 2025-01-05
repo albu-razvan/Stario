@@ -24,7 +24,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.stario.launcher.ui.scrollers.BottomNestedScrollView;
+import com.stario.launcher.ui.common.scrollers.BottomNestedScrollView;
 
 public class WidgetScroller extends BottomNestedScrollView {
     public WidgetScroller(@NonNull Context context) {

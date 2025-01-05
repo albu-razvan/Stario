@@ -10,7 +10,10 @@
     <string name="licenses">Licenses</string>
     <string name="restart">Restart</string>
     <string name="animations">Animations</string>
+    <string name="drawer">Drawer</string>
+    <string name="search">Search</string>
     <string name="miscellaneous">Miscellaneous</string>
+    <string name="apps">Applications</string>
     <string name="something_went_wrong">Something went wrong!</string>
     <string name="refresh">Refresh</string>
 
@@ -23,15 +26,17 @@
     <string name="media_player">Media player</string>
     <string name="notification_dots">Notification dots</string>
     <string name="lock_gesture">Double tap to lock</string>
-    <string name="use_imperial_units">Imperial units</string>
+    <string name="imperial_units">Imperial units</string>
     <string name="vibrations">Vibrations</string>
     <string name="change_color">Change accent color</string>
-    <string name="search_engine">↗ Search engine</string>
-    <string name="hide_applications">↗ Hide applications</string>
+    <string name="search_engine">Search engine</string>
+    <string name="search_results">Search results</string>
+    <string name="kagi_integration">Powered by Kagi</string>
+    <string name="hide_applications">Hide applications</string>
     <string name="legacy_lock_animation">Legacy lock animation</string>
     <string name="legacy_launch_animations">Legacy launch animations</string>
-    <string name="icons">↗ Icons</string>
-    <string name="system_launcher">↗ Reassign system launcher</string>
+    <string name="icons">Icons</string>
+    <string name="system_launcher">Reassign system launcher</string>
     <string name="app_info">App info</string>
 
     <!-- Settings pop-up -->
@@ -64,6 +69,8 @@
 
     <!-- License pop-up -->
     <string name="license">License</string>
+    <string name="main_dependencies">Main dependencies</string>
+    <string name="all_dependencies">All dependencies</string>
 
     <!-- Widgets -->
     <string name="nothing_here_yet">Nothing here yet!</string>
@@ -111,8 +118,13 @@
     <string name="already_subscribed">You are already subscribed to this feed!</string>
 
     <!-- Search -->
-    <string name="apps">Applications</string>
     <string name="search_on">Search on</string>
+    <string name="searching">Searching…</string>
+    <string name="unauthorized">Kagi servers reported unauthorized access. Is your API key valid?</string>
+    <string name="to_search">to search with Kagi</string>
+    <string name="kagi_dependency">Stario relies on data supplied by Kagi to provide search results.</string>
+    <string name="kagi_api_key">Kagi API key</string>
+    <string name="api_key">API key</string>
 
     <!-- Keyboard -->
     <string name="done">Done</string>

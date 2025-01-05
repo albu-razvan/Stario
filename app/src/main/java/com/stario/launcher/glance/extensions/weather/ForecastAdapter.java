@@ -44,7 +44,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
     private final SharedPreferences preferences;
 
     public ForecastAdapter(ThemedActivity activity, ArrayList<Weather.Data> data, int indexToStart) {
-        this.preferences = activity.getSharedPreferences(Entry.WEATHER);
+        this.preferences = activity.getSharedPreferences(Entry.STARIO);
         this.data = data;
         this.indexToStart = indexToStart;
     }

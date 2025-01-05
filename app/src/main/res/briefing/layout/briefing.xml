@@ -14,7 +14,7 @@
             layout="@layout/tabs"
             app:layout_constraintTop_toBottomOf="@id/title_feeds" />
 
-        <com.stario.launcher.ui.pager.CustomDurationViewPager
+        <com.stario.launcher.ui.common.pager.CustomDurationViewPager
             android:id="@+id/articles_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -23,7 +23,7 @@
         <TextView
             android:id="@+id/title_feeds"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="250dp"
             android:ellipsize="end"
             android:fontFamily="@font/dm_sans_medium"
             android:gravity="bottom|left"

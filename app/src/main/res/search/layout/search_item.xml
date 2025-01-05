@@ -4,46 +4,62 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/colorSurfaceContainer"
+    android:divider="@drawable/transparent_divider_small"
+    android:showDividers="middle"
     android:forceDarkAllowed="false"
-    android:gravity="center_horizontal|bottom"
-    android:orientation="horizontal"
-    android:padding="5dp"
-    app:carbon_cornerRadius="5dp">
-
-    <com.stario.launcher.ui.icons.AdaptiveIconView
-        android:id="@+id/icon"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_gravity="center_vertical"
-        android:layout_margin="10dp" />
+    android:orientation="vertical"
+    android:padding="20dp"
+    app:carbon_cornerRadius="20dp">
 
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="0px"
+        android:id="@+id/title"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_weight="1"
-        android:ellipsize="end"
         android:fontFamily="@font/dm_sans_medium"
         android:letterSpacing="-0.03"
-        android:maxWidth="60dp"
-        android:maxLines="1"
-        android:textColor="?attr/colorOnSurface"
-        android:textSize="14sp"
-        app:layout_constraintTop_toBottomOf="@id/icon" />
-
-    <TextView
-        android:id="@+id/target_arrow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="20dp"
-        android:fontFamily="@font/dm_sans_medium"
-        android:text="↗"
         android:textColor="?attr/colorOnSurface"
         android:textSize="18sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:gravity="center_vertical"
+        android:minHeight="20dp"
+        android:orientation="horizontal">
+
+        <carbon.widget.ImageView
+            android:id="@+id/favicon"
+            android:layout_width="14sp"
+            android:layout_height="14sp"
+            android:layout_marginEnd="5sp"
+            android:background="#ffffff"
+            android:padding="2.5sp"
+            android:scaleType="fitCenter"
+            android:visibility="gone"
+            app:carbon_cornerRadius="7sp" />
+
+        <TextView
+            android:id="@+id/breadcrumbs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:alpha="0.7"
+            android:fontFamily="@font/dm_sans_regular"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/snippet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:fontFamily="@font/dm_sans_regular"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="14sp"
+        android:visibility="gone" />
 
 </carbon.widget.LinearLayout>

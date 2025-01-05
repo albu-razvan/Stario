@@ -19,9 +19,12 @@ package com.stario.launcher.utils.animation;
 
 public enum Animation {
     NONE(0),
+    BRIEF(50),
     SHORT(125),
     MEDIUM(200),
-    LONG(350);
+    LONG(350),
+    EXTENDED(575),
+    SUSTAINED(875);
 
     private final int duration;
 

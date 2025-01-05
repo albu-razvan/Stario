@@ -11,10 +11,9 @@
         android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:breakStrategy="balanced"
         android:fontFamily="@font/dm_sans_medium"
         android:letterSpacing="-0.02"
-        android:paddingStart="30dp"
-        android:paddingEnd="80dp"
         android:paddingBottom="2dp"
         android:textColor="?attr/colorOnSurface"
         android:textSize="20sp" />
@@ -23,9 +22,8 @@
         android:id="@+id/user"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:breakStrategy="balanced"
         android:fontFamily="@font/dm_sans_regular"
-        android:paddingStart="30dp"
-        android:paddingEnd="80dp"
         android:paddingBottom="2dp"
         android:textColor="?attr/colorOnSurface"
         android:textSize="16sp" />
@@ -35,9 +33,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:alpha="0.7"
+        android:breakStrategy="balanced"
         android:fontFamily="@font/dm_sans_regular"
-        android:paddingStart="30dp"
-        android:paddingEnd="80dp"
         android:textColor="?attr/colorOnSurface"
         android:textSize="16sp" />
 

@@ -51,7 +51,7 @@ import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.sheet.widgets.Widget;
 import com.stario.launcher.sheet.widgets.WidgetSize;
 import com.stario.launcher.sheet.widgets.configurator.WidgetConfigurator;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.popup.PopupMenu;
 import com.stario.launcher.ui.widgets.WidgetGrid;
 import com.stario.launcher.ui.widgets.WidgetHost;

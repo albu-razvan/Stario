@@ -35,7 +35,7 @@ import com.stario.launcher.R;
 import com.stario.launcher.sheet.widgets.WidgetSize;
 import com.stario.launcher.sheet.widgets.dialog.WidgetsDialog;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.widgets.RoundedWidgetHost;
 import com.stario.launcher.utils.Casing;
 import com.stario.launcher.utils.Utils;

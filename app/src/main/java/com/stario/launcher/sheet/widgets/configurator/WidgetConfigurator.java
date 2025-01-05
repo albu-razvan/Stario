@@ -32,7 +32,7 @@ import com.stario.launcher.R;
 import com.stario.launcher.sheet.widgets.WidgetSize;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 
 public class WidgetConfigurator extends ActionDialog {

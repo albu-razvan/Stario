@@ -38,11 +38,18 @@ public class LicensesDialog extends ActionDialog {
     @Override
     protected View inflateContent(LayoutInflater inflater) {
         View root = inflater.inflate(R.layout.pop_up_licenses, null);
-        RecyclerView recycler = root.findViewById(R.id.recycler);
 
-        recycler.setLayoutManager(new LinearLayoutManager(activity,
+        RecyclerView licenses = root.findViewById(R.id.licenses);
+
+        licenses.setLayoutManager(new LinearLayoutManager(activity,
                 LinearLayoutManager.VERTICAL, false));
-        recycler.setAdapter(new LicensesRecyclerAdapter(activity));
+        licenses.setAdapter(new LicensesRecyclerAdapter(activity));
+
+        RecyclerView ossLicenses = root.findViewById(R.id.oss_licenses);
+
+        ossLicenses.setLayoutManager(new LinearLayoutManager(activity,
+                LinearLayoutManager.VERTICAL, false));
+        ossLicenses.setAdapter(new OSSLicensesRecyclerAdapter(activity));
 
         return root;
     }

@@ -28,6 +28,7 @@ public enum Entry {
     BRIEFING("BRIEFING"),
     WEATHER("WEATHER"),
     WIDGETS("WIDGETS"),
+    SEARCH("SEARCH"),
     STARIO("STARIO"),
     DRAWER("DRAWER"),
     THEME("THEME"),

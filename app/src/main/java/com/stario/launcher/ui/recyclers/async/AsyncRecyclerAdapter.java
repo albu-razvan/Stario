@@ -29,7 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 
 import java.util.function.Supplier;
 

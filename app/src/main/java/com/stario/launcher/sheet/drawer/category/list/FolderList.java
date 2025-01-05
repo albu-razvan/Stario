@@ -35,7 +35,7 @@ import com.stario.launcher.R;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.DrawerPage;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 
 public class FolderList extends DrawerPage {
     @NonNull

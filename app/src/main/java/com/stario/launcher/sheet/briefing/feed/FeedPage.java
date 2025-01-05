@@ -37,7 +37,7 @@ import com.stario.launcher.sheet.briefing.BriefingFeedList;
 import com.stario.launcher.sheet.briefing.dialog.BriefingDialog;
 import com.stario.launcher.sheet.briefing.rss.Parser;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.measurements.Measurements;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;

@@ -9,7 +9,7 @@
     app:fel_size_left="30dp"
     app:fel_size_right="30dp">
 
-    <com.stario.launcher.ui.tabs.TabLayout
+    <com.stario.launcher.ui.common.TabLayout
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="44sp"
