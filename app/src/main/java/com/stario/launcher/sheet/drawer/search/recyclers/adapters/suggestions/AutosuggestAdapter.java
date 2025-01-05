@@ -15,7 +15,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.sheet.drawer.search.recyclers.adapters;
+package com.stario.launcher.sheet.drawer.search.recyclers.adapters.suggestions;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
@@ -49,21 +49,21 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public class AutosuggestAdapter extends AbstractSearchListAdapter {
+public class AutosuggestAdapter extends SuggestionSearchAdapter {
     private final static String TAG = "com.stario.launcher.WebAdapter";
     private final static int MAX_RESULTS = 5;
     private final static String AUTOSUGGEST_URL = "https://kagi.com/api/autosuggest?q=";
-    private final List<WebEntry> searchResults;
+    private final List<SuggestionEntry> suggestionResults;
     private final ThemedActivity activity;
 
-    private CompletableFuture<ArrayList<WebEntry>> runningTask;
+    private CompletableFuture<ArrayList<SuggestionEntry>> runningTask;
     private String currentQuery;
 
     public AutosuggestAdapter(ThemedActivity activity) {
         super(activity, true);
 
         this.activity = activity;
-        this.searchResults = new ArrayList<>();
+        this.suggestionResults = new ArrayList<>();
         this.currentQuery = "";
 
         setHasStableIds(true);
@@ -81,7 +81,7 @@ public class AutosuggestAdapter extends AbstractSearchListAdapter {
             currentQuery = constraint;
 
             runningTask = Utils.submitTask(() -> {
-                ArrayList<WebEntry> results = new ArrayList<>();
+                ArrayList<SuggestionEntry> results = new ArrayList<>();
 
                 try {
                     URLConnection connection = new URL(AUTOSUGGEST_URL + constraint).openConnection();
@@ -101,7 +101,7 @@ public class AutosuggestAdapter extends AbstractSearchListAdapter {
                                 Uri uri = Uri.parse(engine.getQuery(result));
 
                                 if (uri != null) {
-                                    results.add(new WebEntry(result, uri));
+                                    results.add(new SuggestionEntry(result, uri));
                                 }
                             }
                         }
@@ -116,10 +116,10 @@ public class AutosuggestAdapter extends AbstractSearchListAdapter {
             runningTask.thenApply(results -> {
                 UiUtils.runOnUIThread(() -> {
                     if (currentQuery.equals(constraint)) {
-                        searchResults.clear();
+                        suggestionResults.clear();
 
-                        for (WebEntry entry : results) {
-                            searchResults.add(0, entry);
+                        for (SuggestionEntry entry : results) {
+                            suggestionResults.add(0, entry);
                         }
 
                         notifyInternal();
@@ -132,7 +132,7 @@ public class AutosuggestAdapter extends AbstractSearchListAdapter {
             });
         } else {
             currentQuery = "";
-            searchResults.clear();
+            suggestionResults.clear();
 
             notifyInternal();
         }
@@ -158,8 +158,8 @@ public class AutosuggestAdapter extends AbstractSearchListAdapter {
 
     @NonNull
     @Override
-    public AbstractSearchListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup container, int viewType) {
-        AbstractSearchListAdapter.ViewHolder holder = super.onCreateViewHolder(container, viewType);
+    public SuggestionSearchAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup container, int viewType) {
+        SuggestionSearchAdapter.ViewHolder holder = super.onCreateViewHolder(container, viewType);
 
         holder.icon.setLooseClipping(false);
         holder.icon.setIcon(new LayerDrawable(new Drawable[]{
@@ -171,8 +171,8 @@ public class AutosuggestAdapter extends AbstractSearchListAdapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AbstractSearchListAdapter.ViewHolder viewHolder, int index) {
-        WebEntry entry = searchResults.get(index);
+    public void onBindViewHolder(@NonNull SuggestionSearchAdapter.ViewHolder viewHolder, int index) {
+        SuggestionEntry entry = suggestionResults.get(index);
 
         viewHolder.itemView.setOnClickListener(view -> {
             ActivityOptions activityOptions =
@@ -191,20 +191,20 @@ public class AutosuggestAdapter extends AbstractSearchListAdapter {
 
     @Override
     public int getItemCount() {
-        return searchResults.size();
+        return suggestionResults.size();
     }
 
     @Override
     public long getItemId(int position) {
-        return searchResults.get(position).hashCode();
+        return suggestionResults.get(position).hashCode();
     }
 
-    private static class WebEntry {
+    private static class SuggestionEntry {
         private final String label;
         private final Uri uri;
         private final int hash;
 
-        private WebEntry(String label, Uri uri) {
+        private SuggestionEntry(String label, Uri uri) {
             this.label = label;
             this.uri = uri;
 

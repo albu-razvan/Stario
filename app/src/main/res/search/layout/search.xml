@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:forceDarkAllowed="false"
-    app:fel_edge="top|bottom">
+    android:forceDarkAllowed="false">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipChildren="false">
 
         <com.bosphere.fadingedgelayout.FadingEdgeLayout
             android:id="@+id/fader"
@@ -39,38 +39,94 @@
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp">
 
-                    <carbon.widget.RecyclerView
-                        android:id="@+id/options"
+                    <LinearLayout
+                        android:id="@+id/base"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
-                        android:nestedScrollingEnabled="false"
-                        android:overScrollMode="never"
-                        android:visibility="gone"
-                        app:carbon_cornerRadius="30dp"
-                        app:carbon_overScroll="never" />
+                        android:orientation="vertical">
 
-                    <carbon.widget.RecyclerView
-                        android:id="@+id/web"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
-                        android:nestedScrollingEnabled="false"
-                        android:overScrollMode="never"
-                        android:visibility="gone"
-                        app:carbon_cornerRadius="30dp"
-                        app:carbon_overScroll="never" />
+                        <carbon.widget.RecyclerView
+                            android:id="@+id/options"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="15dp"
+                            android:nestedScrollingEnabled="false"
+                            android:overScrollMode="never"
+                            android:visibility="gone"
+                            app:carbon_cornerRadius="30dp"
+                            app:carbon_overScroll="never" />
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/apps"
+                        <carbon.widget.RecyclerView
+                            android:id="@+id/suggestions"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="15dp"
+                            android:nestedScrollingEnabled="false"
+                            android:overScrollMode="never"
+                            android:visibility="gone"
+                            app:carbon_cornerRadius="30dp"
+                            app:carbon_overScroll="never" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/apps"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="15dp"
+                            android:layout_marginBottom="-10dp"
+                            android:clipToPadding="false"
+                            android:nestedScrollingEnabled="false"
+                            android:overScrollMode="never"
+                            android:visibility="gone" />
+
+                    </LinearLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/web_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
-                        android:layout_marginBottom="-10dp"
-                        android:clipToPadding="false"
-                        android:nestedScrollingEnabled="false"
-                        android:overScrollMode="never"
-                        android:visibility="gone" />
+                        android:visibility="gone">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/web"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false"
+                            android:overScrollMode="never"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="parent" />
+
+                        <com.stario.launcher.ui.common.PulsingTextView
+                            android:id="@+id/searching"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:fontFamily="@font/dm_sans_medium"
+                            android:text="@string/searching"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="18sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent" />
+
+                        <TextView
+                            android:id="@+id/unauthorized"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:paddingLeft="30dp"
+                            android:paddingRight="30dp"
+                            android:breakStrategy="balanced"
+                            android:fontFamily="@font/dm_sans_regular"
+                            android:gravity="center"
+                            android:text="@string/unauthorized"
+                            android:textColor="?attr/colorError"
+                            android:textSize="18sp"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <Space
                         android:layout_width="match_parent"
@@ -82,10 +138,12 @@
 
         </com.bosphere.fadingedgelayout.FadingEdgeLayout>
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/search_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:padding="20dp"
             app:layout_constrainedWidth="true"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -95,7 +153,66 @@
 
             <include layout="@layout/search_bar" />
 
-        </RelativeLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/result_hint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="35dp"
+                android:clipChildren="false"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/searchbar_hint_background"
+                    android:clipChildren="false"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="5dp"
+                    android:paddingTop="5dp"
+                    android:paddingEnd="7dp"
+                    android:paddingBottom="1dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="12dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_submit" />
+
+                    <Space
+                        android:layout_width="5dp"
+                        android:layout_height="0px" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="0.5sp"
+                        android:fontFamily="@font/dm_sans_regular"
+                        android:lineHeight="12sp"
+                        android:text="@string/to_search"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="0px"
+                    android:layout_height="4dp"
+                    android:layout_marginLeft="1dp"
+                    android:layout_marginRight="1dp"
+                    android:background="?attr/colorSurfaceContainer"
+                    android:translationY="2dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

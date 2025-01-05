@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.stario.launcher.sheet.drawer.search.KeyPreImeListeningEditText xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/search"
     android:layout_width="match_parent"
     android:layout_height="60dp"
@@ -13,4 +14,4 @@
     android:singleLine="true"
     android:textColor="?attr/colorOnPrimaryContainer"
     android:textSize="18sp"
-    android:translationZ="1px" />
+    app:layout_constraintBottom_toBottomOf="parent" />

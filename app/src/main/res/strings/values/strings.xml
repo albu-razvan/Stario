@@ -119,6 +119,9 @@
 
     <!-- Search -->
     <string name="search_on">Search on</string>
+    <string name="searching">Searching…</string>
+    <string name="unauthorized">Kagi servers reported unauthorized access. Is your API key valid?</string>
+    <string name="to_search">to search with Kagi</string>
     <string name="kagi_dependency">Stario relies on data supplied by Kagi to provide search results.</string>
     <string name="kagi_api_key">Kagi API key</string>
     <string name="api_key">API key</string>

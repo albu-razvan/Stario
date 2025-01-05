@@ -28,10 +28,14 @@ public class DividerItemDecorator extends MaterialDividerItemDecoration {
     private static final int THICKNESS = 2;
 
     public DividerItemDecorator(@NonNull Context context, int orientation) {
+        this(context, orientation, Measurements.dpToPx(THICKNESS));
+    }
+
+    public DividerItemDecorator(@NonNull Context context, int orientation, int thickness) {
         super(context, orientation);
 
         setDividerColor(0);
-        setDividerThickness(Measurements.dpToPx(THICKNESS));
+        setDividerThickness(thickness);
         setLastItemDecorated(false);
     }
 }

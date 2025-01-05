@@ -20,6 +20,7 @@ package com.stario.launcher.sheet.drawer.search;
 import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,11 +34,11 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsAnimationCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -50,16 +51,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bosphere.fadingedgelayout.FadingEdgeLayout;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.stario.launcher.R;
+import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.sheet.drawer.search.recyclers.OnSearchRecyclerVisibilityChangeListener;
+import com.stario.launcher.sheet.drawer.search.recyclers.OnVisibilityChangeListener;
 import com.stario.launcher.sheet.drawer.search.recyclers.SearchRecyclerItemAnimator;
 import com.stario.launcher.sheet.drawer.search.recyclers.adapters.AppAdapter;
-import com.stario.launcher.sheet.drawer.search.recyclers.adapters.OptionAdapter;
-import com.stario.launcher.sheet.drawer.search.recyclers.adapters.AutosuggestAdapter;
+import com.stario.launcher.sheet.drawer.search.recyclers.adapters.WebAdapter;
+import com.stario.launcher.sheet.drawer.search.recyclers.adapters.suggestions.AutosuggestAdapter;
+import com.stario.launcher.sheet.drawer.search.recyclers.adapters.suggestions.OptionAdapter;
 import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.keyboard.ImeAnimationController;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
-import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
+import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
 import com.stario.launcher.ui.recyclers.async.InflationType;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
@@ -74,11 +79,14 @@ public class SearchFragment extends Fragment {
     public static final int MAX_APP_QUERY_ITEMS = 4;
     private SearchLayoutTransition searchLayoutTransition;
     private KeyboardHeightProvider heightProvider;
+    private SharedPreferences searchPreferences;
     private ImeAnimationController controller;
     private KeyPreImeListeningEditText search;
-    private RelativeLayout searchContainer;
+    private ConstraintLayout searchContainer;
     private ThemedActivity activity;
     private ViewGroup content;
+    private View webContainer;
+    private View base;
 
     public SearchFragment() {
         super();
@@ -96,6 +104,8 @@ public class SearchFragment extends Fragment {
 
         activity = (ThemedActivity) context;
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+
+        searchPreferences = activity.getSharedPreferences(Entry.SEARCH);
 
         super.onAttach(context);
     }
@@ -131,10 +141,15 @@ public class SearchFragment extends Fragment {
         heightProvider = new KeyboardHeightProvider(activity);
 
         PreEventNestedScrollView scrollView = root.findViewById(R.id.scroller);
+        View unauthorized = root.findViewById(R.id.unauthorized);
+        View searching = root.findViewById(R.id.searching);
+        View hint = root.findViewById(R.id.result_hint);
         FadingEdgeLayout fader = root.findViewById(R.id.fader);
         searchContainer = root.findViewById(R.id.search_container);
+        webContainer = root.findViewById(R.id.web_container);
         search = root.findViewById(R.id.search);
         content = root.findViewById(R.id.content);
+        base = root.findViewById(R.id.base);
 
         searchLayoutTransition = new SearchLayoutTransition();
         LayoutTransition nativeTransitionCast = searchLayoutTransition.getUnrefinedTransition();
@@ -156,11 +171,11 @@ public class SearchFragment extends Fragment {
 
         apps.setAdapter(appAdapter);
 
-        RecyclerView suggestions = root.findViewById(R.id.web);
+        RecyclerView suggestions = root.findViewById(R.id.suggestions);
 
-        LinearLayoutManager webLinearLayoutManager = new LinearLayoutManager(activity);
+        LinearLayoutManager suggestionsLinearLayoutManager = new LinearLayoutManager(activity);
 
-        suggestions.setLayoutManager(webLinearLayoutManager);
+        suggestions.setLayoutManager(suggestionsLinearLayoutManager);
         suggestions.addItemDecoration(new DividerItemDecorator(activity, MaterialDividerItemDecoration.VERTICAL));
         suggestions.setItemAnimator(new SearchRecyclerItemAnimator(Animation.MEDIUM));
 
@@ -185,6 +200,46 @@ public class SearchFragment extends Fragment {
         optionAdapter.setOnVisibilityChangeListener(new OnSearchRecyclerVisibilityChangeListener(searchLayoutTransition));
 
         options.setAdapter(optionAdapter);
+
+        RecyclerView web = root.findViewById(R.id.web);
+
+        LinearLayoutManager webLinearLayoutManager = new LinearLayoutManager(activity);
+
+        web.setLayoutManager(webLinearLayoutManager);
+        web.addItemDecoration(new DividerItemDecorator(activity,
+                MaterialDividerItemDecoration.VERTICAL, Measurements.dpToPx(10)));
+        web.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE, Animation.MEDIUM));
+
+        //noinspection ExtractMethodRecommender
+        WebAdapter webAdapter = new WebAdapter(activity);
+        webAdapter.setOnVisibilityChangeListener(new OnVisibilityChangeListener() {
+            private final OnVisibilityChangeListener listener =
+                    new OnSearchRecyclerVisibilityChangeListener(searchLayoutTransition);
+
+            @Override
+            public void onPreChange(View view, int visibility) {
+                listener.onPreChange(view, visibility);
+            }
+
+            @Override
+            public void onChange(View view, int visibility) {
+                listener.onChange(view, visibility);
+
+                if (visibility == View.VISIBLE) {
+                    searching.setVisibility(View.GONE);
+                } else {
+                    searching.setVisibility(View.VISIBLE);
+                }
+
+                unauthorized.setVisibility(View.GONE);
+            }
+        });
+        webAdapter.setUnauthorizedListener(() -> {
+            searching.setVisibility(View.GONE);
+            unauthorized.setVisibility(View.VISIBLE);
+        });
+
+        web.setAdapter(webAdapter);
 
         search.setFocusable(true);
         search.setFocusableInTouchMode(true);
@@ -225,7 +280,7 @@ public class SearchFragment extends Fragment {
                 }
 
                 content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
-                        content.getPaddingRight(), height);
+                        content.getPaddingRight(), height + hint.getHeight());
 
                 ((ViewGroup.MarginLayoutParams) search.getLayoutParams()).bottomMargin =
                         height + Measurements.getNavHeight();
@@ -445,7 +500,28 @@ public class SearchFragment extends Fragment {
 
         search.setOnEditorActionListener((view, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_GO) {
-                return appAdapter.submit() || autosuggestAdapter.submit() || optionAdapter.submit();
+                if (searchPreferences.getBoolean(WebAdapter.SEARCH_RESULTS, false)) {
+                    if (webContainer.getVisibility() != View.VISIBLE) {
+                        searchLayoutTransition.setAnimate(false);
+                        searchLayoutTransition.cancel();
+
+                        base.setVisibility(View.GONE);
+                        webContainer.setVisibility(View.VISIBLE);
+                        searching.setVisibility(View.VISIBLE);
+                        unauthorized.setVisibility(View.GONE);
+                    }
+
+                    Editable text = search.getText();
+                    if (text != null && text.length() > 0) {
+                        webAdapter.update(text.toString());
+
+                        return true;
+                    }
+                }
+
+                if (base.getVisibility() == View.VISIBLE) {
+                    return appAdapter.submit() || autosuggestAdapter.submit() || optionAdapter.submit();
+                }
             }
 
             return false;
@@ -456,7 +532,7 @@ public class SearchFragment extends Fragment {
         }
 
         search.addTextChangedListener(new TextWatcher() {
-            private static final int WEB_PROCESS_INTERVAL = 300;
+            private static final int SUGGESTION_PROCESS_INTERVAL = 200;
             private long lastRegisteredTimestamp = 0;
 
             @Override
@@ -474,24 +550,34 @@ public class SearchFragment extends Fragment {
                 String query = editable.toString();
                 String filteredQuery = query.replaceAll("(\\r\\n|\\r|\\n)", "");
 
+                hint.setVisibility(!filteredQuery.isEmpty() &&
+                        searchPreferences.getBoolean(WebAdapter.SEARCH_RESULTS, false) ?
+                        View.VISIBLE : View.GONE);
+                hint.post(() ->
+                        content.setPadding(content.getPaddingLeft(), content.getPaddingTop(), content.getPaddingRight(),
+                                (Utils.isMinimumSDK(Build.VERSION_CODES.R) ? 0 : heightProvider.getKeyboardHeight()) +
+                                        hint.getVisibility() == View.VISIBLE ? hint.getHeight() : 0));
+
                 if (filteredQuery.equals(query)) {
-                    appAdapter.update(query);
-                    optionAdapter.update(query);
+                    if (base.getVisibility() == View.VISIBLE) {
+                        appAdapter.update(query);
+                        optionAdapter.update(query);
 
-                    long timeStamp = System.currentTimeMillis();
+                        long timeStamp = System.currentTimeMillis();
 
-                    if (query.isBlank() || appAdapter.getItemCount() == 0) {
-                        autosuggestAdapter.update(query);
-                    } else {
-                        // don't process text changes too often
-                        search.postDelayed(() -> {
-                            if (timeStamp == lastRegisteredTimestamp) {
-                                autosuggestAdapter.update(query);
-                            }
-                        }, WEB_PROCESS_INTERVAL);
+                        if (query.isBlank()) {
+                            autosuggestAdapter.update(query);
+                        } else {
+                            // don't process text changes too often
+                            search.postDelayed(() -> {
+                                if (timeStamp == lastRegisteredTimestamp) {
+                                    autosuggestAdapter.update(query);
+                                }
+                            }, SUGGESTION_PROCESS_INTERVAL);
+                        }
+
+                        lastRegisteredTimestamp = System.currentTimeMillis();
                     }
-
-                    lastRegisteredTimestamp = System.currentTimeMillis();
                 } else {
                     search.setText(filteredQuery);
                 }
@@ -549,6 +635,8 @@ public class SearchFragment extends Fragment {
         super.onStop();
 
         search.setText(null);
+        base.setVisibility(View.VISIBLE);
+        webContainer.setVisibility(View.GONE);
     }
 
     @Override

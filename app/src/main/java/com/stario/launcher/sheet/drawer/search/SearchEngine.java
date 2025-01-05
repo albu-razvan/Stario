@@ -18,6 +18,7 @@
 package com.stario.launcher.sheet.drawer.search;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
@@ -25,6 +26,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 
 import com.stario.launcher.R;
 import com.stario.launcher.preferences.Entry;
+import com.stario.launcher.sheet.drawer.search.recyclers.adapters.WebAdapter;
 import com.stario.launcher.themes.ThemedActivity;
 
 public enum SearchEngine {
@@ -72,25 +74,30 @@ public enum SearchEngine {
     public static SearchEngine getEngine(ThemedActivity activity) {
         SearchEngine engine = GOOGLE;
 
-        String string = activity.getSharedPreferences(Entry.SEARCH)
-                .getString(SEARCH_ENGINE, null);
+        SharedPreferences preferences = activity.getSharedPreferences(Entry.SEARCH);
 
-        if (DUCK_DUCK_GO.url.equals(string)) {
-            engine = DUCK_DUCK_GO;
-        } else if (YANDEX.url.equals(string)) {
-            engine = YANDEX;
-        } else if (BING.url.equals(string)) {
-            engine = BING;
-        } else if (YAHOO.url.equals(string)) {
-            engine = YAHOO;
-        } else if (ECOSIA.url.equals(string)) {
-            engine = ECOSIA;
-        } else if (PERPLEXITY.url.equals(string)) {
-            engine = PERPLEXITY;
-        } else if (KAGI.url.equals(string)) {
+        if (preferences.getBoolean(WebAdapter.SEARCH_RESULTS, false)) {
             engine = KAGI;
-        } else if (BRAVE.url.equals(string)) {
-            engine = BRAVE;
+        } else {
+            String engineString = preferences.getString(SEARCH_ENGINE, null);
+
+            if (DUCK_DUCK_GO.url.equals(engineString)) {
+                engine = DUCK_DUCK_GO;
+            } else if (YANDEX.url.equals(engineString)) {
+                engine = YANDEX;
+            } else if (BING.url.equals(engineString)) {
+                engine = BING;
+            } else if (YAHOO.url.equals(engineString)) {
+                engine = YAHOO;
+            } else if (ECOSIA.url.equals(engineString)) {
+                engine = ECOSIA;
+            } else if (PERPLEXITY.url.equals(engineString)) {
+                engine = PERPLEXITY;
+            } else if (KAGI.url.equals(engineString)) {
+                engine = KAGI;
+            } else if (BRAVE.url.equals(engineString)) {
+                engine = BRAVE;
+            }
         }
 
         return engine;

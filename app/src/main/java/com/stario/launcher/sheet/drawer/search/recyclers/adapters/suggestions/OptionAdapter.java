@@ -15,7 +15,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.stario.launcher.sheet.drawer.search.recyclers.adapters;
+package com.stario.launcher.sheet.drawer.search.recyclers.adapters.suggestions;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
@@ -48,7 +48,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class OptionAdapter extends AbstractSearchListAdapter {
+public class OptionAdapter extends SuggestionSearchAdapter {
     private static final String TAG = "com.stario.launcher.OptionAdapter";
     private static final String[] PREDEFINED_URIS = new String[]{"market://search?q=", "geo:?q="};
 
@@ -245,7 +245,7 @@ public class OptionAdapter extends AbstractSearchListAdapter {
     }
 
     @Override
-    public void onBindViewHolder(AbstractSearchListAdapter.ViewHolder viewHolder, int index) {
+    public void onBindViewHolder(SuggestionSearchAdapter.ViewHolder viewHolder, int index) {
         OptionEntry entry = options.get(index);
 
         viewHolder.label.setText(activity.getResources().getString(R.string.search_on) + " " + entry.application.getLabel());

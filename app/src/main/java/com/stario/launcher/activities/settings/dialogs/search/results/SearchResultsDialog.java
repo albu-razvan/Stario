@@ -34,13 +34,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.stario.launcher.R;
 import com.stario.launcher.preferences.Entry;
+import com.stario.launcher.sheet.drawer.search.recyclers.adapters.WebAdapter;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
 
 public class SearchResultsDialog extends ActionDialog {
-    public static final String SEARCH_RESULTS = "com.stario.SEARCH_RESULTS";
-    public static final String KAGI_API_KEY = "com.stario.KAGI_API_KEY";
-
     private final SharedPreferences preferences;
 
     private MaterialSwitch resultsSwitch;
@@ -68,7 +66,7 @@ public class SearchResultsDialog extends ActionDialog {
                 .setOnClickListener(v -> resultsSwitch.performClick());
 
         EditText editText = root.findViewById(R.id.edit_text);
-        editText.setText(preferences.getString(KAGI_API_KEY, ""));
+        editText.setText(preferences.getString(WebAdapter.KAGI_API_KEY, ""));
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -81,7 +79,7 @@ public class SearchResultsDialog extends ActionDialog {
             @Override
             public void afterTextChanged(Editable content) {
                 preferences.edit()
-                        .putString(KAGI_API_KEY, content.toString())
+                        .putString(WebAdapter.KAGI_API_KEY, content.toString())
                         .apply();
             }
         });
@@ -113,7 +111,7 @@ public class SearchResultsDialog extends ActionDialog {
     public void show() {
         super.show();
 
-        resultsSwitch.setChecked(preferences.getBoolean(SEARCH_RESULTS, false));
+        resultsSwitch.setChecked(preferences.getBoolean(WebAdapter.SEARCH_RESULTS, false));
         resultsSwitch.jumpDrawablesToCurrentState();
     }
 

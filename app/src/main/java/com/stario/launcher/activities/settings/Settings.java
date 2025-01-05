@@ -55,6 +55,7 @@ import com.stario.launcher.glance.extensions.weather.Weather;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.search.SearchEngine;
+import com.stario.launcher.sheet.drawer.search.recyclers.adapters.WebAdapter;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.CollapsibleTitleBar;
@@ -65,8 +66,12 @@ public class Settings extends ThemedActivity {
     private CollapsibleTitleBar titleBar;
     private MaterialSwitch mediaSwitch;
     private MaterialSwitch lockSwitch;
+    private TextView searchEngineName;
+    private SharedPreferences search;
     private boolean shouldRebirth;
     private TextView iconPackName;
+    private TextView hideCount;
+    private View searchEngine;
 
     public Settings() {
         super();
@@ -81,15 +86,14 @@ public class Settings extends ThemedActivity {
         setContentView(R.layout.settings);
 
         SharedPreferences settings = getSettings();
-        SharedPreferences hiddenApps = getSharedPreferences(Entry.HIDDEN_APPS);
-        SharedPreferences search = getSharedPreferences(Entry.SEARCH);
+        search = getSharedPreferences(Entry.SEARCH);
 
         boolean mediaAllowed = settings.getBoolean(Media.PREFERENCE_ENTRY, false);
         boolean lock = settings.getBoolean(LockDetector.PREFERENCE_ENTRY, false);
         boolean legacyLaunchAnim = settings.getBoolean(LauncherApplication.LEGACY_LAUNCH_ANIMATION, false);
         boolean legacyLockAnim = settings.getBoolean(LockDetector.LEGACY_ANIMATION, true);
         boolean imperialUnits = settings.getBoolean(Weather.IMPERIAL_KEY, false);
-        boolean searchResults = search.getBoolean(SearchResultsDialog.SEARCH_RESULTS, false);
+        boolean searchResults = search.getBoolean(WebAdapter.SEARCH_RESULTS, false);
         boolean vibrations = settings.getBoolean(Vibrations.PREFERENCE_ENTRY, true);
 
         ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
@@ -111,15 +115,14 @@ public class Settings extends ThemedActivity {
         View lockAnimSwitchContainer = findViewById(R.id.lock_animation_container);
         View fader = findViewById(R.id.fader);
 
-        TextView searchEngineName = findViewById(R.id.engine_name);
+        searchEngine = findViewById(R.id.search_engine);
+        searchEngineName = findViewById(R.id.engine_name);
         iconPackName = findViewById(R.id.pack_name);
-        TextView hideCount = findViewById(R.id.hidden_count);
-
-        hideCount.setText(getResources().getString(R.string.hidden_apps) +
-                ": " + hiddenApps.getAll().size());
-        searchEngineName.setText(SearchEngine.getEngine(this).toString());
+        hideCount = findViewById(R.id.hidden_count);
 
         updateIconPackName();
+        updateHiddenAppsCount();
+        updateEngineName();
 
         titleBar = findViewById(R.id.title_bar);
         titleBar.setOnOffsetChangeListener(offset ->
@@ -195,8 +198,10 @@ public class Settings extends ThemedActivity {
 
         searchResultsSwitch.setOnCheckedChangeListener((compound, isChecked) -> {
             search.edit()
-                    .putBoolean(SearchResultsDialog.SEARCH_RESULTS, isChecked)
+                    .putBoolean(WebAdapter.SEARCH_RESULTS, isChecked)
                     .apply();
+
+            updateEngineName();
         });
 
         lockAnimSwitch.setOnCheckedChangeListener((compound, isChecked) -> {
@@ -217,7 +222,7 @@ public class Settings extends ThemedActivity {
                     .apply();
         });
 
-        findViewById(R.id.search_engine).setOnClickListener(new View.OnClickListener() {
+        searchEngine.setOnClickListener(new View.OnClickListener() {
             private SearchEngineDialog dialog;
 
             @Override
@@ -226,7 +231,7 @@ public class Settings extends ThemedActivity {
                     dialog = new SearchEngineDialog(Settings.this);
 
                     dialog.setOnDismissListener(dialog ->
-                            searchEngineName.setText(SearchEngine.getEngine(Settings.this).toString()));
+                            updateEngineName());
                 }
 
                 dialog.show();
@@ -257,8 +262,7 @@ public class Settings extends ThemedActivity {
                     dialog = new HideApplicationsDialog(Settings.this);
 
                     dialog.setOnDismissListener(dialog ->
-                            hideCount.setText(getResources().getString(R.string.hidden_apps) +
-                                    ": " + hiddenApps.getAll().size()));
+                            updateHiddenAppsCount());
                 }
 
                 dialog.show();
@@ -353,6 +357,13 @@ public class Settings extends ThemedActivity {
         lockAnimSwitchContainer.setOnClickListener((view) -> lockAnimSwitch.performClick());
     }
 
+    private void updateEngineName() {
+        searchEngineName.setText(SearchEngine.getEngine(this).toString());
+
+        searchEngine.setEnabled(!search.getBoolean(WebAdapter.SEARCH_RESULTS, false));
+        searchEngine.setAlpha(searchEngine.isEnabled() ? 1f : 0.6f);
+    }
+
     private void updateIconPackName() {
         SharedPreferences iconPreferences = getSharedPreferences(Entry.ICONS);
         String packPackageName = iconPreferences.getString(IconPackManager.ICON_PACK_ENTRY, null);
@@ -369,6 +380,12 @@ public class Settings extends ThemedActivity {
         }
 
         iconPackName.setText(R.string.default_text);
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void updateHiddenAppsCount() {
+        hideCount.setText(getResources().getString(R.string.hidden_apps) +
+                ": " + getSharedPreferences(Entry.HIDDEN_APPS).getAll().size());
     }
 
     private void checkNotificationPermission() {
