@@ -1,19 +1,19 @@
 /*
-    Copyright (C) 2024 Răzvan Albu
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2025 Răzvan Albu
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>
+ */
 
 package com.stario.launcher.sheet;
 
@@ -21,6 +21,8 @@ import android.annotation.SuppressLint;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,13 +35,16 @@ import com.stario.launcher.ui.dialogs.PersistentFullscreenDialog;
 
 public abstract class SheetDialog extends PersistentFullscreenDialog {
     private boolean dispatchedDownEvent;
-    protected ConstraintLayout sheet;
+    private boolean receivedMoveEvent;
+
     protected SheetBehavior<ConstraintLayout> behavior;
+    protected ConstraintLayout sheet;
 
     public SheetDialog(ThemedActivity activity, int theme) {
         super(activity, theme, true);
 
         this.dispatchedDownEvent = false;
+        this.receivedMoveEvent = false;
     }
 
     @Override
@@ -77,17 +82,25 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
 
         behavior.addSheetCallback(new SheetBehavior.SheetCallback() {
             @Override
-            public void onStateChanged(@NonNull View sheet, int newState) {
-                if (newState == SheetBehavior.STATE_COLLAPSED) {
+            public void onStateChanged(@NonNull View sheet, int state) {
+                if (state == SheetBehavior.STATE_COLLAPSED) {
                     hide();
 
                     container.intercept(SheetCoordinator.ALL);
                 } else {
-                    showDialog();
-
-                    if (newState == SheetBehavior.STATE_EXPANDED) {
+                    if (state == SheetBehavior.STATE_EXPANDED) {
                         container.intercept(SheetCoordinator.OWN);
                     }
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View sheet, float slideOffset) {
+                // in case motion event capture or state change hide()
+                // happens to be called accidentally after showing the
+                // sheet and preparing for sliding
+                if (slideOffset != 0 && !isShowing()) {
+                    showDialog();
                 }
             }
         });
@@ -98,32 +111,52 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
     void captureMotionEvent(MotionEvent event) {
         CoordinatorLayout coordinator = getContainer();
 
-        if (coordinator != null &&
-                behavior != null) {
+        if (coordinator != null && behavior != null) {
             MotionEvent motionEvent = MotionEvent.obtain(event);
-
-            if (event.getPointerCount() > 1) {
-                motionEvent.setAction(MotionEvent.ACTION_UP);
-            } else if (!dispatchedDownEvent &&
-                    motionEvent.getAction() != MotionEvent.ACTION_UP &&
-                    motionEvent.getAction() != MotionEvent.ACTION_CANCEL) {
-                if (!isShowing()) {
-                    showDialog();
-
-                    return;
-                }
-
-                motionEvent.setAction(MotionEvent.ACTION_DOWN);
-
-                dispatchedDownEvent = behavior.isDragHelperInstantiated();
-            }
-
-            coordinator.dispatchTouchEvent(motionEvent);
 
             if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
                     motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
+                if (!receivedMoveEvent && isShowing()) {
+                    hide();
+                }
+
+                coordinator.dispatchTouchEvent(motionEvent);
+
+                receivedMoveEvent = false;
                 dispatchedDownEvent = false;
+
+                Window window = getWindow();
+
+                if (window != null) {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                }
+
+                return;
+            } else {
+                if (!dispatchedDownEvent) {
+                    if (!isShowing()) {
+                        showDialog();
+
+                        return;
+                    }
+
+                    motionEvent.setAction(MotionEvent.ACTION_DOWN);
+                }
             }
+
+            Window window = getWindow();
+
+            if (window != null) {
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            }
+
+            if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
+                receivedMoveEvent = true;
+            }
+
+            dispatchedDownEvent = behavior.isDragHelperInstantiated() &&
+                    coordinator.dispatchTouchEvent(motionEvent);
         }
     }
 

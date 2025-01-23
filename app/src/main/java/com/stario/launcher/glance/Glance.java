@@ -1,23 +1,26 @@
 /*
-    Copyright (C) 2024 Răzvan Albu
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2025 Răzvan Albu
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>
+ */
 
 package com.stario.launcher.glance;
 
+import android.annotation.SuppressLint;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
@@ -29,6 +32,7 @@ import com.stario.launcher.glance.extensions.GlanceExtension;
 import com.stario.launcher.glance.extensions.GlanceViewExtension;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
+import com.stario.launcher.utils.animation.Animation;
 
 import java.util.ArrayList;
 
@@ -52,7 +56,8 @@ public class Glance {
         container.addView(root);
     }
 
-    public GlanceViewExtension attachViewExtension(GlanceViewExtension extension, View.OnClickListener listener) {
+    public GlanceViewExtension attachViewExtension(GlanceViewExtension extension,
+                                                   View.OnClickListener additionalClickListener) {
         if (root == null) {
             throw new RuntimeException("Glance should attach itself first before attaching extensions.");
         }
@@ -60,7 +65,53 @@ public class Glance {
         View view = extension.inflate(activity, extensionContainer);
 
         extensionContainer.addView(view);
-        view.setOnClickListener(listener);
+        view.setOnTouchListener(new View.OnTouchListener() {
+            private final float moveSlop = ViewConfiguration
+                    .get(view.getContext()).getScaledTouchSlop();
+
+            private boolean assumesClick;
+            private float startX;
+            private float startY;
+
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        assumesClick = true;
+                        startX = event.getX();
+                        startY = event.getY();
+
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        if (!isAClick(startX, event.getX(), startY, event.getY())) {
+                            assumesClick = false;
+                        }
+
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (assumesClick && isAClick(startX, event.getX(), startY, event.getY())) {
+                            View.OnClickListener extensionClickListener = extension.getClickListener();
+                            if (extensionClickListener != null) {
+                                extensionClickListener.onClick(view);
+                            }
+
+                            if (additionalClickListener != null) {
+                                additionalClickListener.onClick(view);
+                            }
+                        }
+
+                        break;
+                }
+
+                return assumesClick;
+            }
+
+            private boolean isAClick(float startX, float endX, float startY, float endY) {
+                return Math.abs(startX - endX) < moveSlop &&
+                        Math.abs(startY - endY) < moveSlop;
+            }
+        });
 
         extensions.add(extension);
 
@@ -79,11 +130,19 @@ public class Glance {
 
         extension.attach(this, gravity, progress -> {
             // hide the blur
-            root.setScaleY(1f - progress);
-            root.setPivotY(0);
+            root.setAlpha(1f - progress);
 
             if (listener != null) {
                 listener.onProgressFraction(progress);
+            }
+
+            if (progress == 0) {
+                extensionContainer.animate()
+                        .alpha(1f)
+                        .setDuration(Animation.SHORT.getDuration());
+            } else {
+                extensionContainer.animate().cancel();
+                extensionContainer.setAlpha(0f);
             }
         });
 

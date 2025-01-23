@@ -1,20 +1,19 @@
 /*
-    Copyright (C) 2015 The Android Open Source Project
-    Copyright (C) 2024 Răzvan Albu
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2025 Răzvan Albu
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>
+ */
 
 package com.stario.launcher.sheet.behavior.left;
 
@@ -40,6 +39,7 @@ import com.stario.launcher.ui.Measurements;
 public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
     private Boolean rememberInterceptResult = null;
     private boolean touchingScrollingChild;
+    private boolean flung;
     private int initialY;
 
     public LeftSheetBehavior(@NonNull Context context, @Nullable AttributeSet attrs) {
@@ -49,12 +49,6 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
     @Override
     protected void calculateCollapsedOffset() {
         collapsedOffset = expandedOffset - Measurements.dpToPx(SheetBehavior.COLLAPSED_DELTA_DP);
-    }
-
-    @Override
-    protected void calculateHalfExpandedOffset() {
-        halfExpandedOffset = (int) (collapsedOffset * (1 - halfExpandedRatio) +
-                expandedOffset * halfExpandedRatio);
     }
 
     @Override
@@ -78,7 +72,11 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
     }
 
     @Override
-    protected void stopNestedScrollLogic(V child, View target) {
+    protected void stopNestedScrollLogic(V child) {
+        if (flung) {
+            return;
+        }
+
         if (child.getLeft() == expandedOffset) {
             setStateInternal(STATE_EXPANDED);
             return;
@@ -92,7 +90,8 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
             left = expandedOffset;
             targetState = STATE_EXPANDED;
         } else if (lastNestedScroll == 0) {
-            if (currentLeft > halfExpandedOffset) {
+            if (currentLeft > collapsedOffset * 0.5 +
+                    expandedOffset * 0.5) {
                 left = expandedOffset;
                 targetState = STATE_EXPANDED;
             } else {
@@ -104,7 +103,26 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
             targetState = STATE_COLLAPSED;
         }
 
-        startSettling(child, targetState, left, child.getTop(), true);
+        settleChildTo(child, targetState, left, child.getTop());
+    }
+
+    @Override
+    protected boolean nestedPreFlingLogic(V child, float xvel, float yvel) {
+        int currentLeft = child.getLeft();
+
+        if (state == STATE_DRAGGING) {
+            if (xvel > 0 && currentLeft > expandedOffset) {
+                settleChildTo(child, STATE_EXPANDED, child.getLeft(), expandedOffset, (int) xvel, 0);
+
+                flung = true;
+            } else if (xvel < 0 && currentLeft < collapsedOffset) {
+                settleChildTo(child, STATE_COLLAPSED, child.getLeft(), collapsedOffset, (int) xvel, 0);
+
+                flung = true;
+            }
+        }
+
+        return flung;
     }
 
     @Override
@@ -141,6 +159,8 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
 
     @Override
     protected boolean startNestedScrollLogic(int axes) {
+        flung = true;
+
         return (axes & ViewCompat.SCROLL_AXIS_HORIZONTAL) != 0;
     }
 
@@ -227,7 +247,6 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
                         PagerAdapter adapter = pager.getAdapter();
 
                         if (adapter != null && pager.getCurrentItem() < adapter.getCount() - 1) {
-                            // Let ViewPager switch pages
                             return false;
                         }
                     }
@@ -236,8 +255,7 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
                 if (state == STATE_EXPANDED && activePointerId == pointerId) {
                     View scroll = nestedScrollingChildRef != null ? nestedScrollingChildRef.get() : null;
 
-                    if (scroll != null && scroll.canScrollHorizontally(-1)) {
-                        // Let the content scroll
+                    if (scroll != null && scroll.canScrollHorizontally(1)) {
                         return false;
                     }
                 }
@@ -261,7 +279,7 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
             @Override
             public void onViewReleased(@NonNull View releasedChild, float xvel, float yvel) {
                 int left;
-                @SheetBehavior.State int targetState;
+                @SheetBehavior.State int state;
 
                 if (xvel == 0.f ||
                         Measurements.dpToPx(ViewConfiguration.getMinimumFlingVelocity() +
@@ -271,20 +289,20 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
 
                     if (currentLeft >= collapsedOffset / 2) {
                         left = expandedOffset;
-                        targetState = STATE_EXPANDED;
+                        state = STATE_EXPANDED;
                     } else {
                         left = collapsedOffset;
-                        targetState = STATE_COLLAPSED;
+                        state = STATE_COLLAPSED;
                     }
                 } else if (xvel < 0) { // Moving left
                     left = collapsedOffset;
-                    targetState = STATE_COLLAPSED;
+                    state = STATE_COLLAPSED;
                 } else { // Moving Right
                     left = expandedOffset;
-                    targetState = STATE_EXPANDED;
+                    state = STATE_EXPANDED;
                 }
 
-                startSettling(releasedChild, targetState, left, releasedChild.getTop(), true);
+                settleChildTo(releasedChild, state, left, releasedChild.getTop());
             }
 
             @Override
@@ -305,14 +323,16 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
 
         if (state == STATE_COLLAPSED) {
             left = collapsedOffset;
-        } else if (state == STATE_HALF_EXPANDED) {
-            left = halfExpandedOffset;
         } else if (state == STATE_EXPANDED) {
             left = expandedOffset;
         } else {
             throw new IllegalArgumentException("Illegal state argument: " + state);
         }
 
-        startSettling(child, state, left, child.getTop(), animate);
+        if (animate) {
+            settleChildTo(child, state, left, child.getTop());
+        } else {
+            moveChildTo(child, state, left, child.getTop());
+        }
     }
 }

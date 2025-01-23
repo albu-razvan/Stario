@@ -1,19 +1,19 @@
 /*
-    Copyright (C) 2024 Răzvan Albu
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2025 Răzvan Albu
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>
+ */
 
 package com.stario.launcher.glance.extensions.calendar;
 
@@ -36,6 +36,7 @@ import com.stario.launcher.utils.Casing;
 import java.text.SimpleDateFormat;
 
 public final class Calendar implements GlanceViewExtension {
+    private View.OnClickListener clickListener;
     private TextView text;
 
     @Override
@@ -44,8 +45,7 @@ public final class Calendar implements GlanceViewExtension {
                 .inflate(R.layout.calendar, container, false);
 
         text = root.findViewById(R.id.calendar);
-
-        text.setOnClickListener(v -> {
+        clickListener = (view) -> {
             Vibrations.getInstance().vibrate();
 
             try {
@@ -62,7 +62,7 @@ public final class Calendar implements GlanceViewExtension {
             } catch (Exception exception) {
                 Log.e("Calendar", "inflate: ", exception);
             }
-        });
+        };
 
         return root;
     }
@@ -77,5 +77,10 @@ public final class Calendar implements GlanceViewExtension {
 
             text.post(() -> text.setText(Casing.toTitleCase(value)));
         }
+    }
+
+    @Override
+    public View.OnClickListener getClickListener() {
+        return clickListener;
     }
 }

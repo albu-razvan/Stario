@@ -1,20 +1,19 @@
 /*
-    Copyright (C) 2015 The Android Open Source Project
-    Copyright (C) 2024 Răzvan Albu
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2025 Răzvan Albu
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>
+ */
 
 package com.stario.launcher.sheet.behavior.bottom;
 
@@ -38,6 +37,7 @@ import com.stario.launcher.ui.Measurements;
 public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
     private Boolean rememberInterceptResult = null;
     private boolean touchingScrollingChild;
+    private boolean flung;
     private int initialX;
 
     public BottomSheetBehavior(@NonNull Context context, @Nullable AttributeSet attrs) {
@@ -46,13 +46,7 @@ public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
 
     @Override
     protected void calculateCollapsedOffset() {
-        collapsedOffset = expandedOffset + Measurements.dpToPx(SheetBehavior.COLLAPSED_DELTA_DP);;
-    }
-
-    @Override
-    protected void calculateHalfExpandedOffset() {
-        halfExpandedOffset = (int) (collapsedOffset * (1 - halfExpandedRatio) +
-                expandedOffset * halfExpandedRatio);
+        collapsedOffset = expandedOffset + Measurements.dpToPx(SheetBehavior.COLLAPSED_DELTA_DP);
     }
 
     @Override
@@ -76,7 +70,11 @@ public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
     }
 
     @Override
-    protected void stopNestedScrollLogic(V child, View target) {
+    protected void stopNestedScrollLogic(V child) {
+        if (flung) {
+            return;
+        }
+
         if (child.getTop() == expandedOffset) {
             setStateInternal(STATE_EXPANDED);
             return;
@@ -90,7 +88,8 @@ public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
             top = expandedOffset;
             targetState = STATE_EXPANDED;
         } else if (lastNestedScroll == 0) {
-            if (currentTop < halfExpandedOffset) {
+            if (currentTop < collapsedOffset * 0.5 +
+                    expandedOffset * 0.5) {
                 top = expandedOffset;
                 targetState = STATE_EXPANDED;
             } else {
@@ -102,7 +101,26 @@ public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
             targetState = STATE_COLLAPSED;
         }
 
-        startSettling(child, targetState, child.getLeft(), top, true);
+        settleChildTo(child, targetState, child.getLeft(), top);
+    }
+
+    @Override
+    protected boolean nestedPreFlingLogic(V child, float xvel, float yvel) {
+        int currentTop = child.getTop();
+
+        if (state == STATE_DRAGGING) {
+            if (yvel > 0 && currentTop > expandedOffset) {
+                settleChildTo(child, STATE_EXPANDED, child.getLeft(), expandedOffset, 0, (int) yvel);
+
+                flung = true;
+            } else if (yvel < 0 && currentTop < collapsedOffset) {
+                settleChildTo(child, STATE_COLLAPSED, child.getLeft(), collapsedOffset, 0, (int) yvel);
+
+                flung = true;
+            }
+        }
+
+        return flung;
     }
 
     @Override
@@ -139,6 +157,8 @@ public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
 
     @Override
     protected boolean startNestedScrollLogic(int axes) {
+        flung = false;
+
         return (axes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
     }
 
@@ -270,7 +290,7 @@ public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
                     targetState = STATE_EXPANDED;
                 }
 
-                startSettling(releasedChild, targetState, releasedChild.getLeft(), top, true);
+                settleChildTo(releasedChild, targetState, releasedChild.getLeft(), top);
             }
 
             @Override
@@ -293,14 +313,16 @@ public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
 
         if (state == STATE_COLLAPSED) {
             top = collapsedOffset;
-        } else if (state == STATE_HALF_EXPANDED) {
-            top = halfExpandedOffset;
         } else if (state == STATE_EXPANDED) {
             top = expandedOffset;
         } else {
             throw new IllegalArgumentException("Illegal state argument: " + state);
         }
 
-        startSettling(child, state, child.getLeft(), top, animate);
+        if (animate) {
+            settleChildTo(child, state, child.getLeft(), top);
+        } else {
+            moveChildTo(child, state, child.getLeft(), top);
+        }
     }
 }

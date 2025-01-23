@@ -1,19 +1,18 @@
 /*
-    Copyright 2018 Quiph Media Pvt Ltd
-    Copyright (C) 2024 Răzvan Albu
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) 2025 Răzvan Albu
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
 // reference https://github.com/quiph/RecyclerView-FastScroller/blob/master/recyclerviewfastscroller/src/main/java/com/qtalk/recyclerviewfastscroller/RecyclerViewFastScroller.kt
@@ -282,27 +281,15 @@ public class FastScroller extends RelativeLayout {
     }
 
     private void safeScrollToPosition(int position) {
-        if (position != lastPositionScrolled) {
-            if (recyclerView != null &&
-                    currentPosition != position) {
-                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (position != lastPositionScrolled && recyclerView != null) {
+            recyclerView.scrollToPosition(position);
 
-                if (layoutManager != null) {
-                    if (layoutManager instanceof LinearLayoutManager) {
-                        ((LinearLayoutManager) layoutManager)
-                                .scrollToPositionWithOffset(position, 0);
-                    } else {
-                        layoutManager.scrollToPosition(position);
-                    }
-
-                    lastPositionScrolled = position;
-                }
-            }
+            lastPositionScrolled = position;
         }
     }
 
     private void updateTextInPopup(int position) {
-        if (recyclerView != null) {
+        if (recyclerView != null && currentPosition != position) {
             RecyclerView.Adapter<?> adapter = recyclerView.getAdapter();
 
             if (adapter == null ||
