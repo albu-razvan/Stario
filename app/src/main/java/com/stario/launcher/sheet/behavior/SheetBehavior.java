@@ -1,20 +1,19 @@
 /*
-    Copyright (C) 2015 The Android Open Source Project
-    Copyright (C) 2024 Răzvan Albu
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2025 Răzvan Albu
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>
+ */
 
 package com.stario.launcher.sheet.behavior;
 
@@ -27,7 +26,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
-import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,8 +55,7 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
          *
          * @param sheet    The sheet view.
          * @param newState The new state. This will be one of {@link #STATE_DRAGGING}, {@link
-         *                 #STATE_SETTLING}, {@link #STATE_EXPANDED}, {@link #STATE_COLLAPSED},
-         *                 or {@link #STATE_HALF_EXPANDED}.
+         *                 #STATE_SETTLING}, {@link #STATE_EXPANDED} or {@link #STATE_COLLAPSED}.
          */
         default void onStateChanged(@NonNull View sheet, @State int newState) {
         }
@@ -95,17 +92,11 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
      */
     public static final int STATE_COLLAPSED = 4;
 
-    /**
-     * The sheet is half-expanded (used when mFitToContents is false).
-     */
-    public static final int STATE_HALF_EXPANDED = 5;
-
     @IntDef({
             STATE_EXPANDED,
             STATE_COLLAPSED,
             STATE_DRAGGING,
-            STATE_SETTLING,
-            STATE_HALF_EXPANDED
+            STATE_SETTLING
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -119,8 +110,6 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
 
     private SettleRunnable settleRunnable;
     protected int expandedOffset;
-    protected int halfExpandedOffset;
-    protected float halfExpandedRatio = 0f;
     protected int collapsedOffset;
     @State
     protected int state = STATE_COLLAPSED;
@@ -255,12 +244,9 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
 
         calculateExpandedOffset();
         calculateCollapsedOffset();
-        calculateHalfExpandedOffset();
 
         if (state == STATE_EXPANDED) {
             offset(child, expandedOffset);
-        } else if (state == STATE_HALF_EXPANDED) {
-            offset(child, halfExpandedOffset);
         } else if (state == STATE_COLLAPSED) {
             offset(child, collapsedOffset);
         } else if (state == STATE_DRAGGING || state == STATE_SETTLING) {
@@ -273,15 +259,8 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
     @Override
     public boolean onInterceptTouchEvent(
             @NonNull CoordinatorLayout parent, @NonNull V child, @NonNull MotionEvent event) {
-        if (!child.isShown()) {
-            ignoreEvents = true;
-
-            return false;
-        }
-
         int action = event.getActionMasked();
 
-        // Record the velocity
         if (action == MotionEvent.ACTION_DOWN) {
             reset();
         }
@@ -313,10 +292,6 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
     @Override
     public boolean onTouchEvent(
             @NonNull CoordinatorLayout parent, @NonNull V child, @NonNull MotionEvent event) {
-        if (!child.isShown()) {
-            return false;
-        }
-
         int action = event.getActionMasked();
 
         if (state == STATE_DRAGGING && action == MotionEvent.ACTION_DOWN) {
@@ -327,7 +302,6 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
             dragHelper.processTouchEvent(event);
         }
 
-        // Record the velocity
         if (action == MotionEvent.ACTION_DOWN) {
             reset();
         }
@@ -379,14 +353,13 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
     @Override
     public void onStopNestedScroll(@NonNull CoordinatorLayout coordinatorLayout,
                                    @NonNull V child, @NonNull View target, int type) {
-
         if (nestedScrollingChildRef == null
                 || target != nestedScrollingChildRef.get()
                 || !nestedScrolled) {
             return;
         }
 
-        stopNestedScrollLogic(child, target);
+        stopNestedScrollLogic(child);
 
         nestedScrolled = false;
     }
@@ -396,8 +369,7 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
                                     @NonNull View target, float velocityX, float velocityY) {
         return nestedScrollingChildRef != null &&
                 target == nestedScrollingChildRef.get() &&
-                (state != STATE_EXPANDED ||
-                        super.onNestedPreFling(coordinatorLayout, child, target, velocityX, velocityY));
+                nestedPreFlingLogic(child, velocityX, velocityY);
     }
 
     @Override
@@ -412,36 +384,6 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
             int type,
             @NonNull int[] consumed) {
         // Overridden to prevent the default consumption of the entire scroll distance.
-    }
-
-    /**
-     * Determines the width of the Sheet in the {@link #STATE_HALF_EXPANDED} state. The
-     * material guidelines recommended a value of 0.5, which results in the sheet filling half of the
-     * parent. The width of the Sheet will be smaller as this ratio is decreased and taller as
-     * it is increased. The default value is 0.5.
-     *
-     * @param ratio a float between 0 and 1, representing the {@link #STATE_HALF_EXPANDED} ratio.
-     */
-    public void setHalfExpandedRatio(@FloatRange(from = 0.0f, to = 1.0f) float ratio) {
-        if (ratio <= 0 || ratio >= 1) {
-            throw new IllegalArgumentException("ratio must be a float value between 0 and 1");
-        }
-
-        this.halfExpandedRatio = ratio;
-
-        // If sheet is already laid out, recalculate the half expanded offset based on new setting.
-        // Otherwise, let onLayoutChild handle this later.
-        if (viewRef != null) {
-            calculateHalfExpandedOffset();
-        }
-    }
-
-    /**
-     * Gets the ratio for the width of the Sheet in the {@link #STATE_HALF_EXPANDED} state.
-     */
-    @FloatRange(from = 0.0f, to = 1.0f)
-    public float getHalfExpandedRatio() {
-        return halfExpandedRatio;
     }
 
     /**
@@ -468,8 +410,7 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
      * Sets the state of the sheet. The sheet will transition to that state with
      * animation.
      *
-     * @param state One of {@link #STATE_COLLAPSED}, {@link #STATE_EXPANDED},
-     *              or {@link #STATE_HALF_EXPANDED}.
+     * @param state {@link #STATE_COLLAPSED} or {@link #STATE_EXPANDED}.
      */
     public void setState(@State int state) {
         setState(state, true);
@@ -479,15 +420,13 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
      * Sets the state of the sheet. The sheet will transition to that state with
      * or without an animation.
      *
-     * @param state One of {@link #STATE_COLLAPSED}, {@link #STATE_EXPANDED},
-     *              or {@link #STATE_HALF_EXPANDED}.
+     * @param state {@link #STATE_COLLAPSED} or {@link #STATE_EXPANDED}.
      */
     public void setState(@State int state, boolean animate) {
         if (viewRef == null) {
             // The view is not laid out yet; modify mState and let onLayoutChild handle it later
             if (state == STATE_COLLAPSED
-                    || state == STATE_EXPANDED
-                    || state == STATE_HALF_EXPANDED) {
+                    || state == STATE_EXPANDED) {
                 this.state = state;
             }
 
@@ -520,8 +459,8 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
     /**
      * Gets the current state of the sheet.
      *
-     * @return One of {@link #STATE_EXPANDED}, {@link #STATE_HALF_EXPANDED}, {@link #STATE_COLLAPSED},
-     * {@link #STATE_DRAGGING}, {@link #STATE_SETTLING}, or {@link #STATE_HALF_EXPANDED}.
+     * @return One of {@link #STATE_EXPANDED}, {@link #STATE_COLLAPSED},
+     * {@link #STATE_DRAGGING} or {@link #STATE_SETTLING}.
      */
     @State
     public int getState() {
@@ -619,61 +558,89 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
         }
     }
 
-    protected void startSettling(View child, int state, int left, int top, boolean animate) {
-        if (!animate) {
-            if (dragHelper != null) {
-                dragHelper.abort();
+    /**
+     * Move a specific child into place.
+     *
+     * @param child Child targeted by move
+     * @param state Target state
+     * @param left  Final left offset of child
+     * @param top   Final top offset of child
+     */
+    protected void moveChildTo(View child, int state, int left, int top) {
+        if (dragHelper != null) {
+            dragHelper.abort();
 
-                int dx = left - child.getLeft();
-                int dy = top - child.getTop();
+            int dx = left - child.getLeft();
+            int dy = top - child.getTop();
 
-                if (dx != 0) {
-                    ViewCompat.offsetLeftAndRight(child, dx);
-                } else if (dy != 0) {
-                    ViewCompat.offsetTopAndBottom(child, dy);
+            if (dx != 0) {
+                ViewCompat.offsetLeftAndRight(child, dx);
+            } else if (dy != 0) {
+                ViewCompat.offsetTopAndBottom(child, dy);
+            }
+        }
+
+        if (viewRef != null) {
+            View sheet = viewRef.get();
+
+            if (sheet != null) {
+                for (SheetCallback callback : callbacks) {
+                    if (state == STATE_COLLAPSED) {
+                        callback.onSlide(sheet, 0);
+                    } else if (state == STATE_EXPANDED) {
+                        callback.onSlide(sheet, 1);
+                    }
                 }
             }
+        }
 
-            if (viewRef != null) {
-                View sheet = viewRef.get();
+        setStateInternal(state);
+    }
 
-                if (sheet != null) {
-                    for (SheetCallback callback : callbacks) {
-                        if (state == STATE_COLLAPSED) {
-                            callback.onSlide(sheet, 0);
-                        } else if (state == STATE_HALF_EXPANDED) {
-                            callback.onSlide(sheet, halfExpandedRatio);
-                        } else if (state == STATE_EXPANDED) {
-                            callback.onSlide(sheet, 1);
-                        }
-                    }
-                }
+    protected void settleChildTo(View child, int state, int left, int top) {
+        settleChildTo(child, state, left, top, null, null);
+    }
+
+    /**
+     * Settle a specific child into place.
+     *
+     * @param child Child targeted by the settle animation
+     * @param state Target state
+     * @param left  Final left offset of child
+     * @param top   Final top offset of child
+     * @param xvel  Horizontal velocity to calculate animation duration, or null for base duration.
+     * @param yvel  Vertical velocity to calculate animation duration, or null for base duration.
+     */
+    protected void settleChildTo(View child, int state, int left,
+                                 int top, @Nullable Integer xvel, @Nullable Integer yvel) {
+        if (dragHelper != null) {
+            boolean startedSettling;
+
+            if (xvel != null || yvel != null) {
+                startedSettling = dragHelper.smoothSlideViewTo(child, left,
+                        top, xvel != null ? xvel : 0, yvel != null ? yvel : 0);
+            } else {
+                startedSettling = dragHelper.smoothSlideViewTo(child, left, top);
             }
 
-            setStateInternal(state);
-        } else {
-            if (dragHelper != null) {
-                boolean startedSettling = dragHelper.smoothSlideViewTo(child, left, top);
+            if (startedSettling) {
+                setStateInternal(STATE_SETTLING);
+                if (settleRunnable == null) {
+                    // If the singleton SettleRunnable instance has not been instantiated, create it.
+                    settleRunnable = new SettleRunnable(child, state);
+                }
+                // If the SettleRunnable has not been posted, post it with the correct state.
+                if (!settleRunnable.isPosted) {
+                    settleRunnable.targetState = state;
 
-                if (startedSettling) {
-                    setStateInternal(STATE_SETTLING);
-                    if (settleRunnable == null) {
-                        // If the singleton SettleRunnable instance has not been instantiated, create it.
-                        settleRunnable = new SettleRunnable(child, state);
-                    }
-                    // If the SettleRunnable has not been posted, post it with the correct state.
-                    if (!settleRunnable.isPosted) {
-                        settleRunnable.targetState = state;
-
-                        ViewCompat.postOnAnimation(child, settleRunnable);
-                        settleRunnable.isPosted = true;
-                    } else {
-                        // Otherwise, if it has been posted, just update the target state.
-                        settleRunnable.targetState = state;
-                    }
+                    ViewCompat.postOnAnimation(child, settleRunnable);
+                    settleRunnable.isPosted = true;
                 } else {
-                    setStateInternal(state);
+                    // Otherwise, if it has been posted, just update the target state.
+                    settleRunnable.targetState = state;
                 }
+            } else {
+                setStateInternal(state);
             }
         }
     }
@@ -732,8 +699,6 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
 
     protected abstract void calculateCollapsedOffset();
 
-    protected abstract void calculateHalfExpandedOffset();
-
     protected abstract void calculateExpandedOffset();
 
     protected abstract void dispatchOnSlide(V child);
@@ -742,10 +707,11 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
 
     protected abstract void offset(V child, int offset);
 
-    protected abstract void stopNestedScrollLogic(V child, View target);
+    protected abstract void stopNestedScrollLogic(V child);
 
-    protected abstract void nestedPreScrollLogic(V child, View target, int dx, int dy,
-                                                 int[] consumed);
+    protected abstract boolean nestedPreFlingLogic(V child, float xvel, float yvel);
+
+    protected abstract void nestedPreScrollLogic(V child, View target, int dx, int dy, int[] consumed);
 
     protected abstract boolean startNestedScrollLogic(int axes);
 

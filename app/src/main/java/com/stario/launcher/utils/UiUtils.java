@@ -1,19 +1,19 @@
 /*
-    Copyright (C) 2024 Răzvan Albu
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2025 Răzvan Albu
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>
+ */
 
 package com.stario.launcher.utils;
 
@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.transition.TransitionSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
@@ -46,25 +47,27 @@ import com.stario.launcher.utils.animation.Animation;
 public class UiUtils {
     private static final Handler UIHandler = new Handler(Looper.getMainLooper());
 
+    // TODO add wallpaper zoom transition
     public static void setWindowTransitions(Window window) {
-        //prepare window for transitions
         window.setAllowEnterTransitionOverlap(true);
         window.setAllowReturnTransitionOverlap(true);
 
         //window transitions
-        MaterialSharedAxis enterTransform = new MaterialSharedAxis(MaterialSharedAxis.Z, false);
-        enterTransform.setInterpolator(new FastOutSlowInInterpolator());
-        enterTransform.setDuration(Animation.LONG.getDuration());
+        TransitionSet enterTransition = new TransitionSet();
+        enterTransition.addTransition(new MaterialSharedAxis(MaterialSharedAxis.Z, false));
+        enterTransition.setInterpolator(new FastOutSlowInInterpolator());
+        enterTransition.setDuration(Animation.LONG.getDuration());
 
-        window.setEnterTransition(enterTransform);
-        window.setReenterTransition(enterTransform);
-        window.setReturnTransition(enterTransform);
+        window.setEnterTransition(enterTransition);
+        window.setReenterTransition(enterTransition);
+        window.setReturnTransition(enterTransition);
 
-        MaterialSharedAxis exitTransform = new MaterialSharedAxis(MaterialSharedAxis.Z, false);
-        exitTransform.setInterpolator(new AccelerateInterpolator());
-        exitTransform.setDuration(Animation.LONG.getDuration());
+        TransitionSet exitTransition = new TransitionSet();
+        exitTransition.addTransition(new MaterialSharedAxis(MaterialSharedAxis.Z, false));
+        exitTransition.setInterpolator(new AccelerateInterpolator());
+        exitTransition.setDuration(Animation.LONG.getDuration());
 
-        window.setExitTransition(exitTransform);
+        window.setExitTransition(exitTransition);
     }
 
     public static void makeSysUITransparent(Window window) {

@@ -1,19 +1,19 @@
 /*
-    Copyright (C) 2024 Răzvan Albu
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2025 Răzvan Albu
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>
+ */
 
 package com.stario.launcher.glance.extensions;
 
@@ -44,8 +44,8 @@ import androidx.fragment.app.DialogFragment;
 import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.glance.Glance;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.dialogs.PersistentFullscreenDialog;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
+import com.stario.launcher.ui.dialogs.PersistentFullscreenDialog;
 import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.animation.Animation;
 
@@ -53,7 +53,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
         implements GlanceExtension {
     private static final float X1 = 0.2f;
     private static final float Y1 = 1f;
-    private static final float X2 = 0.7f;
+    private static final float X2 = 0.4f;
     private static final float Y2 = 1f;
 
     protected ThemedActivity activity;
@@ -199,13 +199,12 @@ public abstract class GlanceDialogExtension extends DialogFragment
 
                     if (scale >= 0 && !Float.isInfinite(scale)) {
                         container.setScaleY(scale);
-
                         container.setVisibility(View.VISIBLE);
 
                         container.animate()
                                 .scaleY(1)
                                 .setInterpolator(new PathInterpolator(X1, Y1, X2, Y2))
-                                .setDuration(Animation.MEDIUM.getDuration())
+                                .setDuration(Animation.LONG.getDuration())
                                 .setUpdateListener(animation -> {
                                     float fraction = animation.getAnimatedFraction();
 
@@ -227,7 +226,6 @@ public abstract class GlanceDialogExtension extends DialogFragment
                                 });
                     } else {
                         container.setVisibility(View.INVISIBLE);
-
                         container.post(this);
                     }
                 }
@@ -248,10 +246,13 @@ public abstract class GlanceDialogExtension extends DialogFragment
 
                 if (scale >= 0 && !Float.isInfinite(scale)) {
                     container.setScaleY(scale);
+
+                    container.setVisibility(View.INVISIBLE);
+
                     updateScalingInternal(0);
                 }
 
-                dialog.hide();
+                container.post(() -> dialog.hide());
             }
 
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -261,9 +262,11 @@ public abstract class GlanceDialogExtension extends DialogFragment
     protected void hide() {
         if (dialog != null && dialog.isShowing() &&
                 container.getScaleY() == 1) {
+            float targetScale = glance.getHeight() /
+                    container.getMeasuredHeight();
+
             container.animate()
-                    .scaleY(glance.getHeight() /
-                            container.getMeasuredHeight())
+                    .scaleY(targetScale)
                     .setInterpolator(new PathInterpolator(X1, Y1, X2, Y2))
                     .setDuration(Animation.MEDIUM.getDuration())
                     .setUpdateListener(animation -> {
@@ -274,12 +277,18 @@ public abstract class GlanceDialogExtension extends DialogFragment
                     }).setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationCancel(Animator animation) {
-                            dialog.hide();
+                            container.setScaleY(targetScale);
+
+                            container.setVisibility(View.INVISIBLE);
+
+                            container.post(() -> dialog.hide());
                         }
 
                         @Override
                         public void onAnimationEnd(Animator animation) {
-                            dialog.hide();
+                            container.setVisibility(View.INVISIBLE);
+
+                            container.post(() -> dialog.hide());
                         }
                     });
 

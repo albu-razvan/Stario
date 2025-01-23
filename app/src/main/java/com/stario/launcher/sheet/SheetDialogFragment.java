@@ -1,19 +1,19 @@
 /*
-    Copyright (C) 2024 Răzvan Albu
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2025 Răzvan Albu
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>
+ */
 
 package com.stario.launcher.sheet;
 
@@ -28,6 +28,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,8 +54,11 @@ public abstract class SheetDialogFragment extends DialogFragment {
     private final static String TYPE_KEY = "com.stario.launcher.SheetDialog.TYPE_KEY";
     private final ArrayList<DialogInterface.OnShowListener> showListeners;
     private final ArrayList<OnDestroyListener> destroyListeners;
+    private OnSlideListener slideListener;
+    private boolean receivedMoveEvent;
     private boolean capturing;
     private SheetType type;
+
     protected ThemedActivity activity;
     protected SheetDialog dialog;
 
@@ -115,7 +119,7 @@ public abstract class SheetDialogFragment extends DialogFragment {
             type = (SheetType) savedInstanceState.getSerializable(TYPE_KEY);
 
             if (type != null) {
-                boolean valid = SheetWrapper.update(this, type);
+                boolean valid = SheetsFocusController.Wrapper.update(this, type);
 
                 if (!valid) {
                     dismissAllowingStateLoss();
@@ -153,6 +157,7 @@ public abstract class SheetDialogFragment extends DialogFragment {
 
             dialog.behavior.addSheetCallback(new SheetBehavior.SheetCallback() {
                 private int lastBlurStep = -1;
+                private float lastSlideOffset = -1;
                 boolean wasCollapsed = true;
 
                 @Override
@@ -164,12 +169,20 @@ public abstract class SheetDialogFragment extends DialogFragment {
 
                 @Override
                 public void onSlide(@NonNull View sheet, float slideOffset) {
+                    if (slideOffset == lastSlideOffset) {
+                        return;
+                    }
+
+                    lastSlideOffset = slideOffset;
+
                     if (window != null) {
+                        double offsetSemi = Utils.getGenericInterpolatedValue(slideOffset);
+
                         Drawable background = window.getDecorView().getBackground();
-                        background.setAlpha((int) (Launcher.MAX_BACKGROUND_ALPHA * slideOffset));
+                        background.setAlpha((int) (Launcher.MAX_BACKGROUND_ALPHA * offsetSemi));
 
                         // only STEP_COUNT states for performance
-                        int step = (int) (STEP_COUNT * slideOffset);
+                        int step = (int) (STEP_COUNT * offsetSemi);
 
                         if (Utils.isMinimumSDK(Build.VERSION_CODES.S) && lastBlurStep != step) {
                             window.setBackgroundBlurRadius((int) (step * BLUR_STEP));
@@ -186,9 +199,18 @@ public abstract class SheetDialogFragment extends DialogFragment {
                         wasCollapsed = false;
                     }
 
-                    sheet.setAlpha(slideOffset * 3 - 1.5f);
+                    float alpha = slideOffset * 2 - 1f;
 
-                    SheetWrapper.dispatchSlide(type, slideOffset);
+                    if (alpha > 0) {
+                        sheet.setAlpha(alpha);
+                        sheet.setVisibility(View.VISIBLE);
+                    } else {
+                        sheet.setVisibility(View.INVISIBLE);
+                    }
+
+                    if (slideListener != null) {
+                        slideListener.onSlide(slideOffset);
+                    }
                 }
             });
 
@@ -196,8 +218,9 @@ public abstract class SheetDialogFragment extends DialogFragment {
                 listener.onShow(dialog);
             }
 
-            if (!capturing) {
-                dialog.behavior.setState(SheetBehavior.STATE_EXPANDED);
+            if (!capturing && receivedMoveEvent &&
+                    SheetsFocusController.Wrapper.getActiveSheetCount() == 0) {
+                dialog.behavior.setState(SheetBehavior.STATE_EXPANDED, true);
             }
 
             showListeners.clear();
@@ -274,6 +297,12 @@ public abstract class SheetDialogFragment extends DialogFragment {
     public void sendMotionEvent(MotionEvent event) {
         dialog.captureMotionEvent(event);
 
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            receivedMoveEvent = false;
+        } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+            receivedMoveEvent = true;
+        }
+
         capturing = event.getAction() != MotionEvent.ACTION_UP &&
                 event.getAction() != MotionEvent.ACTION_CANCEL;
     }
@@ -304,6 +333,10 @@ public abstract class SheetDialogFragment extends DialogFragment {
 
     protected void setOnBackPressed(SheetDialog.OnBackPressed listener) {
         dialog.setOnBackPressed(listener);
+    }
+
+    public void setOnSlideListener(OnSlideListener listener) {
+        this.slideListener = listener;
     }
 
     public interface OnDestroyListener {

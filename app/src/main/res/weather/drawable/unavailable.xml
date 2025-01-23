@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2025 Răzvan Albu
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
+  -->
+
 <vector android:height="48.0dip" android:width="48.0dip" android:viewportWidth="48.0" android:viewportHeight="48.0"
   xmlns:android="http://schemas.android.com/apk/res/android">
     <path android:fillColor="#ffababab" android:pathData="M24,3.5C12.678,3.5 3.5,12.678 3.5,24C3.5,35.322 12.678,44.5 24,44.5C35.322,44.5 44.5,35.322 44.5,24C44.5,12.678 35.322,3.5 24,3.5ZM2.5,24C2.5,12.126 12.126,2.5 24,2.5C35.874,2.5 45.5,12.126 45.5,24C45.5,35.874 35.874,45.5 24,45.5C12.126,45.5 2.5,35.874 2.5,24Z" android:fillType="evenOdd" />
