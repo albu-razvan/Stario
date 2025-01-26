@@ -62,50 +62,17 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
             notifyDataSetChanged();
 
             listener = new Category.CategoryItemListener() {
-                int preparedRemovalIndex = -1;
-                boolean skipInsertion = false;
-
-                @Override
-                public void onPrepareInsertion(LauncherApplication application) {
-                    if (category.getSize() >= HARD_LIMIT) {
-                        skipInsertion = true;
-                    }
-                }
-
                 @Override
                 public void onInserted(LauncherApplication application) {
                     if (recyclerView != null) {
-                        recyclerView.post(() -> {
-                            if (!skipInsertion) {
-                                int index = category.indexOf(application);
-
-                                if (index >= 0 && index < HARD_LIMIT) {
-                                    notifyItemInserted(index);
-                                }
-                            }
-
-                            skipInsertion = false;
-                        });
+                        recyclerView.post(() -> notifyDataSetChanged());
                     }
-                }
-
-                @Override
-                public void onPrepareRemoval(LauncherApplication application) {
-                    preparedRemovalIndex = category.indexOf(application);
                 }
 
                 @Override
                 public void onRemoved(LauncherApplication application) {
                     if (recyclerView != null) {
-                        recyclerView.post(() -> {
-                            if (preparedRemovalIndex >= 0 && preparedRemovalIndex < HARD_LIMIT) {
-                                notifyItemRemoved(preparedRemovalIndex);
-
-                                preparedRemovalIndex = -1;
-                            } else {
-                                notifyDataSetChanged();
-                            }
-                        });
+                        recyclerView.post(() -> notifyDataSetChanged());
                     }
                 }
 

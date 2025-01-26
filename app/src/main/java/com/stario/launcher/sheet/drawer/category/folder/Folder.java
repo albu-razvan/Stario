@@ -17,7 +17,10 @@
 
 package com.stario.launcher.sheet.drawer.category.folder;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.transition.Transition;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +28,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
 import com.stario.launcher.apps.categories.CategoryData;
@@ -32,6 +36,8 @@ import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.async.InflationType;
+
+import java.lang.reflect.Method;
 
 public class Folder extends DrawerPage {
     private OnCreateListener listener;
@@ -42,12 +48,50 @@ public class Folder extends DrawerPage {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
 
         GridLayoutManager manager = new GridLayoutManager(activity,
-                Measurements.getListColumnCount());
+                Measurements.getListColumnCount()) {
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return false;
+            }
+        };
 
         Measurements.addListColumnCountChangeListener(manager::setSpanCount);
 
         drawer.setLayoutManager(manager);
         drawer.setItemAnimator(null);
+
+        drawer.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            Method method = null;
+            boolean valid = true;
+
+            @SuppressLint("SoonBlockedPrivateApi")
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                Object tester = getEnterTransition();
+
+                if (tester instanceof Transition) {
+                    try {
+                        if (!valid) {
+                            return;
+                        }
+
+                        if (method == null) {
+                            //noinspection JavaReflectionMemberAccess
+                            method = Transition.class
+                                    .getDeclaredMethod("forceToEnd", ViewGroup.class);
+                            method.setAccessible(true);
+                        }
+
+                        method.invoke(tester, rootView);
+                    } catch (SecurityException | NoSuchMethodException |
+                             IllegalAccessError exception) {
+                        valid = false;
+                    } catch (Exception exception) {
+                        Log.e("Folder", "onScrollStateChanged: ", exception);
+                    }
+                }
+            }
+        });
 
         if (listener != null) {
             listener.onCreate();
@@ -67,7 +111,7 @@ public class Folder extends DrawerPage {
 
             drawer.post(() -> {
                 drawer.scrollToPosition(0);
-                updateTitleVisibility();
+                updateTitleTransforms(drawer);
 
                 title.setText(CategoryData.getInstance()
                         .getCategoryName(categoryID, getResources()));

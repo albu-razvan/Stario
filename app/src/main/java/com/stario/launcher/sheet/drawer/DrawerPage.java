@@ -73,12 +73,11 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
         drawer.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         drawer.addOnLayoutChangeListener((v, left, top, right, bottom,
-                                          oldLeft, oldTop, oldRight, oldBottom) -> updateTitleVisibility());
+                                          oldLeft, oldTop, oldRight, oldBottom) -> updateTitleTransforms(drawer));
         drawer.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                updateTitleTransforms(recyclerView);
-                recyclerView.post(() -> updateTitleTransforms(recyclerView)); // make sure it did position itself right
+                updateTitleTransforms(drawer);
             }
         });
 
@@ -106,7 +105,7 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
                         drawer.getPaddingTop(), drawer.getPaddingRight(),
                         searchContainer.getPaddingBottom() + (bottom - top)));
 
-        updateTitleVisibility();
+        updateTitleTransforms(drawer);
 
         return root;
     }
@@ -114,32 +113,26 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
     protected void updateTitleTransforms(RecyclerView recyclerView) {
         title.setTranslationY(-recyclerView.computeVerticalScrollOffset());
 
-        int headerSize = Measurements.dpToPx(Measurements.HEADER_SIZE_DP);
-        title.setAlpha(1f - recyclerView.computeVerticalScrollOffset() / (headerSize / 2f));
-    }
-
-    protected void updateTitleVisibility() {
-        title.post(() -> {
-            if (Measurements.isLandscape()) {
-                title.setVisibility(View.GONE);
-            } else {
-                title.setVisibility(View.VISIBLE);
-
-                updateTitleTransforms(drawer);
-            }
-        });
+        float alpha = 1f - recyclerView.computeVerticalScrollOffset() /
+                (Measurements.dpToPx(Measurements.HEADER_SIZE_DP) / 2f);
+        if (alpha > 0 && !Measurements.isLandscape()) {
+            title.setAlpha(alpha);
+            title.setVisibility(View.VISIBLE);
+        } else {
+            title.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        updateTitleVisibility();
+        updateTitleTransforms(drawer);
     }
 
     @Override
     public void onResume() {
-        updateTitleVisibility();
+        updateTitleTransforms(drawer);
 
         super.onResume();
     }

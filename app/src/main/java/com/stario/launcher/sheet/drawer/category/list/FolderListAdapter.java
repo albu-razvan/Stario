@@ -37,7 +37,6 @@ import com.stario.launcher.sheet.drawer.category.Categories;
 import com.stario.launcher.sheet.drawer.category.folder.Folder;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
-import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.animation.Animation;
@@ -83,7 +82,9 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
             @Override
             public void onPrepareRemoval(Category category) {
-                preparedRemovalIndex = categoryData.indexOf(category);
+                if (preparedRemovalIndex < 0) {
+                    preparedRemovalIndex = categoryData.indexOf(category);
+                }
             }
 
             @Override
@@ -165,8 +166,12 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
             recycler.setItemAnimator(null);
 
-            GridLayoutManager gridLayoutManager =
-                    new GridLayoutManager(activity, 4);
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(activity, 4) {
+                @Override
+                public boolean supportsPredictiveItemAnimations() {
+                    return false;
+                }
+            };
 
             gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
@@ -181,7 +186,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
             });
 
             recycler.setLayoutManager(gridLayoutManager);
-            recycler.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE, Animation.MEDIUM));
+            recycler.setItemAnimator(null);
 
             adapter = new FolderListItemAdapter(activity);
 
