@@ -31,14 +31,18 @@ import com.stario.launcher.utils.UiUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 public class CategoryData {
     private static final int NO_CATEGORY = -1;
     private static CategoryData instance = null;
+
+    private final CategoryMappings.Comparator<Category> comparator;
     private final HashMap<Integer, Object> categoryResources;
     private final SharedPreferences hiddenPreferences;
     private final ArrayList<Category> categories;
+
     private CategoryListener categoryListener;
 
     private CategoryData(ThemedActivity activity) {
@@ -76,7 +80,8 @@ public class CategoryData {
                     }
                 });
 
-        CategoryComparator.from(activity);
+        CategoryMappings.from(activity);
+        comparator = CategoryMappings.getCategoryComparator();
 
         LauncherApplicationManager.getInstance()
                 .addApplicationListener(new LauncherApplicationManager.ApplicationListener() {
@@ -156,8 +161,7 @@ public class CategoryData {
     }
 
     private synchronized int addCategory(int categoryID) {
-        Category category = new Category(categoryID);
-        CategoryComparator comparator = CategoryComparator.getInstance();
+        Category categoryToAdd = new Category(categoryID);
 
         int left = 0;
         int right = size() - 1;
@@ -166,7 +170,7 @@ public class CategoryData {
             int middle = (left + right) / 2;
 
             Category categoryAtMiddle = get(middle);
-            int compareValue = comparator.compare(categoryAtMiddle, category);
+            int compareValue = comparator.compare(categoryAtMiddle, categoryToAdd);
 
             if (compareValue < 0) {
                 left = middle + 1;
@@ -177,10 +181,10 @@ public class CategoryData {
             }
         }
 
-        categories.add(left, category);
+        categories.add(left, categoryToAdd);
 
         if (categoryListener != null) {
-            categoryListener.onCreated(category);
+            categoryListener.onCreated(categoryToAdd);
         }
 
         return left;
@@ -230,12 +234,15 @@ public class CategoryData {
     public void swap(int index1, int index2) {
         Collections.swap(categories, index1, index2);
 
-        CategoryComparator.getInstance()
-                .updatePermutation(categories);
+        comparator.updatePermutation();
     }
 
     public int indexOf(Category category) {
         return categories.indexOf(category);
+    }
+
+    public List<Category> getAll() {
+        return Collections.unmodifiableList(categories);
     }
 
     public void setOnCategoryUpdateListener(CategoryListener updateListener) {

@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.ui.recyclers;
+package com.stario.launcher.sheet.drawer;
 
 public interface ScrollToTop {
     void scrollToTop();

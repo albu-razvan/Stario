@@ -19,6 +19,7 @@ package com.stario.launcher.sheet.drawer.category.folder;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.transition.Transition;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,20 +28,26 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
 import com.stario.launcher.apps.categories.CategoryData;
+import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.DrawerPage;
+import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.async.InflationType;
 
 import java.lang.reflect.Method;
 
 public class Folder extends DrawerPage {
+    private ItemTouchHelper itemTouchHelper;
     private OnCreateListener listener;
+    private FolderAdapter adapter;
 
     @NonNull
     @Override
@@ -93,6 +100,70 @@ public class Folder extends DrawerPage {
             }
         });
 
+        ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                Parcelable state = manager.onSaveInstanceState();
+                boolean result = adapter.move(viewHolder, target);
+                manager.onRestoreInstanceState(state);
+
+                if(result) {
+                    Vibrations.getInstance().vibrate();
+                }
+
+                return false;
+            }
+
+            @Override
+            public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
+                if (actionState == ItemTouchHelper.ACTION_STATE_DRAG
+                        && viewHolder != null) {
+                    ((RecyclerApplicationAdapter.ViewHolder) viewHolder).focus();
+
+                    drawer.setItemAnimator(new DefaultItemAnimator());
+
+                    Vibrations.getInstance().vibrate();
+                }
+            }
+
+            @Override
+            public int interpolateOutOfBoundsScroll(@NonNull RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
+                return Math.min(super.interpolateOutOfBoundsScroll(recyclerView, viewSize, viewSizeOutOfBounds, totalSize, msSinceStartScroll), 100);
+            }
+
+            @Override
+            public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                ((RecyclerApplicationAdapter.ViewHolder) viewHolder).clearFocus();
+                RecyclerView.ItemAnimator itemAnimator = drawer.getItemAnimator();
+
+                if (itemAnimator != null) {
+                    itemAnimator.isRunning(() -> drawer.setItemAnimator(null));
+                }
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            }
+
+            @Override
+            public boolean isLongPressDragEnabled() {
+                return false;
+            }
+
+            @Override
+            public boolean isItemViewSwipeEnabled() {
+                return false;
+            }
+
+            @Override
+            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                return makeFlag(ItemTouchHelper.ACTION_STATE_DRAG, ItemTouchHelper.DOWN | ItemTouchHelper.UP | ItemTouchHelper.START | ItemTouchHelper.END);
+            }
+        };
+
+        itemTouchHelper = new ItemTouchHelper(callback);
+        itemTouchHelper.attachToRecyclerView(drawer);
+
         if (listener != null) {
             listener.onCreate();
         }
@@ -104,7 +175,7 @@ public class Folder extends DrawerPage {
         postponeEnterTransition();
 
         setOnCreateListener(() -> {
-            FolderAdapter adapter = new FolderAdapter(activity, categoryID);
+            adapter = new FolderAdapter(activity, categoryID, itemTouchHelper);
             adapter.setInflationType(InflationType.SYNCED);
 
             drawer.setAdapter(adapter);

@@ -207,7 +207,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
                         category.id, activity.getResources()
                 ));
 
-        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener clickListener = new View.OnClickListener() {
             private AdaptiveIconView getIcon(View view) {
                 if (view instanceof AdaptiveIconView) {
                     return (AdaptiveIconView) view;
@@ -293,7 +293,10 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
                     }
                 }
             }
-        });
+        };
+
+        viewHolder.itemView.setOnClickListener(clickListener);
+        viewHolder.recycler.setOnClickListener(clickListener);
 
         viewHolder.updateCategory(category);
     }

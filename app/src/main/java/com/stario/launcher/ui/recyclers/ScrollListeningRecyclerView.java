@@ -25,26 +25,26 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-public class ListeningRecyclerView extends RecyclerView {
+public class ScrollListeningRecyclerView extends RecyclerView {
     private static final int MAX_VELOCITY = 250;
     private int lastCall;
     private SpringAnimation springAnimation;
     private ArrayList<ScrollStoppedListener> onScrollStoppedListeners;
     private ArrayList<OnScrollListener> onScrollListeners;
 
-    public ListeningRecyclerView(android.content.Context context) {
+    public ScrollListeningRecyclerView(android.content.Context context) {
         super(context);
 
         init();
     }
 
-    public ListeningRecyclerView(android.content.Context context, android.util.AttributeSet attrs) {
+    public ScrollListeningRecyclerView(android.content.Context context, android.util.AttributeSet attrs) {
         super(context, attrs);
 
         init();
     }
 
-    public ListeningRecyclerView(android.content.Context context, android.util.AttributeSet attrs, int defStyle) {
+    public ScrollListeningRecyclerView(android.content.Context context, android.util.AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         init();
@@ -61,12 +61,12 @@ public class ListeningRecyclerView extends RecyclerView {
         spring.setDampingRatio(0.8f);
         springAnimation = new SpringAnimation(this, new FloatPropertyCompat<>("") {
             @Override
-            public float getValue(ListeningRecyclerView object) {
+            public float getValue(ScrollListeningRecyclerView object) {
                 return 0;
             }
 
             @Override
-            public void setValue(ListeningRecyclerView object, float value) {
+            public void setValue(ScrollListeningRecyclerView object, float value) {
                 value = Math.abs(value / getMeasuredHeight()) + 1;
 
                 if (!Float.isNaN(value)) {

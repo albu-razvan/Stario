@@ -232,15 +232,24 @@ public class PopupMenu {
         });
     }
 
-    public void show(Activity activity, View parent, int pivotAxis) {
-        show(activity, parent, null, pivotAxis);
+    public PopupWindow show(Activity activity, View parent, int pivotAxis) {
+        return show(activity, parent, null, pivotAxis);
     }
 
-    public void show(Activity activity, View parent, Rect margins, int pivotAxis) {
+    public PopupWindow show(Activity activity, View parent, int pivotAxis, boolean interceptTouches) {
+        return show(activity, parent, null, pivotAxis, interceptTouches);
+    }
+
+    public PopupWindow show(Activity activity, View parent, Rect margins, int pivotAxis) {
+        return show(activity, parent, margins, pivotAxis, false);
+    }
+
+    public PopupWindow show(Activity activity, View parent, Rect margins,
+                                         int pivotAxis, boolean interceptTouches) {
         Window window = activity.getWindow();
 
         if (window == null) {
-            return;
+            return null;
         }
 
         int[] location = new int[2];
@@ -301,16 +310,16 @@ public class PopupMenu {
             }
         }
 
-        showAtLocation(parent, location, 0, gravity, pivotAxis);
+        root.post(() -> root.setPadding(0, 0, 0, 0));
 
-        root.setPadding(0, 0, 0, 0);
+        return showAtLocation(parent, location, 0, gravity, pivotAxis, interceptTouches);
     }
 
-    public void showAtLocation(Activity activity, View parent, float x, float y, int pivotAxis) {
+    public PopupWindow showAtLocation(Activity activity, View parent, float x, float y, int pivotAxis) {
         Window window = activity.getWindow();
 
         if (window == null) {
-            return;
+            return null;
         }
 
         int[] location = new int[2];
@@ -344,10 +353,12 @@ public class PopupMenu {
                     location[1] - (int) y;
         }
 
-        showAtLocation(parent, location, Measurements.dpToPx(PADDING * 2), gravity, pivotAxis);
+        return showAtLocation(parent, location, Measurements.dpToPx(PADDING * 2),
+                gravity, pivotAxis, true);
     }
 
-    private void showAtLocation(View parent, @Size(2) int[] location, int padding, int gravity, int pivotAxis) {
+    private PopupWindow showAtLocation(View parent, @Size(2) int[] location, int padding,
+                                                    int gravity, int pivotAxis, boolean interceptTouches) {
         for (Map.Entry<RecyclerView, RecyclerAdapter> entry : recyclers.values()) {
             if ((gravity & Gravity.TOP) == Gravity.TOP) { // flip options when popup expands upwards
                 root.addView(entry.getKey(), 0);
@@ -383,8 +394,15 @@ public class PopupMenu {
 
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
             activity.getLifecycle().addObserver(observer);
-            activity.requestIgnoreCurrentTouchEvent(false);
+
+            if (interceptTouches) {
+                activity.requestIgnoreCurrentTouchEvent(false);
+            }
+
+            return popupWindow;
         }
+
+        return null;
     }
 
     public static class Item {

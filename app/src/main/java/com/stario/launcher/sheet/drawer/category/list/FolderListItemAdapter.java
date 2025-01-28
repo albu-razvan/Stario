@@ -82,6 +82,13 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
                         recyclerView.post(() -> notifyDataSetChanged());
                     }
                 }
+
+                @Override
+                public void onSwapped(int index1, int index2) {
+                    if (recyclerView != null) {
+                        recyclerView.post(() -> notifyDataSetChanged());
+                    }
+                }
             };
 
             category.addCategoryItemListener(listener);

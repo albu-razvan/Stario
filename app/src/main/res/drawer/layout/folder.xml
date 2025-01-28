@@ -26,7 +26,7 @@
     android:paddingRight="10dp"
     android:paddingBottom="10dp">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <com.stario.launcher.ui.recyclers.ClickableRecyclerView
         android:id="@+id/items"
         android:layout_width="match_parent"
         android:layout_height="0dp"

@@ -20,6 +20,7 @@ package com.stario.launcher.sheet.drawer.category.folder;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.apps.LauncherApplication;
@@ -34,8 +35,8 @@ class FolderAdapter extends RecyclerApplicationAdapter {
 
     private RecyclerView recyclerView;
 
-    public FolderAdapter(ThemedActivity activity, int categoryID) {
-        super(activity);
+    public FolderAdapter(ThemedActivity activity, int categoryID, ItemTouchHelper itemTouchHelper) {
+        super(activity, itemTouchHelper);
 
         this.category = CategoryData.getInstance()
                 .getByID(categoryID);
@@ -90,6 +91,26 @@ class FolderAdapter extends RecyclerApplicationAdapter {
                 }
             }
         };
+    }
+
+    public boolean move(RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder targetHolder) {
+        int position = viewHolder.getAbsoluteAdapterPosition();
+        int target = targetHolder.getAbsoluteAdapterPosition();
+
+        if (position == target) {
+            return false;
+        }
+
+        while (position - target != 0) {
+            int newTarget = position - ((position - target) > 0 ? 1 : -1);
+
+            category.swap(position, newTarget);
+            notifyItemMoved(position, newTarget);
+
+            position = newTarget;
+        }
+
+        return true;
     }
 
     @Override

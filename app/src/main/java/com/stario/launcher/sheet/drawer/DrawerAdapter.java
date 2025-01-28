@@ -25,7 +25,6 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.stario.launcher.sheet.drawer.category.Categories;
 import com.stario.launcher.sheet.drawer.list.List;
-import com.stario.launcher.ui.recyclers.ScrollToTop;
 
 /**
  * @noinspection deprecation

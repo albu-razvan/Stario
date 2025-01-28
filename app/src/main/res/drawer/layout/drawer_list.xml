@@ -22,7 +22,7 @@
     android:layout_height="match_parent"
     android:overScrollMode="never">
 
-    <com.stario.launcher.ui.recyclers.ListeningRecyclerView
+    <com.stario.launcher.ui.recyclers.ScrollListeningRecyclerView
         android:id="@+id/drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
