@@ -23,13 +23,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.common.LimitingTranslationFrameLayout;
 
 import java.util.function.Supplier;
 
@@ -129,7 +129,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     }
 
     private View createHolderRoot() {
-        ViewGroup root = new FrameLayout(activity);
+        ViewGroup root = new LimitingTranslationFrameLayout(activity);
 
         root.setClipChildren(false);
         root.setClipToPadding(false);

@@ -152,7 +152,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
         }
     }
 
-    protected class ViewHolder extends AsyncViewHolder {
+    public class ViewHolder extends AsyncViewHolder {
         private TextView category;
         private RecyclerView recycler;
         private FolderListItemAdapter adapter;

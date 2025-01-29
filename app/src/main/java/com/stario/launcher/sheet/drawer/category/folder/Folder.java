@@ -18,6 +18,7 @@
 package com.stario.launcher.sheet.drawer.category.folder;
 
 import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.transition.Transition;
@@ -40,6 +41,7 @@ import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.recyclers.AccurateScrollComputeGridLayoutManager;
 import com.stario.launcher.ui.recyclers.async.InflationType;
 
 import java.lang.reflect.Method;
@@ -54,13 +56,8 @@ public class Folder extends DrawerPage {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
 
-        GridLayoutManager manager = new GridLayoutManager(activity,
-                Measurements.getListColumnCount()) {
-            @Override
-            public boolean supportsPredictiveItemAnimations() {
-                return false;
-            }
-        };
+        GridLayoutManager manager = new AccurateScrollComputeGridLayoutManager(activity,
+                Measurements.getListColumnCount());
 
         Measurements.addListColumnCountChangeListener(manager::setSpanCount);
 
@@ -107,7 +104,7 @@ public class Folder extends DrawerPage {
                 boolean result = adapter.move(viewHolder, target);
                 manager.onRestoreInstanceState(state);
 
-                if(result) {
+                if (result) {
                     Vibrations.getInstance().vibrate();
                 }
 
@@ -118,17 +115,15 @@ public class Folder extends DrawerPage {
             public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
                 if (actionState == ItemTouchHelper.ACTION_STATE_DRAG
                         && viewHolder != null) {
+                    viewHolder.itemView.forceLayout();
                     ((RecyclerApplicationAdapter.ViewHolder) viewHolder).focus();
 
                     drawer.setItemAnimator(new DefaultItemAnimator());
 
                     Vibrations.getInstance().vibrate();
-                }
-            }
 
-            @Override
-            public int interpolateOutOfBoundsScroll(@NonNull RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
-                return Math.min(super.interpolateOutOfBoundsScroll(recyclerView, viewSize, viewSizeOutOfBounds, totalSize, msSinceStartScroll), 100);
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+                }
             }
 
             @Override
@@ -139,6 +134,18 @@ public class Folder extends DrawerPage {
                 if (itemAnimator != null) {
                     itemAnimator.isRunning(() -> drawer.setItemAnimator(null));
                 }
+
+                activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+            }
+
+            @Override
+            public int interpolateOutOfBoundsScroll(@NonNull RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
+                return Math.min(super.interpolateOutOfBoundsScroll(recyclerView, viewSize, viewSizeOutOfBounds, totalSize, msSinceStartScroll), 100);
+            }
+
+            @Override
+            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                return makeFlag(ItemTouchHelper.ACTION_STATE_DRAG, ItemTouchHelper.DOWN | ItemTouchHelper.UP | ItemTouchHelper.START | ItemTouchHelper.END);
             }
 
             @Override
@@ -153,11 +160,6 @@ public class Folder extends DrawerPage {
             @Override
             public boolean isItemViewSwipeEnabled() {
                 return false;
-            }
-
-            @Override
-            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-                return makeFlag(ItemTouchHelper.ACTION_STATE_DRAG, ItemTouchHelper.DOWN | ItemTouchHelper.UP | ItemTouchHelper.START | ItemTouchHelper.END);
             }
         };
 

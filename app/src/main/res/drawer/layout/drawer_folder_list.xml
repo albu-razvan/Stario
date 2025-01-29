@@ -22,17 +22,6 @@
     android:layout_height="match_parent"
     android:overScrollMode="never">
 
-    <com.stario.launcher.ui.recyclers.ScrollListeningRecyclerView
-        android:id="@+id/drawer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        android:nestedScrollingEnabled="true"
-        android:overScrollMode="never"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp" />
-
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
@@ -45,5 +34,16 @@
         android:text="@string/categories"
         android:textColor="?attr/colorOnSurface"
         android:textSize="30sp" />
+
+    <com.stario.launcher.ui.recyclers.ScrollListeningRecyclerView
+        android:id="@+id/drawer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:nestedScrollingEnabled="true"
+        android:overScrollMode="never"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp" />
 
 </RelativeLayout>
