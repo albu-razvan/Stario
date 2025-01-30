@@ -100,7 +100,10 @@ public class LimitingTranslationFrameLayout extends FrameLayout {
         ViewParent parent = getParent();
 
         if (parent instanceof RecyclerView) {
-            return ((RecyclerView) parent).computeVerticalScrollRange();
+            RecyclerView recyclerView = ((RecyclerView) parent);
+
+            return recyclerView.computeVerticalScrollRange() -
+                    recyclerView.computeVerticalScrollExtent();
         } else if (parent instanceof ScrollView ||
                 parent instanceof NestedScrollView) {
             ViewGroup scrollView = (ViewGroup) parent;

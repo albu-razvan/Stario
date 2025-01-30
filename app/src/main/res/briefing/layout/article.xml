@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -18,6 +17,7 @@
 
 <carbon.widget.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/section_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -35,8 +35,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/representative"
         android:layout_width="wrap_content"
-        android:clipChildren="false"
         android:layout_height="150dp"
+        android:clipChildren="false"
         android:visibility="gone">
 
         <com.bosphere.fadingedgelayout.FadingEdgeLayout
@@ -44,14 +44,17 @@
             android:layout_height="250dp"
             app:fel_edge="bottom"
             app:fel_size_bottom="250dp"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/display"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginBottom="2px"
                 android:alpha="0"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                tools:ignore="PxUsage" />
 
             <carbon.widget.TextView
                 android:id="@+id/category"

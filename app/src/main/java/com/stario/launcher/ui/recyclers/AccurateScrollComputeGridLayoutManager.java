@@ -36,10 +36,6 @@ public class AccurateScrollComputeGridLayoutManager extends GridLayoutManager {
         super(context, spanCount, RecyclerView.VERTICAL, false);
     }
 
-    public AccurateScrollComputeGridLayoutManager(Context context, int spanCount, boolean reverseLayout) {
-        super(context, spanCount, RecyclerView.VERTICAL, reverseLayout);
-    }
-
     @Override
     public boolean supportsPredictiveItemAnimations() {
         return false;
@@ -80,11 +76,15 @@ public class AccurateScrollComputeGridLayoutManager extends GridLayoutManager {
             int rows = (int) Math.ceil(getItemCount() / (float) getSpanCount());
 
             if (view != null) {
-                return Math.max(0, view.getHeight() * rows -
-                        (getHeight() - getPaddingTop() - getPaddingBottom()));
+                return Math.max(0, view.getHeight() * rows);
             }
         }
 
         return 0;
+    }
+
+    @Override
+    public int computeVerticalScrollExtent(RecyclerView.State state) {
+        return getHeight() - getPaddingTop() - getPaddingBottom();
     }
 }

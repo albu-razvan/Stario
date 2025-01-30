@@ -69,8 +69,6 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
         title = root.findViewById(R.id.title);
         search = container.getRootView().findViewById(R.id.search);
 
-        drawer.setOverScrollMode(View.OVER_SCROLL_NEVER);
-
         drawer.addOnLayoutChangeListener((v, left, top, right, bottom,
                                           oldLeft, oldTop, oldRight, oldBottom) -> updateTitleTransforms(drawer));
         drawer.addOnScrollListener(new RecyclerView.OnScrollListener() {

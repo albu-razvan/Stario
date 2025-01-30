@@ -15,33 +15,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.utils.objects;
+package com.stario.launcher.ui.recyclers.overscroll;
 
-import android.view.View;
+import android.graphics.Canvas;
 
 import androidx.annotation.NonNull;
 
-public class ObjectInvalidateDelegate<T> {
-    private final View view;
-    private T object;
+public interface OverScroll {
+    void addOverScrollContract(@NonNull OverScrollContract contract);
 
-    public ObjectInvalidateDelegate(@NonNull View view) {
-        this(view, null);
-    }
-
-    public ObjectInvalidateDelegate(@NonNull View view, T object) {
-        this.view = view;
-
-        this.object = object;
-    }
-
-    public T getValue() {
-        return object;
-    }
-
-    public void setValue(T object) {
-        this.object = object;
-        
-        view.invalidate();
+    interface OverScrollContract {
+        boolean prepare(Canvas canvas);
     }
 }

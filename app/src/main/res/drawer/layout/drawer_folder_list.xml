@@ -19,8 +19,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/folders"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:overScrollMode="never">
+    android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/title"
@@ -35,14 +34,13 @@
         android:textColor="?attr/colorOnSurface"
         android:textSize="30sp" />
 
-    <com.stario.launcher.ui.recyclers.ScrollListeningRecyclerView
+    <com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView
         android:id="@+id/drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:nestedScrollingEnabled="true"
-        android:overScrollMode="never"
         android:paddingStart="20dp"
         android:paddingEnd="20dp" />
 

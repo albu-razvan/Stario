@@ -40,16 +40,15 @@ import com.stario.launcher.activities.settings.dialogs.icons.IconsDialog;
 import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.Measurements;
-import com.stario.launcher.utils.objects.ObjectInvalidateDelegate;
-import com.stario.launcher.utils.objects.ObjectRemeasureDelegate;
+import com.stario.launcher.utils.objects.ObjectDelegate;
 
 import java.io.Serializable;
 
 public class AdaptiveIconView extends View {
     public static final float MAX_SCALE = 1.12f;
-    private ObjectRemeasureDelegate<Float> radius;
-    private ObjectRemeasureDelegate<PathCornerTreatmentAlgorithm> pathAlgorithm;
-    private ObjectInvalidateDelegate<Drawable> icon;
+    private ObjectDelegate<Float> radius;
+    private ObjectDelegate<PathCornerTreatmentAlgorithm> pathAlgorithm;
+    private ObjectDelegate<Drawable> icon;
     private LocalBroadcastManager localBroadcastManager;
     private BroadcastReceiver radiusReceiver;
     private BroadcastReceiver squircleReceiver;
@@ -112,14 +111,14 @@ public class AdaptiveIconView extends View {
         }
 
         this.path = new Path();
-        this.icon = new ObjectInvalidateDelegate<>(this);
-        this.pathAlgorithm = new ObjectRemeasureDelegate<>(this,
+        this.icon = new ObjectDelegate<>((o) -> invalidate());
+        this.pathAlgorithm = new ObjectDelegate<>(
                 PathCornerTreatmentAlgorithm.fromIdentifier(
                         preferences.getInt(IconPackManager.PATH_ALGORITHM_ENTRY, 0)
-                )
+                ), (o) -> requestLayout()
         );
-        this.radius = new ObjectRemeasureDelegate<>(this,
-                preferences.getFloat(IconPackManager.CORNER_RADIUS_ENTRY, 1f));
+        this.radius = new ObjectDelegate<>(
+                preferences.getFloat(IconPackManager.CORNER_RADIUS_ENTRY, 1f), (o) -> requestLayout());
 
         setLayerType(LAYER_TYPE_HARDWARE, null);
     }

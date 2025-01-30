@@ -63,9 +63,9 @@ import java.util.List;
 import java.util.Map;
 
 public class PopupMenu {
-    public static final int PIVOT_DEFAULT = 0x00;
-    public static final int PIVOT_CENTER_VERTICAL = 0x01;
-    public static final int PIVOT_CENTER_HORIZONTAL = 0x10;
+    public static final short PIVOT_DEFAULT = 0b00;
+    public static final short PIVOT_CENTER_VERTICAL = 0b01;
+    public static final short PIVOT_CENTER_HORIZONTAL = 0b10;
     private static final int GENERAL_ID = 1;
     private static final int SHORTCUT_GROUP_ID = 2;
     private static final int MAX_SHORTCUT_COUNT = 4;
@@ -232,20 +232,20 @@ public class PopupMenu {
         });
     }
 
-    public PopupWindow show(Activity activity, View parent, int pivotAxis) {
+    public PopupWindow show(Activity activity, View parent, short pivotAxis) {
         return show(activity, parent, null, pivotAxis);
     }
 
-    public PopupWindow show(Activity activity, View parent, int pivotAxis, boolean interceptTouches) {
+    public PopupWindow show(Activity activity, View parent, short pivotAxis, boolean interceptTouches) {
         return show(activity, parent, null, pivotAxis, interceptTouches);
     }
 
-    public PopupWindow show(Activity activity, View parent, Rect margins, int pivotAxis) {
+    public PopupWindow show(Activity activity, View parent, Rect margins, short pivotAxis) {
         return show(activity, parent, margins, pivotAxis, false);
     }
 
     public PopupWindow show(Activity activity, View parent, Rect margins,
-                                         int pivotAxis, boolean interceptTouches) {
+                                         short pivotAxis, boolean interceptTouches) {
         Window window = activity.getWindow();
 
         if (window == null) {
@@ -315,7 +315,7 @@ public class PopupMenu {
         return showAtLocation(parent, location, 0, gravity, pivotAxis, interceptTouches);
     }
 
-    public PopupWindow showAtLocation(Activity activity, View parent, float x, float y, int pivotAxis) {
+    public PopupWindow showAtLocation(Activity activity, View parent, float x, float y, short pivotAxis) {
         Window window = activity.getWindow();
 
         if (window == null) {
@@ -358,7 +358,7 @@ public class PopupMenu {
     }
 
     private PopupWindow showAtLocation(View parent, @Size(2) int[] location, int padding,
-                                                    int gravity, int pivotAxis, boolean interceptTouches) {
+                                                    int gravity, short pivotAxis, boolean interceptTouches) {
         for (Map.Entry<RecyclerView, RecyclerAdapter> entry : recyclers.values()) {
             if ((gravity & Gravity.TOP) == Gravity.TOP) { // flip options when popup expands upwards
                 root.addView(entry.getKey(), 0);

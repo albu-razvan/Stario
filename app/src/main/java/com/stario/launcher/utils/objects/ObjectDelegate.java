@@ -17,22 +17,19 @@
 
 package com.stario.launcher.utils.objects;
 
-import android.view.View;
-
 import androidx.annotation.NonNull;
 
-public class ObjectRemeasureDelegate<T> {
-    private final View view;
+public class ObjectDelegate<T> {
+    private final ObjectDelegateAction<T> action;
     private T object;
 
-    public ObjectRemeasureDelegate(@NonNull View view) {
-        this(view, null);
+    public ObjectDelegate(@NonNull ObjectDelegateAction<T> action) {
+        this(null, action);
     }
 
-    public ObjectRemeasureDelegate(@NonNull View view, T object) {
-        this.view = view;
-
+    public ObjectDelegate(T object, @NonNull ObjectDelegateAction<T> action) {
         this.object = object;
+        this.action = action;
     }
 
     public T getValue() {
@@ -42,6 +39,10 @@ public class ObjectRemeasureDelegate<T> {
     public void setValue(T object) {
         this.object = object;
 
-        view.requestLayout();
+        action.onSet(object);
+    }
+
+    public interface ObjectDelegateAction<T> {
+        void onSet(T object);
     }
 }
