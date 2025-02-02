@@ -35,7 +35,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
-import com.stario.launcher.apps.categories.CategoryData;
+import com.stario.launcher.apps.categories.CategoryManager;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.DrawerPage;
@@ -45,6 +45,7 @@ import com.stario.launcher.ui.recyclers.AccurateScrollComputeGridLayoutManager;
 import com.stario.launcher.ui.recyclers.async.InflationType;
 
 import java.lang.reflect.Method;
+import java.util.UUID;
 
 public class Folder extends DrawerPage {
     private ItemTouchHelper itemTouchHelper;
@@ -173,11 +174,11 @@ public class Folder extends DrawerPage {
         return rootView;
     }
 
-    public void updateCategoryID(int categoryID) {
+    public void updateCategory(UUID identifier) {
         postponeEnterTransition();
 
         setOnCreateListener(() -> {
-            adapter = new FolderAdapter(activity, categoryID, itemTouchHelper);
+            adapter = new FolderAdapter(activity, identifier, itemTouchHelper);
             adapter.setInflationType(InflationType.SYNCED);
 
             drawer.setAdapter(adapter);
@@ -186,8 +187,8 @@ public class Folder extends DrawerPage {
                 drawer.scrollToPosition(0);
                 updateTitleTransforms(drawer);
 
-                title.setText(CategoryData.getInstance()
-                        .getCategoryName(categoryID, getResources()));
+                title.setText(CategoryManager.getInstance()
+                        .getCategoryName(identifier));
 
                 startPostponedEnterTransition();
             });

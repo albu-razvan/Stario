@@ -24,15 +24,15 @@ import android.util.AttributeSet;
 import android.view.inputmethod.ExtractedText;
 import android.view.inputmethod.ExtractedTextRequest;
 
-import androidx.appcompat.widget.AppCompatEditText;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.keyboard.InlineAutocompleteEditText;
 import com.stario.launcher.utils.UiUtils;
 
-public class ExtractEditText extends AppCompatEditText {
+public class ExtractEditText extends InlineAutocompleteEditText {
     private ExtractDialog extractDialog;
     private FragmentManager manager;
 
@@ -79,7 +79,7 @@ public class ExtractEditText extends AppCompatEditText {
     }
 
     @Override
-    protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
+    public void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
         if (focused) {
             if (Measurements.isLandscape()) {
                 setCursorVisible(false);

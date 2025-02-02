@@ -22,6 +22,7 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -30,7 +31,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 
 import androidx.activity.ComponentDialog;
 import androidx.annotation.NonNull;
@@ -40,8 +40,9 @@ import androidx.fragment.app.DialogFragment;
 import com.google.android.material.button.MaterialButton;
 import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.keyboard.InlineAutocompleteEditText;
+import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
@@ -50,7 +51,7 @@ public class ExtractDialog extends DialogFragment {
     private final ExtractEditText editText;
     private final ThemedActivity activity;
 
-    private EditText extractedEditText;
+    private InlineAutocompleteEditText extractedEditText;
     private boolean shown;
 
     public ExtractDialog(@NonNull ExtractEditText editText) {
@@ -148,6 +149,9 @@ public class ExtractDialog extends DialogFragment {
         done.setOnClickListener(v -> dismiss());
 
         extractedEditText = view.findViewById(R.id.edit_text);
+        extractedEditText.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
+                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+        extractedEditText.setAutocompleteProvider(editText.getAutocompleteProvider());
         extractedEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

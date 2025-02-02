@@ -89,7 +89,7 @@ public class CategoryMappings {
 
         private ApplicationComparator(SharedPreferencesProvider provider, Category category) {
             this.category = category;
-            this.categoryMap = provider.provide(String.valueOf(category.id));
+            this.categoryMap = provider.provide(category.identifier.toString());
         }
 
         @Override
@@ -138,15 +138,26 @@ public class CategoryMappings {
 
         @Override
         public int compare(Category category, Category otherCategory) {
-            return Integer.compare(
-                    categoryMap.getInt(String.valueOf(category.id), category.id),
-                    categoryMap.getInt(String.valueOf(otherCategory.id), otherCategory.id)
+            int categoryIndex = categoryMap.getInt(
+                    category.identifier.toString(), -1
             );
+
+            if (categoryIndex >= 0) {
+                int otherCategoryIndex = categoryMap.getInt(
+                        otherCategory.identifier.toString(), -1
+                );
+
+                if (otherCategoryIndex >= 0) {
+                    return Integer.compare(categoryIndex, otherCategoryIndex);
+                }
+            }
+
+            return category.identifier.compareTo(otherCategory.identifier);
         }
 
         @Override
         void updatePermutation() {
-            List<Category> categories = CategoryData.getInstance().getAll();
+            List<Category> categories = CategoryManager.getInstance().getAll();
 
             SharedPreferences.Editor editor = categoryMap.edit();
             editor.clear();
@@ -154,7 +165,7 @@ public class CategoryMappings {
             for (int index = 0; index < categories.size(); index++) {
                 Category category = categories.get(index);
 
-                editor.putInt(String.valueOf(category.id), index);
+                editor.putInt(category.identifier.toString(), index);
             }
 
             editor.apply();

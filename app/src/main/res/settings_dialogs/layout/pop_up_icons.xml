@@ -70,7 +70,7 @@
                         android:layout_marginTop="16dp"
                         android:layout_marginRight="14dp"
                         android:ellipsize="end"
-                        android:fontFamily="@font/dm_sans_regular"
+                        android:fontFamily="@font/dm_sans_medium"
                         android:letterSpacing="-0.03"
                         android:lines="1"
                         android:maxLines="1"

@@ -30,7 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
 import com.stario.launcher.apps.categories.Category;
-import com.stario.launcher.apps.categories.CategoryData;
+import com.stario.launcher.apps.categories.CategoryManager;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.category.Categories;
@@ -51,7 +51,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
     private static final float TARGET_ELEVATION = 10;
     private static final float TARGET_SCALE = 0.9f;
     private final List<AdaptiveIconView> sharedIcons;
-    private final CategoryData categoryData;
+    private final CategoryManager categoryManager;
     private final ThemedActivity activity;
     private final FolderList folderList;
     private final Folder folder;
@@ -62,18 +62,18 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
         this.activity = activity;
         this.folderList = folderList;
 
-        this.categoryData = CategoryData.getInstance();
+        this.categoryManager = CategoryManager.getInstance();
         this.sharedIcons = new ArrayList<>();
         this.folder = new Folder();
 
         setHasStableIds(true);
 
-        categoryData.setOnCategoryUpdateListener(new CategoryData.CategoryListener() {
+        categoryManager.setOnCategoryUpdateListener(new CategoryManager.CategoryListener() {
             int preparedRemovalIndex = -1;
 
             @Override
             public void onCreated(Category category) {
-                int index = categoryData.indexOf(category);
+                int index = categoryManager.indexOf(category);
 
                 if (index >= 0) {
                     UiUtils.runOnUIThread(() -> notifyItemInserted(index));
@@ -83,7 +83,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
             @Override
             public void onPrepareRemoval(Category category) {
                 if (preparedRemovalIndex < 0) {
-                    preparedRemovalIndex = categoryData.indexOf(category);
+                    preparedRemovalIndex = categoryManager.indexOf(category);
                 }
             }
 
@@ -111,7 +111,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
         while (position - target != 0) {
             int newTarget = position - ((position - target) > 0 ? 1 : -1);
 
-            categoryData.swap(position, newTarget);
+            categoryManager.swap(position, newTarget);
             notifyItemMoved(position, newTarget);
 
             position = newTarget;
@@ -200,12 +200,9 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
     @Override
     public void onBind(@NonNull ViewHolder viewHolder, int index) {
-        Category category = categoryData.get(index);
+        Category category = categoryManager.get(index);
 
-        viewHolder.category.setText(
-                categoryData.getCategoryName(
-                        category.id, activity.getResources()
-                ));
+        viewHolder.category.setText(categoryManager.getCategoryName(category.identifier));
 
         View.OnClickListener clickListener = new View.OnClickListener() {
             private AdaptiveIconView getIcon(View view) {
@@ -289,7 +286,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
                         fragmentManager.executePendingTransactions();
                         transaction.commit();
 
-                        folder.updateCategoryID(category.id);
+                        folder.updateCategory(category.identifier);
                     }
                 }
             }
@@ -313,11 +310,11 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
     @Override
     public long getItemId(int position) {
-        return categoryData.get(position).id;
+        return categoryManager.get(position).identifier.hashCode();
     }
 
     @Override
     public int getSize() {
-        return categoryData.size();
+        return categoryManager.size();
     }
 }

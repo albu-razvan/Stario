@@ -37,7 +37,9 @@ import com.stario.launcher.services.AccessibilityService;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -84,6 +86,11 @@ public class Utils {
 
     public static double msToMph(double speed) {
         return speed * 2.237d;
+    }
+
+    public static UUID intToUUID(int value) {
+        return UUID.nameUUIDFromBytes(ByteBuffer.allocate(Integer.SIZE / Byte.SIZE)
+                .putInt(value).array());
     }
 
     public static double getGenericInterpolatedValue(@FloatRange(from = 0, to = 1) double value) {

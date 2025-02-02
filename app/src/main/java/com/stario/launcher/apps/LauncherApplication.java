@@ -32,6 +32,8 @@ import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.utils.Utils;
 
+import java.util.UUID;
+
 public class LauncherApplication {
     public static final String LEGACY_LAUNCH_ANIMATION = "com.stario.LauncherApplication.LEGACY_LAUNCH_ANIMATION";
     public static final LauncherApplication FALLBACK_APP = null;
@@ -42,14 +44,14 @@ public class LauncherApplication {
     ApplicationInfo info;
     @NonNull
     String label;
+    UUID category;
     Drawable icon;
-    int category;
     int notificationCount;
 
     public LauncherApplication(@NonNull ApplicationInfo info, @NonNull String label) {
         this.info = info;
         this.label = label;
-        this.category = ApplicationInfo.CATEGORY_UNDEFINED;
+        this.category = UUID.randomUUID();
         this.icon = null;
         this.notificationCount = 0;
         this.systemPackage = (info.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
@@ -91,7 +93,7 @@ public class LauncherApplication {
         return icon;
     }
 
-    public int getCategory() {
+    public UUID getCategory() {
         return category;
     }
 

@@ -25,9 +25,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.categories.Category;
-import com.stario.launcher.apps.categories.CategoryData;
+import com.stario.launcher.apps.categories.CategoryManager;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.themes.ThemedActivity;
+
+import java.util.UUID;
 
 class FolderAdapter extends RecyclerApplicationAdapter {
     private final Category.CategoryItemListener listener;
@@ -35,11 +37,10 @@ class FolderAdapter extends RecyclerApplicationAdapter {
 
     private RecyclerView recyclerView;
 
-    public FolderAdapter(ThemedActivity activity, int categoryID, ItemTouchHelper itemTouchHelper) {
+    public FolderAdapter(ThemedActivity activity, UUID categoryID, ItemTouchHelper itemTouchHelper) {
         super(activity, itemTouchHelper);
 
-        this.category = CategoryData.getInstance()
-                .getByID(categoryID);
+        this.category = CategoryManager.getInstance().get(categoryID);
 
         listener = new Category.CategoryItemListener() {
             int preparedRemovalIndex = -1;
