@@ -106,63 +106,70 @@ public abstract class ActionDialog extends BottomSheetDialog {
         if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
             ViewCompat.setWindowInsetsAnimationCallback(Objects.requireNonNull(getWindow()).getDecorView(),
                     new WindowInsetsAnimationCompat.Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
-                private WindowInsetsAnimationCompat imeAnimation;
-                private float startBottom;
-                private float endBottom;
+                        private WindowInsetsAnimationCompat imeAnimation;
+                        private float startBottom;
+                        private float endBottom;
 
-                @Override
-                public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
-                    startBottom = heightProvider.getKeyboardHeight();
-                }
-
-                @NonNull
-                @Override
-                public WindowInsetsAnimationCompat.BoundsCompat onStart(@NonNull WindowInsetsAnimationCompat animation, @NonNull WindowInsetsAnimationCompat.BoundsCompat bounds) {
-                    endBottom = 0;
-
-                    heightProvider.addKeyboardHeightObserver(new KeyboardHeightProvider.KeyboardHeightObserver() {
                         @Override
-                        public void onKeyboardHeightChanged(int height) {
-                            if (height != startBottom) {
-                                endBottom = height;
+                        public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
+                            startBottom = heightProvider.getKeyboardHeight();
+                        }
 
-                                heightProvider.removeKeyboardHeightObserver(this);
+                        @NonNull
+                        @Override
+                        public WindowInsetsAnimationCompat.BoundsCompat onStart(@NonNull WindowInsetsAnimationCompat animation, @NonNull WindowInsetsAnimationCompat.BoundsCompat bounds) {
+                            endBottom = 0;
+
+                            heightProvider.addKeyboardHeightObserver(new KeyboardHeightProvider.KeyboardHeightObserver() {
+                                @Override
+                                public void onKeyboardHeightChanged(int height) {
+                                    if (height != startBottom) {
+                                        endBottom = height;
+
+                                        heightProvider.removeKeyboardHeightObserver(this);
+                                    }
+                                }
+                            });
+
+                            return bounds;
+                        }
+
+                        @NonNull
+                        @Override
+                        public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets, @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
+                            if (imeAnimation == null) {
+                                for (WindowInsetsAnimationCompat animation : runningAnimations) {
+                                    if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) != 0) {
+                                        imeAnimation = animation;
+
+                                        break;
+                                    }
+                                }
                             }
+
+                            if (imeAnimation != null) {
+                                float delta = endBottom - startBottom;
+                                float fraction = (delta < 0 ? 1 : 0) - imeAnimation.getInterpolatedFraction();
+                                float translation = delta * fraction;
+
+                                // getInterpolatedFraction() returns a 1 at the end of the animation
+                                // this is to "sanitize" that value
+                                if (translation == 0 && insets.isVisible(WindowInsetsCompat.Type.ime())) {
+                                    translation = delta;
+                                }
+
+                                content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
+                                        content.getPaddingRight(), (int) (Measurements.getNavHeight() - translation));
+                            }
+
+                            return insets;
+                        }
+
+                        @Override
+                        public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
+                            imeAnimation = null;
                         }
                     });
-
-                    return bounds;
-                }
-
-                @NonNull
-                @Override
-                public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets, @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
-                    if (imeAnimation == null) {
-                        for (WindowInsetsAnimationCompat animation : runningAnimations) {
-                            if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) != 0) {
-                                imeAnimation = animation;
-
-                                break;
-                            }
-                        }
-                    }
-
-                    if (imeAnimation != null) {
-                        float delta = endBottom - startBottom;
-                        float translation = delta * ((delta < 0 ? 1 : 0) - imeAnimation.getInterpolatedFraction());
-
-                        content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
-                                content.getPaddingRight(), (int) (Measurements.getNavHeight() - translation));
-                    }
-
-                    return insets;
-                }
-
-                @Override
-                public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
-                    imeAnimation = null;
-                }
-            });
 
             heightProvider.addKeyboardHeightObserver(height -> getBehavior().setDraggable(height == 0));
         } else {
