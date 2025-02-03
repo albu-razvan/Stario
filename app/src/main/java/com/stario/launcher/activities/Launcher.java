@@ -68,11 +68,11 @@ public class Launcher extends ThemedActivity {
     @SuppressLint({"ClickableViewAccessibility", "UseCompatLoadingForDrawables"})
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Window window = getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_SPLIT_TOUCH);
-
         Vibrations.from(this);
         LauncherApplicationManager.from(this);
+
+        Window window = getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_SPLIT_TOUCH);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.launcher);

@@ -18,6 +18,7 @@
 package com.stario.launcher.apps.categories.popup;
 
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
@@ -68,6 +69,8 @@ public class RenameCategoryDialog extends ActionDialog {
 
         editText = root.findViewById(R.id.category);
         editText.setText(initialName);
+        editText.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
+                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
 
         editText.addTextChangedListener(new TextWatcher() {
             @Override
