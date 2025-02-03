@@ -19,10 +19,9 @@
 <com.stario.launcher.ui.recyclers.FastScroller xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/fast_scroller"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:overScrollMode="never">
+    android:layout_height="match_parent">
 
-    <com.stario.launcher.ui.recyclers.ListeningRecyclerView
+    <com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView
         android:id="@+id/drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -30,7 +29,6 @@
         android:clipToPadding="false"
         android:descendantFocusability="blocksDescendants"
         android:nestedScrollingEnabled="true"
-        android:overScrollMode="never"
         android:paddingStart="20dp"
         android:paddingEnd="20dp" />
 

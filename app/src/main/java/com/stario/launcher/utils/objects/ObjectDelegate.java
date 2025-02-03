@@ -15,8 +15,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.ui.recyclers;
+package com.stario.launcher.utils.objects;
 
-public interface ScrollToTop {
-    void scrollToTop();
+import androidx.annotation.NonNull;
+
+public class ObjectDelegate<T> {
+    private final ObjectDelegateAction<T> action;
+    private T object;
+
+    public ObjectDelegate(@NonNull ObjectDelegateAction<T> action) {
+        this(null, action);
+    }
+
+    public ObjectDelegate(T object, @NonNull ObjectDelegateAction<T> action) {
+        this.object = object;
+        this.action = action;
+    }
+
+    public T getValue() {
+        return object;
+    }
+
+    public void setValue(T object) {
+        this.object = object;
+
+        action.onSet(object);
+    }
+
+    public interface ObjectDelegateAction<T> {
+        void onSet(T object);
+    }
 }

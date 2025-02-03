@@ -20,6 +20,7 @@ package com.stario.launcher.preferences;
 import androidx.annotation.NonNull;
 
 public enum Entry {
+    CATEGORY_APPLICATION_MAP("CATEGORY_APPLICATION_MAP"),
     APPLICATION_LABELS("APPLICATION_LABELS"),
     CATEGORY_NAMES("CATEGORY_NAMES"),
     CATEGORY_MAP("CATEGORY_MAP"),
@@ -41,9 +42,11 @@ public enum Entry {
     }
 
     public static boolean isValid(String serialized) {
-        for (Entry entry : Entry.values()) {
-            if (entry.serialized.equals(serialized)) {
-                return true;
+        if(serialized != null && !serialized.isEmpty()) {
+            for (Entry entry : Entry.values()) {
+                if (serialized.startsWith(entry.serialized)) {
+                    return true;
+                }
             }
         }
 
@@ -54,5 +57,9 @@ public enum Entry {
     @Override
     public String toString() {
         return serialized;
+    }
+
+    public String toSubPreference(String name) {
+        return toString() + "." + name;
     }
 }

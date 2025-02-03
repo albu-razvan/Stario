@@ -15,33 +15,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.utils.objects;
+package com.stario.launcher.sheet.drawer;
 
-import android.view.View;
-
-import androidx.annotation.NonNull;
-
-public class ObjectInvalidateDelegate<T> {
-    private final View view;
-    private T object;
-
-    public ObjectInvalidateDelegate(@NonNull View view) {
-        this(view, null);
-    }
-
-    public ObjectInvalidateDelegate(@NonNull View view, T object) {
-        this.view = view;
-
-        this.object = object;
-    }
-
-    public T getValue() {
-        return object;
-    }
-
-    public void setValue(T object) {
-        this.object = object;
-        
-        view.invalidate();
-    }
+public interface ScrollToTop {
+    void scrollToTop();
 }

@@ -20,13 +20,16 @@ package com.stario.launcher.sheet.drawer.category.folder;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.categories.Category;
-import com.stario.launcher.apps.categories.CategoryData;
+import com.stario.launcher.apps.categories.CategoryManager;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.themes.ThemedActivity;
+
+import java.util.UUID;
 
 class FolderAdapter extends RecyclerApplicationAdapter {
     private final Category.CategoryItemListener listener;
@@ -34,11 +37,10 @@ class FolderAdapter extends RecyclerApplicationAdapter {
 
     private RecyclerView recyclerView;
 
-    public FolderAdapter(ThemedActivity activity, int categoryID) {
-        super(activity);
+    public FolderAdapter(ThemedActivity activity, UUID categoryID, ItemTouchHelper itemTouchHelper) {
+        super(activity, itemTouchHelper);
 
-        this.category = CategoryData.getInstance()
-                .getByID(categoryID);
+        this.category = CategoryManager.getInstance().get(categoryID);
 
         listener = new Category.CategoryItemListener() {
             int preparedRemovalIndex = -1;
@@ -90,6 +92,26 @@ class FolderAdapter extends RecyclerApplicationAdapter {
                 }
             }
         };
+    }
+
+    public boolean move(RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder targetHolder) {
+        int position = viewHolder.getAbsoluteAdapterPosition();
+        int target = targetHolder.getAbsoluteAdapterPosition();
+
+        if (position == target) {
+            return false;
+        }
+
+        while (position - target != 0) {
+            int newTarget = position - ((position - target) > 0 ? 1 : -1);
+
+            category.swap(position, newTarget);
+            notifyItemMoved(position, newTarget);
+
+            position = newTarget;
+        }
+
+        return true;
     }
 
     @Override

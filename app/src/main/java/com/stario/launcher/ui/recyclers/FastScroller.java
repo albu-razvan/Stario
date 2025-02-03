@@ -366,7 +366,7 @@ public class FastScroller extends RelativeLayout {
                 .alpha(alpha)
                 .setDuration(Animation.MEDIUM.getDuration());
 
-        animateVisibility(makeVisible, rightSide, 0.6f, 0.3f);
+        animateVisibility(makeVisible, rightSide, 0.6f, 0.2f);
     }
 
     private void moveViewToRelativePositionWithBounds(float offset) {

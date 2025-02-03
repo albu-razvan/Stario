@@ -32,7 +32,7 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.LauncherApplicationManager;
-import com.stario.launcher.apps.categories.CategoryData;
+import com.stario.launcher.apps.categories.CategoryManager;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
@@ -76,8 +76,8 @@ public class HiddenRecyclerAdapter extends RecyclerView.Adapter<HiddenRecyclerAd
         if (application != null) {
             viewHolder.icon.setIcon(application.getIcon());
             viewHolder.label.setText(application.getLabel());
-            viewHolder.category.setText(CategoryData.getInstance()
-                    .getCategoryName(application.getCategory(), activity.getResources()));
+            viewHolder.category.setText(CategoryManager.getInstance()
+                    .getCategoryName(application.getCategory()));
 
             String packageName = application.getInfo().packageName;
 

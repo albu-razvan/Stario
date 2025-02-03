@@ -32,18 +32,20 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
 
 import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.popup.ApplicationCustomizationDialog;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.popup.PopupMenu;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
 import com.stario.launcher.utils.animation.Animation;
@@ -56,6 +58,8 @@ public abstract class RecyclerApplicationAdapter
         extends AsyncRecyclerAdapter<RecyclerApplicationAdapter.ViewHolder> {
     private final ThemedActivity activity;
 
+    private ItemTouchHelper itemTouchHelper;
+
     public RecyclerApplicationAdapter(ThemedActivity activity) {
         super(activity);
 
@@ -64,9 +68,18 @@ public abstract class RecyclerApplicationAdapter
         setHasStableIds(true);
     }
 
+    public RecyclerApplicationAdapter(ThemedActivity activity, ItemTouchHelper itemTouchHelper) {
+        this(activity);
+
+        this.itemTouchHelper = itemTouchHelper;
+    }
+
     public class ViewHolder extends AsyncViewHolder {
         public TextView label;
+
+        private boolean hasPerformedLongCLick;
         private AdaptiveIconView icon;
+        private PopupWindow dialog;
         private View notification;
 
         @SuppressLint("ClickableViewAccessibility")
@@ -92,31 +105,64 @@ public abstract class RecyclerApplicationAdapter
                 }
             });
 
-            itemView.setOnTouchListener((view, event) -> {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN: {
-                        icon.animate().scaleY(AdaptiveIconView.MAX_SCALE)
-                                .scaleX(AdaptiveIconView.MAX_SCALE)
-                                .setInterpolator(new DecelerateInterpolator())
-                                .setDuration(ViewConfiguration.getLongPressTimeout());
+            itemView.setOnTouchListener(new View.OnTouchListener() {
+                private final float moveSlop = ViewConfiguration.get(activity).getScaledTouchSlop();
+                private boolean hasFiredDragEvent;
 
-                        break;
+                private float x;
+                private float y;
+
+                @Override
+                public boolean onTouch(View view, MotionEvent event) {
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN: {
+                            dialog = null;
+                            hasFiredDragEvent = false;
+                            hasPerformedLongCLick = false;
+                            x = event.getRawX();
+                            y = event.getRawY();
+
+                            icon.animate().scaleY(AdaptiveIconView.MAX_SCALE)
+                                    .scaleX(AdaptiveIconView.MAX_SCALE)
+                                    .setInterpolator(new DecelerateInterpolator())
+                                    .setDuration(ViewConfiguration.getLongPressTimeout());
+
+                            break;
+                        }
+
+                        case MotionEvent.ACTION_MOVE: {
+                            if (itemTouchHelper != null && dialog != null &&
+                                    hasPerformedLongCLick && !hasFiredDragEvent &&
+                                    (Math.abs(x - event.getRawX()) > 0 ||
+                                            Math.abs(y - event.getRawY()) > 0)) {
+
+                                ((ViewGroup) itemView).requestDisallowInterceptTouchEvent(false);
+                                itemTouchHelper.startDrag(ViewHolder.this);
+                                dialog.dismiss();
+
+                                hasFiredDragEvent = true;
+                            }
+
+                            break;
+                        }
+
+                        case MotionEvent.ACTION_UP:
+                        case MotionEvent.ACTION_CANCEL: {
+                            icon.animate().scaleY(1)
+                                    .scaleX(1)
+                                    .setDuration(Animation.SHORT.getDuration());
+
+                            break;
+                        }
                     }
 
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_CANCEL: {
-                        icon.animate().scaleY(1)
-                                .scaleX(1)
-                                .setDuration(Animation.SHORT.getDuration());
-
-                        break;
-                    }
+                    return false;
                 }
-
-                return false;
             });
 
             itemView.setOnLongClickListener(view -> {
+                hasPerformedLongCLick = true;
+
                 LauncherApplication application = getApplication(getAbsoluteAdapterPosition());
 
                 if (application != LauncherApplication.FALLBACK_APP) {
@@ -179,11 +225,24 @@ public abstract class RecyclerApplicationAdapter
                 icon.setScaleY(1);
             });
 
-            menu.show(activity, icon,
+            ((ViewGroup) itemView).requestDisallowInterceptTouchEvent(true);
+            dialog = menu.show(activity, icon,
                     new Rect(Measurements.isLandscape() ? (label.getMeasuredWidth() - icon.getMeasuredWidth()) / 2 : 0,
                             Measurements.isLandscape() ? 0 : label.getMeasuredHeight() * label.getLineCount() / label.getMaxLines() + Measurements.dpToPx(10),
                             Measurements.isLandscape() ? (label.getMeasuredWidth() - icon.getMeasuredWidth()) / 2 : 0, 0),
-                    Measurements.isLandscape() ? PopupMenu.PIVOT_CENTER_VERTICAL : PopupMenu.PIVOT_DEFAULT);
+                    Measurements.isLandscape() ? PopupMenu.PIVOT_CENTER_VERTICAL : PopupMenu.PIVOT_DEFAULT,
+                    itemTouchHelper == null);
+        }
+
+        public void focus() {
+            this.itemView.bringToFront();
+            this.label.animate().alpha(0)
+                    .setDuration(Animation.SHORT.getDuration());
+        }
+
+        public void clearFocus() {
+            this.label.animate().alpha(1f)
+                    .setDuration(Animation.SHORT.getDuration());
         }
     }
 

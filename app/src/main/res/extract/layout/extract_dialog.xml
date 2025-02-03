@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -22,7 +21,7 @@
     android:orientation="horizontal"
     android:padding="15dp">
 
-    <EditText
+    <com.stario.launcher.ui.keyboard.InlineAutocompleteEditText
         android:id="@+id/edit_text"
         android:layout_width="0px"
         android:layout_height="match_parent"

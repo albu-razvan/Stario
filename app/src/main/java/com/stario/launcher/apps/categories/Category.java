@@ -17,22 +17,30 @@
 
 package com.stario.launcher.apps.categories;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.utils.ThreadSafeArrayList;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class Category {
-    public final int id;
-    final List<LauncherApplication> applications;
-    final List<CategoryItemListener> listeners;
+    public final @NonNull UUID identifier;
 
-    public Category(int categoryID) {
-        this.id = categoryID;
+    private final CategoryMappings.Comparator<LauncherApplication> comparator;
+
+    final ArrayList<LauncherApplication> applications;
+    final ArrayList<CategoryItemListener> listeners;
+
+    public Category(@NonNull UUID identifier) {
+        this.identifier = identifier;
         this.applications = new ThreadSafeArrayList<>();
         this.listeners = new ThreadSafeArrayList<>();
+        this.comparator = CategoryMappings.getCategoryApplicationComparator(this);
     }
 
     public int getSize() {
@@ -48,6 +56,10 @@ public class Category {
         }
     }
 
+    public List<LauncherApplication> getAll() {
+        return Collections.unmodifiableList(applications);
+    }
+
     synchronized void addApplication(LauncherApplication applicationToAdd) {
         int left = 0;
         int right = applications.size() - 1;
@@ -55,9 +67,8 @@ public class Category {
         while (left <= right) {
             int middle = (left + right) / 2;
 
-            LauncherApplication application = applications.get(middle);
-            int compareValue = application.getLabel()
-                    .compareTo(applicationToAdd.getLabel());
+            LauncherApplication applicationAtMiddle = applications.get(middle);
+            int compareValue = comparator.compare(applicationAtMiddle, applicationToAdd);
 
             if (compareValue < 0) {
                 left = middle + 1;
@@ -99,6 +110,16 @@ public class Category {
         }
     }
 
+    public void swap(int index1, int index2) {
+        Collections.swap(applications, index1, index2);
+
+        comparator.updatePermutation();
+
+        for (CategoryItemListener listener : listeners) {
+            listener.onSwapped(index1, index2);
+        }
+    }
+
     public int indexOf(LauncherApplication application) {
         return applications.indexOf(application);
     }
@@ -121,12 +142,12 @@ public class Category {
 
     @Override
     public int hashCode() {
-        return id;
+        return identifier.hashCode();
     }
 
     @Override
     public boolean equals(@Nullable Object object) {
-        return object instanceof Category && ((Category) object).id == id;
+        return object instanceof Category && ((Category) object).identifier.equals(identifier);
     }
 
     /**
@@ -158,6 +179,9 @@ public class Category {
         }
 
         default void onUpdated(LauncherApplication application) {
+        }
+
+        default void onSwapped(int index1, int index2) {
         }
     }
 }

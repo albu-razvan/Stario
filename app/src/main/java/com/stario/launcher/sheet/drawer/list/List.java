@@ -83,8 +83,6 @@ public class List extends DrawerPage {
 
         fastScroller = rootView.findViewById(R.id.fast_scroller);
 
-        fastScroller.setOverScrollMode(View.OVER_SCROLL_NEVER);
-
         GridLayoutManager manager = new GridLayoutManager(activity,
                 Measurements.getListColumnCount()) {
             @Override

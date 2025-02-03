@@ -31,9 +31,10 @@ import com.stario.launcher.utils.animation.Animation;
 import java.util.ArrayList;
 
 public class RecyclerItemAnimator extends DefaultItemAnimator {
-    public static int APPEARANCE = 0x100;
-    public static int DISAPPEARANCE = 0x010;
-    public static int CHANGING = 0x001;
+    public static int APPEARANCE = 0b100;
+    public static int DISAPPEARANCE = 0b010;
+    public static int CHANGING = 0b001;
+
     private final ArrayList<RecyclerView.ViewHolder> pendingRemovals;
     private final ArrayList<RecyclerView.ViewHolder> pendingAdditions;
     private final ArrayList<RecyclerView.ViewHolder> removeAnimations;

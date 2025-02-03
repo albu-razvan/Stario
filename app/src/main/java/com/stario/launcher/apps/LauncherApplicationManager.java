@@ -39,7 +39,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.stario.launcher.BuildConfig;
-import com.stario.launcher.apps.categories.CategoryData;
+import com.stario.launcher.apps.categories.CategoryManager;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.ThreadSafeArrayList;
@@ -48,6 +48,7 @@ import com.stario.launcher.utils.Utils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public final class LauncherApplicationManager {
     private static final String TAG = "Applications";
@@ -58,10 +59,9 @@ public final class LauncherApplicationManager {
     private final Map<String, LauncherApplication> applicationMap;
     private final SharedPreferences hiddenApplications;
     private final SharedPreferences applicationLabels;
-    private final SharedPreferences categorySettings;
     private final List<ApplicationListener> listeners;
     private final PackageManager packageManager;
-    private final CategoryData categoryData;
+    private final CategoryManager categoryManager;
     private final IconPackManager iconPacks;
     private boolean registered;
 
@@ -75,7 +75,6 @@ public final class LauncherApplicationManager {
         this.applicationListHidden = new ThreadSafeArrayList<>();
         this.applicationMap = new HashMap<>();
         this.listeners = new ThreadSafeArrayList<>();
-        this.categorySettings = activity.getSharedPreferences(Entry.CATEGORIES);
         this.applicationLabels = activity.getSharedPreferences(Entry.APPLICATION_LABELS);
         this.hiddenApplications = activity.getSharedPreferences(Entry.HIDDEN_APPS);
         this.packageManager = activity.getPackageManager();
@@ -142,24 +141,7 @@ public final class LauncherApplicationManager {
                                         removeApplication(packageName);
                                     } else {
                                         application.info = applicationInfo;
-
-                                        int category = categorySettings.getInt(applicationInfo.packageName,
-                                                applicationInfo.category);
-
-                                        if (application.category != category &&
-                                                categoryData != null) {
-                                            // update category data in the worst way possible
-                                            categoryData.removeApplication(application);
-                                            categoryData.addApplication(application);
-                                        }
-
-                                        iconPacks.updateIcon(get(packageName), LauncherApplicationManager.this::notifyUpdate);
-
-                                        for (ApplicationListener listener : listeners) {
-                                            if (listener != null) {
-                                                listener.onUpdated(application);
-                                            }
-                                        }
+                                        updateApplication(application);
                                     }
                                 }
                             } else if ((action.equals(Intent.ACTION_PACKAGE_ADDED) &&
@@ -176,7 +158,7 @@ public final class LauncherApplicationManager {
             }
         };
 
-        categoryData = CategoryData.from(activity);
+        categoryManager = CategoryManager.from(activity);
 
         Utils.submitTask(() -> {
             //TODO multiple user support
@@ -199,7 +181,11 @@ public final class LauncherApplicationManager {
                 if (applicationInfo != null) {
                     if (!BuildConfig.APPLICATION_ID.equals(applicationInfo.packageName)) {
                         if (applicationMap.containsKey(applicationInfo.packageName)) {
-                            iconPacks.updateIcon(get(applicationInfo.packageName), this::notifyUpdate);
+                            LauncherApplication application = get(applicationInfo.packageName);
+
+                            if (application != null) {
+                                iconPacks.updateIcon(application, this::notifyUpdate);
+                            }
                         } else {
                             addApplication(createApplication(applicationInfo));
                         }
@@ -267,6 +253,24 @@ public final class LauncherApplicationManager {
         return intentFilter;
     }
 
+    public void updateApplication(LauncherApplication application) {
+        UUID category = categoryManager.getCategoryIdentifier(application.info);
+
+        if (!application.category.equals(category)) {
+            categoryManager.removeApplication(application);
+            application.category = category;
+            categoryManager.addApplication(application);
+        }
+
+        iconPacks.updateIcon(application, LauncherApplicationManager.this::notifyUpdate);
+
+        for (ApplicationListener listener : listeners) {
+            if (listener != null) {
+                listener.onUpdated(application);
+            }
+        }
+    }
+
     void updateIcons() {
         for (LauncherApplication application : applicationListHidden) {
             iconPacks.updateIcon(application, this::notifyUpdate);
@@ -308,6 +312,7 @@ public final class LauncherApplicationManager {
         LauncherApplication application;
         String label = applicationLabels.getString(applicationInfo.packageName, null);
 
+        //noinspection ReplaceNullCheck
         if (label != null) {
             application = new LauncherApplication(applicationInfo, label);
         } else {
@@ -315,8 +320,7 @@ public final class LauncherApplicationManager {
                     applicationInfo.loadLabel(packageManager).toString());
         }
 
-        application.category = categorySettings.getInt(applicationInfo.packageName,
-                applicationInfo.category);
+        application.category = categoryManager.getCategoryIdentifier(applicationInfo);
 
         return application;
     }
@@ -394,7 +398,7 @@ public final class LauncherApplicationManager {
         iconPacks.add(application);
         iconPacks.updateIcon(application, this::notifyUpdate);
 
-        categoryData.addApplication(application);
+        categoryManager.addApplication(application);
     }
 
     private synchronized void addApplicationToList(LauncherApplication applicationToAdd, List<LauncherApplication> list) {
@@ -426,7 +430,7 @@ public final class LauncherApplicationManager {
         if (application != LauncherApplication.FALLBACK_APP) {
             for (ApplicationListener listener : listeners) {
                 if (listener != null) {
-                    listener.onPrepareRemoval(application);
+                    listener.onPrepareRemoval();
                 }
             }
 
@@ -436,7 +440,7 @@ public final class LauncherApplicationManager {
 
             iconPacks.remove(application);
 
-            categoryData.removeApplication(application);
+            categoryManager.removeApplication(application);
 
             for (ApplicationListener listener : listeners) {
                 if (listener != null) {
@@ -453,7 +457,7 @@ public final class LauncherApplicationManager {
 
         if (!applicationListHidden.contains(application)) {
             addApplicationToList(application, applicationListHidden);
-            categoryData.addApplication(application);
+            categoryManager.addApplication(application);
 
             for (ApplicationListener listener : listeners) {
                 if (listener != null) {
@@ -470,12 +474,12 @@ public final class LauncherApplicationManager {
 
         for (ApplicationListener listener : listeners) {
             if (listener != null) {
-                listener.onPrepareHiding(application);
+                listener.onPrepareHiding();
             }
         }
 
         applicationListHidden.remove(application);
-        categoryData.removeApplication(application);
+        categoryManager.removeApplication(application);
 
         for (ApplicationListener listener : listeners) {
             if (listener != null) {
@@ -507,11 +511,11 @@ public final class LauncherApplicationManager {
         /**
          * This will always be called before and in the same UI frame as {@link #onRemoved(LauncherApplication)}
          */
-        default void onPrepareRemoval(LauncherApplication application) {
+        default void onPrepareRemoval() {
         }
 
         /**
-         * This will always be called after and in the same UI frame as {@link #onPrepareRemoval(LauncherApplication)}
+         * This will always be called after and in the same UI frame as {@link #onPrepareRemoval()}
          */
         default void onRemoved(LauncherApplication application) {
         }
@@ -519,11 +523,11 @@ public final class LauncherApplicationManager {
         /**
          * This will always be called before and in the same UI frame as {@link #onHidden(LauncherApplication)}
          */
-        default void onPrepareHiding(LauncherApplication application) {
+        default void onPrepareHiding() {
         }
 
         /**
-         * This will always be called after and in the same UI frame as {@link #onPrepareHiding(LauncherApplication)}
+         * This will always be called after and in the same UI frame as {@link #onPrepareHiding()}
          */
         default void onHidden(LauncherApplication application) {
         }

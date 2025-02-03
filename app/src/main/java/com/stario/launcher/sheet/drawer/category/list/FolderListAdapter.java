@@ -30,14 +30,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
 import com.stario.launcher.apps.categories.Category;
-import com.stario.launcher.apps.categories.CategoryData;
+import com.stario.launcher.apps.categories.CategoryManager;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.category.Categories;
 import com.stario.launcher.sheet.drawer.category.folder.Folder;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
-import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.animation.Animation;
@@ -51,8 +50,10 @@ import java.util.function.Supplier;
 public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.ViewHolder> {
     private static final float TARGET_ELEVATION = 10;
     private static final float TARGET_SCALE = 0.9f;
+
+    private final CategoryManager.CategoryListener listener;
     private final List<AdaptiveIconView> sharedIcons;
-    private final CategoryData categoryData;
+    private final CategoryManager categoryManager;
     private final ThemedActivity activity;
     private final FolderList folderList;
     private final Folder folder;
@@ -63,18 +64,16 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
         this.activity = activity;
         this.folderList = folderList;
 
-        this.categoryData = CategoryData.getInstance();
+        this.categoryManager = CategoryManager.getInstance();
         this.sharedIcons = new ArrayList<>();
         this.folder = new Folder();
 
-        setHasStableIds(true);
-
-        categoryData.setOnCategoryUpdateListener(new CategoryData.CategoryListener() {
+        this.listener = new CategoryManager.CategoryListener() {
             int preparedRemovalIndex = -1;
 
             @Override
             public void onCreated(Category category) {
-                int index = categoryData.indexOf(category);
+                int index = categoryManager.indexOf(category);
 
                 if (index >= 0) {
                     UiUtils.runOnUIThread(() -> notifyItemInserted(index));
@@ -82,8 +81,19 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
             }
 
             @Override
+            public void onChanged(Category category) {
+                int index = categoryManager.indexOf(category);
+
+                if (index >= 0) {
+                    UiUtils.runOnUIThread(() -> notifyItemChanged(index));
+                }
+            }
+
+            @Override
             public void onPrepareRemoval(Category category) {
-                preparedRemovalIndex = categoryData.indexOf(category);
+                if (preparedRemovalIndex < 0) {
+                    preparedRemovalIndex = categoryManager.indexOf(category);
+                }
             }
 
             @Override
@@ -93,10 +103,13 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
                     preparedRemovalIndex = -1;
                 } else {
+                    //noinspection NotifyDataSetChanged
                     UiUtils.runOnUIThread(() -> notifyDataSetChanged());
                 }
             }
-        });
+        };
+
+        setHasStableIds(true);
     }
 
     public boolean move(RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder targetHolder) {
@@ -110,7 +123,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
         while (position - target != 0) {
             int newTarget = position - ((position - target) > 0 ? 1 : -1);
 
-            categoryData.swap(position, newTarget);
+            categoryManager.swap(position, newTarget);
             notifyItemMoved(position, newTarget);
 
             position = newTarget;
@@ -151,7 +164,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
         }
     }
 
-    protected class ViewHolder extends AsyncViewHolder {
+    public class ViewHolder extends AsyncViewHolder {
         private TextView category;
         private RecyclerView recycler;
         private FolderListItemAdapter adapter;
@@ -165,8 +178,12 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
             recycler.setItemAnimator(null);
 
-            GridLayoutManager gridLayoutManager =
-                    new GridLayoutManager(activity, 4);
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(activity, 4) {
+                @Override
+                public boolean supportsPredictiveItemAnimations() {
+                    return false;
+                }
+            };
 
             gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
@@ -181,7 +198,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
             });
 
             recycler.setLayoutManager(gridLayoutManager);
-            recycler.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE, Animation.MEDIUM));
+            recycler.setItemAnimator(null);
 
             adapter = new FolderListItemAdapter(activity);
 
@@ -195,14 +212,11 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
     @Override
     public void onBind(@NonNull ViewHolder viewHolder, int index) {
-        Category category = categoryData.get(index);
+        Category category = categoryManager.get(index);
 
-        viewHolder.category.setText(
-                categoryData.getCategoryName(
-                        category.id, activity.getResources()
-                ));
+        viewHolder.category.setText(categoryManager.getCategoryName(category.identifier));
 
-        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener clickListener = new View.OnClickListener() {
             private AdaptiveIconView getIcon(View view) {
                 if (view instanceof AdaptiveIconView) {
                     return (AdaptiveIconView) view;
@@ -284,13 +298,30 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
                         fragmentManager.executePendingTransactions();
                         transaction.commit();
 
-                        folder.updateCategoryID(category.id);
+                        folder.updateCategory(category.identifier);
                     }
                 }
             }
-        });
+        };
+
+        viewHolder.itemView.setOnClickListener(clickListener);
+        viewHolder.recycler.setOnClickListener(clickListener);
 
         viewHolder.updateCategory(category);
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        categoryManager.addOnCategoryUpdateListener(listener);
+
+        super.onAttachedToRecyclerView(recyclerView);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        categoryManager.removeOnCategoryUpdateListener(listener);
+
+        super.onDetachedFromRecyclerView(recyclerView);
     }
 
     @Override
@@ -305,11 +336,11 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
     @Override
     public long getItemId(int position) {
-        return categoryData.get(position).id;
+        return categoryManager.get(position).identifier.hashCode();
     }
 
     @Override
     public int getSize() {
-        return categoryData.size();
+        return categoryManager.size();
     }
 }

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -20,17 +19,15 @@
     android:id="@+id/folder"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="bottom"
-    android:overScrollMode="never">
+    android:layout_gravity="bottom">
 
-    <com.stario.launcher.ui.recyclers.ListeningRecyclerView
+    <com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView
         android:id="@+id/drawer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:nestedScrollingEnabled="true"
-        android:overScrollMode="never"
         android:paddingStart="20dp"
         android:paddingEnd="20dp" />
 

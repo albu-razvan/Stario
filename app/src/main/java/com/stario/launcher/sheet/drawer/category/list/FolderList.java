@@ -18,6 +18,7 @@
 package com.stario.launcher.sheet.drawer.category.list;
 
 import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
@@ -36,6 +37,7 @@ import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.recyclers.AccurateScrollComputeGridLayoutManager;
 
 public class FolderList extends DrawerPage {
     @NonNull
@@ -44,13 +46,8 @@ public class FolderList extends DrawerPage {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
 
-        GridLayoutManager manager = new GridLayoutManager(activity,
-                Measurements.getFolderColumnCount()) {
-            @Override
-            public boolean supportsPredictiveItemAnimations() {
-                return false;
-            }
-        };
+        GridLayoutManager manager = new AccurateScrollComputeGridLayoutManager(activity,
+                Measurements.getFolderColumnCount());
 
         Measurements.addFolderColumnCountChangeListener(manager::setSpanCount);
 
@@ -68,7 +65,7 @@ public class FolderList extends DrawerPage {
                 boolean result = adapter.move(viewHolder, target);
                 manager.onRestoreInstanceState(state);
 
-                if(result) {
+                if (result) {
                     Vibrations.getInstance().vibrate();
                 }
 
@@ -79,11 +76,14 @@ public class FolderList extends DrawerPage {
             public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
                 if (actionState == ItemTouchHelper.ACTION_STATE_DRAG
                         && viewHolder != null) {
+                    viewHolder.itemView.forceLayout();
                     adapter.focus(viewHolder);
 
                     drawer.setItemAnimator(new DefaultItemAnimator());
 
                     Vibrations.getInstance().vibrate();
+
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
                 }
             }
 
@@ -93,8 +93,8 @@ public class FolderList extends DrawerPage {
             }
 
             @Override
-            public boolean isItemViewSwipeEnabled() {
-                return false;
+            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                return makeFlag(ItemTouchHelper.ACTION_STATE_DRAG, ItemTouchHelper.DOWN | ItemTouchHelper.UP | ItemTouchHelper.START | ItemTouchHelper.END);
             }
 
             @Override
@@ -106,6 +106,8 @@ public class FolderList extends DrawerPage {
                 if (itemAnimator != null) {
                     itemAnimator.isRunning(() -> drawer.setItemAnimator(null));
                 }
+
+                activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
 
             @Override
@@ -113,8 +115,8 @@ public class FolderList extends DrawerPage {
             }
 
             @Override
-            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-                return makeFlag(ItemTouchHelper.ACTION_STATE_DRAG, ItemTouchHelper.DOWN | ItemTouchHelper.UP | ItemTouchHelper.START | ItemTouchHelper.END);
+            public boolean isItemViewSwipeEnabled() {
+                return false;
             }
         };
 
