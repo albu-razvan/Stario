@@ -28,7 +28,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +44,7 @@ import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.utils.HomeWatcher;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
@@ -56,6 +56,7 @@ public abstract class SheetDialogFragment extends DialogFragment {
     private final ArrayList<OnDestroyListener> destroyListeners;
     private OnSlideListener slideListener;
     private boolean receivedMoveEvent;
+    private HomeWatcher homeWatcher;
     private boolean capturing;
     private SheetType type;
 
@@ -81,7 +82,24 @@ public abstract class SheetDialogFragment extends DialogFragment {
 
         activity = (ThemedActivity) context;
 
+        homeWatcher = new HomeWatcher(context);
+        homeWatcher.setOnHomePressedListener(() -> {
+            SheetBehavior<?> behavior = getBehavior();
+
+            if (behavior != null) {
+                behavior.setState(SheetBehavior.STATE_COLLAPSED);
+            }
+        });
+        homeWatcher.startWatch();
+
         super.onAttach(context);
+    }
+
+    @Override
+    public void onDetach() {
+        homeWatcher.stopWatch();
+
+        super.onDetach();
     }
 
     @Override

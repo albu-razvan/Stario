@@ -60,6 +60,7 @@ import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.CollapsibleTitleBar;
 import com.stario.launcher.ui.common.lock.LockDetector;
+import com.stario.launcher.utils.HomeWatcher;
 import com.stario.launcher.utils.Utils;
 
 public class Settings extends ThemedActivity {
@@ -68,6 +69,7 @@ public class Settings extends ThemedActivity {
     private MaterialSwitch lockSwitch;
     private TextView searchEngineName;
     private SharedPreferences search;
+    private HomeWatcher homeWatcher;
     private boolean shouldRebirth;
     private TextView iconPackName;
     private TextView hideCount;
@@ -84,6 +86,9 @@ public class Settings extends ThemedActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
+
+        homeWatcher = new HomeWatcher(this);
+        homeWatcher.setOnHomePressedListener(this::finishAfterTransition);
 
         SharedPreferences settings = getSettings();
         search = getSharedPreferences(Entry.SEARCH);
@@ -398,6 +403,20 @@ public class Settings extends ThemedActivity {
         if (!Utils.isAccessibilityServiceEnabled(this)) {
             lockSwitch.setChecked(false);
         }
+    }
+
+    @Override
+    protected void onStart() {
+        homeWatcher.startWatch();
+
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        homeWatcher.stopWatch();
+
+        super.onStop();
     }
 
     @Override

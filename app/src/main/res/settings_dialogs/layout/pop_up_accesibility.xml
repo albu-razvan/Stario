@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -22,30 +21,37 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:fontFamily="@font/dm_sans_regular"
-        android:gravity="center"
-        android:text="@string/feature_notice"
-        android:textColor="?attr/colorOnSurface"
-        android:textSize="16sp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:checked="false"
-        android:fontFamily="@font/dm_sans_medium"
-        android:letterSpacing="-0.03"
-        android:padding="10dp"
-        android:text="@string/use_accessibility"
-        android:textColor="?attr/colorOnSurface"
-        android:textSize="20sp" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_accessibility" />
+
+        <Space
+            android:layout_width="10dp"
+            android:layout_height="0px" />
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:checked="false"
+            android:fontFamily="@font/dm_sans_medium"
+            android:letterSpacing="-0.03"
+            android:text="@string/use_accessibility"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="20sp" />
+
+    </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"
@@ -62,9 +68,11 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="10dp"
         android:gravity="end"
-        android:orientation="horizontal"
-        android:padding="25dp">
+        android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/cancel"

@@ -106,7 +106,6 @@ public abstract class RecyclerApplicationAdapter
             });
 
             itemView.setOnTouchListener(new View.OnTouchListener() {
-                private final float moveSlop = ViewConfiguration.get(activity).getScaledTouchSlop();
                 private boolean hasFiredDragEvent;
 
                 private float x;
