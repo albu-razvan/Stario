@@ -35,7 +35,9 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
+import com.stario.launcher.apps.categories.Category;
 import com.stario.launcher.apps.categories.CategoryManager;
+import com.stario.launcher.apps.categories.popup.RenameCategoryDialog;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.DrawerPage;
@@ -48,9 +50,27 @@ import java.lang.reflect.Method;
 import java.util.UUID;
 
 public class Folder extends DrawerPage {
+    private final CategoryManager.CategoryListener categoryListener;
+
     private ItemTouchHelper itemTouchHelper;
     private OnCreateListener listener;
     private FolderAdapter adapter;
+    private UUID identifier;
+
+    public Folder() {
+        super();
+
+        this.identifier = null;
+        this.categoryListener = new CategoryManager.CategoryListener() {
+            @Override
+            public void onChanged(Category category) {
+                if (identifier != null) {
+                    title.setText(CategoryManager.getInstance()
+                            .getCategoryName(identifier));
+                }
+            }
+        };
+    }
 
     @NonNull
     @Override
@@ -66,8 +86,8 @@ public class Folder extends DrawerPage {
         drawer.setItemAnimator(null);
 
         drawer.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            Method method = null;
-            boolean valid = true;
+            private Method method = null;
+            private boolean valid = true;
 
             @SuppressLint("SoonBlockedPrivateApi")
             @Override
@@ -178,6 +198,8 @@ public class Folder extends DrawerPage {
         postponeEnterTransition();
 
         setOnCreateListener(() -> {
+            this.identifier = identifier;
+
             adapter = new FolderAdapter(activity, identifier, itemTouchHelper);
             adapter.setInflationType(InflationType.SYNCED);
 
@@ -189,10 +211,26 @@ public class Folder extends DrawerPage {
 
                 title.setText(CategoryManager.getInstance()
                         .getCategoryName(identifier));
+                title.setOnClickListener(v ->
+                        new RenameCategoryDialog(activity, identifier).show());
 
                 startPostponedEnterTransition();
             });
         });
+    }
+
+    @Override
+    public void onStart() {
+        CategoryManager.getInstance().addOnCategoryUpdateListener(categoryListener);
+
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        CategoryManager.getInstance().removeOnCategoryUpdateListener(categoryListener);
+
+        super.onStop();
     }
 
     private void setOnCreateListener(@NonNull OnCreateListener listener) {

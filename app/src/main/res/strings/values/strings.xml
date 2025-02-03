@@ -120,8 +120,10 @@
     <string name="uninstall">Uninstall</string>
     <string name="customize">Customize</string>
     <string name="category">Category</string>
+    <string name="category_name">Category name</string>
     <string name="available_icons">Available icons</string>
     <string name="application_label">Label</string>
+    <string name="category_name_warning">This category already exists.</string>
     <string name="application_label_warning">Label must be at least one character long.</string>
     <string name="category_warning">This will create a new category with the provided name.</string>
 

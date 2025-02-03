@@ -50,6 +50,8 @@ import java.util.function.Supplier;
 public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.ViewHolder> {
     private static final float TARGET_ELEVATION = 10;
     private static final float TARGET_SCALE = 0.9f;
+
+    private final CategoryManager.CategoryListener listener;
     private final List<AdaptiveIconView> sharedIcons;
     private final CategoryManager categoryManager;
     private final ThemedActivity activity;
@@ -66,9 +68,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
         this.sharedIcons = new ArrayList<>();
         this.folder = new Folder();
 
-        setHasStableIds(true);
-
-        categoryManager.setOnCategoryUpdateListener(new CategoryManager.CategoryListener() {
+        this.listener = new CategoryManager.CategoryListener() {
             int preparedRemovalIndex = -1;
 
             @Override
@@ -77,6 +77,15 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
                 if (index >= 0) {
                     UiUtils.runOnUIThread(() -> notifyItemInserted(index));
+                }
+            }
+
+            @Override
+            public void onChanged(Category category) {
+                int index = categoryManager.indexOf(category);
+
+                if (index >= 0) {
+                    UiUtils.runOnUIThread(() -> notifyItemChanged(index));
                 }
             }
 
@@ -94,10 +103,13 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
                     preparedRemovalIndex = -1;
                 } else {
+                    //noinspection NotifyDataSetChanged
                     UiUtils.runOnUIThread(() -> notifyDataSetChanged());
                 }
             }
-        });
+        };
+
+        setHasStableIds(true);
     }
 
     public boolean move(RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder targetHolder) {
@@ -296,6 +308,20 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
         viewHolder.recycler.setOnClickListener(clickListener);
 
         viewHolder.updateCategory(category);
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        categoryManager.addOnCategoryUpdateListener(listener);
+
+        super.onAttachedToRecyclerView(recyclerView);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        categoryManager.removeOnCategoryUpdateListener(listener);
+
+        super.onDetachedFromRecyclerView(recyclerView);
     }
 
     @Override
