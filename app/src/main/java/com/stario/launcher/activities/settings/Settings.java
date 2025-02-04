@@ -96,7 +96,7 @@ public class Settings extends ThemedActivity {
         boolean mediaAllowed = settings.getBoolean(Media.PREFERENCE_ENTRY, false);
         boolean lock = settings.getBoolean(LockDetector.PREFERENCE_ENTRY, false);
         boolean legacyLaunchAnim = settings.getBoolean(LauncherApplication.LEGACY_LAUNCH_ANIMATION, false);
-        boolean legacyLockAnim = settings.getBoolean(LockDetector.LEGACY_ANIMATION, true);
+        boolean legacyLockAnim = settings.getBoolean(LockDetector.LEGACY_ANIMATION, false);
         boolean imperialUnits = settings.getBoolean(Weather.IMPERIAL_KEY, false);
         boolean searchResults = search.getBoolean(WebAdapter.SEARCH_RESULTS, false);
         boolean vibrations = settings.getBoolean(Vibrations.PREFERENCE_ENTRY, true);

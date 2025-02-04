@@ -127,7 +127,7 @@ public class ClosingAnimationView extends ConstraintLayout {
         }
 
         animator = ValueAnimator.ofFloat(1f, 0f);
-        animator.setDuration(2 * Animation.MEDIUM.getDuration());
+        animator.setDuration(Animation.EXTENDED.getDuration());
         animator.setInterpolator(new FastOutSlowInInterpolator());
 
         animator.addUpdateListener(animation -> {

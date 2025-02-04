@@ -19,11 +19,15 @@ package com.stario.launcher.activities;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
@@ -56,6 +60,7 @@ import dev.rikka.tools.refine.Refine;
 public class Launcher extends ThemedActivity {
     public final static int MAX_BACKGROUND_ALPHA = 230;
     private WallpaperManagerHidden wallpaperManager;
+    private BroadcastReceiver screenOnReceiver;
     private SheetsFocusController coordinator;
     private ClosingAnimationView main;
     private LockDetector detector;
@@ -91,12 +96,9 @@ public class Launcher extends ThemedActivity {
 
         UiUtils.applyNotchMargin(coordinator);
         coordinator.setOnLongClickListener((v) -> {
-            if (!detector.doubleTapped()) {
-                Vibrations.getInstance().vibrate();
+            Vibrations.getInstance().vibrate();
 
-                displayLauncherOptions(this);
-            }
-
+            displayLauncherOptions(this);
             return true;
         });
 
@@ -109,6 +111,20 @@ public class Launcher extends ThemedActivity {
 
         wallpaperManager.setWallpaperOffsets(main.getWindowToken(), 0, 0);
         updateWallpaperZoom(0);
+
+        screenOnReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                setShowWhenLocked(false);
+                main.reset();
+            }
+        };
+
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+            registerReceiver(screenOnReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON), RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(screenOnReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
+        }
     }
 
     private void attachGlance() {
@@ -212,6 +228,17 @@ public class Launcher extends ThemedActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        try {
+            unregisterReceiver(screenOnReceiver);
+        } catch (Exception exception) {
+            Log.e("Launcher", "onDestroy: Screen On receiver was not registered.");
+        }
+
+        super.onDestroy();
+    }
+
+    @Override
     protected void onResume() {
         glance.update();
 
@@ -222,6 +249,7 @@ public class Launcher extends ThemedActivity {
     protected void onStop() {
         super.onStop();
 
+        setShowWhenLocked(false);
         main.reset();
     }
 
