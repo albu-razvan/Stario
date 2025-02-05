@@ -26,8 +26,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 public class OverScrollRecyclerView extends RecyclerView implements OverScroll {
+    private ArrayList<OverScrollEffect<OverScrollRecyclerView>> edgeEffects;
     private ArrayList<OnScrollListener> onScrollListeners;
     private ArrayList<OverScrollContract> contracts;
+    @OverScrollEffect.Edge
+    private int pullEdges;
 
     public OverScrollRecyclerView(android.content.Context context) {
         super(context);
@@ -50,18 +53,33 @@ public class OverScrollRecyclerView extends RecyclerView implements OverScroll {
     private void init() {
         this.contracts = new ArrayList<>();
         this.onScrollListeners = new ArrayList<>();
+        this.edgeEffects = new ArrayList<>();
+        this.pullEdges = OverScrollEffect.PULL_EDGE_BOTTOM | OverScrollEffect.PULL_EDGE_TOP;
 
-        setEdgeEffectFactory(new EdgeEffectFactory() {
+        super.setEdgeEffectFactory(new EdgeEffectFactory() {
             @NonNull
             @Override
             protected EdgeEffect createEdgeEffect(@NonNull RecyclerView view, int direction) {
                 if (view instanceof OverScroll) {
-                    return new OverScrollEffect<>(OverScrollRecyclerView.this);
+                    OverScrollEffect<OverScrollRecyclerView> effect =
+                            new OverScrollEffect<>(OverScrollRecyclerView.this, pullEdges);
+
+                    edgeEffects.add(effect);
+
+                    return effect;
                 }
 
                 return new EdgeEffect(view.getContext());
             }
         });
+    }
+
+    public void setOverscrollPullEdges(@OverScrollEffect.Edge int edges) {
+        this.pullEdges = edges;
+
+        for (OverScrollEffect<OverScrollRecyclerView> effect : edgeEffects) {
+            effect.setPullEdges(edges);
+        }
     }
 
     @Override
@@ -95,6 +113,11 @@ public class OverScrollRecyclerView extends RecyclerView implements OverScroll {
     @Override
     public void addOverScrollContract(@NonNull OverScrollContract contract) {
         this.contracts.add(contract);
+    }
+
+    @Override
+    public void setEdgeEffectFactory(@NonNull EdgeEffectFactory edgeEffectFactory) {
+        // override to disable external custom edge effects
     }
 
     @Override

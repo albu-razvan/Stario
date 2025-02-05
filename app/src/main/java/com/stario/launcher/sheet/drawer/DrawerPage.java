@@ -34,12 +34,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
+import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
 
 public abstract class DrawerPage extends Fragment implements ScrollToTop {
     private int currentlyRunningAnimations;
 
+    protected OverScrollRecyclerView drawer;
     protected ThemedActivity activity;
-    protected RecyclerView drawer;
     protected EditText search;
     protected TextView title;
 
@@ -77,6 +79,7 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
                 updateTitleTransforms(drawer);
             }
         });
+        drawer.setOverscrollPullEdges(OverScrollEffect.PULL_EDGE_BOTTOM);
 
         title.setMinHeight(Measurements.dpToPx(Measurements.HEADER_SIZE_DP) +
                 Measurements.spToPx(8));

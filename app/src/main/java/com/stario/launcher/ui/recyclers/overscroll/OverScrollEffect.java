@@ -24,6 +24,8 @@ import android.graphics.Rect;
 import android.view.View;
 import android.widget.EdgeEffect;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.dynamicanimation.animation.FloatPropertyCompat;
 import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.dynamicanimation.animation.SpringForce;
@@ -31,31 +33,51 @@ import androidx.dynamicanimation.animation.SpringForce;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.utils.objects.ObjectDelegate;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
+    public static final int PULL_EDGE_TOP = 0b01;
+    public static final int PULL_EDGE_BOTTOM = 0b10;
+
     private static final float VELOCITY_MULTIPLIER = 0.8f;
     private static final float SPRING_FACTOR_MULTIPLIER = 1000f;
     private static final float SPRING_STIFFNESS = 500f;
     private static final float SCALE_MULTIPLIER = 0.05f;
     private static final float SCALE_ALPHA = 0.3f;
+    private static final byte PIVOT_UNSPECIFIED = 0b00;
     private static final byte PIVOT_TOP = 0b01;
     private static final byte PIVOT_BOTTOM = 0b10;
     private static final byte STATE_IDLE = 0b0;
     private static final byte STATE_ACTIVE = 0b1;
+
+    @IntDef(flag = true, value = {
+            PULL_EDGE_TOP,
+            PULL_EDGE_BOTTOM,
+    })
+
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Edge {
+    }
 
     private final ObjectDelegate<Float> factor;
     private final SpringAnimation animation;
     private final Rect bounds;
 
     private boolean isCanvasCaptured;
-    private int pivot;
     private byte state;
+    @Edge
+    private int edges;
+    private int pivot;
 
-    public OverScrollEffect(V view) {
+    public OverScrollEffect(@NonNull V view, int edges) {
         super(view.getContext());
 
         this.factor = new ObjectDelegate<>(0f, (o) -> view.invalidate());
         this.bounds = new Rect();
         this.state = STATE_IDLE;
+        this.pivot = PIVOT_UNSPECIFIED;
+        this.edges = edges;
         this.isCanvasCaptured = false;
 
         SpringForce spring = new SpringForce();
@@ -74,11 +96,10 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
                 OverScrollEffect.this.factor.setValue(value / SPRING_FACTOR_MULTIPLIER);
             }
         });
-        animation.setMaxValue(SPRING_FACTOR_MULTIPLIER * 1.5f);
         animation.setSpring(spring);
         animation.addEndListener((animation, canceled, value, velocity) -> {
             if (!canceled) {
-                view.postOnAnimation(() -> state = STATE_IDLE);
+                view.postOnAnimation(this::finish);
             }
         });
 
@@ -119,6 +140,11 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
         });
     }
 
+    public void setPullEdges(@Edge int edges) {
+        this.edges = edges;
+        factor.setValue(0f);
+    }
+
     @Override
     public void setSize(int width, int height) {
         bounds.set(0, 0, width, height);
@@ -131,7 +157,10 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
 
     @Override
     public void finish() {
-        animation.cancel();
+        if (animation != null && animation.isRunning()) {
+            animation.cancel();
+        }
+
         state = STATE_IDLE;
     }
 
@@ -142,8 +171,13 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
 
     @Override
     public float onPullDistance(float deltaDistance, float displacement) {
-        float delta = Math.max(0f, deltaDistance + factor.getValue()) - factor.getValue();
+        if (deltaDistance >= 0 &&
+                ((pivot == PIVOT_TOP && (edges & PULL_EDGE_TOP) != PULL_EDGE_TOP) ||
+                        (pivot == PIVOT_BOTTOM && (edges & PULL_EDGE_BOTTOM) != PULL_EDGE_BOTTOM))) {
+            return 0;
+        }
 
+        float delta = Math.max(0f, deltaDistance + factor.getValue()) - factor.getValue();
         onPull(delta);
 
         return delta;
@@ -164,7 +198,7 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
     public void onRelease() {
         if (!animation.isRunning()) {
             if (factor.getValue() == 0) {
-                state = STATE_IDLE;
+                finish();
             } else {
                 state = STATE_ACTIVE;
                 animation.setStartVelocity(0)
