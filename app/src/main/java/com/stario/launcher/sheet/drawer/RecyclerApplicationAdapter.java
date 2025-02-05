@@ -77,7 +77,7 @@ public abstract class RecyclerApplicationAdapter
     public class ViewHolder extends AsyncViewHolder {
         public TextView label;
 
-        private boolean hasPerformedLongCLick;
+        private boolean hasPerformedLongClick;
         private AdaptiveIconView icon;
         private PopupWindow dialog;
         private View notification;
@@ -106,6 +106,8 @@ public abstract class RecyclerApplicationAdapter
             });
 
             itemView.setOnTouchListener(new View.OnTouchListener() {
+                private final float moveSlop = ViewConfiguration.get(activity).getScaledTouchSlop();
+
                 private boolean hasFiredDragEvent;
 
                 private float x;
@@ -117,7 +119,7 @@ public abstract class RecyclerApplicationAdapter
                         case MotionEvent.ACTION_DOWN: {
                             dialog = null;
                             hasFiredDragEvent = false;
-                            hasPerformedLongCLick = false;
+                            hasPerformedLongClick = false;
                             x = event.getRawX();
                             y = event.getRawY();
 
@@ -131,15 +133,18 @@ public abstract class RecyclerApplicationAdapter
 
                         case MotionEvent.ACTION_MOVE: {
                             if (itemTouchHelper != null && dialog != null &&
-                                    hasPerformedLongCLick && !hasFiredDragEvent &&
-                                    (Math.abs(x - event.getRawX()) > 0 ||
-                                            Math.abs(y - event.getRawY()) > 0)) {
+                                    hasPerformedLongClick && !hasFiredDragEvent) {
 
-                                ((ViewGroup) itemView).requestDisallowInterceptTouchEvent(false);
-                                itemTouchHelper.startDrag(ViewHolder.this);
-                                dialog.dismiss();
+                                ((ViewGroup) itemView).requestDisallowInterceptTouchEvent(true);
 
-                                hasFiredDragEvent = true;
+                                if(Math.abs(x - event.getRawX()) > moveSlop ||
+                                        Math.abs(y - event.getRawY()) > moveSlop) {
+                                    ((ViewGroup) itemView).requestDisallowInterceptTouchEvent(false);
+                                    itemTouchHelper.startDrag(ViewHolder.this);
+                                    dialog.dismiss();
+
+                                    hasFiredDragEvent = true;
+                                }
                             }
 
                             break;
@@ -147,6 +152,8 @@ public abstract class RecyclerApplicationAdapter
 
                         case MotionEvent.ACTION_UP:
                         case MotionEvent.ACTION_CANCEL: {
+                            hasPerformedLongClick = false;
+
                             icon.animate().scaleY(1)
                                     .scaleX(1)
                                     .setDuration(Animation.SHORT.getDuration());
@@ -160,7 +167,7 @@ public abstract class RecyclerApplicationAdapter
             });
 
             itemView.setOnLongClickListener(view -> {
-                hasPerformedLongCLick = true;
+                hasPerformedLongClick = true;
 
                 LauncherApplication application = getApplication(getAbsoluteAdapterPosition());
 

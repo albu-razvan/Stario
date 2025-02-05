@@ -25,6 +25,7 @@ import android.content.pm.ShortcutInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -46,6 +47,7 @@ import android.widget.PopupWindow;
 import androidx.annotation.NonNull;
 import androidx.annotation.Size;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -70,6 +72,7 @@ public class PopupMenu {
     private static final int SHORTCUT_GROUP_ID = 2;
     private static final int MAX_SHORTCUT_COUNT = 4;
     private static final float INSET_FRACTION = 0.2f;
+    private static final int ICON_SIZE = 64;
     private static final int PADDING = 10;
     private static final int WIDTH = 200;
     private final HashMap<Integer,
@@ -144,7 +147,7 @@ public class PopupMenu {
     }
 
     public void addShortcuts(LauncherApps launcherApps, List<ShortcutInfo> shortcuts) {
-        if (shortcuts.size() == 0) {
+        if (shortcuts.isEmpty()) {
             return;
         }
 
@@ -158,6 +161,14 @@ public class PopupMenu {
                 if (shortcut != null) {
                     CharSequence label = shortcut.getShortLabel();
                     Drawable icon = launcherApps.getShortcutIconDrawable(shortcut, Measurements.getDotsPerInch());
+
+                    if (icon == null) {
+                        if (label == null || label.toString().isBlank()) {
+                            continue;
+                        }
+
+                        icon = generateCharacterDrawable(label.toString());
+                    }
 
                     int width = Math.max(1, icon.getIntrinsicWidth());
                     int height = Math.max(1, icon.getIntrinsicHeight());
@@ -209,6 +220,32 @@ public class PopupMenu {
         }
     }
 
+    private Drawable generateCharacterDrawable(String text) {
+        if (text == null || text.isBlank()) {
+            return null;
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(ICON_SIZE, ICON_SIZE, Bitmap.Config.ARGB_8888);
+
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(activity.getAttributeData(com.google.android.material.R.attr.colorOnPrimaryContainer));
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTypeface(ResourcesCompat.getFont(activity, R.font.dm_sans_medium));
+        paint.setTextSize(ICON_SIZE * 0.7f);
+
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawColor(activity.getAttributeData(com.google.android.material.R.attr.colorPrimaryContainer));
+        canvas.drawText(
+                String.valueOf(text.charAt(0)),
+                bitmap.getWidth() / 2f,
+                (int) ((canvas.getHeight() / 2f) - ((paint.descent() + paint.ascent()) / 2)),
+                paint
+        );
+
+        return new BitmapDrawable(activity.getResources(), bitmap);
+    }
+
     public void add(Item item) {
         RecyclerAdapter adapter = getRecycler(GENERAL_ID).getValue();
 
@@ -245,7 +282,7 @@ public class PopupMenu {
     }
 
     public PopupWindow show(Activity activity, View parent, Rect margins,
-                                         short pivotAxis, boolean interceptTouches) {
+                            short pivotAxis, boolean interceptTouches) {
         Window window = activity.getWindow();
 
         if (window == null) {
@@ -358,7 +395,7 @@ public class PopupMenu {
     }
 
     private PopupWindow showAtLocation(View parent, @Size(2) int[] location, int padding,
-                                                    int gravity, short pivotAxis, boolean interceptTouches) {
+                                       int gravity, short pivotAxis, boolean interceptTouches) {
         for (Map.Entry<RecyclerView, RecyclerAdapter> entry : recyclers.values()) {
             if ((gravity & Gravity.TOP) == Gravity.TOP) { // flip options when popup expands upwards
                 root.addView(entry.getKey(), 0);
