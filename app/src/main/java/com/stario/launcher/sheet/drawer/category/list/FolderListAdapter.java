@@ -41,7 +41,7 @@ import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.animation.Animation;
 import com.stario.launcher.utils.animation.FragmentTransition;
-import com.stario.launcher.utils.animation.SharedAppTransition;
+import com.stario.launcher.utils.animation.SharedElementTransition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -280,7 +280,8 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
                         excluded.addAll(sharedIcons);
 
-                        Transition transition = new SharedAppTransition(false);
+                        Transition transition = new SharedElementTransition.SharedAppFolderTransition();
+                        transition.setDuration(Animation.LONG.getDuration());
 
                         folder.setSharedElementEnterTransition(transition);
                         folder.setSharedElementReturnTransition(null);

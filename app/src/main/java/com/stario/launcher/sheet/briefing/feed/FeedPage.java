@@ -27,7 +27,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.apptasticsoftware.rssreader.Item;
@@ -39,6 +38,8 @@ import com.stario.launcher.sheet.briefing.rss.Parser;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
+import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
+import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.animation.Animation;
@@ -52,7 +53,7 @@ public class FeedPage extends Fragment {
     private static final String TAG = "FeedUpdate";
     public static String FEED_POSITION = "com.stario.FeedTab.FEED_POSITION";
     private SwipeRefreshLayout swipeRefreshLayout;
-    private RecyclerView recyclerView;
+    private OverScrollRecyclerView recyclerView;
     private FeedPageAdapter adapter;
     private Future<?> runningTask;
     private ViewGroup exception;
@@ -99,7 +100,9 @@ public class FeedPage extends Fragment {
         swipeRefreshLayout = root.findViewById(R.id.refresh);
         exception = root.findViewById(R.id.exception);
 
-        recyclerView.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE | RecyclerItemAnimator.CHANGING, Animation.MEDIUM));
+        recyclerView.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE |
+                RecyclerItemAnimator.CHANGING, Animation.MEDIUM));
+        recyclerView.setOverscrollPullEdges(OverScrollEffect.PULL_EDGE_BOTTOM);
 
         final int baseTopPadding = Measurements.dpToPx(15);
 

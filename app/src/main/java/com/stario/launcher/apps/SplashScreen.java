@@ -42,7 +42,7 @@ import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.animation.Animation;
-import com.stario.launcher.utils.animation.SharedAppTransition;
+import com.stario.launcher.utils.animation.SharedElementTransition;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashScreen extends ThemedActivity {
@@ -71,8 +71,8 @@ public class SplashScreen extends ThemedActivity {
 
         Window window = getWindow();
 
-        Transition transition = new SharedAppTransition(true);
-        transition.setDuration(Animation.MEDIUM.getDuration());
+        Transition transition = new SharedElementTransition.SharedAppSplashScreenTransition();
+        transition.setDuration(Animation.LONG.getDuration());
 
         window.setSharedElementEnterTransition(transition);
         window.setSharedElementExitTransition(null);

@@ -24,8 +24,8 @@ import android.view.animation.PathInterpolator;
 
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 
-public class SharedAppTransition extends TransitionSet {
-    public SharedAppTransition(boolean linear) {
+public abstract class SharedElementTransition extends TransitionSet {
+    public SharedElementTransition() {
         setOrdering(ORDERING_TOGETHER);
 
         ChangeBounds iconChangeBounds = new ChangeBounds();
@@ -34,19 +34,23 @@ public class SharedAppTransition extends TransitionSet {
 
         addTransition(iconChangeBounds);
         addTransition(new ChangeTransform());
+    }
 
-        setDuration(Animation.LONG.getDuration());
-
-        if(linear) {
+    public static class SharedAppSplashScreenTransition extends SharedElementTransition {
+        public SharedAppSplashScreenTransition() {
             setPathMotion(null);
-            setInterpolator(new PathInterpolator(0.15f, 0.95f, 0.3f, 0.95f));
+            setInterpolator(new PathInterpolator(0.1f, 1f, 0.15f, 1f));
 
             ChangeBounds containerChangeBounds = new ChangeBounds();
             containerChangeBounds.setResizeClip(false);
             containerChangeBounds.excludeTarget(AdaptiveIconView.class, true);
 
             addTransition(containerChangeBounds);
-        } else {
+        }
+    }
+
+    public static class SharedAppFolderTransition extends SharedElementTransition {
+        public SharedAppFolderTransition() {
             setPathMotion(new SharedElementMotion());
             setInterpolator(new PathInterpolator(0.3f, 0.9f, 0.3f, 0.95f));
         }
