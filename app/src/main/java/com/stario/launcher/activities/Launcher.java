@@ -109,8 +109,10 @@ public class Launcher extends ThemedActivity {
         attachSheets();
         attachGlance();
 
-        wallpaperManager.setWallpaperOffsets(main.getWindowToken(), 0, 0);
-        updateWallpaperZoom(0);
+        main.post(() -> {
+            wallpaperManager.setWallpaperOffsets(main.getWindowToken(), 0, 0);
+            updateWallpaperZoom(0);
+        });
 
         screenOnReceiver = new BroadcastReceiver() {
             @Override

@@ -271,25 +271,6 @@ public class SearchFragment extends Fragment {
                             search.getMeasuredHeight(), 0);
         });
 
-        if (!Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
-            heightProvider.addKeyboardHeightObserver((height) -> {
-                searchLayoutTransition.setAnimate(false);
-
-                if (isKeyboardVisible()) {
-                    scrollView.smoothScrollTo(0, 0, Animation.LONG.getDuration());
-                }
-
-                content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
-                        content.getPaddingRight(), height + hint.getHeight());
-
-                ((ViewGroup.MarginLayoutParams) search.getLayoutParams()).bottomMargin =
-                        height + Measurements.getNavHeight();
-                search.requestLayout();
-
-                search.post(() -> searchLayoutTransition.setAnimate(true));
-            });
-        }
-
         search.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
             fader.setFadeSizes(Measurements.getSysUIHeight(), 0,
                     Measurements.getNavHeight() + Measurements.getDefaultPadding() +
@@ -496,6 +477,23 @@ public class SearchFragment extends Fragment {
                     imeAnimation = null;
                 }
             });
+        } else {
+            heightProvider.addKeyboardHeightObserver((height) -> {
+                searchLayoutTransition.setAnimate(false);
+
+                if (isKeyboardVisible()) {
+                    scrollView.smoothScrollTo(0, 0, Animation.LONG.getDuration());
+                }
+
+                content.setPadding(content.getPaddingLeft(), content.getPaddingTop(), content.getPaddingRight(),
+                        height + (hint.getVisibility() == View.VISIBLE ? hint.getHeight() : 0));
+
+                ((ViewGroup.MarginLayoutParams) search.getLayoutParams()).bottomMargin =
+                        height + Measurements.getNavHeight();
+                search.requestLayout();
+
+                search.post(() -> searchLayoutTransition.setAnimate(true));
+            });
         }
 
         search.setOnEditorActionListener((view, actionId, event) -> {
@@ -553,10 +551,11 @@ public class SearchFragment extends Fragment {
                 hint.setVisibility(!filteredQuery.isEmpty() &&
                         searchPreferences.getBoolean(WebAdapter.SEARCH_RESULTS, false) ?
                         View.VISIBLE : View.GONE);
-                hint.post(() ->
-                        content.setPadding(content.getPaddingLeft(), content.getPaddingTop(), content.getPaddingRight(),
-                                (Utils.isMinimumSDK(Build.VERSION_CODES.R) ? 0 : heightProvider.getKeyboardHeight()) +
-                                        hint.getVisibility() == View.VISIBLE ? hint.getHeight() : 0));
+                hint.post(() -> {
+                    content.setPadding(content.getPaddingLeft(), content.getPaddingTop(), content.getPaddingRight(),
+                            (Utils.isMinimumSDK(Build.VERSION_CODES.R) ? 0 : heightProvider.getKeyboardHeight()) +
+                                    (hint.getVisibility() == View.VISIBLE ? hint.getHeight() : 0));
+                });
 
                 if (filteredQuery.equals(query)) {
                     if (base.getVisibility() == View.VISIBLE) {
