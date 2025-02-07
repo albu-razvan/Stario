@@ -97,7 +97,9 @@ public class ExtractEditText extends InlineAutocompleteEditText {
 
     @Override
     public boolean extractText(ExtractedTextRequest request, ExtractedText outText) {
-        UiUtils.hideKeyboard(this);
+        if (Measurements.isLandscape()) {
+            UiUtils.hideKeyboard(this);
+        }
 
         return false;
     }
