@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
+import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 import java.util.UUID;
@@ -60,7 +61,8 @@ public class LauncherApplication {
     public void launch(ThemedActivity activity, AdaptiveIconView view) {
         Vibrations.getInstance().vibrate();
 
-        if (activity.getSettings().getBoolean(LEGACY_LAUNCH_ANIMATION, false)) {
+        if (!UiUtils.areWindowAnimationsOn(activity) ||
+                activity.getSettings().getBoolean(LEGACY_LAUNCH_ANIMATION, false)) {
             PackageManager packageManager = activity.getPackageManager();
 
             ActivityOptions activityOptions = ActivityOptions.makeBasic();

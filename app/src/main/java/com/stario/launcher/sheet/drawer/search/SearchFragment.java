@@ -414,12 +414,14 @@ public class SearchFragment extends Fragment {
             ViewCompat.setWindowInsetsAnimationCallback(root, new WindowInsetsAnimationCompat
                     .Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
                 private WindowInsetsAnimationCompat imeAnimation;
+                private boolean hasProgressed;
                 private float startBottom;
                 private float endBottom;
 
                 @Override
                 public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
                     startBottom = heightProvider.getKeyboardHeight();
+                    hasProgressed = false;
                 }
 
                 @NonNull
@@ -433,8 +435,12 @@ public class SearchFragment extends Fragment {
                             if (height != startBottom) {
                                 endBottom = height;
 
-                                heightProvider.removeKeyboardHeightObserver(this);
+                                if(!hasProgressed) {
+                                    updateContentTranslation(-endBottom);
+                                }
                             }
+
+                            heightProvider.removeKeyboardHeightObserver(this);
                         }
                     });
 
@@ -467,6 +473,8 @@ public class SearchFragment extends Fragment {
 
                             updateContentTranslation(translation);
                         }
+
+                        hasProgressed = true;
                     }
 
                     return insets;
@@ -474,6 +482,7 @@ public class SearchFragment extends Fragment {
 
                 @Override
                 public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
+                    hasProgressed = false;
                     imeAnimation = null;
                 }
             });

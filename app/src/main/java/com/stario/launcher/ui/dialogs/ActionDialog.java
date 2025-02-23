@@ -107,12 +107,14 @@ public abstract class ActionDialog extends BottomSheetDialog {
             ViewCompat.setWindowInsetsAnimationCallback(Objects.requireNonNull(getWindow()).getDecorView(),
                     new WindowInsetsAnimationCompat.Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
                         private WindowInsetsAnimationCompat imeAnimation;
+                        private boolean hasProgressed;
                         private float startBottom;
                         private float endBottom;
 
                         @Override
                         public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
                             startBottom = heightProvider.getKeyboardHeight();
+                            hasProgressed = false;
                         }
 
                         @NonNull
@@ -126,8 +128,13 @@ public abstract class ActionDialog extends BottomSheetDialog {
                                     if (height != startBottom) {
                                         endBottom = height;
 
-                                        heightProvider.removeKeyboardHeightObserver(this);
+                                        if(!hasProgressed) {
+                                            content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
+                                                    content.getPaddingRight(), (int) (Measurements.getNavHeight() + endBottom));
+                                        }
                                     }
+
+                                    heightProvider.removeKeyboardHeightObserver(this);
                                 }
                             });
 
@@ -160,6 +167,8 @@ public abstract class ActionDialog extends BottomSheetDialog {
 
                                 content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
                                         content.getPaddingRight(), (int) (Measurements.getNavHeight() - translation));
+
+                                hasProgressed = true;
                             }
 
                             return insets;
@@ -167,6 +176,7 @@ public abstract class ActionDialog extends BottomSheetDialog {
 
                         @Override
                         public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
+                            hasProgressed = false;
                             imeAnimation = null;
                         }
                     });
