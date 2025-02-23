@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.transition.TransitionSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,6 +85,21 @@ public class UiUtils {
         }
 
         WindowCompat.setDecorFitsSystemWindows(window, false);
+    }
+
+    public static boolean areTransitionsOn(Context context) {
+        return Settings.Global.getFloat(context.getContentResolver(),
+                Settings.Global.TRANSITION_ANIMATION_SCALE, 0) > 0;
+    }
+
+    public static boolean areWindowAnimationsOn(Context context) {
+        return Settings.Global.getFloat(context.getContentResolver(),
+                Settings.Global.WINDOW_ANIMATION_SCALE, 0) > 0;
+    }
+
+    public static boolean areAnimationsOn(Context context) {
+        return Settings.Global.getFloat(context.getContentResolver(),
+                Settings.Global.ANIMATOR_DURATION_SCALE, 0) > 0;
     }
 
     public static void hideKeyboard(View view) {

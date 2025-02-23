@@ -280,15 +280,24 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
                         excluded.addAll(sharedIcons);
 
-                        Transition transition = new SharedElementTransition.SharedAppFolderTransition();
-                        transition.setDuration(Animation.LONG.getDuration());
+                        if(UiUtils.areTransitionsOn(activity)) {
+                            Transition transition = new SharedElementTransition.SharedAppFolderTransition();
+                            transition.setDuration(Animation.LONG.getDuration());
 
-                        folder.setSharedElementEnterTransition(transition);
+                            folder.setSharedElementEnterTransition(transition);
+                            folder.setEnterTransition(new FragmentTransition(true, excluded));
+
+                            folderList.setExitTransition(new FragmentTransition(false, excluded));
+                            folderList.setReenterTransition(new FragmentTransition(true));
+                        } else {
+                            folder.setSharedElementEnterTransition(null);
+                            folder.setEnterTransition(null);
+
+                            folderList.setEnterTransition(null);
+                            folderList.setReenterTransition(null);
+                        }
+
                         folder.setSharedElementReturnTransition(null);
-                        folder.setEnterTransition(new FragmentTransition(true, excluded));
-
-                        folderList.setExitTransition(new FragmentTransition(false, excluded));
-                        folderList.setReenterTransition(new FragmentTransition(true));
 
                         transaction.setReorderingAllowed(true);
                         transaction.addToBackStack(Categories.STACK_ID);
