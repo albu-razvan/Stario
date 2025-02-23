@@ -220,6 +220,13 @@ public class Folder extends DrawerPage {
     }
 
     @Override
+    public void onDestroyView() {
+        drawer.setAdapter(null);
+
+        super.onDestroyView();
+    }
+
+    @Override
     public void onStart() {
         CategoryManager.getInstance().addOnCategoryUpdateListener(categoryListener);
 

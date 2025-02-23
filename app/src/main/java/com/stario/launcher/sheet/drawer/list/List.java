@@ -96,7 +96,7 @@ public class List extends DrawerPage {
         drawer.setLayoutManager(manager);
         drawer.setItemAnimator(null);
 
-        ListAdapter adapter = new ListAdapter(activity, drawer);
+        ListAdapter adapter = new ListAdapter(activity);
 
         drawer.setAdapter(adapter);
 
@@ -134,6 +134,13 @@ public class List extends DrawerPage {
         };
 
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        drawer.setAdapter(null);
+
+        super.onDestroyView();
     }
 
     @Override

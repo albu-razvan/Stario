@@ -44,6 +44,8 @@ public class FolderList extends DrawerPage {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        postponeEnterTransition();
+
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
 
         GridLayoutManager manager = new AccurateScrollComputeGridLayoutManager(activity,
@@ -123,9 +125,16 @@ public class FolderList extends DrawerPage {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(drawer);
 
-        postpone();
+        drawer.post(this::startPostponedEnterTransition);
 
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        drawer.setAdapter(null);
+
+        super.onDestroyView();
     }
 
     @Override
@@ -136,13 +145,5 @@ public class FolderList extends DrawerPage {
     @Override
     protected int getPosition() {
         return DrawerAdapter.CATEGORIES_POSITION;
-    }
-
-    public void postpone() {
-        if (drawer != null) {
-            postponeEnterTransition();
-
-            drawer.post(this::startPostponedEnterTransition);
-        }
     }
 }

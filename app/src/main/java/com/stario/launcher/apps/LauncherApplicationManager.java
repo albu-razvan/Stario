@@ -218,8 +218,6 @@ public final class LauncherApplicationManager {
                     try {
                         activity.unregisterReceiver(instance.receiver);
                         instance.registered = false;
-
-                        instance.listeners.clear();
                     } catch (Exception exception) {
                         Log.e(TAG, "Receiver not registered");
                     }
@@ -491,6 +489,12 @@ public final class LauncherApplicationManager {
     public void addApplicationListener(ApplicationListener listener) {
         if (listener != null) {
             listeners.add(listener);
+        }
+    }
+
+    public void removeApplicationListener(ApplicationListener listener) {
+        if (listener != null) {
+            listeners.remove(listener);
         }
     }
 
