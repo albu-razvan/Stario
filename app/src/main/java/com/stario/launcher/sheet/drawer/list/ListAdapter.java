@@ -38,18 +38,18 @@ import com.stario.launcher.utils.animation.Animation;
 public class ListAdapter extends RecyclerApplicationAdapter
         implements FastScroller.OnPopupViewUpdate,
         FastScroller.OnPopupViewReset {
+    private final LauncherApplicationManager.ApplicationListener listener;
     private final LauncherApplicationManager applicationManager;
-    private final RecyclerView recyclerView;
+    private RecyclerView recyclerView;
     private int oldScrollerPosition;
 
-    public ListAdapter(ThemedActivity activity, RecyclerView recyclerView) {
+    public ListAdapter(ThemedActivity activity) {
         super(activity);
 
-        this.recyclerView = recyclerView;
         this.oldScrollerPosition = -1;
         this.applicationManager = LauncherApplicationManager.getInstance();
 
-        applicationManager.addApplicationListener(new LauncherApplicationManager.ApplicationListener() {
+        listener = new LauncherApplicationManager.ApplicationListener() {
             @Override
             public void onHidden(LauncherApplication application) {
                 recyclerView.post(() -> notifyItemRemovedInternal());
@@ -74,7 +74,7 @@ public class ListAdapter extends RecyclerApplicationAdapter
             public void onUpdated(LauncherApplication application) {
                 recyclerView.post(() -> notifyItemChanged(applicationManager.indexOf(application)));
             }
-        });
+        };
     }
 
     private void notifyItemRemovedInternal() {
@@ -165,6 +165,28 @@ public class ListAdapter extends RecyclerApplicationAdapter
                         });
             }
         }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+
+        this.recyclerView = recyclerView;
+
+        if (listener != null) {
+            applicationManager.addApplicationListener(listener);
+        }
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+
+        if (listener != null) {
+            applicationManager.removeApplicationListener(listener);
+        }
+
+        this.recyclerView = null;
     }
 
     @Override

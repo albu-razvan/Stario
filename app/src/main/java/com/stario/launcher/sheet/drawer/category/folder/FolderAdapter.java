@@ -47,7 +47,7 @@ class FolderAdapter extends RecyclerApplicationAdapter {
 
             @Override
             public void onInserted(LauncherApplication application) {
-                if (recyclerView != null) {
+                if (recyclerView != null && category != null) {
                     recyclerView.post(() -> {
                         int index = category.indexOf(application);
 
@@ -60,7 +60,9 @@ class FolderAdapter extends RecyclerApplicationAdapter {
 
             @Override
             public void onPrepareRemoval(LauncherApplication application) {
-                preparedRemovalIndex = category.indexOf(application);
+                if (category != null) {
+                    preparedRemovalIndex = category.indexOf(application);
+                }
             }
 
             @SuppressLint("NotifyDataSetChanged")
@@ -81,7 +83,7 @@ class FolderAdapter extends RecyclerApplicationAdapter {
 
             @Override
             public void onUpdated(LauncherApplication application) {
-                if (recyclerView != null) {
+                if (recyclerView != null && category != null) {
                     recyclerView.post(() -> {
                         int index = category.indexOf(application);
 

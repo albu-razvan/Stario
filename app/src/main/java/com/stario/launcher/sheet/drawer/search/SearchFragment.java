@@ -83,7 +83,11 @@ public class SearchFragment extends Fragment {
     private ImeAnimationController controller;
     private KeyPreImeListeningEditText search;
     private ConstraintLayout searchContainer;
+    private RecyclerView suggestions;
     private ThemedActivity activity;
+    private RecyclerView options;
+    private RecyclerView apps;
+    private RecyclerView web;
     private ViewGroup content;
     private View webContainer;
     private View base;
@@ -158,7 +162,7 @@ public class SearchFragment extends Fragment {
 
         content.setLayoutTransition(nativeTransitionCast);
 
-        RecyclerView apps = root.findViewById(R.id.apps);
+        apps = root.findViewById(R.id.apps);
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(activity, MAX_APP_QUERY_ITEMS);
 
@@ -171,7 +175,7 @@ public class SearchFragment extends Fragment {
 
         apps.setAdapter(appAdapter);
 
-        RecyclerView suggestions = root.findViewById(R.id.suggestions);
+        suggestions = root.findViewById(R.id.suggestions);
 
         LinearLayoutManager suggestionsLinearLayoutManager = new LinearLayoutManager(activity);
 
@@ -186,7 +190,7 @@ public class SearchFragment extends Fragment {
 
         suggestions.setAdapter(autosuggestAdapter);
 
-        RecyclerView options = root.findViewById(R.id.options);
+        options = root.findViewById(R.id.options);
 
         options.setClipToOutline(true);
 
@@ -201,7 +205,7 @@ public class SearchFragment extends Fragment {
 
         options.setAdapter(optionAdapter);
 
-        RecyclerView web = root.findViewById(R.id.web);
+        web = root.findViewById(R.id.web);
 
         LinearLayoutManager webLinearLayoutManager = new LinearLayoutManager(activity);
 
@@ -599,6 +603,16 @@ public class SearchFragment extends Fragment {
         });
 
         return root;
+    }
+
+    @Override
+    public void onDestroyView() {
+        suggestions.setAdapter(null);
+        options.setAdapter(null);
+        apps.setAdapter(null);
+        web.setAdapter(null);
+
+        super.onDestroyView();
     }
 
     @RequiresApi(Build.VERSION_CODES.R)

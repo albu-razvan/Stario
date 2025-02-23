@@ -52,6 +52,8 @@ public class OptionAdapter extends SuggestionSearchAdapter {
     private static final String TAG = "com.stario.launcher.OptionAdapter";
     private static final String[] PREDEFINED_URIS = new String[]{"market://search?q=", "geo:?q="};
 
+    private final LauncherApplicationManager.ApplicationListener listener;
+    private final LauncherApplicationManager applicationManager;
     private final ArrayList<OptionEntry> options;
     private final ThemedActivity activity;
     private final PackageManager packageManager;
@@ -68,6 +70,7 @@ public class OptionAdapter extends SuggestionSearchAdapter {
 
         this.activity = activity;
 
+        this.applicationManager = LauncherApplicationManager.from(activity);
         this.packageManager = activity.getPackageManager();
 
         LauncherApplicationManager manager = LauncherApplicationManager.getInstance();
@@ -116,78 +119,77 @@ public class OptionAdapter extends SuggestionSearchAdapter {
             UiUtils.runOnUIThread(this::notifyInternal);
         });
 
-        LauncherApplicationManager.from(activity)
-                .addApplicationListener(new LauncherApplicationManager.ApplicationListener() {
-                    private void insert(LauncherApplication application) {
-                        recyclerView.post(() -> {
-                            String[] filters = new String[]{Intent.ACTION_WEB_SEARCH, Intent.ACTION_SEARCH};
+        listener = new LauncherApplicationManager.ApplicationListener() {
+            private void insert(LauncherApplication application) {
+                recyclerView.post(() -> {
+                    String[] filters = new String[]{Intent.ACTION_WEB_SEARCH, Intent.ACTION_SEARCH};
 
-                            for (String filter : filters) {
-                                Intent intent = new Intent(filter);
-                                intent.setPackage(application.getInfo().packageName);
+                    for (String filter : filters) {
+                        Intent intent = new Intent(filter);
+                        intent.setPackage(application.getInfo().packageName);
 
-                                List<ResolveInfo> resolveInfo = packageManager.queryIntentActivities(intent, PackageManager.GET_RESOLVED_FILTER);
+                        List<ResolveInfo> resolveInfo = packageManager.queryIntentActivities(intent, PackageManager.GET_RESOLVED_FILTER);
 
-                                if (!resolveInfo.isEmpty()) {
-                                    options.add(new OptionEntry(application, resolveInfo.get(0).activityInfo, filter));
+                        if (!resolveInfo.isEmpty()) {
+                            options.add(new OptionEntry(application, resolveInfo.get(0).activityInfo, filter));
 
-                                    notifyInternal();
-                                }
-                            }
-                        });
-                    }
-
-                    private void remove(LauncherApplication application) {
-                        recyclerView.post(() -> {
-                            Iterator<OptionEntry> iterator = options.iterator();
-
-                            while (iterator.hasNext()) {
-                                OptionEntry entry = iterator.next();
-
-                                if (entry.application.equals(application)) {
-                                    iterator.remove();
-
-                                    return;
-                                }
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onInserted(LauncherApplication application) {
-                        insert(application);
-                    }
-
-                    @Override
-                    public void onShowed(LauncherApplication application) {
-                        insert(application);
-                    }
-
-                    @Override
-                    public void onRemoved(LauncherApplication application) {
-                        remove(application);
-                    }
-
-                    @Override
-                    public void onHidden(LauncherApplication application) {
-                        remove(application);
-                    }
-
-                    @Override
-                    public void onUpdated(LauncherApplication application) {
-                        recyclerView.post(() -> {
-                            for (int index = 0; index < options.size(); index++) {
-                                OptionEntry entry = options.get(index);
-
-                                if (entry.application.equals(application)) {
-                                    notifyItemChanged(index);
-
-                                    return;
-                                }
-                            }
-                        });
+                            notifyInternal();
+                        }
                     }
                 });
+            }
+
+            private void remove(LauncherApplication application) {
+                recyclerView.post(() -> {
+                    Iterator<OptionEntry> iterator = options.iterator();
+
+                    while (iterator.hasNext()) {
+                        OptionEntry entry = iterator.next();
+
+                        if (entry.application.equals(application)) {
+                            iterator.remove();
+
+                            return;
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onInserted(LauncherApplication application) {
+                insert(application);
+            }
+
+            @Override
+            public void onShowed(LauncherApplication application) {
+                insert(application);
+            }
+
+            @Override
+            public void onRemoved(LauncherApplication application) {
+                remove(application);
+            }
+
+            @Override
+            public void onHidden(LauncherApplication application) {
+                remove(application);
+            }
+
+            @Override
+            public void onUpdated(LauncherApplication application) {
+                recyclerView.post(() -> {
+                    for (int index = 0; index < options.size(); index++) {
+                        OptionEntry entry = options.get(index);
+
+                        if (entry.application.equals(application)) {
+                            notifyItemChanged(index);
+
+                            return;
+                        }
+                    }
+                });
+            }
+        };
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -231,20 +233,6 @@ public class OptionAdapter extends SuggestionSearchAdapter {
     }
 
     @Override
-    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-        this.recyclerView = recyclerView;
-
-        super.onAttachedToRecyclerView(recyclerView);
-    }
-
-    @Override
-    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
-        this.recyclerView = null;
-
-        super.onDetachedFromRecyclerView(recyclerView);
-    }
-
-    @Override
     public void onBindViewHolder(SuggestionSearchAdapter.ViewHolder viewHolder, int index) {
         OptionEntry entry = options.get(index);
 
@@ -279,6 +267,28 @@ public class OptionAdapter extends SuggestionSearchAdapter {
                 Log.e(TAG, "onBindViewHolder: ", exception);
             }
         });
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+
+        this.recyclerView = recyclerView;
+
+        if (listener != null) {
+            applicationManager.addApplicationListener(listener);
+        }
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+
+        if (listener != null) {
+            applicationManager.removeApplicationListener(listener);
+        }
+
+        this.recyclerView = null;
     }
 
     @Override
