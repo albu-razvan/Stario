@@ -146,8 +146,6 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
 
     protected abstract int getLayoutResID();
 
-    protected abstract int getPosition();
-
     // Whoever designed the fragment transition API, I'm coming after you...
     // Really ugly workaround to waiting for all transitions to finish
     // For some reason, not specifying int res transitions, but androidx or

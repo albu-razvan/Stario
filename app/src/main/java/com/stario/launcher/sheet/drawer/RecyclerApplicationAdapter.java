@@ -274,8 +274,8 @@ public abstract class RecyclerApplicationAdapter
 
         if (application != LauncherApplication.FALLBACK_APP) {
             viewHolder.label.setText(application.getLabel());
-            viewHolder.notification.setVisibility(
-                    application.getNotificationCount() > 0 ? View.VISIBLE : View.GONE);
+            // TODO: notification dots
+            viewHolder.notification.setVisibility(false ? View.VISIBLE : View.GONE);
 
             Drawable appIcon = application.getIcon();
 

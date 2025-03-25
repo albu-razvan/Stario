@@ -114,8 +114,8 @@ public class ApplicationsDialog extends SheetDialogFragment {
 
             broadcastManager.sendBroadcastSync(intent);
 
-            if (Math.abs(position) > 1) {
-                page.setTranslationX(-2 * page.getWidth() * Math.signum(position));
+            if (Math.abs(position) > adapter.getCount() - 3) {
+                page.setTranslationX(-(adapter.getCount() - 2) * page.getWidth() * Math.signum(position));
             } else {
                 page.setTranslationX(0);
             }
@@ -131,13 +131,13 @@ public class ApplicationsDialog extends SheetDialogFragment {
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 this.positionOffset = positionOffset;
 
-                if (selectedPosition == 3 && positionOffset == 0) {
+                if (selectedPosition == adapter.getCount() - 1 && positionOffset == 0) {
                     skipVibration = true;
                     pager.setCurrentItem(1, false);
                 }
                 if (position == 0 && positionOffset == 0) {
                     skipVibration = true;
-                    pager.setCurrentItem(2, false);
+                    pager.setCurrentItem(adapter.getCount() - 2, false);
                 }
             }
 

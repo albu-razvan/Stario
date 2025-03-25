@@ -92,7 +92,7 @@ public class SplashScreen extends ThemedActivity {
 
         if (packageName != null) {
             LauncherApplication application = LauncherApplicationManager
-                    .getInstance().get(packageName);
+                    .getInstance().getApplication(packageName);
 
             if (application != null) {
                 icon.setIcon(application.icon);

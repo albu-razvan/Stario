@@ -36,7 +36,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.LauncherApplicationManager;
-import com.stario.launcher.apps.categories.CategoryManager;
+import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
 import com.stario.launcher.ui.keyboard.InlineAutocompleteEditText;
@@ -69,6 +69,7 @@ public class ApplicationCustomizationDialog extends ActionDialog {
                             .equals(categoryManager.getCategoryName(application.getCategory()))) {
                 categoryManager.updateCategory(application,
                         categoryManager.addCustomCategory(newCategoryName.toString()));
+                LauncherApplicationManager.getInstance().notifyUpdate(application);
             }
         });
     }

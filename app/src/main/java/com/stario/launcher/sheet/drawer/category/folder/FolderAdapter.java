@@ -24,8 +24,8 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.apps.categories.Category;
-import com.stario.launcher.apps.categories.CategoryManager;
+import com.stario.launcher.apps.Category;
+import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.themes.ThemedActivity;
 

@@ -32,20 +32,21 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.LauncherApplicationManager;
-import com.stario.launcher.apps.categories.CategoryManager;
+import com.stario.launcher.apps.CategoryManager;
+import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 
 public class HiddenRecyclerAdapter extends RecyclerView.Adapter<HiddenRecyclerAdapter.ViewHolder> {
-    private final LauncherApplicationManager manager;
+    private final ProfileApplicationManager manager;
     private final SharedPreferences hiddenApps;
     private final Context activity;
 
     public HiddenRecyclerAdapter(ThemedActivity activity) {
         this.activity = activity;
         this.hiddenApps = activity.getSharedPreferences(Entry.HIDDEN_APPS);
-        this.manager = LauncherApplicationManager.getInstance();
+        this.manager = LauncherApplicationManager.getInstance().getProfile(null);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

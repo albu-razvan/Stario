@@ -146,7 +146,7 @@ public final class IconPackManager {
                     .apply();
         }
 
-        LauncherApplication application = launcherApplicationManager.get(packageName);
+        LauncherApplication application = launcherApplicationManager.getApplication(packageName);
 
         if (application != null) {
             updateIcon(application, launcherApplicationManager::notifyUpdate);

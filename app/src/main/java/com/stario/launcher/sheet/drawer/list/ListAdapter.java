@@ -27,7 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.themes.ThemedActivity;
@@ -38,18 +38,18 @@ import com.stario.launcher.utils.animation.Animation;
 public class ListAdapter extends RecyclerApplicationAdapter
         implements FastScroller.OnPopupViewUpdate,
         FastScroller.OnPopupViewReset {
-    private final LauncherApplicationManager.ApplicationListener listener;
-    private final LauncherApplicationManager applicationManager;
+    private final ProfileApplicationManager.ApplicationListener listener;
+    private final ProfileApplicationManager applicationManager;
     private RecyclerView recyclerView;
     private int oldScrollerPosition;
 
-    public ListAdapter(ThemedActivity activity) {
+    public ListAdapter(ThemedActivity activity, ProfileApplicationManager applicationManager) {
         super(activity);
 
+        this.applicationManager = applicationManager;
         this.oldScrollerPosition = -1;
-        this.applicationManager = LauncherApplicationManager.getInstance();
 
-        listener = new LauncherApplicationManager.ApplicationListener() {
+        listener = new ProfileApplicationManager.ApplicationListener() {
             @Override
             public void onHidden(LauncherApplication application) {
                 recyclerView.post(() -> notifyItemRemovedInternal());

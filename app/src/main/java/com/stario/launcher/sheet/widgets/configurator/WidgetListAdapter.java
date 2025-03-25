@@ -38,6 +38,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
+import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.LauncherApplicationManager;
@@ -78,50 +79,54 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
 
         entries.clear();
 
-        for (AppWidgetProviderInfo info : widgets) {
-            String packageName = info.provider.getPackageName();
-            WidgetGroupEntry entry = entries.contains(packageName);
+        ProfileApplicationManager mainProfile =
+                LauncherApplicationManager.getInstance().getProfile(null);
 
-            if (entry == null) {
-                LauncherApplication application = LauncherApplicationManager.getInstance()
-                        .get(info.provider.getPackageName());
+        if(mainProfile != null) {
+            for (AppWidgetProviderInfo info : widgets) {
+                String packageName = info.provider.getPackageName();
+                WidgetGroupEntry entry = entries.contains(packageName);
 
-                if (application != null) {
-                    entry = new WidgetGroupEntry(packageName, application.getLabel(), application.getIcon());
-                } else {
-                    String label;
-                    Drawable icon;
+                if (entry == null) {
+                    LauncherApplication application = mainProfile.get(info.provider.getPackageName());
 
-                    if (Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
-                        ActivityInfo activityInfo = info.getActivityInfo();
-
-                        label = activityInfo.loadLabel(packageManager).toString();
-                        icon = activityInfo.loadIcon(packageManager);
+                    if (application != null) {
+                        entry = new WidgetGroupEntry(packageName, application.getLabel(), application.getIcon());
                     } else {
-                        try {
-                            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, 0);
+                        String label;
+                        Drawable icon;
 
-                            label = applicationInfo.loadLabel(packageManager).toString();
-                            icon = applicationInfo.loadIcon(packageManager);
-                        } catch (PackageManager.NameNotFoundException exception) {
-                            label = info.loadLabel(packageManager);
-                            icon = info.loadIcon(activity, Measurements.getDotsPerInch());
+                        if (Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
+                            ActivityInfo activityInfo = info.getActivityInfo();
+
+                            label = activityInfo.loadLabel(packageManager).toString();
+                            icon = activityInfo.loadIcon(packageManager);
+                        } else {
+                            try {
+                                ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, 0);
+
+                                label = applicationInfo.loadLabel(packageManager).toString();
+                                icon = applicationInfo.loadIcon(packageManager);
+                            } catch (PackageManager.NameNotFoundException exception) {
+                                label = info.loadLabel(packageManager);
+                                icon = info.loadIcon(activity, Measurements.getDotsPerInch());
+                            }
                         }
+
+                        entry = new WidgetGroupEntry(packageName, label, icon);
                     }
 
-                    entry = new WidgetGroupEntry(packageName, label, icon);
+                    int index = 0;
+                    while (index < entries.size() &&
+                            entries.get(index).compareTo(entry) < 0) {
+                        index++;
+                    }
+
+                    entries.add(index, entry);
                 }
 
-                int index = 0;
-                while (index < entries.size() &&
-                        entries.get(index).compareTo(entry) < 0) {
-                    index++;
-                }
-
-                entries.add(index, entry);
+                entry.addWidget(info);
             }
-
-            entry.addWidget(info);
         }
 
         // stupidly inefficient

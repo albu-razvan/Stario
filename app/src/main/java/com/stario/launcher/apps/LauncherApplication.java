@@ -23,6 +23,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.UserHandle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,12 +48,14 @@ public class LauncherApplication {
     String label;
     UUID category;
     Drawable icon;
+    UserHandle handle;
     int notificationCount;
 
-    public LauncherApplication(@NonNull ApplicationInfo info, @NonNull String label) {
+    public LauncherApplication(@NonNull ApplicationInfo info, @NonNull UserHandle handle, @NonNull String label) {
         this.info = info;
         this.label = label;
         this.category = UUID.randomUUID();
+        this.handle = handle;
         this.icon = null;
         this.notificationCount = 0;
         this.systemPackage = (info.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
@@ -97,16 +100,6 @@ public class LauncherApplication {
 
     public UUID getCategory() {
         return category;
-    }
-
-    public int getNotificationCount() {
-        return notificationCount;
-    }
-
-    public void setNotificationCount(int count) {
-        if (count >= 0) {
-            notificationCount = count;
-        }
     }
 
     @Override

@@ -15,12 +15,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.apps.categories;
+package com.stario.launcher.apps;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.utils.ThreadSafeArrayList;
 
 import java.util.ArrayList;

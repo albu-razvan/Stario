@@ -22,7 +22,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,17 +35,25 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.stario.launcher.R;
-import com.stario.launcher.sheet.drawer.DrawerAdapter;
+import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.FastScroller;
+import com.stario.launcher.utils.Utils;
 
 public class List extends DrawerPage {
+    private static final String USER_HANDLE_KEY = "com.stario.UserHandle";
+
     private LocalBroadcastManager broadcastManager;
     private BroadcastReceiver visibilityReceiver;
     private BroadcastReceiver positionReceiver;
     private FastScroller fastScroller;
+    private UserHandle handle;
+
+    public List(UserHandle handle) {
+        this.handle = handle;
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -96,13 +106,7 @@ public class List extends DrawerPage {
         drawer.setLayoutManager(manager);
         drawer.setItemAnimator(null);
 
-        ListAdapter adapter = new ListAdapter(activity);
-
-        drawer.setAdapter(adapter);
-
-        Measurements.addSysUIListener(value -> {
-            fastScroller.setTopOffset(drawer.getPaddingTop());
-        });
+        Measurements.addSysUIListener(value -> fastScroller.setTopOffset(drawer.getPaddingTop()));
 
         View searchContainer = (View) search.getParent();
 
@@ -137,15 +141,35 @@ public class List extends DrawerPage {
     }
 
     @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        if(savedInstanceState != null && savedInstanceState.containsKey(USER_HANDLE_KEY)) {
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+                handle = savedInstanceState.getParcelable(USER_HANDLE_KEY, UserHandle.class);
+            } else {
+                handle = savedInstanceState.getParcelable(USER_HANDLE_KEY);
+            }
+        }
+
+        ListAdapter adapter = new ListAdapter(activity,
+                LauncherApplicationManager.getInstance().getProfile(handle));
+
+        drawer.setAdapter(adapter);
+
+        super.onViewStateRestored(savedInstanceState);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putParcelable(USER_HANDLE_KEY, handle);
+
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onDestroyView() {
         drawer.setAdapter(null);
 
         super.onDestroyView();
-    }
-
-    @Override
-    protected int getPosition() {
-        return DrawerAdapter.LIST_POSITION;
     }
 
     @Override

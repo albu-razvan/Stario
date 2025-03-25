@@ -26,7 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.apps.categories.Category;
+import com.stario.launcher.apps.Category;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;

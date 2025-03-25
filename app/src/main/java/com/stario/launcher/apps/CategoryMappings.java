@@ -15,14 +15,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.apps.categories;
+package com.stario.launcher.apps;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
-import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.exceptions.NoExistingInstanceException;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;

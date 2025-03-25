@@ -18,51 +18,57 @@
 package com.stario.launcher.sheet.drawer;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Size;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
+import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.sheet.drawer.category.Categories;
 import com.stario.launcher.sheet.drawer.list.List;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @noinspection deprecation
  */
 public class DrawerAdapter extends FragmentPagerAdapter {
     public static final String SHARED_ELEMENT_PREFIX = "SharedElementApp";
-    public static final int LIST_POSITION = 1;
-    public static final int CATEGORIES_POSITION = 2;
-    public static final int PAGES = 4;
+    public static final int CATEGORIES_POSITION = 1;
+
+    private static final int PAGES = 3; // category page + 2 empty pages for transitioning
+
     private final FragmentManager fragmentManager;
-    private final @Size(PAGES) Fragment[] fragments;
+    private final Map<Integer, Fragment> fragments;
 
     public DrawerAdapter(FragmentManager fragmentManager) {
         super(fragmentManager);
 
         this.fragmentManager = fragmentManager;
-        this.fragments = new Fragment[PAGES];
+        this.fragments = new HashMap<>();
     }
 
     @NonNull
     @Override
     public Fragment getItem(int position) {
-        if (fragments[position] == null) {
-            if (position == LIST_POSITION) {
-                fragments[position] = new List();
+        if (fragments.getOrDefault(position, null) == null) {
+            if (position == 0 || position == getCount() - 1) {
+                fragments.put(position, new Fragment());
             } else if (position == CATEGORIES_POSITION) {
-                fragments[position] = new Categories();
+                fragments.put(position, new Categories());
             } else {
-                fragments[position] = new Fragment();
+                fragments.put(position, new List(LauncherApplicationManager.getInstance()
+                        .getUserHandle(position - 2)));
             }
         }
 
-        return fragments[position];
+        return Objects.requireNonNull(fragments.get(position));
     }
 
     @Override
     public int getCount() {
-        return PAGES;
+        return PAGES + LauncherApplicationManager.getInstance().size();
     }
 
     public void reset() {

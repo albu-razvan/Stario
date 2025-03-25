@@ -29,8 +29,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
-import com.stario.launcher.apps.categories.Category;
-import com.stario.launcher.apps.categories.CategoryManager;
+import com.stario.launcher.apps.Category;
+import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.category.Categories;

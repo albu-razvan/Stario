@@ -35,11 +35,10 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
-import com.stario.launcher.apps.categories.Category;
-import com.stario.launcher.apps.categories.CategoryManager;
-import com.stario.launcher.apps.categories.popup.RenameCategoryDialog;
+import com.stario.launcher.apps.Category;
+import com.stario.launcher.apps.CategoryManager;
+import com.stario.launcher.apps.popup.RenameCategoryDialog;
 import com.stario.launcher.preferences.Vibrations;
-import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.ui.Measurements;
@@ -251,10 +250,5 @@ public class Folder extends DrawerPage {
     @Override
     protected int getLayoutResID() {
         return R.layout.drawer_folder;
-    }
-
-    @Override
-    protected int getPosition() {
-        return DrawerAdapter.CATEGORIES_POSITION;
     }
 }
