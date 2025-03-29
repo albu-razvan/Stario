@@ -20,13 +20,14 @@ package com.stario.launcher.apps;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityOptions;
-import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.UserHandle;
+import android.provider.Settings;
 import android.transition.Transition;
 import android.transition.TransitionListenerAdapter;
 import android.util.Log;
@@ -109,26 +110,55 @@ public class SplashScreen extends ThemedActivity {
 
                 transition.addListener(new TransitionListenerAdapter() {
                     @Override
-                    public void onTransitionEnd(Transition transition) {
-                        UiUtils.runOnUIThread(() -> {
-                            if (!isFinishing()) {
-                                ComponentName componentName = Utils.getMainActivityComponent(SplashScreen.this, packageName, handle);
+                    public void onTransitionStart(Transition transition) {
+                        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+                            float duration = transition.getDuration();
 
-                                if (componentName != null) {
-                                    ActivityOptions activityOptions = ActivityOptions.makeBasic();
-
-                                    if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
-                                        activityOptions.setSplashScreenStyle(android.window.SplashScreen.SPLASH_SCREEN_STYLE_SOLID_COLOR);
-                                    }
-
-                                    getSystemService(LauncherApps.class).startMainActivity(componentName,
-                                            handle, null, activityOptions.toBundle());
-                                    overridePendingTransition(0, 0);
-                                } else {
-                                    finish();
-                                }
+                            try {
+                                duration = duration * Settings.System.getFloat(getContentResolver(), Settings.Global.ANIMATOR_DURATION_SCALE);
+                            } catch (Settings.SettingNotFoundException exception) {
+                                Log.e("SplashScreen", "onTransitionStart: Failed to retrieve duration scale.");
                             }
-                        });
+
+                            UiUtils.runOnUIThreadDelayed(() -> {
+                                if (!isFinishing()) {
+                                    LauncherActivityInfo info = Utils.getMainActivity(SplashScreen.this, packageName, handle);
+
+                                    if (info != null) {
+                                        ActivityOptions activityOptions = ActivityOptions.makeTaskLaunchBehind();
+
+                                        activityOptions.setSplashScreenStyle(android.window.SplashScreen.SPLASH_SCREEN_STYLE_SOLID_COLOR);
+                                        activityOptions.setPendingIntentBackgroundActivityLaunchAllowed(true);
+
+                                        getSystemService(LauncherApps.class).startMainActivity(info.getComponentName(),
+                                                handle, null, activityOptions.toBundle());
+                                    } else {
+                                        finish();
+                                    }
+                                }
+                                // delay the activity launch to not make the splash transition confusing
+                            }, (int) (duration > 0 ? duration * 0.6 : 1));
+                        }
+                    }
+
+                    @Override
+                    public void onTransitionEnd(Transition transition) {
+                        if (!Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+                            UiUtils.runOnUIThread(() -> {
+                                if (!isFinishing()) {
+                                    LauncherActivityInfo info = Utils.getMainActivity(SplashScreen.this, packageName, handle);
+
+                                    if (info != null) {
+                                        ActivityOptions activityOptions = ActivityOptions.makeBasic();
+
+                                        getSystemService(LauncherApps.class).startMainActivity(info.getComponentName(),
+                                                handle, null, activityOptions.toBundle());
+                                    } else {
+                                        finish();
+                                    }
+                                }
+                            });
+                        }
                     }
                 });
             } else {

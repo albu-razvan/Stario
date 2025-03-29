@@ -19,8 +19,10 @@ package com.stario.launcher.apps;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -72,6 +74,7 @@ public final class IconPackManager {
     private final PackageManager packageManager;
     private final SharedPreferences preferences;
     private final ArrayList<IconPack> iconPacks;
+    private final LauncherApps launcherApps;
     private OnChangeListener listener;
     private IconPack activeIconPack;
 
@@ -80,6 +83,7 @@ public final class IconPackManager {
         this.listener = listener;
         this.preferences = activity.getSharedPreferences(Entry.ICONS);
         this.packageManager = activity.getPackageManager();
+        this.launcherApps = (LauncherApps) activity.getSystemService(Context.LAUNCHER_APPS_SERVICE);
         this.launcherApplicationManager = LauncherApplicationManager.getInstance();
 
         this.activeIconPack = null;
@@ -200,7 +204,7 @@ public final class IconPackManager {
 
             future.thenAccept(icon -> {
                 if (icon == null) {
-                    icon = ImageUtils.getIcon(application.getInfo(), packageManager);
+                    icon = ImageUtils.getIcon(launcherApps, application.info.packageName);
                 }
 
                 final Drawable drawable = icon;
@@ -215,7 +219,7 @@ public final class IconPackManager {
                 });
             });
         } else {
-            Drawable icon = ImageUtils.getIcon(application.getInfo(), packageManager);
+            Drawable icon = ImageUtils.getIcon(launcherApps, application.info.packageName);
 
             if (icon != null && !icon.equals(application.getIcon())) {
                 application.icon = icon;
@@ -312,12 +316,12 @@ public final class IconPackManager {
     public List<Pair<IconPack, Pair<String, Drawable>>> getIcons(String packageName) {
         List<Pair<IconPack, Pair<String, Drawable>>> result = new ArrayList<>();
 
-        result.add(new Pair<>(null, new Pair<>(null, ImageUtils.getIcon(packageName, packageManager))));
+        result.add(new Pair<>(null, new Pair<>(null, ImageUtils.getIcon(launcherApps, packageName))));
 
         for (IconPack pack : iconPacks) {
             List<String> drawableNames = pack.getDrawableNameList(packageName);
 
-            if (drawableNames != null && drawableNames.size() > 0) {
+            if (drawableNames != null && !drawableNames.isEmpty()) {
                 for (String drawableName : drawableNames) {
                     Drawable drawable = pack.getDrawable(drawableName);
 
@@ -504,7 +508,7 @@ public final class IconPackManager {
                         if (component != null) {
                             List<String> drawableNames = exactComponentDrawable.get(component.getPackageName() + '/' + component.getClassName());
 
-                            if (drawableNames != null && drawableNames.size() > 0) {
+                            if (drawableNames != null && !drawableNames.isEmpty()) {
                                 drawableName = drawableNames.get(0);
                             }
                         }

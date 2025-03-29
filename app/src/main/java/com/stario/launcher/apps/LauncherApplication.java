@@ -17,8 +17,8 @@
 
 package com.stario.launcher.apps;
 
-import android.content.ComponentName;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.graphics.drawable.Drawable;
 import android.os.UserHandle;
@@ -64,10 +64,10 @@ public class LauncherApplication {
 
         if (!UiUtils.areWindowAnimationsOn(activity) ||
                 activity.getSettings().getBoolean(LEGACY_LAUNCH_ANIMATION, false)) {
-            ComponentName componentName = Utils.getMainActivityComponent(activity, getInfo().packageName, handle);
+            LauncherActivityInfo info = Utils.getMainActivity(activity, getInfo().packageName, handle);
 
-            if (componentName != null) {
-                activity.getSystemService(LauncherApps.class).startMainActivity(componentName,
+            if (info != null) {
+                activity.getSystemService(LauncherApps.class).startMainActivity(info.getComponentName(),
                         handle, null, null);
             }
         } else {

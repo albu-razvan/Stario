@@ -101,15 +101,18 @@ public class Utils {
         return value < 0.5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2;
     }
 
-    public static ComponentName getMainActivityComponent(Context context, String packageName, UserHandle handle) {
-        LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+    public static LauncherActivityInfo getMainActivity(LauncherApps launcherApps, String packageName, UserHandle handle) {
         List<LauncherActivityInfo> activityInfoList = launcherApps.getActivityList(packageName, handle);
 
         if(!activityInfoList.isEmpty()) {
-            return activityInfoList.get(0).getComponentName();
+            return activityInfoList.get(0);
         }
 
         return null;
+    }
+
+    public static LauncherActivityInfo getMainActivity(Context context, String packageName, UserHandle handle) {
+        return getMainActivity(context.getSystemService(LauncherApps.class), packageName, handle);
     }
 
     public static Bitmap getSnapshot(View view) {

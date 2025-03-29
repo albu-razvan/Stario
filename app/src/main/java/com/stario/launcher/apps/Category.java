@@ -73,8 +73,21 @@ public class Category {
                 left = middle + 1;
             } else if (compareValue > 0) {
                 right = middle - 1;
-            } else {
+            } else if (!applicationAtMiddle.info.packageName
+                    .equals(applicationToAdd.info.packageName)) {
+                for (CategoryItemListener listener : listeners) {
+                    listener.onPrepareInsertion(applicationToAdd);
+                }
+
+                applications.add(middle, applicationToAdd);
+
+                for (CategoryItemListener listener : listeners) {
+                    listener.onInserted(applicationToAdd);
+                }
+
                 return;
+            } else {
+                return; // same package found
             }
         }
 

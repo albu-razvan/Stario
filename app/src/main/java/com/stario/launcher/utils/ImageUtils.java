@@ -17,56 +17,43 @@
 
 package com.stario.launcher.utils;
 
-import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
+import android.content.pm.LauncherActivityInfo;
+import android.content.pm.LauncherApps;
 import android.graphics.Color;
 import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
 
-import androidx.annotation.NonNull;
+import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.ProfileApplicationManager;
+import com.stario.launcher.ui.Measurements;
+
+import java.util.List;
 
 public class ImageUtils {
-    public static Drawable getIcon(String packageName, @NonNull PackageManager packageManager) {
-        try {
-            return getIcon(packageManager.getApplicationInfo(packageName, PackageManager.MATCH_ALL), packageManager);
-        } catch (PackageManager.NameNotFoundException exception) {
-            return null;
-        }
-    }
+    public static Drawable getIcon(LauncherApps service, String packageName) {
+        Drawable drawable = null;
 
-    public static Drawable getIcon(ApplicationInfo applicationInfo, @NonNull PackageManager packageManager) {
-        Drawable drawable;
+        List<ProfileApplicationManager> profiles = LauncherApplicationManager.getInstance().getProfiles();
 
-        try {
-            Intent intent = packageManager.getLaunchIntentForPackage(applicationInfo.packageName);
+        for (ProfileApplicationManager profile : profiles) {
+            LauncherActivityInfo main = Utils.getMainActivity(service, packageName, profile.handle);
 
-            if (intent == null) {
-                return null;
-            }
-
-            drawable = packageManager.getActivityIcon(intent);
-
-            if (drawable instanceof AdaptiveIconDrawable) {
-                return drawable;
-            } else {
-                drawable = packageManager.getApplicationIcon(applicationInfo);
+            if(main != null) {
+                drawable = main.getIcon(Measurements.getDotsPerInch());
 
                 if (drawable instanceof AdaptiveIconDrawable) {
                     return drawable;
                 }
             }
-        } catch (PackageManager.NameNotFoundException exception) {
-            return null;
         }
 
-        return toAdaptive(drawable, Color.WHITE);
-    }
+        if(drawable != null) {
+            return new AdaptiveIconDrawable(new ColorDrawable(Color.WHITE),
+                    new InsetDrawable(drawable, AdaptiveIconDrawable.getExtraInsetFraction()));
+        }
 
-    public static AdaptiveIconDrawable toAdaptive(Drawable drawable, int backgroundColor) {
-        return new AdaptiveIconDrawable(new ColorDrawable(backgroundColor),
-                new InsetDrawable(drawable, AdaptiveIconDrawable.getExtraInsetFraction()));
+        return null;
     }
 }

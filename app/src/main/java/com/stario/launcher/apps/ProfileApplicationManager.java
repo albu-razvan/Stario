@@ -77,7 +77,7 @@ public final class ProfileApplicationManager {
         this.handle = handle;
 
         this.iconPacks = IconPackManager.from(activity);
-        if(mainUser) {
+        if (mainUser) {
             CategoryManager.from(activity, this);
         }
 
@@ -206,7 +206,7 @@ public final class ProfileApplicationManager {
     }
 
     private void loadApplications(ThemedActivity activity) {
-        LauncherApps launcherApps = (LauncherApps) activity.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        LauncherApps launcherApps = activity.getSystemService(LauncherApps.class);
         List<LauncherActivityInfo> activityInfoList =
                 launcherApps.getActivityList(null, handle);
 
@@ -218,6 +218,9 @@ public final class ProfileApplicationManager {
                 activityInfoList.add(0, activityInfo);
             }
         }
+
+        activityInfoList.sort((o1, o2) ->
+                getLabel(o1.getApplicationInfo()).compareTo(getLabel(o2.getApplicationInfo())));
 
         for (int index = 0; index < activityInfoList.size(); index++) {
             ApplicationInfo applicationInfo = activityInfoList.get(index).getApplicationInfo();
@@ -283,23 +286,25 @@ public final class ProfileApplicationManager {
     }
 
     private LauncherApplication createApplication(ApplicationInfo applicationInfo) {
-        LauncherApplication application;
-        String label = applicationLabels.getString(applicationInfo.packageName, null);
+        LauncherApplication application = new LauncherApplication(applicationInfo,
+                handle, getLabel(applicationInfo));
 
-        //noinspection ReplaceNullCheck
-        if (label != null) {
-            application = new LauncherApplication(applicationInfo, handle, label);
-        } else {
-            application = new LauncherApplication(applicationInfo, handle,
-                    applicationInfo.loadLabel(packageManager).toString());
-        }
-
-        if(mainUser) {
+        if (mainUser) {
             application.category = CategoryManager.getInstance()
                     .getCategoryIdentifier(applicationInfo);
         }
 
         return application;
+    }
+
+    private String getLabel(ApplicationInfo applicationInfo) {
+        String label = applicationLabels.getString(applicationInfo.packageName, null);
+
+        if (label == null) {
+            label = applicationInfo.loadLabel(packageManager).toString();
+        }
+
+        return label;
     }
 
     /**
@@ -375,7 +380,7 @@ public final class ProfileApplicationManager {
         iconPacks.add(application);
         iconPacks.updateIcon(application, this::notifyUpdate);
 
-        if(mainUser) {
+        if (mainUser) {
             CategoryManager.getInstance().addApplication(application);
         }
     }
@@ -395,8 +400,13 @@ public final class ProfileApplicationManager {
                 left = middle + 1;
             } else if (compareValue > 0) {
                 right = middle - 1;
-            } else {
+            } else if (!application.info.packageName
+                    .equals(applicationToAdd.info.packageName)) {
+                list.add(middle, applicationToAdd);
+
                 return;
+            } else {
+                return; // same package found
             }
         }
 
@@ -418,7 +428,7 @@ public final class ProfileApplicationManager {
             applicationListHidden.remove(application);
 
             iconPacks.remove(application);
-            if(mainUser) {
+            if (mainUser) {
                 CategoryManager.getInstance().removeApplication(application);
             }
 
@@ -437,7 +447,7 @@ public final class ProfileApplicationManager {
 
         if (!applicationListHidden.contains(application)) {
             addApplicationToList(application, applicationListHidden);
-            if(mainUser) {
+            if (mainUser) {
                 CategoryManager.getInstance().addApplication(application);
             }
 
@@ -461,7 +471,7 @@ public final class ProfileApplicationManager {
         }
 
         applicationListHidden.remove(application);
-        if(mainUser) {
+        if (mainUser) {
             CategoryManager.getInstance().removeApplication(application);
         }
 
