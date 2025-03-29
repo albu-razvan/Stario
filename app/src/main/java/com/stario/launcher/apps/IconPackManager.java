@@ -117,16 +117,8 @@ public final class IconPackManager {
         }
     }
 
-    public void setIconFor(LauncherApplication application, IconPack pack) {
-        setIconFor(application.info.packageName, pack);
-    }
-
     public void setIconFor(LauncherApplication application, IconPack pack, String drawableName) {
         setIconFor(application.info.packageName, pack, drawableName);
-    }
-
-    public void setIconFor(String packageName, IconPack pack) {
-        setIconFor(packageName, pack, null);
     }
 
     public void setIconFor(String packageName, IconPack pack, String drawableName) {

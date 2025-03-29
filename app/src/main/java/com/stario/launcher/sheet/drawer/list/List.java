@@ -36,6 +36,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
 import com.stario.launcher.ui.Measurements;
@@ -51,8 +52,10 @@ public class List extends DrawerPage {
     private FastScroller fastScroller;
     private UserHandle handle;
 
-    public List(UserHandle handle) {
-        this.handle = handle;
+    public List() { }
+
+    public List(ProfileApplicationManager profile) {
+        this.handle = profile.handle;
     }
 
     @Override

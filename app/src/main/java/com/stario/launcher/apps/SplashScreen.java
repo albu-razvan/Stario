@@ -20,11 +20,13 @@ package com.stario.launcher.apps;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.content.ComponentName;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.pm.LauncherApps;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.transition.Transition;
 import android.transition.TransitionListenerAdapter;
 import android.util.Log;
@@ -46,6 +48,7 @@ import com.stario.launcher.utils.animation.SharedElementTransition;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashScreen extends ThemedActivity {
+    public static final String USER_HANDLE = "com.stario.SplashScreen.USER_HANDLE";
     public static final String APPLICATION_PACKAGE = "com.stario.SplashScreen.APPLICATION_PACKAGE";
     public static final String SHARED_ICON_TRANSITION = "com.stario.SplashScreen.SHARED_ICON_TRANSITION";
     public static final String SHARED_CONTAINER_TRANSITION = "com.stario.SplashScreen.SHARED_CONTAINER_TRANSITION";
@@ -88,9 +91,16 @@ public class SplashScreen extends ThemedActivity {
         icon.setTransitionName(SHARED_ICON_TRANSITION);
         container.setTransitionName(SHARED_CONTAINER_TRANSITION);
 
-        String packageName = getIntent().getStringExtra(APPLICATION_PACKAGE);
+        Intent startIntent = getIntent();
+        String packageName = startIntent.getStringExtra(APPLICATION_PACKAGE);
+        UserHandle handle;
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+            handle = startIntent.getParcelableExtra(USER_HANDLE, UserHandle.class);
+        } else {
+            handle = startIntent.getParcelableExtra(USER_HANDLE);
+        }
 
-        if (packageName != null) {
+        if (packageName != null && handle != null) {
             LauncherApplication application = LauncherApplicationManager
                     .getInstance().getApplication(packageName);
 
@@ -101,24 +111,19 @@ public class SplashScreen extends ThemedActivity {
                     @Override
                     public void onTransitionEnd(Transition transition) {
                         UiUtils.runOnUIThread(() -> {
-                            if(!isFinishing()) {
-                                ActivityOptions activityOptions = ActivityOptions
-                                        .makeScaleUpAnimation(container, 1, 1,
-                                                container.getMeasuredWidth() - 2, container.getMeasuredHeight() - 2);
+                            if (!isFinishing()) {
+                                ComponentName componentName = Utils.getMainActivityComponent(SplashScreen.this, packageName, handle);
 
-                                if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
-                                    activityOptions.setSplashScreenStyle(android.window.SplashScreen.SPLASH_SCREEN_STYLE_SOLID_COLOR);
-                                }
+                                if (componentName != null) {
+                                    ActivityOptions activityOptions = ActivityOptions.makeBasic();
 
-                                PackageManager packageManager = getPackageManager();
-                                Intent intent = packageManager.getLaunchIntentForPackage(application.info.packageName);
-
-                                if (intent != null) {
-                                    if (Utils.isMinimumSDK(Build.VERSION_CODES.VANILLA_ICE_CREAM)) {
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                                    if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+                                        activityOptions.setSplashScreenStyle(android.window.SplashScreen.SPLASH_SCREEN_STYLE_SOLID_COLOR);
                                     }
 
-                                    startActivity(intent, activityOptions.toBundle());
+                                    getSystemService(LauncherApps.class).startMainActivity(componentName,
+                                            handle, null, activityOptions.toBundle());
+                                    overridePendingTransition(0, 0);
                                 } else {
                                     finish();
                                 }
@@ -175,7 +180,7 @@ public class SplashScreen extends ThemedActivity {
         });
     }
 
-    public static void launch(String packageName, AdaptiveIconView view) {
+    public static void launch(String packageName, AdaptiveIconView view, UserHandle handle) {
         if (clearListener != null) {
             Log.w("SplashScreen", "Only one instance of SplashScreen can run at a time.");
 
@@ -216,6 +221,7 @@ public class SplashScreen extends ThemedActivity {
 
         Intent intent = new Intent(activity, SplashScreen.class);
         intent.putExtra(APPLICATION_PACKAGE, packageName);
+        intent.putExtra(USER_HANDLE, handle);
 
         UiUtils.runOnUIThread(() -> {
             clearListener = () -> {

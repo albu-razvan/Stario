@@ -29,7 +29,7 @@ import android.graphics.drawable.InsetDrawable;
 import androidx.annotation.NonNull;
 
 public class ImageUtils {
-    public static Drawable getIcon(String packageName, PackageManager packageManager) {
+    public static Drawable getIcon(String packageName, @NonNull PackageManager packageManager) {
         try {
             return getIcon(packageManager.getApplicationInfo(packageName, PackageManager.MATCH_ALL), packageManager);
         } catch (PackageManager.NameNotFoundException exception) {

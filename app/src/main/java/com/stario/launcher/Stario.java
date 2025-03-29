@@ -18,6 +18,7 @@
 package com.stario.launcher;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -26,10 +27,18 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.stario.launcher.ui.Measurements;
 
+import org.chickenhook.restrictionbypass.Unseal;
+
 public class Stario extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        try {
+            Unseal.unseal();
+        } catch (Exception exception) {
+            Log.e("Stario", "Could not unseal the process.", exception);
+        }
 
         ProcessLifecycleOwner.get()
                 .getLifecycle()

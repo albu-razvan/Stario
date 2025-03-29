@@ -54,7 +54,7 @@ public final class LauncherApplicationManager {
 
         for (UserHandle profileHandle : launcherApps.getProfiles()) {
             ProfileApplicationManager manager = new ProfileApplicationManager(activity,
-                    profileHandle, profileHandle == userHandle);
+                    profileHandle, userHandle.equals(profileHandle));
 
             profilesMap.put(profileHandle, manager);
 
@@ -93,16 +93,16 @@ public final class LauncherApplicationManager {
         return instance.profilesMap.getOrDefault(handle, null);
     }
 
-    public List<ProfileApplicationManager> getProfiles() {
-        return instance.profilesList;
-    }
-
-    public UserHandle getUserHandle(int index) {
+    public ProfileApplicationManager getProfile(int index) {
         if(index < 0 || index >= profilesList.size()) {
             return null;
         }
 
-        return profilesList.get(index).handle;
+        return profilesList.get(index);
+    }
+
+    public List<ProfileApplicationManager> getProfiles() {
+        return instance.profilesList;
     }
 
     public LauncherApplication getApplication(String packageName) {

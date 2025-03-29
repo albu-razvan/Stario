@@ -19,11 +19,14 @@ package com.stario.launcher.utils;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.LauncherActivityInfo;
+import android.content.pm.LauncherApps;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -39,6 +42,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -95,6 +99,17 @@ public class Utils {
 
     public static double getGenericInterpolatedValue(@FloatRange(from = 0, to = 1) double value) {
         return value < 0.5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2;
+    }
+
+    public static ComponentName getMainActivityComponent(Context context, String packageName, UserHandle handle) {
+        LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        List<LauncherActivityInfo> activityInfoList = launcherApps.getActivityList(packageName, handle);
+
+        if(!activityInfoList.isEmpty()) {
+            return activityInfoList.get(0).getComponentName();
+        }
+
+        return null;
     }
 
     public static Bitmap getSnapshot(View view) {

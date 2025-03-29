@@ -58,8 +58,12 @@ public class DrawerAdapter extends FragmentPagerAdapter {
             } else if (position == CATEGORIES_POSITION) {
                 fragments.put(position, new Categories());
             } else {
-                fragments.put(position, new List(LauncherApplicationManager.getInstance()
-                        .getUserHandle(position - 2)));
+                fragments.put(position, new List(
+                                Objects.requireNonNull(
+                                        LauncherApplicationManager.getInstance()
+                                                .getProfile(position - 2))
+                        )
+                );
             }
         }
 

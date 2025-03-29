@@ -75,12 +75,11 @@ public abstract class RecyclerApplicationAdapter
     }
 
     public class ViewHolder extends AsyncViewHolder {
-        public TextView label;
-
         private boolean hasPerformedLongClick;
         private AdaptiveIconView icon;
         private PopupWindow dialog;
         private View notification;
+        private TextView label;
 
         @SuppressLint("ClickableViewAccessibility")
         @Override

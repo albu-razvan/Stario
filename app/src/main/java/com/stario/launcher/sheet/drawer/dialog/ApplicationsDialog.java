@@ -197,7 +197,7 @@ public class ApplicationsDialog extends SheetDialogFragment {
 
                     @Override
                     public void onSlide(@NonNull View sheet, float slideOffset) {
-                        search.setTranslationY((1f - slideOffset) * -sheet.getMeasuredHeight() / 7f);
+                        search.setTranslationY((1f - slideOffset) * -sheet.getMeasuredHeight() / 8f);
                     }
 
                     @Override

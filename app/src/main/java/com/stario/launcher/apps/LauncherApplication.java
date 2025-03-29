@@ -17,12 +17,10 @@
 
 package com.stario.launcher.apps;
 
-import android.app.ActivityOptions;
-import android.content.Intent;
+import android.content.ComponentName;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
+import android.content.pm.LauncherApps;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.UserHandle;
 
 import androidx.annotation.NonNull;
@@ -47,16 +45,16 @@ public class LauncherApplication {
     @NonNull
     String label;
     UUID category;
-    Drawable icon;
     UserHandle handle;
+    Drawable icon;
     int notificationCount;
 
     public LauncherApplication(@NonNull ApplicationInfo info, @NonNull UserHandle handle, @NonNull String label) {
         this.info = info;
         this.label = label;
         this.category = UUID.randomUUID();
-        this.handle = handle;
         this.icon = null;
+        this.handle = handle;
         this.notificationCount = 0;
         this.systemPackage = (info.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
     }
@@ -66,21 +64,14 @@ public class LauncherApplication {
 
         if (!UiUtils.areWindowAnimationsOn(activity) ||
                 activity.getSettings().getBoolean(LEGACY_LAUNCH_ANIMATION, false)) {
-            PackageManager packageManager = activity.getPackageManager();
+            ComponentName componentName = Utils.getMainActivityComponent(activity, getInfo().packageName, handle);
 
-            ActivityOptions activityOptions = ActivityOptions.makeBasic();
-
-            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
-                activityOptions.setSplashScreenStyle(android.window.SplashScreen.SPLASH_SCREEN_STYLE_ICON);
-            }
-
-            Intent intent = packageManager.getLaunchIntentForPackage(info.packageName);
-
-            if (intent != null) {
-                activity.startActivity(intent, activityOptions.toBundle());
+            if (componentName != null) {
+                activity.getSystemService(LauncherApps.class).startMainActivity(componentName,
+                        handle, null, null);
             }
         } else {
-            SplashScreen.launch(info.packageName, view);
+            SplashScreen.launch(info.packageName, view, handle);
         }
     }
 
