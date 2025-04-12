@@ -40,6 +40,7 @@ import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
 import com.stario.launcher.ui.keyboard.InlineAutocompleteEditText;
+import com.stario.launcher.utils.Utils;
 
 public class ApplicationCustomizationDialog extends ActionDialog {
     private final LauncherApplication application;
@@ -62,14 +63,16 @@ public class ApplicationCustomizationDialog extends ActionDialog {
                         .updateLabel(application, newLabel.toString());
             }
 
-            Editable newCategoryName = category.getText();
+            if(category != null) {
+                Editable newCategoryName = category.getText();
 
-            if (newCategoryName != null &&
-                    !newCategoryName.toString()
-                            .equals(categoryManager.getCategoryName(application.getCategory()))) {
-                categoryManager.updateCategory(application,
-                        categoryManager.addCustomCategory(newCategoryName.toString()));
-                LauncherApplicationManager.getInstance().notifyUpdate(application);
+                if (newCategoryName != null &&
+                        !newCategoryName.toString()
+                                .equals(categoryManager.getCategoryName(application.getCategory()))) {
+                    categoryManager.updateCategory(application,
+                            categoryManager.addCustomCategory(newCategoryName.toString()));
+                    LauncherApplicationManager.getInstance().notifyUpdate(application);
+                }
             }
         });
     }
@@ -118,53 +121,58 @@ public class ApplicationCustomizationDialog extends ActionDialog {
             }
         });
 
-        View categoryWarning = root.findViewById(R.id.category_warning);
+        if (Utils.isMainProfile(application.getProfile())) {
+            View categoryWarning = root.findViewById(R.id.category_warning);
 
-        category = root.findViewById(R.id.category);
-        category.setText(categoryManager.getCategoryName(application.getCategory()));
-        category.setFocusable(true);
-        category.setFocusableInTouchMode(true);
-        category.setShowSoftInputOnFocus(true);
-        category.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
-                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-        category.setAutocompleteProvider(input -> {
-            String suggestion = categoryManager.getSuggestion(input);
+            category = root.findViewById(R.id.category);
+            category.setText(categoryManager.getCategoryName(application.getCategory()));
+            category.setFocusable(true);
+            category.setFocusableInTouchMode(true);
+            category.setShowSoftInputOnFocus(true);
+            category.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
+                    InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            category.setAutocompleteProvider(input -> {
+                String suggestion = categoryManager.getSuggestion(input);
 
-            if (suggestion != null) {
-                return suggestion.substring(suggestion.toLowerCase()
-                        .indexOf(input.toLowerCase()) + input.length());
-            }
+                if (suggestion != null) {
+                    return suggestion.substring(suggestion.toLowerCase()
+                            .indexOf(input.toLowerCase()) + input.length());
+                }
 
-            return null;
-        });
-        category.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
+                return null;
+            });
+            category.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                }
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                }
 
-            @Override
-            public void afterTextChanged(Editable editable) {
-                Editable text = category.getText();
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    Editable text = category.getText();
 
-                if (text != null) {
-                    if (categoryManager.getIdentifier(text.toString()) != null) {
-                        if (categoryWarning.getVisibility() != View.GONE) {
+                    if (text != null) {
+                        if (categoryManager.getIdentifier(text.toString()) != null) {
+                            if (categoryWarning.getVisibility() != View.GONE) {
+                                TransitionManager.beginDelayedTransition((ViewGroup) root.getRootView(), new ChangeBounds());
+
+                                categoryWarning.setVisibility(View.GONE);
+                            }
+                        } else if (categoryWarning.getVisibility() != View.VISIBLE) {
                             TransitionManager.beginDelayedTransition((ViewGroup) root.getRootView(), new ChangeBounds());
 
-                            categoryWarning.setVisibility(View.GONE);
+                            categoryWarning.setVisibility(View.VISIBLE);
                         }
-                    } else if (categoryWarning.getVisibility() != View.VISIBLE) {
-                        TransitionManager.beginDelayedTransition((ViewGroup) root.getRootView(), new ChangeBounds());
-
-                        categoryWarning.setVisibility(View.VISIBLE);
                     }
                 }
-            }
-        });
+            });
+        } else {
+            root.findViewById(R.id.category_container)
+                    .setVisibility(View.GONE);
+        }
 
         root.findViewById(R.id.reset).setOnClickListener(view -> {
             String applicationLabel = application.getInfo()

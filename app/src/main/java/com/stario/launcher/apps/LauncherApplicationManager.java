@@ -25,6 +25,7 @@ import android.os.UserHandle;
 import androidx.annotation.NonNull;
 
 import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,15 +51,14 @@ public final class LauncherApplicationManager {
         this.profilesMap = new HashMap<>();
 
         LauncherApps launcherApps = (LauncherApps) activity.getSystemService(Context.LAUNCHER_APPS_SERVICE);
-        UserHandle userHandle = UserHandle.getUserHandleForUid(Process.myUid());
 
         for (UserHandle profileHandle : launcherApps.getProfiles()) {
             ProfileApplicationManager manager = new ProfileApplicationManager(activity,
-                    profileHandle, userHandle.equals(profileHandle));
+                    profileHandle, Utils.isMainProfile(profileHandle));
 
             profilesMap.put(profileHandle, manager);
 
-            if(profileHandle == userHandle) {
+            if(Utils.isMainProfile(profileHandle)) {
                 profilesList.add(0, manager);
             } else {
                 profilesList.add(manager);

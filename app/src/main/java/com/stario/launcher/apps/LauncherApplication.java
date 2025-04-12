@@ -93,6 +93,10 @@ public class LauncherApplication {
         return category;
     }
 
+    public UserHandle getProfile() {
+        return handle;
+    }
+
     @Override
     public int hashCode() {
         return info.packageName.hashCode();

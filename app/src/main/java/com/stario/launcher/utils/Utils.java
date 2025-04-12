@@ -26,6 +26,7 @@ import android.graphics.Canvas;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.Process;
 import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -113,6 +114,10 @@ public class Utils {
 
     public static LauncherActivityInfo getMainActivity(Context context, String packageName, UserHandle handle) {
         return getMainActivity(context.getSystemService(LauncherApps.class), packageName, handle);
+    }
+
+    public static boolean isMainProfile(UserHandle handle) {
+        return handle != null && handle.equals(Process.myUserHandle());
     }
 
     public static Bitmap getSnapshot(View view) {

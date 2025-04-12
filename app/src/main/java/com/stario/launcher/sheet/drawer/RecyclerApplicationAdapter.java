@@ -26,7 +26,6 @@ import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Process;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -261,7 +260,7 @@ public abstract class RecyclerApplicationAdapter
         shortcutQuery.setPackage(application.getInfo().packageName);
 
         try {
-            return launcherApps.getShortcuts(shortcutQuery, Process.myUserHandle());
+            return launcherApps.getShortcuts(shortcutQuery, application.getProfile());
         } catch (SecurityException exception) {
             return new ArrayList<>();
         }
