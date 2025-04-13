@@ -37,6 +37,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
@@ -97,9 +98,16 @@ public class UiUtils {
                 Settings.Global.WINDOW_ANIMATION_SCALE, 0) > 0;
     }
 
-    public static boolean areAnimationsOn(Context context) {
-        return Settings.Global.getFloat(context.getContentResolver(),
-                Settings.Global.ANIMATOR_DURATION_SCALE, 0) > 0;
+    public static boolean isKeyboardVisible(View view) {
+        if (view != null) {
+            WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(view);
+
+            if (insets != null) {
+                return insets.isVisible(WindowInsetsCompat.Type.ime());
+            }
+        }
+
+        return false;
     }
 
     public static void hideKeyboard(View view) {

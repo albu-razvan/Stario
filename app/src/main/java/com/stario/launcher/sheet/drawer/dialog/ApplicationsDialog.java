@@ -302,8 +302,14 @@ public class ApplicationsDialog extends SheetDialogFragment {
                     @Override
                     public void onTransitionStart(Transition transition) {
                         if (search.getVisibility() == View.VISIBLE) {
+                            fader.animate().cancel();
+                            fader.setTranslationY(0);
+                            fader.setScaleX(1f);
+                            fader.setScaleY(1f);
+                            fader.setAlpha(1f);
+
                             fader.animate().alpha(0)
-                                    .translationY(Measurements.dpToPx(-Measurements.HEADER_SIZE_DP))
+                                    .translationY((float) -Measurements.getHeight() / 2)
                                     .setDuration(transition.getDuration())
                                     .setInterpolator(transition.getInterpolator())
                                     .withEndAction(() -> {
@@ -316,9 +322,14 @@ public class ApplicationsDialog extends SheetDialogFragment {
                                         fader.setScaleX(0.9f);
                                         fader.setScaleY(0.9f);
                                     });
-
                             search.setVisibility(View.GONE);
                         } else {
+                            fader.animate().cancel();
+                            fader.setTranslationY(0);
+                            fader.setScaleX(0.9f);
+                            fader.setScaleY(0.9f);
+                            fader.setAlpha(0f);
+
                             fader.animate()
                                     .alpha(1)
                                     .scaleY(1)
