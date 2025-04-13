@@ -18,6 +18,7 @@
 package com.stario.launcher.ui.keyboard;
 
 import android.app.Activity;
+import android.graphics.Insets;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
@@ -28,25 +29,30 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.WindowInsets;
 import android.view.WindowManager.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.utils.Utils;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class KeyboardHeightProvider extends PopupWindow {
-    private final List<KeyboardHeightObserver> observers;
     private final ViewTreeObserver.OnGlobalLayoutListener listener;
-    private final View popupView;
-    private final View parentView;
+    private final List<KeyboardHeightListener> observers;
     private final Activity activity;
+    private final View parentView;
+    private final View popupView;
+
+    private int oldHeight;
 
     public KeyboardHeightProvider(Activity activity) {
         super(activity);
         this.activity = activity;
+        this.oldHeight = Integer.MIN_VALUE;
 
         this.observers = new CopyOnWriteArrayList<>();
         this.popupView = new LinearLayout(activity);
@@ -85,33 +91,45 @@ public class KeyboardHeightProvider extends PopupWindow {
         dismiss();
     }
 
-    public void addKeyboardHeightObserver(KeyboardHeightObserver observer) {
+    public void addKeyboardHeightListener(KeyboardHeightListener observer) {
         if (observer != null) {
             observers.add(observer);
         }
     }
 
-    public void removeKeyboardHeightObserver(KeyboardHeightObserver observer) {
+    public void removeKeyboardHeightListener(KeyboardHeightListener observer) {
         if (observer != null) {
             observers.remove(observer);
         }
     }
 
     private void notifyKeyboardHeightChanged(int height) {
-        for (KeyboardHeightObserver observer : observers) {
+        if(oldHeight == height) {
+            return;
+        }
+
+        oldHeight = height;
+
+        for (KeyboardHeightListener observer : observers) {
             observer.onKeyboardHeightChanged(height);
         }
     }
 
     public int getKeyboardHeight() {
+        if (!isShowing()) {
+            return 0;
+        }
+
         if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
-            Rect windowRect = new Rect();
-            parentView.getWindowVisibleDisplayFrame(windowRect);
+            WindowInsets windowInsets = parentView.getRootWindowInsets();
 
-            Rect rect = new Rect();
-            popupView.getWindowVisibleDisplayFrame(rect);
+            if(windowInsets != null) {
+                Insets insets = windowInsets.getInsets(WindowInsets.Type.ime());
 
-            return windowRect.bottom - rect.bottom;
+                return Math.max(0, insets.bottom - Measurements.getNavHeight());
+            }
+
+            return 0;
         } else {
             Point screenSize = new Point();
             Display display = activity.getWindowManager().getDefaultDisplay();
@@ -132,7 +150,7 @@ public class KeyboardHeightProvider extends PopupWindow {
         }
     }
 
-    public interface KeyboardHeightObserver {
+    public interface KeyboardHeightListener {
         void onKeyboardHeightChanged(int height);
     }
 }

@@ -34,14 +34,11 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsAnimationCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.PreEventNestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -66,17 +63,18 @@ import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
 import com.stario.launcher.ui.recyclers.async.InflationType;
+import com.stario.launcher.utils.KeyboardAnimationHelper;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.animation.Animation;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class SearchFragment extends Fragment {
     public static final String TAG = "SearchFragment";
     public static final int MAX_APP_QUERY_ITEMS = 4;
+
     private SearchLayoutTransition searchLayoutTransition;
     private KeyboardHeightProvider heightProvider;
     private SharedPreferences searchPreferences;
@@ -303,7 +301,7 @@ public class SearchFragment extends Fragment {
                         return controller.insetBy(-delta) != 0;
                     }
 
-                    boolean isKeyboardVisible = isKeyboardVisible();
+                    boolean isKeyboardVisible = UiUtils.isKeyboardVisible(getView());
 
                     if (delta < 0 && !isKeyboardVisible) {
                         return false;
@@ -328,7 +326,7 @@ public class SearchFragment extends Fragment {
                         return true;
                     }
 
-                    boolean isKeyboardVisible = isKeyboardVisible();
+                    boolean isKeyboardVisible = UiUtils.isKeyboardVisible(getView());
 
                     if (velocity > 0 && !isKeyboardVisible) {
                         return false;
@@ -415,86 +413,16 @@ public class SearchFragment extends Fragment {
                 }
             });
 
-            ViewCompat.setWindowInsetsAnimationCallback(root, new WindowInsetsAnimationCompat
-                    .Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
-                private WindowInsetsAnimationCompat imeAnimation;
-                private boolean hasProgressed;
-                private float startBottom;
-                private float endBottom;
-
-                @Override
-                public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
-                    startBottom = heightProvider.getKeyboardHeight();
-                    hasProgressed = false;
-                }
-
-                @NonNull
-                @Override
-                public WindowInsetsAnimationCompat.BoundsCompat onStart(@NonNull WindowInsetsAnimationCompat animation, @NonNull WindowInsetsAnimationCompat.BoundsCompat bounds) {
-                    endBottom = 0;
-
-                    heightProvider.addKeyboardHeightObserver(new KeyboardHeightProvider.KeyboardHeightObserver() {
-                        @Override
-                        public void onKeyboardHeightChanged(int height) {
-                            if (height != startBottom) {
-                                endBottom = height;
-
-                                if(!hasProgressed) {
-                                    updateContentTranslation(-endBottom);
-                                }
-                            }
-
-                            heightProvider.removeKeyboardHeightObserver(this);
-                        }
+            KeyboardAnimationHelper.configureKeyboardAnimator(root, heightProvider,
+                    controller, (translation) -> {
+                        content.setTranslationY(-translation);
+                        searchContainer.setTranslationY(translation);
                     });
-
-                    return bounds;
-                }
-
-                @NonNull
-                @Override
-                public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets, @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
-                    if (imeAnimation == null) {
-                        for (WindowInsetsAnimationCompat animation : runningAnimations) {
-                            if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) != 0) {
-                                imeAnimation = animation;
-
-                                break;
-                            }
-                        }
-                    }
-
-                    if (imeAnimation != null) {
-                        if (imeAnimation.getDurationMillis() > 0) {
-                            float delta = endBottom - startBottom;
-                            float translation = delta * ((delta < 0 ? 1 : 0) - imeAnimation.getInterpolatedFraction());
-
-                            updateContentTranslation(translation);
-                        } else if (controller.isAnimationInProgress()) {
-                            float delta = endBottom - startBottom;
-                            float fraction = controller.getExpandedFraction();
-                            float translation = Math.abs(delta) * -fraction;
-
-                            updateContentTranslation(translation);
-                        }
-
-                        hasProgressed = true;
-                    }
-
-                    return insets;
-                }
-
-                @Override
-                public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
-                    hasProgressed = false;
-                    imeAnimation = null;
-                }
-            });
         } else {
-            heightProvider.addKeyboardHeightObserver((height) -> {
+            heightProvider.addKeyboardHeightListener((height) -> {
                 searchLayoutTransition.setAnimate(false);
 
-                if (isKeyboardVisible()) {
+                if (UiUtils.isKeyboardVisible(getView())) {
                     scrollView.smoothScrollTo(0, 0, Animation.LONG.getDuration());
                 }
 
@@ -596,10 +524,18 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        content.post(() -> {
+        root.post(() -> {
+            InputMethodManager inputMethodManager = (InputMethodManager)
+                    activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+            if (inputMethodManager != null) {
+                inputMethodManager.restartInput(search);
+                UiUtils.hideKeyboard(search);
+            }
+
             startPostponedEnterTransition();
 
-            UiUtils.showKeyboard(search);
+            search.post(() -> UiUtils.showKeyboard(search));
         });
 
         return root;
@@ -615,33 +551,11 @@ public class SearchFragment extends Fragment {
         super.onDestroyView();
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
-    private void updateContentTranslation(float translation) {
-        if (translation != searchContainer.getTranslationY()) {
-            content.setTranslationY(-translation);
-            searchContainer.setTranslationY(translation);
-        }
-    }
-
-    private boolean isKeyboardVisible() {
-        View view = getView();
-
-        if (view != null) {
-            WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(getView());
-
-            if (insets != null) {
-                return insets.isVisible(WindowInsetsCompat.Type.ime());
-            }
-        }
-
-        return false;
-    }
-
     /**
      * @return true if this instance wants to prevent the back event
      */
     public boolean onBackPressed() {
-        if (!isKeyboardVisible()) {
+        if (!UiUtils.isKeyboardVisible(getView())) {
             return false;
         }
 

@@ -91,8 +91,11 @@ public class ExtractDialog extends DialogFragment {
                 extractedEditText.setHint(editText.getHint());
 
                 Editable text = editText.getText();
-                extractedEditText.setText(text);
-                extractedEditText.setSelection(text.length());
+
+                if(text != null) {
+                    extractedEditText.setText(text);
+                    extractedEditText.setSelection(text.length());
+                }
             }
         });
 
@@ -183,7 +186,7 @@ public class ExtractDialog extends DialogFragment {
             view.requestLayout();
         });
 
-        heightProvider.addKeyboardHeightObserver(height -> {
+        heightProvider.addKeyboardHeightListener(height -> {
             if (height <= 0) {
                 if (shown) {
                     ExtractDialog.this.dismiss();
