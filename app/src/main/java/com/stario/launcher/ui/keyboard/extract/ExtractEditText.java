@@ -65,6 +65,7 @@ public class ExtractEditText extends InlineAutocompleteEditText {
 
         setOnClickListener(view -> {
             if (Measurements.isLandscape()) {
+                UiUtils.hideKeyboard(this);
                 setCursorVisible(false);
 
                 openExtractDialog();
@@ -82,6 +83,7 @@ public class ExtractEditText extends InlineAutocompleteEditText {
     public void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
         if (focused) {
             if (Measurements.isLandscape()) {
+                UiUtils.hideKeyboard(this);
                 setCursorVisible(false);
 
                 openExtractDialog();

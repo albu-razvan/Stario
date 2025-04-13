@@ -28,10 +28,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
-import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsAnimationCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -42,10 +39,10 @@ import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
+import com.stario.launcher.utils.KeyboardAnimationHelper;
 import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
-import java.util.List;
 import java.util.Objects;
 
 public abstract class ActionDialog extends BottomSheetDialog {
@@ -104,86 +101,13 @@ public abstract class ActionDialog extends BottomSheetDialog {
         heightProvider = new KeyboardHeightProvider(activity);
 
         if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
-            ViewCompat.setWindowInsetsAnimationCallback(Objects.requireNonNull(getWindow()).getDecorView(),
-                    new WindowInsetsAnimationCompat.Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
-                        private WindowInsetsAnimationCompat imeAnimation;
-                        private boolean hasProgressed;
-                        private float startBottom;
-                        private float endBottom;
+            KeyboardAnimationHelper.configureKeyboardAnimator(Objects.requireNonNull(getWindow()).getDecorView(),
+                    heightProvider, (translation) -> content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
+                            content.getPaddingRight(), (int) (Measurements.getNavHeight() - translation)));
 
-                        @Override
-                        public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
-                            startBottom = heightProvider.getKeyboardHeight();
-                            hasProgressed = false;
-                        }
-
-                        @NonNull
-                        @Override
-                        public WindowInsetsAnimationCompat.BoundsCompat onStart(@NonNull WindowInsetsAnimationCompat animation, @NonNull WindowInsetsAnimationCompat.BoundsCompat bounds) {
-                            endBottom = 0;
-
-                            heightProvider.addKeyboardHeightObserver(new KeyboardHeightProvider.KeyboardHeightObserver() {
-                                @Override
-                                public void onKeyboardHeightChanged(int height) {
-                                    if (height != startBottom) {
-                                        endBottom = height;
-
-                                        if(!hasProgressed) {
-                                            content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
-                                                    content.getPaddingRight(), (int) (Measurements.getNavHeight() + endBottom));
-                                        }
-                                    }
-
-                                    heightProvider.removeKeyboardHeightObserver(this);
-                                }
-                            });
-
-                            return bounds;
-                        }
-
-                        @NonNull
-                        @Override
-                        public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets, @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
-                            if (imeAnimation == null) {
-                                for (WindowInsetsAnimationCompat animation : runningAnimations) {
-                                    if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) != 0) {
-                                        imeAnimation = animation;
-
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if (imeAnimation != null) {
-                                float delta = endBottom - startBottom;
-                                float fraction = (delta < 0 ? 1 : 0) - imeAnimation.getInterpolatedFraction();
-                                float translation = delta * fraction;
-
-                                // getInterpolatedFraction() returns a 1 at the end of the animation
-                                // this is to "sanitize" that value
-                                if (translation == 0 && insets.isVisible(WindowInsetsCompat.Type.ime())) {
-                                    translation = delta;
-                                }
-
-                                content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
-                                        content.getPaddingRight(), (int) (Measurements.getNavHeight() - translation));
-
-                                hasProgressed = true;
-                            }
-
-                            return insets;
-                        }
-
-                        @Override
-                        public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
-                            hasProgressed = false;
-                            imeAnimation = null;
-                        }
-                    });
-
-            heightProvider.addKeyboardHeightObserver(height -> getBehavior().setDraggable(height == 0));
+            heightProvider.addKeyboardHeightListener(height -> getBehavior().setDraggable(height == 0));
         } else {
-            heightProvider.addKeyboardHeightObserver(height -> {
+            heightProvider.addKeyboardHeightListener(height -> {
                 content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
                         content.getPaddingRight(), Measurements.getNavHeight() + height);
 
