@@ -144,6 +144,18 @@ public class List extends DrawerPage {
     }
 
     @Override
+    public void onResume() {
+        if (LauncherApplicationManager.getInstance()
+                .getProfiles().size() == 1) {
+            title.setText(R.string.apps);
+        } else {
+            title.setText(Utils.isMainProfile(handle) ? R.string.personal : R.string.work);
+        }
+
+        super.onResume();
+    }
+
+    @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         if(savedInstanceState != null && savedInstanceState.containsKey(USER_HANDLE_KEY)) {
             if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
@@ -153,10 +165,12 @@ public class List extends DrawerPage {
             }
         }
 
-        ListAdapter adapter = new ListAdapter(activity,
-                LauncherApplicationManager.getInstance().getProfile(handle));
+        if(handle != null) {
+            ListAdapter adapter = new ListAdapter(activity,
+                    LauncherApplicationManager.getInstance().getProfile(handle));
 
-        drawer.setAdapter(adapter);
+            drawer.setAdapter(adapter);
+        }
 
         super.onViewStateRestored(savedInstanceState);
     }
