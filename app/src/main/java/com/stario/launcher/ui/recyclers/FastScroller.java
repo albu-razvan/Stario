@@ -25,6 +25,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -142,106 +143,140 @@ public class FastScroller extends RelativeLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        if (getChildCount() > 2) {
-            for (int i = 2; i < getChildCount(); i++) {
-                View currentView = getChildAt(i);
+        // two tracks + popup view which are inflated before everything else
+        if (getChildCount() > 3) {
+            View child = getChildAt(3);
 
-                if (currentView instanceof RecyclerView) {
-                    removeView(currentView);
-                    addView(currentView, 0);
+            // move to top
+            removeView(child);
+            addView(child, 0);
 
-                    attachFastScrollerToRecyclerView((RecyclerView) currentView);
+            addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+                if (recyclerView == null ||
+                        recyclerView.getMeasuredHeight() < getMeasuredHeight()) {
+                    trackLeft.setVisibility(GONE);
+                    trackRight.setVisibility(GONE);
+                } else {
+                    trackLeft.setVisibility(VISIBLE);
+                    trackRight.setVisibility(VISIBLE);
+                }
+            });
+
+            this.recyclerView = findRecycler(child);
+            if (recyclerView != null) {
+                updateTrackWidth();
+            }
+
+            post(() -> {
+                OnTouchListener listener = (view, motionEvent) -> {
+                    if (recyclerView != null &&
+                            recyclerView.getAdapter() != null) {
+                        if ((x == null && y == null) ||
+                                motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                            x = motionEvent.getRawX();
+                            y = motionEvent.getRawY();
+                        } else {
+                            float absDeltaX = Math.abs(motionEvent.getRawX() - x);
+                            float absDeltaY = Math.abs(motionEvent.getRawY() - y);
+
+                            if (absDeltaX > absDeltaY && absDeltaX >= swipeSlop) {
+                                x = Float.MIN_VALUE;
+
+                                if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
+                                        motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
+                                    x = null;
+                                    y = null;
+                                }
+
+                                return false;
+                            } else if (absDeltaY > absDeltaX && absDeltaY >= swipeSlop) {
+                                y = Float.MIN_VALUE;
+
+                                recyclerView.stopScroll();
+
+                                switch (motionEvent.getAction()) {
+                                    case MotionEvent.ACTION_MOVE: {
+                                        if (!isEngaged) {
+                                            isEngaged = true;
+
+                                            animatePopupVisibility(true, view.equals(trackRight));
+                                        }
+
+                                        float currentRelativePos = motionEvent.getY();
+
+                                        moveViewToRelativePositionWithBounds(currentRelativePos -
+                                                (float) popupHeight / 2);
+
+                                        int position = Math.min(recyclerView.getAdapter().getItemCount() - 1,
+                                                computePositionForOffsetAndScroll(currentRelativePos));
+
+                                        updateTextInPopup(position);
+
+                                        return true;
+                                    }
+
+                                    case MotionEvent.ACTION_UP:
+                                    case MotionEvent.ACTION_CANCEL: {
+                                        isEngaged = false;
+
+                                        post(() -> animatePopupVisibility(false, view.equals(trackRight)));
+
+                                        if (recyclerView.getAdapter() instanceof OnPopupViewReset) {
+                                            ((OnPopupViewReset) recyclerView.getAdapter())
+                                                    .onReset(currentPosition);
+                                        }
+
+                                        x = null;
+                                        y = null;
+
+                                        return FastScroller.super.onTouchEvent(motionEvent);
+                                    }
+
+                                    default: {
+                                        return false;
+                                    }
+                                }
+                            }
+
+                            return true;
+                        }
+                    } else {
+                        if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
+                                motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
+                            x = null;
+                            y = null;
+                        }
+                    }
+
+                    return true;
+                };
+
+                trackLeft.setOnTouchListener(listener);
+                trackRight.setOnTouchListener(listener);
+
+                invalidate();
+            });
+        }
+    }
+
+    private RecyclerView findRecycler(View view) {
+        if (view instanceof RecyclerView) {
+            return (RecyclerView) view;
+        }
+
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+
+            for (int index = 0; index < group.getChildCount(); index++) {
+                RecyclerView recycler = findRecycler(group.getChildAt(index));
+
+                if (recycler != null) {
+                    return recycler;
                 }
             }
         }
 
-        post(() -> {
-            OnTouchListener listener = (view, motionEvent) -> {
-                if (recyclerView != null &&
-                        recyclerView.getAdapter() != null) {
-                    if ((x == null && y == null) ||
-                            motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                        x = motionEvent.getRawX();
-                        y = motionEvent.getRawY();
-                    } else {
-                        float absDeltaX = Math.abs(motionEvent.getRawX() - x);
-                        float absDeltaY = Math.abs(motionEvent.getRawY() - y);
-
-                        if (absDeltaX > absDeltaY && absDeltaX >= swipeSlop) {
-                            x = Float.MIN_VALUE;
-
-                            if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
-                                    motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
-                                x = null;
-                                y = null;
-                            }
-
-                            return false;
-                        } else if (absDeltaY > absDeltaX && absDeltaY >= swipeSlop) {
-                            y = Float.MIN_VALUE;
-
-                            recyclerView.stopScroll();
-
-                            switch (motionEvent.getAction()) {
-                                case MotionEvent.ACTION_MOVE: {
-                                    if (!isEngaged) {
-                                        isEngaged = true;
-
-                                        animatePopupVisibility(true, view.equals(trackRight));
-                                    }
-
-                                    float currentRelativePos = motionEvent.getY();
-
-                                    moveViewToRelativePositionWithBounds(currentRelativePos -
-                                            (float) popupHeight / 2);
-
-                                    int position = Math.min(recyclerView.getAdapter().getItemCount() - 1,
-                                            computePositionForOffsetAndScroll(currentRelativePos));
-
-                                    updateTextInPopup(position);
-
-                                    return true;
-                                }
-
-                                case MotionEvent.ACTION_UP:
-                                case MotionEvent.ACTION_CANCEL: {
-                                    isEngaged = false;
-
-                                    post(() -> animatePopupVisibility(false, view.equals(trackRight)));
-
-                                    if (recyclerView.getAdapter() instanceof OnPopupViewReset) {
-                                        ((OnPopupViewReset) recyclerView.getAdapter())
-                                                .onReset(currentPosition);
-                                    }
-
-                                    x = null;
-                                    y = null;
-
-                                    return FastScroller.super.onTouchEvent(motionEvent);
-                                }
-
-                                default: {
-                                    return false;
-                                }
-                            }
-                        }
-
-                        return true;
-                    }
-                } else {
-                    if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
-                            motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
-                        x = null;
-                        y = null;
-                    }
-                }
-
-                return true;
-            };
-
-            trackLeft.setOnTouchListener(listener);
-            trackRight.setOnTouchListener(listener);
-        });
+        return null;
     }
 
     private int computePositionForOffsetAndScroll(float rawPosition) {
@@ -384,14 +419,6 @@ public class FastScroller extends RelativeLayout {
             trackRight.getLayoutParams().width = recyclerView.getPaddingRight();
 
             invalidate();
-        }
-    }
-
-    public void attachFastScrollerToRecyclerView(RecyclerView recyclerView) {
-        this.recyclerView = recyclerView;
-
-        if (recyclerView != null) {
-            updateTrackWidth();
         }
     }
 
