@@ -46,7 +46,7 @@ import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.pager.CustomDurationViewPager;
 import com.stario.launcher.ui.popup.PopupMenu;
 import com.stario.launcher.ui.common.TabLayout;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.utils.objects.ObservableObject;
 
 public class BriefingDialog extends SheetDialogFragment {

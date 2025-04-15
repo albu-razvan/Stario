@@ -58,7 +58,7 @@ import com.google.android.material.transition.platform.MaterialElevationScale;
 import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.util.HashMap;
 import java.util.List;
@@ -440,6 +440,12 @@ public class PopupMenu {
         }
 
         return null;
+    }
+
+    public void dismiss() {
+        if(popupWindow != null) {
+            popupWindow.dismiss();
+        }
     }
 
     public static class Item {

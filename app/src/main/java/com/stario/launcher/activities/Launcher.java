@@ -26,7 +26,8 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
+import android.transition.Transition;
+import android.transition.TransitionListenerAdapter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -43,7 +44,6 @@ import com.stario.launcher.glance.extensions.GlanceDialogExtension;
 import com.stario.launcher.glance.extensions.calendar.Calendar;
 import com.stario.launcher.glance.extensions.media.Media;
 import com.stario.launcher.glance.extensions.weather.Weather;
-import com.stario.launcher.hidden.WallpaperManagerHidden;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.SheetType;
 import com.stario.launcher.sheet.SheetsFocusController;
@@ -52,14 +52,12 @@ import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.lock.ClosingAnimationView;
 import com.stario.launcher.ui.common.lock.LockDetector;
 import com.stario.launcher.ui.popup.PopupMenu;
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.UiUtils;
+import com.stario.launcher.ui.utils.animation.WallpaperAnimator;
 import com.stario.launcher.utils.Utils;
-
-import dev.rikka.tools.refine.Refine;
 
 public class Launcher extends ThemedActivity {
     public final static int MAX_BACKGROUND_ALPHA = 230;
-    private WallpaperManagerHidden wallpaperManager;
     private BroadcastReceiver screenOnReceiver;
     private SheetsFocusController coordinator;
     private ClosingAnimationView main;
@@ -102,18 +100,6 @@ public class Launcher extends ThemedActivity {
             return true;
         });
 
-        wallpaperManager = Refine.unsafeCast(
-                WallpaperManagerHidden.getInstance(Launcher.this)
-        );
-
-        attachSheets();
-        attachGlance();
-
-        main.post(() -> {
-            wallpaperManager.setWallpaperOffsets(main.getWindowToken(), 0, 0);
-            updateWallpaperZoom(0);
-        });
-
         screenOnReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -127,6 +113,11 @@ public class Launcher extends ThemedActivity {
         } else {
             registerReceiver(screenOnReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
         }
+
+        prepareWallpaperTransitions();
+
+        attachSheets();
+        attachGlance();
     }
 
     private void attachGlance() {
@@ -158,22 +149,30 @@ public class Launcher extends ThemedActivity {
         menu.add(new PopupMenu.Item(resources.getString(R.string.settings),
                 ResourcesCompat.getDrawable(resources, R.drawable.ic_settings, activity.getTheme()),
                 view -> {
-                    Intent intent = new Intent(activity, Settings.class);
+                    menu.dismiss();
 
-                    activity.startActivity(intent,
-                            ActivityOptions.makeSceneTransitionAnimation(activity).toBundle());
+                    view.post(() -> {
+                        Intent intent = new Intent(activity, Settings.class);
+
+                        activity.startActivity(intent,
+                                ActivityOptions.makeSceneTransitionAnimation(activity).toBundle());
+                    });
                 }));
 
         menu.add(new PopupMenu.Item(resources.getString(R.string.wallpaper),
                 ResourcesCompat.getDrawable(resources, R.drawable.ic_palette, activity.getTheme()),
                 view -> {
-                    Intent intent = new Intent(Intent.ACTION_SET_WALLPAPER)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            .putExtra("com.android.wallpaper.LAUNCH_SOURCE", "app_launched_launcher");
+                    menu.dismiss();
 
-                    activity.startActivity(intent,
-                            ActivityOptions.makeScaleUpAnimation(view, 0, 0,
-                                    view.getWidth(), view.getHeight()).toBundle());
+                    view.post(() -> {
+                        Intent intent = new Intent(Intent.ACTION_SET_WALLPAPER)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                .putExtra("com.android.wallpaper.LAUNCH_SOURCE", "app_launched_launcher");
+
+                        activity.startActivity(intent,
+                                ActivityOptions.makeScaleUpAnimation(view, 0, 0,
+                                        view.getWidth(), view.getHeight()).toBundle());
+                    });
                 }));
 
         menu.showAtLocation(activity, coordinator, coordinator.getLastX(),
@@ -219,14 +218,41 @@ public class Launcher extends ThemedActivity {
 
     private void updateWallpaperZoom(float zoom) {
         if (decorView.getWindowToken() != null) {
-            IBinder windowToken = decorView.getWindowToken();
-
             if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
                 zoom = Math.max(Math.min(1, zoom), 0);
 
-                wallpaperManager.setWallpaperZoomOut(windowToken, zoom);
+                WallpaperAnimator.updateZoom(this, zoom);
             }
         }
+    }
+
+    private void prepareWallpaperTransitions() {
+        Window window = getWindow();
+
+        if (window == null) {
+            return;
+        }
+
+        Transition enterTransition = window.getEnterTransition();
+        if (enterTransition != null) {
+            enterTransition.addListener(new TransitionListenerAdapter() {
+                @Override
+                public void onTransitionStart(Transition transition) {
+                    WallpaperAnimator.animateZoom(Launcher.this, null, 0f);
+                }
+            });
+        }
+
+        Transition exitTransition = window.getExitTransition();
+        if (exitTransition != null) {
+            exitTransition.addListener(new TransitionListenerAdapter() {
+                @Override
+                public void onTransitionStart(Transition transition) {
+                    WallpaperAnimator.animateZoom(Launcher.this, null, 1f);
+                }
+            });
+        }
+
     }
 
     @Override
@@ -245,10 +271,15 @@ public class Launcher extends ThemedActivity {
         glance.update();
 
         super.onResume();
+
+        WallpaperAnimator.animateZoom(this, null, 0f);
     }
 
     @Override
     protected void onStop() {
+        prepareWallpaperTransitions();
+        WallpaperAnimator.animateZoom(this, null, 1f);
+
         super.onStop();
 
         setShowWhenLocked(false);

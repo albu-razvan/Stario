@@ -56,8 +56,8 @@ import com.stario.launcher.ui.popup.PopupMenu;
 import com.stario.launcher.ui.widgets.WidgetGrid;
 import com.stario.launcher.ui.widgets.WidgetHost;
 import com.stario.launcher.ui.widgets.WidgetScroller;
-import com.stario.launcher.utils.UiUtils;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.UiUtils;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.util.PriorityQueue;
 

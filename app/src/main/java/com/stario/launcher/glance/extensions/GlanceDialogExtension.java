@@ -47,7 +47,7 @@ import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
 import com.stario.launcher.ui.dialogs.PersistentFullscreenDialog;
 import com.stario.launcher.utils.Utils;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 public abstract class GlanceDialogExtension extends DialogFragment
         implements GlanceExtension {

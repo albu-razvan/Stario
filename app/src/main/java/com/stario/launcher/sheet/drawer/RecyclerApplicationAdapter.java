@@ -48,7 +48,7 @@ import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.popup.PopupMenu;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.util.ArrayList;
 import java.util.List;

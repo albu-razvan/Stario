@@ -43,7 +43,7 @@ import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.keyboard.InlineAutocompleteEditText;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 public class ExtractDialog extends DialogFragment {

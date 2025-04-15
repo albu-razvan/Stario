@@ -33,7 +33,7 @@ import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.recyclers.FastScroller;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 public class ListAdapter extends RecyclerApplicationAdapter
         implements FastScroller.OnPopupViewUpdate,

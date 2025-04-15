@@ -60,7 +60,7 @@ import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.CollapsibleTitleBar;
 import com.stario.launcher.ui.common.lock.LockDetector;
-import com.stario.launcher.utils.HomeWatcher;
+import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.utils.Utils;
 
 public class Settings extends ThemedActivity {
@@ -86,6 +86,8 @@ public class Settings extends ThemedActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
+
+        postponeEnterTransition();
 
         homeWatcher = new HomeWatcher(this);
         homeWatcher.setOnHomePressedListener(this::finishAfterTransition);
@@ -360,6 +362,8 @@ public class Settings extends ThemedActivity {
         findViewById(R.id.vibrations_container).setOnClickListener((view) -> switchVibrations.performClick());
         findViewById(R.id.launch_animation_container).setOnClickListener((view) -> launchAnimSwitch.performClick());
         lockAnimSwitchContainer.setOnClickListener((view) -> lockAnimSwitch.performClick());
+
+        getRoot().post(this::startPostponedEnterTransition);
     }
 
     private void updateEngineName() {

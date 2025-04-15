@@ -30,7 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 public class CollapsibleTitleBar extends RelativeLayout {
     private OffsetListener offsetListener;

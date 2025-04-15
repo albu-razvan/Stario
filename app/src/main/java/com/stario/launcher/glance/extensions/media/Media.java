@@ -66,7 +66,7 @@ import com.stario.launcher.services.NotificationService;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
 import com.stario.launcher.ui.common.media.SliderComposeView;
 import com.stario.launcher.utils.Utils;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.utils.media.AccentBitmapTransformation;
 import com.stario.launcher.utils.media.BlurBitmapTransformation;
 

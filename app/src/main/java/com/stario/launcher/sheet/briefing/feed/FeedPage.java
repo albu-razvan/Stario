@@ -40,9 +40,9 @@ import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.utils.objects.ObservableObject;
 
 import java.util.concurrent.Future;

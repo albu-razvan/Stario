@@ -44,8 +44,8 @@ import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.utils.HomeWatcher;
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.HomeWatcher;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;

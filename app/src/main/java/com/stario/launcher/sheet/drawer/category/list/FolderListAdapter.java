@@ -38,10 +38,10 @@ import com.stario.launcher.sheet.drawer.category.folder.Folder;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
-import com.stario.launcher.utils.UiUtils;
-import com.stario.launcher.utils.animation.Animation;
-import com.stario.launcher.utils.animation.FragmentTransition;
-import com.stario.launcher.utils.animation.SharedElementTransition;
+import com.stario.launcher.ui.utils.UiUtils;
+import com.stario.launcher.ui.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.FragmentTransition;
+import com.stario.launcher.ui.utils.animation.SharedElementTransition;
 
 import java.util.ArrayList;
 import java.util.List;

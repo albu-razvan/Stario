@@ -43,8 +43,8 @@ import com.stario.launcher.R;
 import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.utils.ComparableDiffUtil;
-import com.stario.launcher.utils.UiUtils;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.UiUtils;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.util.ArrayList;
 import java.util.Optional;
