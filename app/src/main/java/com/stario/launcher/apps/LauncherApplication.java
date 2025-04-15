@@ -28,14 +28,11 @@ import androidx.annotation.Nullable;
 
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.icons.AdaptiveIconView;
-import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 import java.util.UUID;
 
 public class LauncherApplication {
-    public static final String LEGACY_LAUNCH_ANIMATION = "com.stario.LauncherApplication.LEGACY_LAUNCH_ANIMATION";
     public static final LauncherApplication FALLBACK_APP = null;
 
     public final boolean systemPackage;
@@ -59,19 +56,14 @@ public class LauncherApplication {
         this.systemPackage = (info.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
     }
 
-    public void launch(ThemedActivity activity, AdaptiveIconView view) {
+    public void launch(ThemedActivity activity) {
         Vibrations.getInstance().vibrate();
 
-        if (!UiUtils.areWindowAnimationsOn(activity) ||
-                activity.getSettings().getBoolean(LEGACY_LAUNCH_ANIMATION, false)) {
-            LauncherActivityInfo info = Utils.getMainActivity(activity, getInfo().packageName, handle);
+        LauncherActivityInfo info = Utils.getMainActivity(activity, getInfo().packageName, handle);
 
-            if (info != null) {
-                activity.getSystemService(LauncherApps.class).startMainActivity(info.getComponentName(),
-                        handle, null, null);
-            }
-        } else {
-            SplashScreen.launch(info.packageName, view, handle);
+        if (info != null) {
+            activity.getSystemService(LauncherApps.class).startMainActivity(info.getComponentName(),
+                    handle, null, null);
         }
     }
 

@@ -65,6 +65,8 @@ import com.stario.launcher.utils.Utils;
 
 public class Settings extends ThemedActivity {
     private CollapsibleTitleBar titleBar;
+    private View lockAnimSwitchContainer;
+    private MaterialSwitch lockAnimSwitch;
     private MaterialSwitch mediaSwitch;
     private MaterialSwitch lockSwitch;
     private TextView searchEngineName;
@@ -97,8 +99,7 @@ public class Settings extends ThemedActivity {
 
         boolean mediaAllowed = settings.getBoolean(Media.PREFERENCE_ENTRY, false);
         boolean lock = settings.getBoolean(LockDetector.PREFERENCE_ENTRY, false);
-        boolean legacyLaunchAnim = settings.getBoolean(LauncherApplication.LEGACY_LAUNCH_ANIMATION, false);
-        boolean legacyLockAnim = settings.getBoolean(LockDetector.LEGACY_ANIMATION, true);
+        boolean legacyLockAnim = settings.getBoolean(LockDetector.LEGACY_ANIMATION, false);
         boolean imperialUnits = settings.getBoolean(Weather.IMPERIAL_KEY, false);
         boolean searchResults = search.getBoolean(WebAdapter.SEARCH_RESULTS, false);
         boolean vibrations = settings.getBoolean(Vibrations.PREFERENCE_ENTRY, true);
@@ -113,13 +114,12 @@ public class Settings extends ThemedActivity {
 
         mediaSwitch = findViewById(R.id.media);
         lockSwitch = findViewById(R.id.lock);
+        lockAnimSwitch = findViewById(R.id.lock_animation);
         MaterialSwitch imperialSwitch = findViewById(R.id.imperial);
         MaterialSwitch searchResultsSwitch = findViewById(R.id.search_results);
-        MaterialSwitch launchAnimSwitch = findViewById(R.id.launch_animation);
-        MaterialSwitch lockAnimSwitch = findViewById(R.id.lock_animation);
         MaterialSwitch switchVibrations = findViewById(R.id.vibrations);
 
-        View lockAnimSwitchContainer = findViewById(R.id.lock_animation_container);
+        lockAnimSwitchContainer = findViewById(R.id.lock_animation_container);
         View fader = findViewById(R.id.fader);
 
         searchEngine = findViewById(R.id.search_engine);
@@ -140,7 +140,6 @@ public class Settings extends ThemedActivity {
         imperialSwitch.setChecked(imperialUnits);
         searchResultsSwitch.setChecked(searchResults);
         lockAnimSwitch.setChecked(legacyLockAnim);
-        launchAnimSwitch.setChecked(legacyLaunchAnim);
         switchVibrations.setChecked(vibrations);
 
         lockSwitch.jumpDrawablesToCurrentState();
@@ -148,10 +147,7 @@ public class Settings extends ThemedActivity {
         imperialSwitch.jumpDrawablesToCurrentState();
         searchResultsSwitch.jumpDrawablesToCurrentState();
         lockAnimSwitch.jumpDrawablesToCurrentState();
-        launchAnimSwitch.jumpDrawablesToCurrentState();
         switchVibrations.jumpDrawablesToCurrentState();
-
-        lockAnimSwitchContainer.setVisibility(lockSwitch.isChecked() ? View.VISIBLE : View.GONE);
 
         mediaSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             private NotificationConfigurator dialog;
@@ -193,7 +189,7 @@ public class Settings extends ThemedActivity {
                         .putBoolean(LockDetector.PREFERENCE_ENTRY, isChecked)
                         .apply();
 
-                lockAnimSwitchContainer.setVisibility(lockSwitch.isChecked() ? View.VISIBLE : View.GONE);
+                updateLockAnimationState(lockSwitch.isChecked());
             }
         });
 
@@ -214,12 +210,6 @@ public class Settings extends ThemedActivity {
         lockAnimSwitch.setOnCheckedChangeListener((compound, isChecked) -> {
             settings.edit()
                     .putBoolean(LockDetector.LEGACY_ANIMATION, isChecked)
-                    .apply();
-        });
-
-        launchAnimSwitch.setOnCheckedChangeListener((compound, isChecked) -> {
-            settings.edit()
-                    .putBoolean(LauncherApplication.LEGACY_LAUNCH_ANIMATION, isChecked)
                     .apply();
         });
 
@@ -360,10 +350,19 @@ public class Settings extends ThemedActivity {
         findViewById(R.id.lock_container).setOnClickListener((view) -> lockSwitch.performClick());
         findViewById(R.id.imperial_container).setOnClickListener((view) -> imperialSwitch.performClick());
         findViewById(R.id.vibrations_container).setOnClickListener((view) -> switchVibrations.performClick());
-        findViewById(R.id.launch_animation_container).setOnClickListener((view) -> launchAnimSwitch.performClick());
-        lockAnimSwitchContainer.setOnClickListener((view) -> lockAnimSwitch.performClick());
+        updateLockAnimationState(lockSwitch.isChecked());
 
         getRoot().post(this::startPostponedEnterTransition);
+    }
+
+    private void updateLockAnimationState(boolean enabled) {
+        lockAnimSwitchContainer.setAlpha(enabled ? 1f : 0.5f);
+
+        if(enabled) {
+            lockAnimSwitchContainer.setOnClickListener((view) -> lockAnimSwitch.performClick());
+        } else {
+            lockAnimSwitchContainer.setOnClickListener(null);
+        }
     }
 
     private void updateEngineName() {

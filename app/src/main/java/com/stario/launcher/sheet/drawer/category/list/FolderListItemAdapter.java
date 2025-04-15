@@ -130,8 +130,7 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
                         folder.callOnClick();
                     });
                 } else {
-                    holder.itemView.setOnClickListener(view ->
-                            application.launch(activity, holder.icon));
+                    holder.itemView.setOnClickListener(view -> application.launch(activity));
                 }
 
                 if (appIcon != null) {

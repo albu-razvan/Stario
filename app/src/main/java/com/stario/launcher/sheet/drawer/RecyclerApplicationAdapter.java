@@ -99,7 +99,7 @@ public abstract class RecyclerApplicationAdapter
                 LauncherApplication application = getApplication(getAbsoluteAdapterPosition());
 
                 if (application != LauncherApplication.FALLBACK_APP) {
-                    application.launch(activity, icon);
+                    application.launch(activity);
                 }
             });
 
