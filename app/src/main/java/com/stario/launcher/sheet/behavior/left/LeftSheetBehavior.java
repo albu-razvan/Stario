@@ -38,7 +38,6 @@ import com.stario.launcher.ui.Measurements;
 
 public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
     private Boolean rememberInterceptResult = null;
-    private boolean touchingScrollingChild;
     private boolean flung;
     private int initialY;
 
@@ -176,7 +175,6 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL: {
-                touchingScrollingChild = false;
                 activePointerId = MotionEvent.INVALID_POINTER_ID;
 
                 // Reset the ignore flag
@@ -200,7 +198,6 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
 
                     if (scroll != null && parent.isPointInChildBounds(scroll, initial, initialY)) {
                         activePointerId = event.getPointerId(event.getActionIndex());
-                        touchingScrollingChild = true;
                     }
                 }
 
@@ -240,7 +237,7 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
                     return false;
                 }
 
-                if (touchingScrollingChild) {
+                if (state == STATE_EXPANDED && activePointerId == pointerId) {
                     ViewPager pager = pagerRef != null ? pagerRef.get() : null;
 
                     if (pager != null) {
@@ -250,9 +247,7 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
                             return false;
                         }
                     }
-                }
 
-                if (state == STATE_EXPANDED && activePointerId == pointerId) {
                     View scroll = nestedScrollingChildRef != null ? nestedScrollingChildRef.get() : null;
 
                     if (scroll != null && scroll.canScrollHorizontally(1)) {

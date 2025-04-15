@@ -24,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -39,6 +40,7 @@ import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
 
 public abstract class DrawerPage extends Fragment implements ScrollToTop {
     private int currentlyRunningAnimations;
+    private RelativeLayout titleContainer;
 
     protected OverScrollRecyclerView drawer;
     protected ThemedActivity activity;
@@ -67,8 +69,10 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) inflater.inflate(getLayoutResID(), container, false);
 
+        titleContainer = root.findViewById(R.id.title_container);
         drawer = root.findViewById(R.id.drawer);
         title = root.findViewById(R.id.title);
+
         search = container.getRootView().findViewById(R.id.search);
 
         drawer.addOnLayoutChangeListener((v, left, top, right, bottom,
@@ -81,8 +85,8 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
         });
         drawer.setOverscrollPullEdges(OverScrollEffect.PULL_EDGE_BOTTOM);
 
-        title.setMinHeight(Measurements.dpToPx(Measurements.HEADER_SIZE_DP) +
-                Measurements.spToPx(8));
+        titleContainer.getLayoutParams().height =
+                Measurements.dpToPx(Measurements.HEADER_SIZE_DP) + Measurements.spToPx(8);
 
         Measurements.addSysUIListener(value -> {
             drawer.setPadding(drawer.getPaddingLeft(),
@@ -91,7 +95,7 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
                     drawer.getPaddingRight(),
                     drawer.getPaddingBottom());
 
-            ((ViewGroup.MarginLayoutParams) title.getLayoutParams()).topMargin = value;
+            ((ViewGroup.MarginLayoutParams) titleContainer.getLayoutParams()).topMargin = value;
         });
 
         View searchContainer = (View) search.getParent();
@@ -110,16 +114,17 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
         return root;
     }
 
-    protected void updateTitleTransforms(RecyclerView recyclerView) {
-        title.setTranslationY(-recyclerView.computeVerticalScrollOffset());
+    protected void updateTitleTransforms(@NonNull RecyclerView recyclerView) {
+        int translation = recyclerView.computeVerticalScrollOffset();
 
-        float alpha = 1f - recyclerView.computeVerticalScrollOffset() /
-                (Measurements.dpToPx(Measurements.HEADER_SIZE_DP) / 2f);
+        titleContainer.setTranslationY(-translation / 2f);
+
+        float alpha = 1f - translation / (Measurements.dpToPx(Measurements.HEADER_SIZE_DP) / 2f);
         if (alpha > 0 && !Measurements.isLandscape()) {
-            title.setAlpha(alpha);
-            title.setVisibility(View.VISIBLE);
+            titleContainer.setAlpha(alpha);
+            titleContainer.setVisibility(View.VISIBLE);
         } else {
-            title.setVisibility(View.GONE);
+            titleContainer.setVisibility(View.GONE);
         }
     }
 

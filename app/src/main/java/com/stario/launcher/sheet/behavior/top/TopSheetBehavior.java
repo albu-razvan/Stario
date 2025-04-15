@@ -36,7 +36,6 @@ import com.stario.launcher.ui.Measurements;
 
 public class TopSheetBehavior<V extends View> extends SheetBehavior<V> {
     private Boolean rememberInterceptResult = null;
-    private boolean touchingScrollingChild;
     private boolean flung;
     private int initialX;
 
@@ -176,7 +175,6 @@ public class TopSheetBehavior<V extends View> extends SheetBehavior<V> {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL: {
-                touchingScrollingChild = false;
                 activePointerId = MotionEvent.INVALID_POINTER_ID;
 
                 // Reset the ignore flag
@@ -199,7 +197,6 @@ public class TopSheetBehavior<V extends View> extends SheetBehavior<V> {
 
                     if (scroll != null && parent.isPointInChildBounds(scroll, initialX, initial)) {
                         activePointerId = event.getPointerId(event.getActionIndex());
-                        touchingScrollingChild = true;
                     }
                 }
 
@@ -237,10 +234,6 @@ public class TopSheetBehavior<V extends View> extends SheetBehavior<V> {
                 }
 
                 if (state == STATE_DRAGGING) {
-                    return false;
-                }
-
-                if (touchingScrollingChild) {
                     return false;
                 }
 

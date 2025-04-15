@@ -151,17 +151,6 @@ public class FastScroller extends RelativeLayout {
             removeView(child);
             addView(child, 0);
 
-            addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-                if (recyclerView == null ||
-                        recyclerView.getMeasuredHeight() < getMeasuredHeight()) {
-                    trackLeft.setVisibility(GONE);
-                    trackRight.setVisibility(GONE);
-                } else {
-                    trackLeft.setVisibility(VISIBLE);
-                    trackRight.setVisibility(VISIBLE);
-                }
-            });
-
             this.recyclerView = findRecycler(child);
             if (recyclerView != null) {
                 updateTrackWidth();
@@ -175,6 +164,8 @@ public class FastScroller extends RelativeLayout {
                                 motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                             x = motionEvent.getRawX();
                             y = motionEvent.getRawY();
+
+                            ((ViewGroup) view).requestDisallowInterceptTouchEvent(true);
                         } else {
                             float absDeltaX = Math.abs(motionEvent.getRawX() - x);
                             float absDeltaY = Math.abs(motionEvent.getRawY() - y);
@@ -414,11 +405,19 @@ public class FastScroller extends RelativeLayout {
     }
 
     private void updateTrackWidth() {
-        if (recyclerView != null) {
-            trackLeft.getLayoutParams().width = recyclerView.getPaddingLeft();
-            trackRight.getLayoutParams().width = recyclerView.getPaddingRight();
+        if (trackLeft != null && trackRight != null) {
+            if (recyclerView == null ||
+                    recyclerView.getMeasuredHeight() < getMeasuredHeight()) {
+                trackLeft.setVisibility(GONE);
+                trackRight.setVisibility(GONE);
+            } else {
+                trackLeft.getLayoutParams().width = recyclerView.getPaddingLeft();
+                trackRight.getLayoutParams().width = recyclerView.getPaddingRight();
+                trackLeft.setVisibility(VISIBLE);
+                trackRight.setVisibility(VISIBLE);
 
-            invalidate();
+                invalidate();
+            }
         }
     }
 

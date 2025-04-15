@@ -37,19 +37,27 @@
             android:paddingEnd="20dp"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <TextView
-            android:id="@+id/title"
+        <RelativeLayout
+            android:id="@+id/title_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:fontFamily="@font/dm_sans_medium"
-            android:gravity="center"
-            android:letterSpacing="-0.03"
-            android:lines="1"
-            android:text="@string/apps"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="30sp"
-            app:layout_constraintTop_toTopOf="@id/drawer" />
+            app:layout_constraintTop_toTopOf="@id/drawer"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/dm_sans_medium"
+                android:gravity="center"
+                android:letterSpacing="-0.03"
+                android:text="@string/apps"
+                android:lines="1"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="30sp" />
+
+        </RelativeLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
