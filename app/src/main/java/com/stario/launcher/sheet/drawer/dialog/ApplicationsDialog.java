@@ -52,8 +52,8 @@ import com.stario.launcher.sheet.drawer.search.SearchFragment;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.pager.CustomDurationViewPager;
 import com.stario.launcher.utils.Utils;
-import com.stario.launcher.utils.animation.Animation;
-import com.stario.launcher.utils.animation.FragmentTransition;
+import com.stario.launcher.ui.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.FragmentTransition;
 
 public class ApplicationsDialog extends SheetDialogFragment {
     private static final String APPLICATIONS_PAGE = "com.stario.APPLICATIONS_PAGE";

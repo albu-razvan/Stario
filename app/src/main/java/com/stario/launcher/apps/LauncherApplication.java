@@ -30,7 +30,7 @@ import androidx.annotation.Nullable;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 import java.util.UUID;

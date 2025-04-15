@@ -32,7 +32,7 @@ import com.stario.launcher.glance.extensions.GlanceExtension;
 import com.stario.launcher.glance.extensions.GlanceViewExtension;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.util.ArrayList;
 

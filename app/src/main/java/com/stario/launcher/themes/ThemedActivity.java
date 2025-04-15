@@ -46,9 +46,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.Measurements;
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.util.HashMap;
 

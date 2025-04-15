@@ -18,7 +18,7 @@
 package com.stario.launcher.sheet.drawer.search.recyclers;
 
 import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 public class SearchRecyclerItemAnimator extends RecyclerItemAnimator {
     public SearchRecyclerItemAnimator(Animation animation) {

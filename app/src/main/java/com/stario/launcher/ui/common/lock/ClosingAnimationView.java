@@ -33,7 +33,7 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 import carbon.widget.ConstraintLayout;
 

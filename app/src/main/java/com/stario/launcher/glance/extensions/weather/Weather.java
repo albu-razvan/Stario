@@ -45,7 +45,7 @@ import com.stario.launcher.glance.extensions.GlanceDialogExtension;
 import com.stario.launcher.glance.extensions.GlanceViewExtension;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 import org.json.JSONArray;

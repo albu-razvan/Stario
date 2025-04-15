@@ -41,7 +41,7 @@ import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;

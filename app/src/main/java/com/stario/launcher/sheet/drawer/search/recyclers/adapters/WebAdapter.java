@@ -46,7 +46,7 @@ import com.stario.launcher.R;
 import com.stario.launcher.exceptions.Unauthorized;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 import org.json.JSONArray;

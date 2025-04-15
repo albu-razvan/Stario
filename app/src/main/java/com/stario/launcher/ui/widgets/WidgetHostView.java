@@ -26,7 +26,7 @@ import android.view.ViewGroup;
 import android.view.animation.PathInterpolator;
 import android.widget.RemoteViews;
 
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 @SuppressLint("ViewConstructor")
 public class WidgetHostView extends RoundedWidgetHost {

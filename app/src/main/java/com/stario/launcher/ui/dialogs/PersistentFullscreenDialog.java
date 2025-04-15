@@ -20,7 +20,6 @@ package com.stario.launcher.ui.dialogs;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -35,7 +34,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 public class PersistentFullscreenDialog extends AppCompatDialog {

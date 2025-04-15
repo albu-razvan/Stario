@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.utils.animation;
+package com.stario.launcher.ui.utils.animation;
 
 import android.transition.Fade;
 import android.transition.TransitionSet;

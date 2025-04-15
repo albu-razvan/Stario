@@ -30,7 +30,7 @@ import androidx.fragment.app.FragmentManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.keyboard.InlineAutocompleteEditText;
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.UiUtils;
 
 public class ExtractEditText extends InlineAutocompleteEditText {
     private ExtractDialog extractDialog;
