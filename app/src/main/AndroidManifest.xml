@@ -47,20 +47,9 @@
         tools:targetApi="tiramisu">
 
         <activity
-            android:name=".apps.SplashScreen"
-            android:allowEmbedded="false"
-            android:alwaysRetainTaskState="false"
-            android:excludeFromRecents="true"
-            android:exported="true"
-            android:launchMode="standard"
-            android:supportsPictureInPicture="false"
-            android:theme="@style/Theme.Light.Blue.Opaque" />
-
-        <activity
             android:name=".activities.settings.Settings"
             android:allowEmbedded="false"
             android:alwaysRetainTaskState="false"
-            android:excludeFromRecents="true"
             android:exported="true"
             android:launchMode="standard"
             android:rotationAnimation="crossfade"
@@ -73,7 +62,6 @@
             android:alwaysRetainTaskState="true"
             android:clearTaskOnLaunch="true"
             android:configChanges="orientation|screenSize|layoutDirection"
-            android:excludeFromRecents="true"
             android:exported="true"
             android:launchMode="singleTask"
             android:persistableMode="persistAcrossReboots"
