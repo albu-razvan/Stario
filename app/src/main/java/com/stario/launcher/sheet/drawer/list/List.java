@@ -42,7 +42,7 @@ import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.FastScroller;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 public class List extends DrawerPage {
