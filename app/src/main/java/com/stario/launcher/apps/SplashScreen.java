@@ -42,10 +42,10 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
-import com.stario.launcher.utils.animation.Animation;
-import com.stario.launcher.utils.animation.SharedElementTransition;
+import com.stario.launcher.ui.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.SharedElementTransition;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashScreen extends ThemedActivity {

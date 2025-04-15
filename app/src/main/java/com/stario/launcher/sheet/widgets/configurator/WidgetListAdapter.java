@@ -46,7 +46,7 @@ import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.utils.Utils;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.util.ArrayList;
 import java.util.List;

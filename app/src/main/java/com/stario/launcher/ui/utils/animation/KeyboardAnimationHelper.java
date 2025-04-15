@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.utils;
+package com.stario.launcher.ui.utils.animation;
 
 import android.view.View;
 
@@ -27,6 +27,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.stario.launcher.ui.keyboard.ImeAnimationController;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
+import com.stario.launcher.ui.utils.UiUtils;
 
 import java.util.List;
 

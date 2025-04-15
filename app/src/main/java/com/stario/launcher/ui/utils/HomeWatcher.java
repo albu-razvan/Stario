@@ -15,13 +15,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.utils;
+package com.stario.launcher.ui.utils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
+
+import com.stario.launcher.utils.Utils;
 
 public class HomeWatcher {
     private final IntentFilter filter;

@@ -31,7 +31,7 @@ import com.stario.launcher.R;
 import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.UiUtils;
 
 import java.util.concurrent.CompletableFuture;
 

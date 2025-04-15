@@ -39,7 +39,7 @@ import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.widgets.RoundedWidgetHost;
 import com.stario.launcher.utils.Casing;
 import com.stario.launcher.utils.Utils;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.ViewHolder> {
     private static final String TAG = "WidgetItemAdapter";

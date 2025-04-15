@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.utils.animation;
+package com.stario.launcher.ui.utils.animation;
 
 public enum Animation {
     NONE(0),

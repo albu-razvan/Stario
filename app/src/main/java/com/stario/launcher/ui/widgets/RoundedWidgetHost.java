@@ -22,7 +22,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.UiUtils;
 
 public class RoundedWidgetHost extends AppWidgetHostView {
     public static final int RADIUS_DP = 20;

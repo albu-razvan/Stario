@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.utils;
+package com.stario.launcher.ui.utils;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -44,12 +44,12 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
 import com.google.android.material.transition.platform.MaterialSharedAxis;
 import com.stario.launcher.ui.Measurements;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
+import com.stario.launcher.utils.Utils;
 
 public class UiUtils {
     private static final Handler UIHandler = new Handler(Looper.getMainLooper());
 
-    // TODO add wallpaper zoom transition
     public static void setWindowTransitions(Window window) {
         window.setAllowEnterTransitionOverlap(true);
         window.setAllowReturnTransitionOverlap(true);

@@ -63,10 +63,10 @@ import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
 import com.stario.launcher.ui.recyclers.async.InflationType;
-import com.stario.launcher.utils.KeyboardAnimationHelper;
-import com.stario.launcher.utils.UiUtils;
+import com.stario.launcher.ui.utils.animation.KeyboardAnimationHelper;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
-import com.stario.launcher.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
