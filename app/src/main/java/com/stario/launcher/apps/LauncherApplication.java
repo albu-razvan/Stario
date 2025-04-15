@@ -30,13 +30,11 @@ import androidx.annotation.Nullable;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
-import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 import java.util.UUID;
 
 public class LauncherApplication {
-    public static final String LEGACY_LAUNCH_ANIMATION = "com.stario.LauncherApplication.LEGACY_LAUNCH_ANIMATION";
     public static final LauncherApplication FALLBACK_APP = null;
 
     public final boolean systemPackage;
@@ -61,23 +59,18 @@ public class LauncherApplication {
     public void launch(ThemedActivity activity, AdaptiveIconView view) {
         Vibrations.getInstance().vibrate();
 
-        if (!UiUtils.areWindowAnimationsOn(activity) ||
-                activity.getSettings().getBoolean(LEGACY_LAUNCH_ANIMATION, false)) {
-            PackageManager packageManager = activity.getPackageManager();
+        PackageManager packageManager = activity.getPackageManager();
 
-            ActivityOptions activityOptions = ActivityOptions.makeBasic();
+        ActivityOptions activityOptions = ActivityOptions.makeBasic();
 
-            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
-                activityOptions.setSplashScreenStyle(android.window.SplashScreen.SPLASH_SCREEN_STYLE_ICON);
-            }
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+            activityOptions.setSplashScreenStyle(android.window.SplashScreen.SPLASH_SCREEN_STYLE_ICON);
+        }
 
-            Intent intent = packageManager.getLaunchIntentForPackage(info.packageName);
+        Intent intent = packageManager.getLaunchIntentForPackage(info.packageName);
 
-            if (intent != null) {
-                activity.startActivity(intent, activityOptions.toBundle());
-            }
-        } else {
-            SplashScreen.launch(info.packageName, view);
+        if (intent != null) {
+            activity.startActivity(intent, activityOptions.toBundle());
         }
     }
 

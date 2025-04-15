@@ -51,7 +51,6 @@
     <string name="kagi_integration">Powered by Kagi</string>
     <string name="hide_applications">Hide applications</string>
     <string name="legacy_lock_animation">Legacy lock animation</string>
-    <string name="legacy_launch_animations">Legacy launch animations</string>
     <string name="icons">Icons</string>
     <string name="system_launcher">Reassign system launcher</string>
     <string name="app_info">App info</string>

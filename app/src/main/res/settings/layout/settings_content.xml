@@ -415,31 +415,6 @@
         app:carbon_cornerRadius="20dp">
 
         <carbon.widget.RelativeLayout
-            android:id="@+id/launch_animation_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ripple"
-            android:padding="7dp"
-            app:carbon_cornerRadius="5dp">
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/launch_animation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:drawableStart="@drawable/ic_launch"
-                android:drawablePadding="10dp"
-                android:fontFamily="@font/dm_sans_medium"
-                android:letterSpacing="-0.03"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:text="@string/legacy_launch_animations"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp" />
-
-        </carbon.widget.RelativeLayout>
-
-        <carbon.widget.RelativeLayout
             android:id="@+id/lock_animation_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
