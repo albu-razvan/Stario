@@ -41,6 +41,8 @@ import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.FastScroller;
+import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
+import com.stario.launcher.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 public class List extends DrawerPage {
@@ -125,10 +127,32 @@ public class List extends DrawerPage {
         });
 
         positionReceiver = new BroadcastReceiver() {
+            private boolean loaded;
+
+            {
+                this.loaded = false;
+            }
+
             @Override
             public void onReceive(Context context, Intent intent) {
-                fastScroller.animateVisibility(
-                        intent.getFloatExtra(ApplicationsDialog.INTENT_EXTRA_PAGE_POSITION, 0f) == 0);
+                float position = intent.getFloatExtra(ApplicationsDialog.INTENT_EXTRA_PAGE_POSITION, 0f);
+
+                if(!loaded && handle != null) {
+                    AsyncRecyclerAdapter<?> adapter = new ListAdapter(activity,
+                            LauncherApplicationManager.getInstance().getProfile(handle));
+
+                    UiUtils.runOnUIThread(() -> {
+                        if(position == 0) {
+                            synchronizeAdapter(adapter);
+                        } else {
+                            drawer.setAdapter(adapter);
+                        }
+                    });
+
+                    loaded = true;
+                }
+
+                fastScroller.animateVisibility(position == 0);
             }
         };
 
@@ -163,13 +187,6 @@ public class List extends DrawerPage {
             } else {
                 handle = savedInstanceState.getParcelable(USER_HANDLE_KEY);
             }
-        }
-
-        if(handle != null) {
-            ListAdapter adapter = new ListAdapter(activity,
-                    LauncherApplicationManager.getInstance().getProfile(handle));
-
-            drawer.setAdapter(adapter);
         }
 
         super.onViewStateRestored(savedInstanceState);

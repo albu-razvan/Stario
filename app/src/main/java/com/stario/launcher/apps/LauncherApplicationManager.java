@@ -74,6 +74,10 @@ public final class LauncherApplicationManager {
             instance.updateIcons();
         }
 
+        for(ProfileApplicationManager manager : instance.profilesList) {
+            manager.refreshReceiver(activity);
+        }
+
         return instance;
     }
 

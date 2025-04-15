@@ -84,7 +84,7 @@ public final class ProfileApplicationManager {
         Utils.submitTask(() -> loadApplications(activity));
     }
 
-    private void refreshReceiver(ThemedActivity activity) {
+    void refreshReceiver(ThemedActivity activity) {
         if (!registered) {
             BroadcastReceiver receiver = getReceiver();
 
@@ -125,10 +125,6 @@ public final class ProfileApplicationManager {
                 LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
                 String packageName = data.getSchemeSpecificPart();
 
-                if (launcherApps.getActivityList(packageName, handle).isEmpty()) {
-                    return;
-                }
-
                 String action = intent.getAction();
                 boolean containsPackage = applicationMap.containsKey(packageName);
 
@@ -140,6 +136,10 @@ public final class ProfileApplicationManager {
 
                             removeApplication(packageName);
                         } else {
+                            if (launcherApps.getActivityList(packageName, handle).isEmpty()) {
+                                return;
+                            }
+
                             ApplicationInfo applicationInfo;
 
                             try {

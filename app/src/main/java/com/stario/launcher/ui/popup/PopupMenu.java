@@ -442,6 +442,12 @@ public class PopupMenu {
         return null;
     }
 
+    public void dismiss() {
+        if(popupWindow != null) {
+            popupWindow.dismiss();
+        }
+    }
+
     public static class Item {
         public final String label;
         public final Drawable icon;

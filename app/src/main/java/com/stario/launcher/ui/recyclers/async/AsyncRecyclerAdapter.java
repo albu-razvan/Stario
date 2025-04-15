@@ -42,12 +42,15 @@ import java.util.function.Supplier;
 public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.AsyncViewHolder>
         extends RecyclerView.Adapter<AVH> {
     private final static int VIEW_TYPE = 0;
+    private final static int NO_LIMIT = -1;
     private final static int MAX_POOL_SIZE = 20;
-    private int holderHeight;
+
     private final Activity activity;
     private final AsyncLayoutInflater layoutInflater;
+
     private RecyclerView recyclerView;
     private InflationType type;
+    private int holderHeight;
     private int limit;
 
     public AsyncRecyclerAdapter(Activity activity) {
@@ -59,7 +62,17 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     }
 
     public void setInflationType(InflationType type) {
+        int oldLimit = getItemCount();
         this.type = type;
+
+        if (type == InflationType.SYNCED) {
+            limit = NO_LIMIT;
+            notifyItemRangeInserted(oldLimit, Integer.MAX_VALUE);
+        }
+    }
+
+    public InflationType getInflationType() {
+        return type;
     }
 
     public abstract class AsyncViewHolder extends RecyclerView.ViewHolder {
@@ -77,7 +90,6 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
                             ViewGroup.LayoutParams params = itemView.getLayoutParams();
                             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                             itemView.setLayoutParams(params);
-                            itemView.requestLayout();
 
                             ((ViewGroup) itemView).addView(view);
 
@@ -165,10 +177,10 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     }
 
     protected void removeLimit() {
-        if (limit > 0) {
+        if (limit != NO_LIMIT) {
             int oldLimit = limit;
 
-            limit = -1;
+            limit = NO_LIMIT;
             recyclerView.post(() -> notifyItemRangeInserted(oldLimit, getSize() - oldLimit));
         }
     }
@@ -187,7 +199,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     @Override
     public final void onBindViewHolder(@NonNull AVH holder, int position) {
         holder.setOnInflatedInternal(() -> {
-            if (type == InflationType.ASYNC && limit > 0 && limit < getSize()) {
+            if (type == InflationType.ASYNC && limit != NO_LIMIT) {
                 limit++;
 
                 if (limit < getSize()) {
@@ -199,7 +211,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
                         }
                     }
                 } else {
-                    limit = -1;
+                    limit = NO_LIMIT;
                 }
             }
 
@@ -214,10 +226,6 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
         }
 
         return limit > 0 ? Math.min(limit, getSize()) : getSize();
-    }
-
-    public int getApproximatedHolderHeight() {
-        return holderHeight;
     }
 
     protected abstract void onBind(@NonNull AVH holder, int position);

@@ -105,7 +105,7 @@ public class ApplicationsDialog extends SheetDialogFragment {
         pager.setSaveEnabled(true);
 
         adapter = new DrawerAdapter(getChildFragmentManager());
-        pager.setOffscreenPageLimit(adapter.getCount());
+        pager.setOffscreenPageLimit(1);
         pager.setAdapter(adapter);
 
         pager.setPageTransformer(false, (page, position) -> {
@@ -130,6 +130,7 @@ public class ApplicationsDialog extends SheetDialogFragment {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 this.positionOffset = positionOffset;
+                pager.setOffscreenPageLimit(100);
 
                 if (selectedPosition == adapter.getCount() - 1 && positionOffset == 0) {
                     skipVibration = true;
@@ -236,7 +237,7 @@ public class ApplicationsDialog extends SheetDialogFragment {
 
         pager.setCurrentItem(activity
                 .getSharedPreferences(Entry.DRAWER)
-                .getInt(APPLICATIONS_PAGE, 1));
+                .getInt(APPLICATIONS_PAGE, DrawerAdapter.CATEGORIES_POSITION));
 
         Measurements.addNavListener(value -> {
             View searchContainer = (View) search.getParent();

@@ -35,12 +35,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
+import com.stario.launcher.ui.recyclers.async.InflationType;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
 
 public abstract class DrawerPage extends Fragment implements ScrollToTop {
     private int currentlyRunningAnimations;
+    private AsyncRecyclerAdapter<?> adapter;
     private RelativeLayout titleContainer;
+    private InflationType baseInflationType;
 
     protected OverScrollRecyclerView drawer;
     protected ThemedActivity activity;
@@ -80,6 +84,10 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
         drawer.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if(adapter != null) {
+                    adapter.setInflationType(baseInflationType);
+                }
+
                 updateTitleTransforms(drawer);
             }
         });
@@ -125,6 +133,18 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
             titleContainer.setVisibility(View.VISIBLE);
         } else {
             titleContainer.setVisibility(View.GONE);
+        }
+    }
+
+    protected void synchronizeAdapter(AsyncRecyclerAdapter<?> adapter) {
+        if(drawer != null) {
+            baseInflationType = adapter.getInflationType();
+            adapter.setInflationType(InflationType.SYNCED);
+
+            this.adapter = adapter;
+            drawer.setAdapter(adapter);
+        } else {
+            this.adapter = null;
         }
     }
 
