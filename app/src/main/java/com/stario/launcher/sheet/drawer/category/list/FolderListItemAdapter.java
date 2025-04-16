@@ -18,7 +18,6 @@
 package com.stario.launcher.sheet.drawer.category.list;
 
 import android.annotation.SuppressLint;
-import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -117,8 +116,6 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
             LauncherApplication application = category.get(position);
 
             if (application != LauncherApplication.FALLBACK_APP) {
-                Drawable appIcon = application.getIcon();
-
                 if (position >= SOFT_LIMIT && category.getSize() >= HARD_LIMIT) {
                     holder.itemView.setOnClickListener((view) -> {
                         View folder = (View) holder.itemView.getParent();
@@ -133,9 +130,7 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
                     holder.itemView.setOnClickListener(view -> application.launch(activity));
                 }
 
-                if (appIcon != null) {
-                    holder.icon.setIcon(appIcon);
-                }
+                holder.icon.setApplication(application);
             }
         } else {
             holder.icon.setIcon(null);

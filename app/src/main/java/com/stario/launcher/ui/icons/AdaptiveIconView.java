@@ -33,13 +33,16 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.stario.launcher.R;
 import com.stario.launcher.activities.settings.dialogs.icons.IconsDialog;
 import com.stario.launcher.apps.IconPackManager;
+import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.objects.ObjectDelegate;
 
 import java.io.Serializable;
@@ -53,6 +56,8 @@ public class AdaptiveIconView extends View {
     private BroadcastReceiver radiusReceiver;
     private BroadcastReceiver squircleReceiver;
     private SharedPreferences preferences;
+    private boolean applyAlternateBadge;
+    private Drawable alternateBadge;
     private boolean sizeRestricted;
     private boolean looseClipping;
     private Path path;
@@ -119,6 +124,8 @@ public class AdaptiveIconView extends View {
         );
         this.radius = new ObjectDelegate<>(
                 preferences.getFloat(IconPackManager.CORNER_RADIUS_ENTRY, 1f), (o) -> requestLayout());
+        this.alternateBadge = ResourcesCompat.getDrawable(context.getResources(),
+                R.drawable.ic_alternate_badge, context.getTheme());
 
         setLayerType(LAYER_TYPE_HARDWARE, null);
     }
@@ -179,6 +186,9 @@ public class AdaptiveIconView extends View {
             }
 
             updateClipPath(measuredWidth, measuredHeight);
+
+            alternateBadge.setBounds((int) (measuredWidth * 0.6),
+                    (int) (measuredHeight * 0.6), measuredWidth, measuredHeight);
         }
 
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -224,6 +234,15 @@ public class AdaptiveIconView extends View {
         return icon.getValue();
     }
 
+    public void setApplication(LauncherApplication application) {
+        if(application != null) {
+            setIcon(application.getIcon());
+            applyAlternateBadge = !Utils.isMainProfile(application.getProfile());
+        } else {
+            setIcon(null);
+        }
+    }
+
     public void setIcon(Drawable icon) {
         if (icon != null && icon.getConstantState() != null) {
             Drawable constantStateIcon = icon.getConstantState().newDrawable();
@@ -234,6 +253,8 @@ public class AdaptiveIconView extends View {
         } else {
             this.icon.setValue(null);
         }
+
+        this.applyAlternateBadge = false;
     }
 
     @Override
@@ -275,6 +296,10 @@ public class AdaptiveIconView extends View {
             canvas.restoreToCount(save);
         } else {
             super.draw(canvas);
+        }
+
+        if(applyAlternateBadge) {
+            alternateBadge.draw(canvas);
         }
     }
 

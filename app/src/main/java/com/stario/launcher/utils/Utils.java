@@ -117,7 +117,13 @@ public class Utils {
     }
 
     public static boolean isMainProfile(UserHandle handle) {
-        return handle != null && handle.equals(Process.myUserHandle());
+        return handle != null && handle.equals(getMainUser());
+    }
+
+    // This will identify the work profile as primary if the launcher process
+    // is started from there. Maybe look into it in the future?
+    public static UserHandle getMainUser() {
+        return Process.myUserHandle();
     }
 
     public static Bitmap getSnapshot(View view) {

@@ -240,7 +240,7 @@ public class OptionAdapter extends SuggestionSearchAdapter {
 
         viewHolder.label.setText(activity.getResources().getString(R.string.search_on) + " " + entry.application.getLabel());
 
-        viewHolder.icon.setIcon(entry.application.getIcon());
+        viewHolder.icon.setApplication(entry.application);
 
         viewHolder.itemView.setOnClickListener(view -> {
             ActivityOptions activityOptions =

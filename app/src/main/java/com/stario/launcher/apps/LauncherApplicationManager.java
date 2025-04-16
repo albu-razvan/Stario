@@ -91,7 +91,7 @@ public final class LauncherApplicationManager {
 
     public ProfileApplicationManager getProfile(UserHandle handle) {
         if (handle == null) {
-            return instance.profilesMap.get(UserHandle.getUserHandleForUid(Process.myUid()));
+            return instance.profilesMap.getOrDefault(Utils.getMainUser(), null);
         }
 
         return instance.profilesMap.getOrDefault(handle, null);

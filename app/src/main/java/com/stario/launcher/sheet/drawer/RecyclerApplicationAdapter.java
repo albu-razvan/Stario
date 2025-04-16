@@ -24,7 +24,6 @@ import android.content.pm.LauncherApps;
 import android.content.pm.ShortcutInfo;
 import android.content.res.Resources;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.view.MotionEvent;
 import android.view.View;
@@ -275,13 +274,8 @@ public abstract class RecyclerApplicationAdapter
             // TODO: notification dots
             viewHolder.notification.setVisibility(false ? View.VISIBLE : View.GONE);
 
-            Drawable appIcon = application.getIcon();
-
-            if (appIcon != null) {
-                viewHolder.icon.setIcon(appIcon);
-
-                viewHolder.icon.setTransitionName(DrawerAdapter.SHARED_ELEMENT_PREFIX + index);
-            }
+            viewHolder.icon.setApplication(application);
+            viewHolder.icon.setTransitionName(DrawerAdapter.SHARED_ELEMENT_PREFIX + index);
 
             viewHolder.itemView.setVisibility(View.VISIBLE);
         }

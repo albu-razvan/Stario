@@ -75,7 +75,7 @@ public class HiddenRecyclerAdapter extends RecyclerView.Adapter<HiddenRecyclerAd
         LauncherApplication application = manager.get(position, false);
 
         if (application != null) {
-            viewHolder.icon.setIcon(application.getIcon());
+            viewHolder.icon.setApplication(application);
             viewHolder.label.setText(application.getLabel());
             viewHolder.category.setText(CategoryManager.getInstance()
                     .getCategoryName(application.getCategory()));
