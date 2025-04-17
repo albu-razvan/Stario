@@ -32,12 +32,16 @@ import android.util.Xml;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.stario.launcher.BuildConfig;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.utils.ImageUtils;
+import com.stario.launcher.ui.icons.AdaptiveIconView;
+import com.stario.launcher.ui.icons.PathCornerTreatmentAlgorithm;
 import com.stario.launcher.ui.utils.UiUtils;
+import com.stario.launcher.utils.ImageUtils;
+import com.stario.launcher.utils.ThreadSafeArrayList;
 import com.stario.launcher.utils.Utils;
 
 import org.json.JSONObject;
@@ -51,11 +55,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public final class IconPackManager {
     public static final String ICON_PACK_ENTRY = "com.stario.ICON_PACK";
-    public static final String CORNER_RADIUS_ENTRY = "com.stario.CORNER_RADIUS";
-    public static final String PATH_ALGORITHM_ENTRY = "com.stario.PATH_ALGORITHM";
 
     private static final String JSON_ICON_PACK = "pack";
     private static final String JSON_ICON_DRAWABLE_NAME = "drawable";
@@ -70,7 +73,6 @@ public final class IconPackManager {
     }};
     private static IconPackManager instance = null;
 
-    private final LauncherApplicationManager launcherApplicationManager;
     private final PackageManager packageManager;
     private final SharedPreferences preferences;
     private final ArrayList<IconPack> iconPacks;
@@ -84,7 +86,6 @@ public final class IconPackManager {
         this.preferences = activity.getSharedPreferences(Entry.ICONS);
         this.packageManager = activity.getPackageManager();
         this.launcherApps = (LauncherApps) activity.getSystemService(Context.LAUNCHER_APPS_SERVICE);
-        this.launcherApplicationManager = LauncherApplicationManager.getInstance();
 
         this.activeIconPack = null;
     }
@@ -109,10 +110,26 @@ public final class IconPackManager {
     }
 
     public void setActiveIconPack(IconPack pack) {
-        preferences.edit()
+        float cornerRadius = preferences.getFloat(AdaptiveIconView.CORNER_RADIUS_ENTRY,
+                AdaptiveIconView.DEFAULT_CORNER_RADIUS);
+        int pathAlgorithm = preferences.getInt(PathCornerTreatmentAlgorithm.PATH_ALGORITHM_ENTRY,
+                PathCornerTreatmentAlgorithm.DEFAULT_PATH_ALGORITHM_ENTRY);
+
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.clear()
                 .putString(ICON_PACK_ENTRY,
-                        pack != null ? pack.application.info.packageName : null)
-                .apply();
+                        pack != null ? pack.application.info.packageName : null);
+
+        if (cornerRadius != AdaptiveIconView.DEFAULT_CORNER_RADIUS) {
+            editor.putFloat(AdaptiveIconView.CORNER_RADIUS_ENTRY, cornerRadius);
+        }
+
+        if (pathAlgorithm != PathCornerTreatmentAlgorithm.DEFAULT_PATH_ALGORITHM_ENTRY) {
+            editor.putInt(PathCornerTreatmentAlgorithm.PATH_ALGORITHM_ENTRY, pathAlgorithm);
+        }
+
+        editor.apply();
 
         activeIconPack = pack;
 
@@ -121,11 +138,7 @@ public final class IconPackManager {
         }
     }
 
-    public void setIconFor(LauncherApplication application, IconPack pack, String drawableName) {
-        setIconFor(application.info.packageName, pack, drawableName);
-    }
-
-    public void setIconFor(String packageName, IconPack pack, String drawableName) {
+    public void setIconPackPreference(String packageName, IconPack pack, String drawableName) {
         if (pack != null) {
             String json = '{' + JSON_ICON_PACK + ":\"" + pack.application.info.packageName + "\"";
 
@@ -142,11 +155,7 @@ public final class IconPackManager {
                     .apply();
         }
 
-        LauncherApplication application = launcherApplicationManager.getApplication(packageName);
-
-        if (application != null) {
-            updateIcon(application, launcherApplicationManager::notifyUpdate);
-        }
+        updateIcon(packageName);
     }
 
     public int getCount() {
@@ -169,12 +178,12 @@ public final class IconPackManager {
         return null;
     }
 
-    synchronized void updateIcon(@NonNull LauncherApplication application, OnUpdate listener) {
+    synchronized void updateIcon(@NonNull String packageName) {
         IconPack pack = activeIconPack;
         String drawableName = null;
 
-        if (preferences.contains(application.info.packageName)) {
-            String packagePreference = preferences.getString(application.info.packageName, null);
+        if (preferences.contains(packageName)) {
+            String packagePreference = preferences.getString(packageName, null);
 
             if (packagePreference != null) {
                 if (packagePreference.equals(BuildConfig.APPLICATION_ID)) {
@@ -192,42 +201,28 @@ public final class IconPackManager {
                             }
                         }
                     } catch (Exception exception) {
-                        Log.e("IconPackManager", "loadDrawable: Malformed JSON icon store for package " +
-                                application.info.packageName);
+                        Log.e("IconPackManager", "loadDrawable: " +
+                                "Malformed JSON icon store for package " + packageName);
                     }
                 }
             }
         }
 
         if (pack != null) {
-            CompletableFuture<Drawable> future = pack.loadDrawable(application.getInfo().packageName, drawableName);
+            CompletableFuture<Drawable> future = pack.loadDrawable(packageName, drawableName);
 
             future.thenAccept(icon -> {
                 if (icon == null) {
-                    icon = ImageUtils.getIcon(launcherApps, application.info.packageName);
+                    icon = ImageUtils.getIcon(launcherApps, packageName);
                 }
 
                 final Drawable drawable = icon;
-                UiUtils.runOnUIThread(() -> {
-                    if (drawable != null && !drawable.equals(application.getIcon())) {
-                        application.icon = drawable;
-
-                        if (listener != null) {
-                            listener.onUpdate(application);
-                        }
-                    }
-                });
+                UiUtils.runOnUIThread(() ->
+                        LauncherApplicationManager.getInstance().updateIcon(packageName, drawable));
             });
         } else {
-            Drawable icon = ImageUtils.getIcon(launcherApps, application.info.packageName);
-
-            if (icon != null && !icon.equals(application.getIcon())) {
-                application.icon = icon;
-
-                if (listener != null) {
-                    listener.onUpdate(application);
-                }
-            }
+            LauncherApplicationManager.getInstance().updateIcon(packageName,
+                    ImageUtils.getIcon(launcherApps, packageName));
         }
     }
 
@@ -261,8 +256,7 @@ public final class IconPackManager {
 
     synchronized void refresh() {
         for (IconPack pack : iconPacks) {
-            pack.exactComponentDrawable.clear();
-            pack.loaded = false;
+            pack.invalidate();
         }
     }
 
@@ -309,34 +303,43 @@ public final class IconPackManager {
                         .resolveActivity(packageManager) != null;
     }
 
-    public List<Pair<IconPack, Pair<String, Drawable>>> getIcons(LauncherApplication application) {
-        return getIcons(application.info.packageName);
-    }
+    /**
+     * @param application {@link LauncherApplication} for which to return all available icons
+     * @return {@link CompletableFuture} containing a list of mappings from an existing {@link IconPack}
+     * to the respective icon - name and {@link Drawable}
+     */
+    @NonNull
+    public CompletableFuture<List<Pair<IconPack, Pair<String, Drawable>>>> getIcons(LauncherApplication application) {
+        CompletableFuture<List<Pair<IconPack, Pair<String, Drawable>>>> future = new CompletableFuture<>();
 
-    public List<Pair<IconPack, Pair<String, Drawable>>> getIcons(String packageName) {
-        List<Pair<IconPack, Pair<String, Drawable>>> result = new ArrayList<>();
+        Utils.submitTask(() -> {
+            try {
+                List<Pair<IconPack, Pair<String, Drawable>>> result = new ArrayList<>();
 
-        result.add(new Pair<>(null, new Pair<>(null, ImageUtils.getIcon(launcherApps, packageName))));
+                result.add(new Pair<>(null, new Pair<>(null,
+                        ImageUtils.getIcon(launcherApps, application.info.packageName))));
 
-        for (IconPack pack : iconPacks) {
-            List<String> drawableNames = pack.getDrawableNameList(packageName);
+                for (IconPack pack : iconPacks) {
+                    List<String> drawableNames = pack.getDrawableNameList(application.info.packageName).get();
 
-            if (drawableNames != null && !drawableNames.isEmpty()) {
-                for (String drawableName : drawableNames) {
-                    Drawable drawable = pack.getDrawable(drawableName);
+                    if (drawableNames != null && !drawableNames.isEmpty()) {
+                        for (String drawableName : drawableNames) {
+                            Drawable drawable = pack.getDrawable(drawableName);
 
-                    if (drawable != null) {
-                        result.add(new Pair<>(pack, new Pair<>(drawableName, drawable)));
+                            if (drawable != null) {
+                                result.add(new Pair<>(pack, new Pair<>(drawableName, drawable)));
+                            }
+                        }
                     }
                 }
+
+                future.complete(result);
+            } catch (ExecutionException | InterruptedException exception) {
+                future.complete(new ArrayList<>());
             }
-        }
+        });
 
-        return result;
-    }
-
-    public interface OnUpdate {
-        void onUpdate(LauncherApplication application);
+        return future;
     }
 
     @SuppressLint("DiscouragedApi")
@@ -345,91 +348,124 @@ public final class IconPackManager {
         private final LauncherApplication application;
         private final HashMap<String, List<String>> exactComponentDrawable;
         private final HashMap<String, List<String>> packageNameDrawables;
+        private final ThreadSafeArrayList<Runnable> completionListeners;
+        private CompletableFuture<Boolean> loadTask;
         private Resources resources;
-        private boolean loaded;
+        private boolean cached;
 
         private IconPack(LauncherApplication application) {
             this.application = application;
             this.exactComponentDrawable = new HashMap<>();
             this.packageNameDrawables = new HashMap<>();
-            this.loaded = false;
+            this.completionListeners = new ThreadSafeArrayList<>();
+            this.loadTask = null;
+            this.cached = false;
         }
 
-        void load() {
-            try {
-                XmlPullParser parser = null;
-
-                resources = packageManager.getResourcesForApplication(application.info.packageName);
-                int appFilterId = resources.getIdentifier("appfilter", "xml",
-                        application.info.packageName);
-
-                if (appFilterId > 0) {
-                    parser = resources.getXml(appFilterId);
-                } else {
-                    try {
-                        InputStream appFilterStream = resources.getAssets()
-                                .open("appfilter.xml");
-
-                        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-                        factory.setNamespaceAware(true);
-
-                        parser = factory.newPullParser();
-                        parser.setInput(appFilterStream, Xml.Encoding.UTF_8.toString());
-                    } catch (IOException e1) {
-                        Log.d(TAG, "No appfilter.xml file");
-                    }
+        void load(Runnable completionListener) {
+            if (cached) {
+                if (completionListener != null) {
+                    completionListener.run();
                 }
 
-                if (parser != null) {
-                    int eventType = parser.getEventType();
+                return;
+            }
 
-                    while (eventType != XmlPullParser.END_DOCUMENT) {
-                        if (eventType == XmlPullParser.START_TAG) {
-                            if (parser.getName().equals("item") || parser.getName().equals("calendar")) {
-                                String componentName = null;
-                                String drawableName = null;
-                                String prefix = null;
+            if (loadTask != null && !loadTask.isDone() &&
+                    completionListener != null) {
+                completionListeners.add(completionListener);
+                return;
+            }
 
-                                for (int i = 0; i < parser.getAttributeCount(); i++) {
-                                    if (parser.getAttributeName(i).equals("component")) {
-                                        componentName = parser.getAttributeValue(i);
+            loadTask = Utils.submitTask(() -> {
+                try {
+                    if (completionListener != null) {
+                        completionListeners.add(completionListener);
+                    }
 
-                                        if (componentName.indexOf('{') != -1 &&
-                                                componentName.indexOf('{') + 1 < componentName.lastIndexOf('}')) {
-                                            componentName = componentName.substring(componentName.indexOf('{') + 1, componentName.lastIndexOf('}'));
+                    XmlPullParser parser = null;
+
+                    resources = packageManager.getResourcesForApplication(application.info.packageName);
+                    int appFilterId = resources.getIdentifier("appfilter", "xml",
+                            application.info.packageName);
+
+                    if (appFilterId > 0) {
+                        parser = resources.getXml(appFilterId);
+                    } else {
+                        try {
+                            InputStream appFilterStream = resources.getAssets()
+                                    .open("appfilter.xml");
+
+                            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+                            factory.setNamespaceAware(true);
+
+                            parser = factory.newPullParser();
+                            parser.setInput(appFilterStream, Xml.Encoding.UTF_8.toString());
+                        } catch (IOException exception) {
+                            Log.d(TAG, "No appfilter.xml file");
+                        }
+                    }
+
+                    if (parser != null) {
+                        int eventType = parser.getEventType();
+
+                        while (eventType != XmlPullParser.END_DOCUMENT) {
+                            if (eventType == XmlPullParser.START_TAG) {
+                                if (parser.getName().equals("item") || parser.getName().equals("calendar")) {
+                                    String componentName = null;
+                                    String drawableName = null;
+                                    String prefix = null;
+
+                                    for (int i = 0; i < parser.getAttributeCount(); i++) {
+                                        if (parser.getAttributeName(i).equals("component")) {
+                                            componentName = parser.getAttributeValue(i);
+
+                                            if (componentName.indexOf('{') != -1 &&
+                                                    componentName.indexOf('{') + 1 < componentName.lastIndexOf('}')) {
+                                                componentName = componentName.substring(componentName.indexOf('{') + 1, componentName.lastIndexOf('}'));
+                                            }
+                                        } else if (parser.getAttributeName(i).equals("drawable")) {
+                                            drawableName = parser.getAttributeValue(i);
+                                        } else if (parser.getAttributeName(i).equals("prefix")) {
+                                            prefix = parser.getAttributeValue(i);
                                         }
-                                    } else if (parser.getAttributeName(i).equals("drawable")) {
-                                        drawableName = parser.getAttributeValue(i);
-                                    } else if (parser.getAttributeName(i).equals("prefix")) {
-                                        prefix = parser.getAttributeValue(i);
-                                    }
-                                }
-
-                                if (componentName != null && componentName.contains("/")) {
-                                    if (drawableName != null) {
-                                        saveDrawable(componentName, drawableName);
                                     }
 
-                                    if (prefix != null) {
-                                        for (int day = 1; day <= 31; day++) {
-                                            saveDrawable(componentName, prefix + day);
+                                    if (componentName != null && componentName.contains("/")) {
+                                        if (drawableName != null) {
+                                            saveDrawable(componentName, drawableName);
+                                        }
+
+                                        if (prefix != null) {
+                                            for (int day = 1; day <= 31; day++) {
+                                                saveDrawable(componentName, prefix + day);
+                                            }
                                         }
                                     }
                                 }
                             }
+                            eventType = parser.next();
                         }
-                        eventType = parser.next();
                     }
+
+                    for (int index = 0; index < completionListeners.size(); index++) {
+                        completionListeners.get(index).run();
+                    }
+
+                    completionListeners.clear();
+                    return true;
+                } catch (PackageManager.NameNotFoundException exception) {
+                    Log.d(TAG, "Cannot load icon pack");
+                } catch (XmlPullParserException exception) {
+                    Log.d(TAG, "Cannot parse icon pack appfilter.xml");
+                } catch (IOException exception) {
+                    Log.e(TAG, "", exception);
                 }
 
-                loaded = true;
-            } catch (PackageManager.NameNotFoundException exception) {
-                Log.d(TAG, "Cannot load icon pack");
-            } catch (XmlPullParserException exception) {
-                Log.d(TAG, "Cannot parse icon pack appfilter.xml");
-            } catch (IOException exception) {
-                Log.e(TAG, "", exception);
-            }
+                return false;
+            });
+
+            loadTask.thenAccept(result -> cached = result);
         }
 
         private void saveDrawable(String componentName, String drawableName) {
@@ -477,28 +513,23 @@ public final class IconPackManager {
             }
         }
 
-        @SuppressLint("UseCompatLoadingForDrawables")
         private Drawable getDrawable(String drawableName) {
             int id = resources.getIdentifier(drawableName,
                     "drawable", application.info.packageName);
 
             if (id > 0) {
-                return resources.getDrawable(id);
+                return ResourcesCompat.getDrawable(resources, id, null);
             } else {
                 return null;
             }
         }
 
+        @NonNull
         public CompletableFuture<Drawable> loadDrawable(String packageName, String drawable) {
             CompletableFuture<Drawable> future = new CompletableFuture<>();
 
-            Utils.submitTask(() -> {
+            load(() -> {
                 String drawableName = drawable;
-
-                if (!loaded) {
-                    load();
-                }
-
                 Intent launchIntent = packageManager.getLaunchIntentForPackage(packageName);
 
                 if (launchIntent != null) {
@@ -515,7 +546,7 @@ public final class IconPackManager {
                     }
 
                     if (drawableName != null) {
-                        future.complete(getDrawable(drawableName));
+                        future.complete(IconPack.this.getDrawable(drawableName));
                     }
                 }
 
@@ -525,22 +556,25 @@ public final class IconPackManager {
             return future;
         }
 
-        private List<String> getDrawableNameList(String packageName) {
-            if (!loaded) {
-                load();
-            }
+        @NonNull
+        private CompletableFuture<List<String>> getDrawableNameList(String packageName) {
+            CompletableFuture<List<String>> future = new CompletableFuture<>();
 
-            Intent launchIntent = packageManager.getLaunchIntentForPackage(packageName);
+            load(() -> {
+                Intent launchIntent = packageManager.getLaunchIntentForPackage(packageName);
 
-            if (launchIntent != null) {
-                ComponentName component = launchIntent.getComponent();
+                if (launchIntent != null) {
+                    ComponentName component = launchIntent.getComponent();
 
-                if (component != null) {
-                    return packageNameDrawables.get(component.getPackageName());
+                    if (component != null) {
+                        future.complete(packageNameDrawables.get(component.getPackageName()));
+                    }
                 }
-            }
 
-            return null;
+                future.complete(null);
+            });
+
+            return future;
         }
 
         public String getLabel() {
@@ -551,18 +585,16 @@ public final class IconPackManager {
             return application.getIcon();
         }
 
+        @NonNull
         public CompletableFuture<Integer> getComponentCount() {
             CompletableFuture<Integer> future = new CompletableFuture<>();
 
             UiUtils.runOnUIThread(() -> {
-                if (loaded) {
+                if (cached) {
                     future.complete(exactComponentDrawable.size());
                 } else {
-                    Utils.submitTask(() -> {
-                        load();
-
-                        future.complete(exactComponentDrawable.size());
-                    });
+                    Utils.submitTask(() ->
+                            load(() -> future.complete(exactComponentDrawable.size())));
                 }
             });
 
@@ -578,6 +610,13 @@ public final class IconPackManager {
         @Override
         public int hashCode() {
             return application.hashCode();
+        }
+
+        public void invalidate() {
+            exactComponentDrawable.clear();
+            cached = false;
+
+            load(null);
         }
     }
 

@@ -38,7 +38,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.stario.launcher.R;
 import com.stario.launcher.activities.settings.dialogs.icons.IconsDialog;
-import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.Measurements;
@@ -48,7 +47,10 @@ import com.stario.launcher.utils.objects.ObjectDelegate;
 import java.io.Serializable;
 
 public class AdaptiveIconView extends View {
+    public static final String CORNER_RADIUS_ENTRY = "com.stario.CORNER_RADIUS";
+    public static final float DEFAULT_CORNER_RADIUS = 1f;
     public static final float MAX_SCALE = 1.12f;
+
     private ObjectDelegate<Float> radius;
     private ObjectDelegate<PathCornerTreatmentAlgorithm> pathAlgorithm;
     private ObjectDelegate<Drawable> icon;
@@ -119,11 +121,13 @@ public class AdaptiveIconView extends View {
         this.icon = new ObjectDelegate<>((o) -> invalidate());
         this.pathAlgorithm = new ObjectDelegate<>(
                 PathCornerTreatmentAlgorithm.fromIdentifier(
-                        preferences.getInt(IconPackManager.PATH_ALGORITHM_ENTRY, 0)
+                        preferences.getInt(PathCornerTreatmentAlgorithm.PATH_ALGORITHM_ENTRY,
+                                PathCornerTreatmentAlgorithm.DEFAULT_PATH_ALGORITHM_ENTRY)
                 ), (o) -> requestLayout()
         );
         this.radius = new ObjectDelegate<>(
-                preferences.getFloat(IconPackManager.CORNER_RADIUS_ENTRY, 1f), (o) -> requestLayout());
+                preferences.getFloat(CORNER_RADIUS_ENTRY,
+                        DEFAULT_CORNER_RADIUS), (o) -> requestLayout());
         this.alternateBadge = ResourcesCompat.getDrawable(context.getResources(),
                 R.drawable.ic_alternate_badge, context.getTheme());
 
@@ -140,12 +144,13 @@ public class AdaptiveIconView extends View {
                 new IntentFilter(IconsDialog.INTENT_CHANGE_PATH_ALGORITHM));
 
         PathCornerTreatmentAlgorithm currentPathCornerTreatmentAlgorithm = PathCornerTreatmentAlgorithm
-                .fromIdentifier(preferences.getInt(IconPackManager.PATH_ALGORITHM_ENTRY, 0));
+                .fromIdentifier(preferences.getInt(PathCornerTreatmentAlgorithm.PATH_ALGORITHM_ENTRY,
+                        PathCornerTreatmentAlgorithm.DEFAULT_PATH_ALGORITHM_ENTRY));
         if (!pathAlgorithm.getValue().equals(currentPathCornerTreatmentAlgorithm)) {
             this.pathAlgorithm.setValue(currentPathCornerTreatmentAlgorithm);
         }
 
-        Float currentRadius = preferences.getFloat(IconPackManager.CORNER_RADIUS_ENTRY, 1f);
+        Float currentRadius = preferences.getFloat(CORNER_RADIUS_ENTRY, DEFAULT_CORNER_RADIUS);
         if (!radius.getValue().equals(currentRadius)) {
             this.radius.setValue(currentRadius);
         }
@@ -235,7 +240,7 @@ public class AdaptiveIconView extends View {
     }
 
     public void setApplication(LauncherApplication application) {
-        if(application != null) {
+        if (application != null) {
             setIcon(application.getIcon());
             applyAlternateBadge = !Utils.isMainProfile(application.getProfile());
         } else {
@@ -298,7 +303,7 @@ public class AdaptiveIconView extends View {
             super.draw(canvas);
         }
 
-        if(applyAlternateBadge) {
+        if (applyAlternateBadge) {
             alternateBadge.draw(canvas);
         }
     }

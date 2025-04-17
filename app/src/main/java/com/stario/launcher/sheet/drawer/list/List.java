@@ -173,7 +173,7 @@ public class List extends DrawerPage {
                 .getProfiles().size() == 1) {
             title.setText(R.string.apps);
         } else {
-            title.setText(Utils.isMainProfile(handle) ? R.string.primary : R.string.alternate);
+            title.setText(Utils.isMainProfile(handle) ? R.string.personal : R.string.managed);
         }
 
         super.onResume();

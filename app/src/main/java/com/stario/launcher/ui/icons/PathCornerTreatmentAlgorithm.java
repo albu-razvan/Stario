@@ -21,6 +21,9 @@ public enum PathCornerTreatmentAlgorithm {
     REGULAR,
     SQUIRCLE;
 
+    public static final String PATH_ALGORITHM_ENTRY = "com.stario.PATH_ALGORITHM";
+    public static final int DEFAULT_PATH_ALGORITHM_ENTRY = REGULAR.ordinal();
+
     public static PathCornerTreatmentAlgorithm fromIdentifier(int identifier) {
         if (identifier == 1) {
             return SQUIRCLE;

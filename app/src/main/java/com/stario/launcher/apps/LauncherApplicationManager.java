@@ -19,7 +19,7 @@ package com.stario.launcher.apps;
 
 import android.content.Context;
 import android.content.pm.LauncherApps;
-import android.os.Process;
+import android.graphics.drawable.Drawable;
 import android.os.UserHandle;
 
 import androidx.annotation.NonNull;
@@ -28,6 +28,7 @@ import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ public final class LauncherApplicationManager {
         // everything else to guarantee that the instance will be supplied.
         instance = this;
 
-        this.iconPacks = IconPackManager.from(activity, this::updateIcons);
+        this.iconPacks = IconPackManager.from(activity, this::update);
         this.profilesList = new ArrayList<>();
         this.profilesMap = new HashMap<>();
 
@@ -58,7 +59,7 @@ public final class LauncherApplicationManager {
 
             profilesMap.put(profileHandle, manager);
 
-            if(Utils.isMainProfile(profileHandle)) {
+            if (Utils.isMainProfile(profileHandle)) {
                 profilesList.add(0, manager);
             } else {
                 profilesList.add(manager);
@@ -71,10 +72,10 @@ public final class LauncherApplicationManager {
             instance = new LauncherApplicationManager(activity);
         } else {
             instance.iconPacks.refresh();
-            instance.updateIcons();
+            instance.update();
         }
 
-        for(ProfileApplicationManager manager : instance.profilesList) {
+        for (ProfileApplicationManager manager : instance.profilesList) {
             manager.refreshReceiver(activity);
         }
 
@@ -98,7 +99,7 @@ public final class LauncherApplicationManager {
     }
 
     public ProfileApplicationManager getProfile(int index) {
-        if(index < 0 || index >= profilesList.size()) {
+        if (index < 0 || index >= profilesList.size()) {
             return null;
         }
 
@@ -106,14 +107,14 @@ public final class LauncherApplicationManager {
     }
 
     public List<ProfileApplicationManager> getProfiles() {
-        return instance.profilesList;
+        return Collections.unmodifiableList(profilesList);
     }
 
     public LauncherApplication getApplication(String packageName) {
-        for(Map.Entry<UserHandle, ProfileApplicationManager> entry:instance.profilesMap.entrySet()) {
-            LauncherApplication application = entry.getValue().get(packageName);
+        for (ProfileApplicationManager manager : profilesList) {
+            LauncherApplication application = manager.get(packageName);
 
-            if(application != null) {
+            if (application != null) {
                 return application;
             }
         }
@@ -121,21 +122,42 @@ public final class LauncherApplicationManager {
         return null;
     }
 
-    void updateIcons() {
-        for (ProfileApplicationManager profileApplicationManager : profilesMap.values()) {
-            profileApplicationManager.updateIcons();
+    void update() {
+        for (ProfileApplicationManager manager : profilesList) {
+            manager.update();
         }
     }
 
-    public void updateLabel(LauncherApplication application, String label) {
-        for (ProfileApplicationManager profileApplicationManager : profilesMap.values()) {
-            profileApplicationManager.updateLabel(application, label);
+    void updateIcon(String packageName, Drawable icon) {
+        for (ProfileApplicationManager manager : profilesList) {
+            LauncherApplication application = manager.get(packageName);
+
+            if (application != null &&
+                    icon != null && !icon.equals(application.getIcon())) {
+                application.icon = icon;
+
+                notifyUpdate(packageName);
+            }
         }
     }
 
-    public void notifyUpdate(LauncherApplication application) {
-        for (ProfileApplicationManager profileApplicationManager : profilesMap.values()) {
-            profileApplicationManager.notifyUpdate(application);
+    public void updateLabel(String packageName, String label) {
+        for (ProfileApplicationManager manager : profilesList) {
+            LauncherApplication application = manager.get(packageName);
+
+            if (application != null) {
+                manager.updateLabel(application, label);
+            }
+        }
+    }
+
+    public void notifyUpdate(String packageName) {
+        for (ProfileApplicationManager manager : profilesList) {
+            LauncherApplication application = manager.get(packageName);
+
+            if (application != null) {
+                manager.notifyUpdate(application);
+            }
         }
     }
 

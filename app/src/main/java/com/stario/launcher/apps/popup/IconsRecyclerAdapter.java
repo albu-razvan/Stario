@@ -32,15 +32,18 @@ import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
+import com.stario.launcher.ui.utils.UiUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class IconsRecyclerAdapter extends RecyclerView.Adapter<IconsRecyclerAdapter.ViewHolder> {
-    private final List<Pair<IconPackManager.IconPack, Pair<String, Drawable>>> icons;
     private final LauncherApplication application;
     private final View.OnClickListener listener;
     private final IconPackManager manager;
     private final ThemedActivity activity;
+
+    private List<Pair<IconPackManager.IconPack, Pair<String, Drawable>>> icons;
 
     public IconsRecyclerAdapter(ThemedActivity activity,
                                 LauncherApplication application, View.OnClickListener listener) {
@@ -48,10 +51,16 @@ public class IconsRecyclerAdapter extends RecyclerView.Adapter<IconsRecyclerAdap
         this.application = application;
         this.listener = listener;
         this.manager = IconPackManager.from(activity);
-        this.icons = manager.getIcons(application);
+        this.icons = new ArrayList<>();
+
+        manager.getIcons(application).thenAccept(iconList -> {
+            icons = iconList;
+
+            UiUtils.runOnUIThread(this::notifyDataSetChanged);
+        });
     }
 
-    protected static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         private final AdaptiveIconView icon;
 
         public ViewHolder(View itemView) {
@@ -64,11 +73,15 @@ public class IconsRecyclerAdapter extends RecyclerView.Adapter<IconsRecyclerAdap
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull IconsRecyclerAdapter.ViewHolder viewHolder, int position) {
+        if (icons == null) {
+            return;
+        }
+
         Pair<IconPackManager.IconPack, Pair<String, Drawable>> item = icons.get(position);
 
         viewHolder.icon.setIcon(item.second.second);
         viewHolder.itemView.setOnClickListener(v -> {
-            manager.setIconFor(application, item.first, item.second.first);
+            manager.setIconPackPreference(application.getInfo().packageName, item.first, item.second.first);
 
             if (listener != null) {
                 listener.onClick(v);
@@ -78,7 +91,7 @@ public class IconsRecyclerAdapter extends RecyclerView.Adapter<IconsRecyclerAdap
 
     @Override
     public int getItemCount() {
-        return icons.size();
+        return icons != null ? icons.size() : 0;
     }
 
     @NonNull

@@ -214,13 +214,9 @@ public final class ProfileApplicationManager {
             ApplicationInfo applicationInfo = activityInfoList.get(index).getApplicationInfo();
 
             if (iconPacks.checkPackValidity(applicationInfo.packageName)) {
-                LauncherActivityInfo activityInfo = activityInfoList.remove(index);
-                activityInfoList.add(0, activityInfo);
+                addApplication(createApplication(applicationInfo));
             }
         }
-
-        activityInfoList.sort((o1, o2) ->
-                getLabel(o1.getApplicationInfo()).compareTo(getLabel(o2.getApplicationInfo())));
 
         for (int index = 0; index < activityInfoList.size(); index++) {
             ApplicationInfo applicationInfo = activityInfoList.get(index).getApplicationInfo();
@@ -231,7 +227,7 @@ public final class ProfileApplicationManager {
                         LauncherApplication application = get(applicationInfo.packageName);
 
                         if (application != null) {
-                            iconPacks.updateIcon(application, this::notifyUpdate);
+                            iconPacks.updateIcon(application.info.packageName);
                         }
                     } else {
                         addApplication(createApplication(applicationInfo));
@@ -243,14 +239,15 @@ public final class ProfileApplicationManager {
 
 
     public void updateApplication(LauncherApplication application) {
-        iconPacks.updateIcon(application, this::notifyUpdate);
+        iconPacks.updateIcon(application.info.packageName);
 
+        // might double update, which is fine if loading the icon takes a while
         notifyUpdate(application);
     }
 
-    void updateIcons() {
+    void update() {
         for (LauncherApplication application : applicationListHidden) {
-            iconPacks.updateIcon(application, this::notifyUpdate);
+           updateApplication(application);
         }
     }
 
@@ -378,7 +375,7 @@ public final class ProfileApplicationManager {
         }
 
         iconPacks.add(application);
-        iconPacks.updateIcon(application, this::notifyUpdate);
+        iconPacks.updateIcon(application.info.packageName);
 
         if (mainUser) {
             CategoryManager.getInstance().addApplication(application);

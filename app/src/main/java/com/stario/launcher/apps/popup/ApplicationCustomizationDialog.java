@@ -34,9 +34,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.stario.launcher.R;
+import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.LauncherApplicationManager;
-import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
 import com.stario.launcher.ui.keyboard.InlineAutocompleteEditText;
@@ -56,11 +56,11 @@ public class ApplicationCustomizationDialog extends ActionDialog {
         this.categoryManager = CategoryManager.getInstance();
 
         setOnDismissListener(dialog -> {
-            Editable newLabel = label.getText();
+            LauncherApplicationManager manager = LauncherApplicationManager.getInstance();
 
+            Editable newLabel = label.getText();
             if (newLabel != null) {
-                LauncherApplicationManager.getInstance()
-                        .updateLabel(application, newLabel.toString());
+                manager.updateLabel(application.getInfo().packageName, newLabel.toString());
             }
 
             if(category != null) {
@@ -71,7 +71,7 @@ public class ApplicationCustomizationDialog extends ActionDialog {
                                 .equals(categoryManager.getCategoryName(application.getCategory()))) {
                     categoryManager.updateCategory(application,
                             categoryManager.addCustomCategory(newCategoryName.toString()));
-                    LauncherApplicationManager.getInstance().notifyUpdate(application);
+                    manager.notifyUpdate(application.getInfo().packageName);
                 }
             }
         });
