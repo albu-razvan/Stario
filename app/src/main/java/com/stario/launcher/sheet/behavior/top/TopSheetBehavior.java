@@ -132,6 +132,11 @@ public class TopSheetBehavior<V extends View> extends SheetBehavior<V> {
         if (dy > 0) { // Upward
             if (!target.canScrollVertically(1)) {
                 if (newTop >= collapsedOffset) {
+                    if (!draggable) {
+                        // Prevent dragging
+                        return;
+                    }
+
                     consumed[1] = dy;
                     ViewCompat.offsetTopAndBottom(child, -dy);
                     setStateInternal(STATE_DRAGGING);
@@ -147,6 +152,11 @@ public class TopSheetBehavior<V extends View> extends SheetBehavior<V> {
                 ViewCompat.offsetTopAndBottom(child, -consumed[1]);
                 setStateInternal(STATE_EXPANDED);
             } else {
+                if (!draggable) {
+                    // Prevent dragging
+                    return;
+                }
+
                 consumed[1] = dy;
                 ViewCompat.offsetTopAndBottom(child, -dy);
                 setStateInternal(STATE_DRAGGING);
@@ -256,7 +266,7 @@ public class TopSheetBehavior<V extends View> extends SheetBehavior<V> {
 
             @Override
             public void onViewDragStateChanged(int state) {
-                if (state == ViewDragHelper.STATE_DRAGGING) {
+                if (state == ViewDragHelper.STATE_DRAGGING && draggable) {
                     setStateInternal(STATE_DRAGGING);
                 }
             }

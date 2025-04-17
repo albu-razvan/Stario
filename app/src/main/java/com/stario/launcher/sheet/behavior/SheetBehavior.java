@@ -128,17 +128,25 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
     protected WeakReference<View> nestedScrollingChildRef;
     @NonNull
     protected final ArrayList<SheetCallback> callbacks = new ArrayList<>();
+    protected boolean draggable;
     protected boolean capture;
     protected int activePointerId;
     protected int initial;
 
     public SheetBehavior() {
-        this.capture = false;
-        this.settleRunnable = null;
+        init();
     }
 
     public SheetBehavior(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+
+        init();
+    }
+
+    private void init() {
+        this.capture = false;
+        this.draggable = true;
+        this.settleRunnable = null;
     }
 
     @Override
@@ -259,6 +267,11 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
     @Override
     public boolean onInterceptTouchEvent(
             @NonNull CoordinatorLayout parent, @NonNull V child, @NonNull MotionEvent event) {
+        if (!draggable) {
+            ignoreEvents = true;
+            return false;
+        }
+
         int action = event.getActionMasked();
 
         if (action == MotionEvent.ACTION_DOWN) {
@@ -648,8 +661,16 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
     /**
      * Force the sheet to capture the event disregarding all other logic.
      */
-    public void capture(boolean capture) {
+    public void interceptTouches(boolean capture) {
         this.capture = capture;
+    }
+
+    public void setDraggable(boolean draggable) {
+        this.draggable = draggable;
+    }
+
+    public boolean isDraggable(boolean draggable) {
+        return draggable;
     }
 
     private class SettleRunnable implements Runnable {

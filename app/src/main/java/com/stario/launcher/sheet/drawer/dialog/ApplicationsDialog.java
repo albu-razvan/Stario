@@ -51,9 +51,9 @@ import com.stario.launcher.sheet.drawer.search.SearchEngine;
 import com.stario.launcher.sheet.drawer.search.SearchFragment;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.pager.CustomDurationViewPager;
-import com.stario.launcher.utils.Utils;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.ui.utils.animation.FragmentTransition;
+import com.stario.launcher.utils.Utils;
 
 public class ApplicationsDialog extends SheetDialogFragment {
     private static final String APPLICATIONS_PAGE = "com.stario.APPLICATIONS_PAGE";
@@ -179,7 +179,8 @@ public class ApplicationsDialog extends SheetDialogFragment {
                     SheetBehavior<?> behavior = getBehavior();
 
                     if (behavior != null) {
-                        getBehavior().setState(SheetBehavior.STATE_COLLAPSED);
+                        behavior.setState(SheetBehavior.STATE_COLLAPSED);
+                        behavior.setDraggable(true);
                     }
 
                     return true;
@@ -281,6 +282,11 @@ public class ApplicationsDialog extends SheetDialogFragment {
                                                 if (!fragment.onBackPressed()) {
                                                     //noinspection deprecation
                                                     dialog.onBackPressed();
+
+                                                    SheetBehavior<?> behavior = getBehavior();
+                                                    if (behavior != null) {
+                                                        behavior.setDraggable(true);
+                                                    }
                                                 }
                                             });
                         }
@@ -356,6 +362,11 @@ public class ApplicationsDialog extends SheetDialogFragment {
                         .addToBackStack(SearchFragment.TAG)
                         .add(R.id.root, fragment)
                         .commit();
+
+                SheetBehavior<?> behavior = getBehavior();
+                if (behavior != null) {
+                    behavior.setDraggable(false);
+                }
             }
         });
 

@@ -217,7 +217,7 @@ public class BriefingDialog extends SheetDialogFragment {
 
         title.setOnLongClickListener(view -> false);
         title.setOnTouchListener((v, event) -> {
-            getBehavior().capture(event.getAction() != MotionEvent.ACTION_CANCEL &&
+            getBehavior().interceptTouches(event.getAction() != MotionEvent.ACTION_CANCEL &&
                     event.getAction() != MotionEvent.ACTION_UP);
 
             return false;

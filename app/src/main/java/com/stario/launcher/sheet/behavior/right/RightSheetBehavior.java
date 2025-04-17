@@ -136,6 +136,11 @@ public class RightSheetBehavior<V extends View> extends SheetBehavior<V> {
                 ViewCompat.offsetLeftAndRight(child, -consumed[1]);
                 setStateInternal(STATE_EXPANDED);
             } else {
+                if (!draggable) {
+                    // Prevent dragging
+                    return;
+                }
+
                 consumed[1] = dx;
                 ViewCompat.offsetLeftAndRight(child, -dx);
                 setStateInternal(STATE_DRAGGING);
@@ -143,6 +148,11 @@ public class RightSheetBehavior<V extends View> extends SheetBehavior<V> {
         } else if (dx < 0) { // Right
             if (!target.canScrollHorizontally(-1)) {
                 if (newLeft <= collapsedOffset) {
+                    if (!draggable) {
+                        // Prevent dragging
+                        return;
+                    }
+
                     consumed[1] = dx;
                     ViewCompat.offsetLeftAndRight(child, -dx);
                     setStateInternal(STATE_DRAGGING);
@@ -273,7 +283,7 @@ public class RightSheetBehavior<V extends View> extends SheetBehavior<V> {
 
             @Override
             public void onViewDragStateChanged(int state) {
-                if (state == ViewDragHelper.STATE_DRAGGING) {
+                if (state == ViewDragHelper.STATE_DRAGGING && draggable) {
                     setStateInternal(STATE_DRAGGING);
                 }
             }
