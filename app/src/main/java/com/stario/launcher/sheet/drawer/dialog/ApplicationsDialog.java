@@ -24,6 +24,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.transition.Transition;
 import android.transition.TransitionListenerAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -205,6 +206,18 @@ public class ApplicationsDialog extends SheetDialogFragment {
                     @Override
                     public void onStateChanged(@NonNull View sheet, int newState) {
                         if (newState == SheetBehavior.STATE_COLLAPSED) {
+                            if (!adapter.isTransitioning()) {
+                                try {
+                                    getChildFragmentManager()
+                                            .popBackStackImmediate(SearchFragment.TAG,
+                                                    FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                                    getBehavior().setDraggable(true);
+                                } catch (Exception exception) {
+                                    Log.e("ApplicationsDialog",
+                                            "onStateChanged: " + exception.getMessage());
+                                }
+                            }
+
                             try {
                                 adapter.reset();
                             } catch (Exception exception) {
@@ -383,7 +396,9 @@ public class ApplicationsDialog extends SheetDialogFragment {
 
         if (!adapter.isTransitioning()) {
             getChildFragmentManager()
-                    .popBackStackImmediate(SearchFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    .popBackStackImmediate(SearchFragment.TAG,
+                            FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            getBehavior().setDraggable(true);
         }
 
         if (listener != null) {

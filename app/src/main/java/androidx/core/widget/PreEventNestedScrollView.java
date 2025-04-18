@@ -18,6 +18,7 @@
 package androidx.core.widget;
 
 import android.content.Context;
+import android.hardware.SensorManager;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -28,16 +29,40 @@ public class PreEventNestedScrollView extends NestedScrollView {
     private boolean ignore;
     private PreEvent listener;
 
+    /**
+     * The following are copied from OverScroller to determine how far a fling will go.
+     */
+    private static final float SCROLL_FRICTION = 0.015f;
+    private static final float INFLEXION = 0.35f; // Tension lines cross at (INFLEXION, 1)
+    private static final float DECELERATION_RATE = (float) (Math.log(0.78) / Math.log(0.9));
+
+    private float mPhysicalCoeff;
+
+
     public PreEventNestedScrollView(@NonNull Context context) {
         super(context);
+
+        init(context);
     }
 
     public PreEventNestedScrollView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+
+        init(context);
     }
 
     public PreEventNestedScrollView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+
+        init(context);
+    }
+
+    private void init(Context context) {
+        final float ppi = context.getResources().getDisplayMetrics().density * 160.0f;
+        mPhysicalCoeff = SensorManager.GRAVITY_EARTH // g (m/s^2)
+                * 39.37f // inch/meter
+                * ppi
+                * 0.84f; // look and feel tuning
     }
 
     @Override
@@ -90,6 +115,35 @@ public class PreEventNestedScrollView extends NestedScrollView {
 
     public void setOnPreScrollListener(PreEvent listener) {
         this.listener = listener;
+    }
+
+    /**
+     * Copied from OverScroller, this returns the distance that a fling with the given velocity
+     * will go.
+     *
+     * @param velocity The velocity of the fling
+     * @return The distance that will be traveled by a fling of the given velocity.
+     */
+    public int getSplineFlingDistance(int velocity) {
+        final double decelMinusOne = DECELERATION_RATE - 1.0;
+        return (int) (SCROLL_FRICTION * mPhysicalCoeff
+                * Math.exp(DECELERATION_RATE / decelMinusOne
+                * Math.log(INFLEXION * Math.abs(velocity)
+                / (SCROLL_FRICTION * mPhysicalCoeff))));
+    }
+
+    /**
+     * Reverse of {@link PreEventNestedScrollView#getSplineFlingDistance(int)}
+     *
+     * @param distance The distance to be converted
+     * @return The fling velocity needed to travel the provided distance.
+     */
+    public int getSplineFlingVelocity(int distance) {
+        final double decelMinusOne = DECELERATION_RATE - 1.0;
+        return (int) (Math.abs(distance) > 0 ? (Math.signum(distance) // Preserve the sign
+                * (SCROLL_FRICTION * mPhysicalCoeff / INFLEXION
+                * Math.exp(decelMinusOne / DECELERATION_RATE
+                * Math.log(Math.abs(distance) / (SCROLL_FRICTION * mPhysicalCoeff))))) : 0);
     }
 
     public interface PreEvent {

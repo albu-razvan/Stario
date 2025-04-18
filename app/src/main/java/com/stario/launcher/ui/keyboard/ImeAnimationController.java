@@ -39,6 +39,7 @@ public class ImeAnimationController {
     private static final float SCROLL_THRESHOLD = 0.15f;
     private WindowInsetsAnimationControllerCompat insetsAnimationController;
     private CancellationSignal cancellationSignal;
+    private boolean disallowAnimationControl;
     private SpringAnimation springAnimation;
     private boolean isImeShownAtStart;
 
@@ -46,9 +47,15 @@ public class ImeAnimationController {
         if (!Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
             throw new RuntimeException("Keyboard animation controller requires at least API 30.");
         }
+
+        this.disallowAnimationControl = false;
     }
 
-    public void startControlRequest(View view, StateListener listener) {
+    public void startControlRequest(View view) {
+        if (disallowAnimationControl) {
+            return;
+        }
+
         WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(view);
 
         if (insets != null) {
@@ -67,27 +74,15 @@ public class ImeAnimationController {
                             public void onReady(@NonNull WindowInsetsAnimationControllerCompat controller, int types) {
                                 insetsAnimationController = controller;
                                 cancellationSignal = null;
-
-                                if (listener != null) {
-                                    listener.onReady();
-                                }
                             }
 
                             @Override
                             public void onFinished(@NonNull WindowInsetsAnimationControllerCompat controller) {
-                                if (listener != null) {
-                                    listener.onFinish();
-                                }
-
                                 reset();
                             }
 
                             @Override
                             public void onCancelled(WindowInsetsAnimationControllerCompat controller) {
-                                if (listener != null) {
-                                    listener.onFinish();
-                                }
-
                                 reset();
                             }
                         }
@@ -97,7 +92,7 @@ public class ImeAnimationController {
     }
 
     public int insetBy(int dy) {
-        if (insetsAnimationController != null) {
+        if (insetsAnimationController != null && !disallowAnimationControl) {
             return insetTo(insetsAnimationController.getCurrentInsets().bottom - dy);
         }
 
@@ -105,7 +100,7 @@ public class ImeAnimationController {
     }
 
     public int insetTo(int inset) {
-        if (insetsAnimationController != null) {
+        if (insetsAnimationController != null && !disallowAnimationControl) {
             int hiddenBottom = insetsAnimationController.getHiddenStateInsets().bottom;
             int shownBottom = insetsAnimationController.getShownStateInsets().bottom;
 
@@ -205,6 +200,18 @@ public class ImeAnimationController {
         }
     }
 
+    public void disallowAnimationControl(boolean value) {
+        disallowAnimationControl = value;
+
+        if (disallowAnimationControl) {
+            if (isRequestPending()) {
+                reset();
+            } else {
+                finish();
+            }
+        }
+    }
+
     private void reset() {
         cancel();
 
@@ -220,8 +227,6 @@ public class ImeAnimationController {
         springAnimation.addUpdateListener((animation, value, vel) -> insetTo(Math.round(value)));
 
         springAnimation.addEndListener((animation, canceled, value, vel) -> {
-            springAnimation = null;
-
             if (!canceled) {
                 if (insetsAnimationController != null) {
                     if (isCurrentPositionFullyShown()) {
@@ -237,6 +242,8 @@ public class ImeAnimationController {
                     }
                 }
             }
+
+            springAnimation = null;
         });
 
         if (velocity != null) {
@@ -248,13 +255,10 @@ public class ImeAnimationController {
                         (float) insetsAnimationController.getHiddenStateInsets().bottom);
 
         springAnimation.getSpring().setDampingRatio(SpringForce.DAMPING_RATIO_NO_BOUNCY);
+        springAnimation.getSpring().setStiffness(3000);
     }
 
-    public interface StateListener {
-        default void onReady() {
-        }
-
-        default void onFinish() {
-        }
+    public boolean isAnimationControllDisallowed() {
+        return disallowAnimationControl;
     }
 }
