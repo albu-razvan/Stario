@@ -68,6 +68,8 @@ import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.ui.utils.animation.KeyboardAnimationHelper;
 import com.stario.launcher.utils.Utils;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class SearchFragment extends Fragment {
     private static final int SCROLL_STOP_TIMEOUT = 50;
 
@@ -293,6 +295,7 @@ public class SearchFragment extends Fragment {
         heightProvider.start();
 
         if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
+            AtomicBoolean isTouching = new AtomicBoolean(false);
             Runnable scrollStopCallback = () -> {
                 if (!controller.isSettleAnimationInProgress()) {
                     controller.finish();
@@ -301,22 +304,34 @@ public class SearchFragment extends Fragment {
 
             scrollView.setOnTouchListener((v, event) -> {
                 if (event.getAction() == MotionEvent.ACTION_UP ||
-                        event.getAction() == MotionEvent.ACTION_DOWN) {
+                        event.getAction() == MotionEvent.ACTION_CANCEL) {
                     scrollView.postDelayed(scrollStopCallback, SCROLL_STOP_TIMEOUT);
+                    isTouching.set(false);
                 } else {
                     scrollView.removeCallbacks(scrollStopCallback);
+                    isTouching.set(true);
                 }
 
                 return false;
             });
 
             scrollView.setOnPreScrollListener(new PreEventNestedScrollView.PreEvent() {
+                private final Runnable flingStop;
+
                 private boolean intercepted;
                 private int flingDistance;
 
                 {
                     this.intercepted = false;
                     this.flingDistance = 0;
+                    this.flingStop = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!controller.isSettleAnimationInProgress()) {
+                                controller.finish(0);
+                            }
+                        }
+                    };
                 }
 
                 @Override
@@ -328,9 +343,11 @@ public class SearchFragment extends Fragment {
                     }
 
                     scrollView.removeCallbacks(scrollStopCallback);
+                    scrollView.removeCallbacks(flingStop);
 
                     if (delta != 0 && !controller.isAnimationInProgress()) {
                         controller.startControlRequest(search);
+                        search.requestFocus();
                         return true;
                     }
 
@@ -352,13 +369,26 @@ public class SearchFragment extends Fragment {
                     if (!intercepted) {
                         consumeFlingDistance(delta);
 
-                        if (flingDistance != 0 &&
-                                scrollView.getScrollY() - delta < 0) {
-                            if (controller.isAnimationInProgress()) {
-                                controller.finish(scrollView.getSplineFlingVelocity(flingDistance));
-                            }
+                        if (flingDistance != 0) {
+                            if (scrollView.getScrollY() - delta < 0) {
+                                if (controller.isAnimationInProgress()) {
+                                    controller.finish(scrollView.getSplineFlingVelocity(flingDistance));
+                                }
 
-                            flingDistance = 0;
+                                flingDistance = 0;
+                            } else if (flingDistance < 0 &&
+                                    (content.getMeasuredHeight() + scrollView.getPaddingBottom() +
+                                            scrollView.getPaddingTop() - scrollView.getMeasuredHeight()) <
+                                            (scrollView.getScrollY() - delta)) {
+                                if (controller.isAnimationInProgress()) {
+                                    controller.finish(scrollView.getSplineFlingVelocity(flingDistance));
+                                }
+
+                                flingDistance = 0;
+                            }
+                        } else if (!isTouching.get() &&
+                                controller.isAnimationInProgress()) {
+                            scrollView.postDelayed(flingStop, SCROLL_STOP_TIMEOUT);
                         }
                     }
 
