@@ -54,9 +54,11 @@ public class List extends DrawerPage {
     private FastScroller fastScroller;
     private UserHandle handle;
 
-    public List() { }
+    public List() {
+        this.handle = null;
+    }
 
-    public List(ProfileApplicationManager profile) {
+    public List(@NonNull ProfileApplicationManager profile) {
         this.handle = profile.handle;
     }
 
@@ -137,12 +139,12 @@ public class List extends DrawerPage {
             public void onReceive(Context context, Intent intent) {
                 float position = intent.getFloatExtra(ApplicationsDialog.INTENT_EXTRA_PAGE_POSITION, 0f);
 
-                if(!loaded && handle != null) {
+                if (!loaded && handle != null) {
                     AsyncRecyclerAdapter<?> adapter = new ListAdapter(activity,
                             LauncherApplicationManager.getInstance().getProfile(handle));
 
                     UiUtils.runOnUIThread(() -> {
-                        if(position == 0) {
+                        if (position == 0) {
                             synchronizeAdapter(adapter);
                         } else {
                             drawer.setAdapter(adapter);
@@ -181,7 +183,7 @@ public class List extends DrawerPage {
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        if(savedInstanceState != null && savedInstanceState.containsKey(USER_HANDLE_KEY)) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(USER_HANDLE_KEY)) {
             if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
                 handle = savedInstanceState.getParcelable(USER_HANDLE_KEY, UserHandle.class);
             } else {
@@ -209,5 +211,9 @@ public class List extends DrawerPage {
     @Override
     protected int getLayoutResID() {
         return R.layout.drawer_list;
+    }
+
+    public UserHandle getUserHandle() {
+        return handle;
     }
 }

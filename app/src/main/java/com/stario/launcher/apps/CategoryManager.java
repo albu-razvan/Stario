@@ -23,10 +23,11 @@ import android.content.pm.ApplicationInfo;
 import androidx.annotation.NonNull;
 
 import com.stario.launcher.R;
+import com.stario.launcher.apps.interfaces.LauncherApplicationListener;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.utils.ThreadSafeArrayList;
 import com.stario.launcher.ui.utils.UiUtils;
+import com.stario.launcher.utils.ThreadSafeArrayList;
 import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
@@ -75,7 +76,7 @@ public final class CategoryManager {
         CategoryMappings.from(activity);
         comparator = CategoryMappings.getCategoryComparator();
 
-        applicationManager.addApplicationListener(new ProfileApplicationManager.ApplicationListener() {
+        applicationManager.addApplicationListener(new LauncherApplicationListener() {
                     @Override
                     public void onUpdated(LauncherApplication application) {
                         for (Category category : categories) {

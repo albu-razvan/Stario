@@ -17,22 +17,23 @@
 
 package com.stario.launcher.sheet.drawer;
 
+import android.os.UserHandle;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.ProfileApplicationManager;
+import com.stario.launcher.apps.interfaces.LauncherProfileListener;
 import com.stario.launcher.sheet.drawer.category.Categories;
 import com.stario.launcher.sheet.drawer.list.List;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.Objects;
 
-/**
- * @noinspection deprecation
- */
 public class DrawerAdapter extends FragmentPagerAdapter {
     public static final String SHARED_ELEMENT_PREFIX = "SharedElementApp";
     public static final int CATEGORIES_POSITION = 1;
@@ -40,34 +41,91 @@ public class DrawerAdapter extends FragmentPagerAdapter {
     private static final int PAGES = 3; // category page + 2 empty pages for transitioning
 
     private final FragmentManager fragmentManager;
-    private final Map<Integer, Fragment> fragments;
+    private final ArrayList<Fragment> fragments;
 
     public DrawerAdapter(FragmentManager fragmentManager) {
         super(fragmentManager);
 
         this.fragmentManager = fragmentManager;
-        this.fragments = new HashMap<>();
+        this.fragments = new ArrayList<>();
+
+        LauncherProfileListener listener = new LauncherProfileListener() {
+            @Override
+            public void onInserted(UserHandle handle) {
+                notifyDataSetChanged();
+            }
+
+            @Override
+            public void onRemoved(UserHandle handle) {
+                for (int index = 0; index < fragments.size(); index++) {
+                    Fragment fragment = fragments.get(index);
+
+                    if (fragment instanceof List &&
+                            handle.equals(((List) fragment).getUserHandle())) {
+                        fragments.set(index, null);
+                        break;
+                    }
+                }
+
+                notifyDataSetChanged();
+            }
+
+            @Override
+            public int hashCode() {
+                return -1;
+            }
+
+            /** @noinspection EqualsWhichDoesntCheckParameterClass*/
+            @Override
+            public boolean equals(@Nullable Object object) {
+                return object != null &&
+                        hashCode() == object.hashCode();
+            }
+        };
+
+        LauncherApplicationManager manager = LauncherApplicationManager.getInstance();
+
+        // will have the same hash, therefore remove then add the updated one
+        manager.removeLauncherProfileListener(listener);
+        manager.addLauncherProfileListener(listener);
     }
 
     @NonNull
     @Override
     public Fragment getItem(int position) {
-        if (fragments.getOrDefault(position, null) == null) {
+        while (position >= fragments.size()) {
+            fragments.add(null);
+        }
+
+        if (fragments.get(position) == null ||
+                (position > 0 && position < getCount() - 1 && // case where profile could not be loaded
+                        fragments.get(position).getClass() == Fragment.class)) {
+
             if (position == 0 || position == getCount() - 1) {
-                fragments.put(position, new Fragment());
+                fragments.set(position, new Fragment());
             } else if (position == CATEGORIES_POSITION) {
-                fragments.put(position, new Categories());
+                fragments.set(position, new Categories());
             } else {
-                fragments.put(position, new List(
-                                Objects.requireNonNull(
-                                        LauncherApplicationManager.getInstance()
-                                                .getProfile(position - 2))
-                        )
-                );
+                ProfileApplicationManager manager =
+                        LauncherApplicationManager.getInstance()
+                                .getProfile(position - 2);
+                if (manager == null) {
+                    fragments.set(position, new Fragment());
+                } else {
+                    fragments.set(position, new List(manager));
+                }
             }
         }
 
         return Objects.requireNonNull(fragments.get(position));
+    }
+
+    @Override
+    public int getItemPosition(@NonNull Object object) {
+        //noinspection SuspiciousMethodCalls
+        int index = fragments.indexOf(object);
+
+        return index >= 0 ? index : POSITION_NONE;
     }
 
     @Override
@@ -96,6 +154,9 @@ public class DrawerAdapter extends FragmentPagerAdapter {
         }
     }
 
+    /**
+     * @noinspection BooleanMethodIsAlwaysInverted
+     */
     public boolean isTransitioning() {
         if (!fragmentManager.isDestroyed()) {
             for (Fragment fragment : fragmentManager.getFragments()) {

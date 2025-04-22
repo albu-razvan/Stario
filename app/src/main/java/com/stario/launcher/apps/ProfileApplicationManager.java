@@ -38,6 +38,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.stario.launcher.BuildConfig;
+import com.stario.launcher.apps.interfaces.LauncherApplicationListener;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.ThreadSafeArrayList;
@@ -50,9 +51,9 @@ import java.util.Map;
 public final class ProfileApplicationManager {
     private static final String TAG = "ProfileApplicationManager";
 
-    private final List<ApplicationListener> listeners;
     private final List<LauncherApplication> applicationListHidden;
     private final Map<String, LauncherApplication> applicationMap;
+    private final List<LauncherApplicationListener> listeners;
     private final List<LauncherApplication> applicationList;
     private final SharedPreferences hiddenApplications;
     private final SharedPreferences applicationLabels;
@@ -109,6 +110,8 @@ public final class ProfileApplicationManager {
                     lifecycle.removeObserver(this);
                 }
             });
+
+            registered = true;
         }
     }
 
@@ -275,7 +278,7 @@ public final class ProfileApplicationManager {
     }
 
     void notifyUpdate(LauncherApplication application) {
-        for (ApplicationListener listener : listeners) {
+        for (LauncherApplicationListener listener : listeners) {
             if (listener != null) {
                 listener.onUpdated(application);
             }
@@ -367,7 +370,7 @@ public final class ProfileApplicationManager {
         if (!hidden) {
             addApplicationToList(application, applicationListHidden);
 
-            for (ApplicationListener listener : listeners) {
+            for (LauncherApplicationListener listener : listeners) {
                 if (listener != null) {
                     listener.onInserted(application);
                 }
@@ -414,7 +417,7 @@ public final class ProfileApplicationManager {
         LauncherApplication application = applicationMap.getOrDefault(packageName, LauncherApplication.FALLBACK_APP);
 
         if (application != LauncherApplication.FALLBACK_APP) {
-            for (ApplicationListener listener : listeners) {
+            for (LauncherApplicationListener listener : listeners) {
                 if (listener != null) {
                     listener.onPrepareRemoval();
                 }
@@ -429,7 +432,7 @@ public final class ProfileApplicationManager {
                 CategoryManager.getInstance().removeApplication(application);
             }
 
-            for (ApplicationListener listener : listeners) {
+            for (LauncherApplicationListener listener : listeners) {
                 if (listener != null) {
                     listener.onRemoved(application);
                 }
@@ -448,7 +451,7 @@ public final class ProfileApplicationManager {
                 CategoryManager.getInstance().addApplication(application);
             }
 
-            for (ApplicationListener listener : listeners) {
+            for (LauncherApplicationListener listener : listeners) {
                 if (listener != null) {
                     listener.onShowed(application);
                 }
@@ -461,7 +464,7 @@ public final class ProfileApplicationManager {
                 .putBoolean(application.info.packageName, true)
                 .apply();
 
-        for (ApplicationListener listener : listeners) {
+        for (LauncherApplicationListener listener : listeners) {
             if (listener != null) {
                 listener.onPrepareHiding();
             }
@@ -472,20 +475,20 @@ public final class ProfileApplicationManager {
             CategoryManager.getInstance().removeApplication(application);
         }
 
-        for (ApplicationListener listener : listeners) {
+        for (LauncherApplicationListener listener : listeners) {
             if (listener != null) {
                 listener.onHidden(application);
             }
         }
     }
 
-    public void addApplicationListener(ApplicationListener listener) {
+    public void addApplicationListener(LauncherApplicationListener listener) {
         if (listener != null) {
             listeners.add(listener);
         }
     }
 
-    public void removeApplicationListener(ApplicationListener listener) {
+    public void removeApplicationListener(LauncherApplicationListener listener) {
         if (listener != null) {
             listeners.remove(listener);
         }
@@ -496,40 +499,5 @@ public final class ProfileApplicationManager {
      **/
     public int indexOf(LauncherApplication application) {
         return applicationListHidden.indexOf(application);
-    }
-
-    public interface ApplicationListener {
-        default void onInserted(LauncherApplication application) {
-        }
-
-        default void onShowed(LauncherApplication application) {
-        }
-
-        /**
-         * This will always be called before and in the same UI frame as {@link #onRemoved(LauncherApplication)}
-         */
-        default void onPrepareRemoval() {
-        }
-
-        /**
-         * This will always be called after and in the same UI frame as {@link #onPrepareRemoval()}
-         */
-        default void onRemoved(LauncherApplication application) {
-        }
-
-        /**
-         * This will always be called before and in the same UI frame as {@link #onHidden(LauncherApplication)}
-         */
-        default void onPrepareHiding() {
-        }
-
-        /**
-         * This will always be called after and in the same UI frame as {@link #onPrepareHiding()}
-         */
-        default void onHidden(LauncherApplication application) {
-        }
-
-        default void onUpdated(LauncherApplication application) {
-        }
     }
 }

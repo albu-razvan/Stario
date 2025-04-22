@@ -17,14 +17,24 @@
 
 package com.stario.launcher.apps;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.LauncherApps;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.UserHandle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 
+import com.stario.launcher.apps.interfaces.LauncherProfileListener;
 import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.utils.ThreadSafeArrayList;
 import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
@@ -39,7 +49,10 @@ public final class LauncherApplicationManager {
 
     private final Map<UserHandle, ProfileApplicationManager> profilesMap;
     private final List<ProfileApplicationManager> profilesList;
+    private final List<LauncherProfileListener> listeners;
     private final IconPackManager iconPacks;
+
+    private boolean registered;
 
     private LauncherApplicationManager(ThemedActivity activity) {
         // CategoryData and IconPackManager needs LauncherApplicationManager
@@ -48,8 +61,10 @@ public final class LauncherApplicationManager {
         instance = this;
 
         this.iconPacks = IconPackManager.from(activity, this::update);
+        this.listeners = new ThreadSafeArrayList<>();
         this.profilesList = new ArrayList<>();
         this.profilesMap = new HashMap<>();
+        this.registered = false;
 
         LauncherApps launcherApps = (LauncherApps) activity.getSystemService(Context.LAUNCHER_APPS_SERVICE);
 
@@ -75,12 +90,114 @@ public final class LauncherApplicationManager {
             instance.update();
         }
 
+        instance.refreshReceiver(activity);
         for (ProfileApplicationManager manager : instance.profilesList) {
             manager.refreshReceiver(activity);
         }
 
         return instance;
     }
+
+    private void refreshReceiver(ThemedActivity activity) {
+        if (!registered) {
+            BroadcastReceiver receiver = getReceiver();
+
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+                activity.registerReceiver(receiver, getIntentFilter(), Context.RECEIVER_EXPORTED);
+            } else {
+                //noinspection UnspecifiedRegisterReceiverFlag
+                activity.registerReceiver(receiver, getIntentFilter());
+            }
+
+            Lifecycle lifecycle = activity.getLifecycle();
+            lifecycle.addObserver(new DefaultLifecycleObserver() {
+                @Override
+                public void onDestroy(@NonNull LifecycleOwner owner) {
+                    try {
+                        activity.unregisterReceiver(receiver);
+                        registered = false;
+                    } catch (Exception exception) {
+                        Log.e(TAG, "Receiver not registered");
+                    }
+
+                    lifecycle.removeObserver(this);
+                }
+            });
+
+            registered = true;
+        }
+    }
+
+    private BroadcastReceiver getReceiver() {
+        return new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                UserHandle handle;
+                if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+                    handle = intent.getParcelableExtra(Intent.EXTRA_USER, UserHandle.class);
+                } else {
+                    handle = intent.getParcelableExtra(Intent.EXTRA_USER);
+                }
+
+                if (handle == null) {
+                    return;
+                }
+
+                // TODO update work profile enabled state
+                String action = intent.getAction();
+                if (action != null) {
+                    if (action.equals(Intent.ACTION_MANAGED_PROFILE_ADDED)) {
+                        if (profilesMap.containsKey(handle)) {
+                            return;
+                        }
+
+                        LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+
+                        for (UserHandle profileHandle : launcherApps.getProfiles()) {
+                            if (handle.equals(profileHandle)) {
+                                ProfileApplicationManager manager = new ProfileApplicationManager((ThemedActivity) context,
+                                        profileHandle, Utils.isMainProfile(profileHandle));
+
+                                profilesMap.put(profileHandle, manager);
+                                profilesList.add(manager);
+
+                                for (LauncherProfileListener listener : listeners) {
+                                    if (listener != null) {
+                                        listener.onInserted(profileHandle);
+                                    }
+                                }
+                            }
+                        }
+                    } else if (action.equals(Intent.ACTION_MANAGED_PROFILE_REMOVED)) {
+                        ProfileApplicationManager manager = profilesMap.remove(handle);
+
+                        if (manager == null) {
+                            return;
+                        }
+
+                        profilesList.remove(manager);
+                        for (LauncherProfileListener listener : listeners) {
+                            if (listener != null) {
+                                listener.onRemoved(handle);
+                            }
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    private static IntentFilter getIntentFilter() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_MANAGED_PROFILE_ADDED);
+        intentFilter.addAction(Intent.ACTION_MANAGED_PROFILE_REMOVED);
+        intentFilter.addAction(Intent.ACTION_MANAGED_PROFILE_AVAILABLE);
+        intentFilter.addAction(Intent.ACTION_MANAGED_PROFILE_UNAVAILABLE);
+        intentFilter.addAction(Intent.ACTION_MANAGED_PROFILE_UNLOCKED);
+
+        return intentFilter;
+    }
+
 
     public static LauncherApplicationManager getInstance() {
         if (instance == null) {
@@ -163,5 +280,17 @@ public final class LauncherApplicationManager {
 
     public int size() {
         return profilesMap.size();
+    }
+
+    public void addLauncherProfileListener(LauncherProfileListener listener) {
+        if (listener != null) {
+            listeners.add(listener);
+        }
+    }
+
+    public void removeLauncherProfileListener(LauncherProfileListener listener) {
+        if (listener != null) {
+            listeners.remove(listener);
+        }
     }
 }

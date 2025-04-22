@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.ProfileApplicationManager;
+import com.stario.launcher.apps.interfaces.LauncherApplicationListener;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.themes.ThemedActivity;
@@ -38,7 +39,7 @@ import com.stario.launcher.ui.utils.animation.Animation;
 public class ListAdapter extends RecyclerApplicationAdapter
         implements FastScroller.OnPopupViewUpdate,
         FastScroller.OnPopupViewReset {
-    private final ProfileApplicationManager.ApplicationListener listener;
+    private final LauncherApplicationListener listener;
     private final ProfileApplicationManager applicationManager;
     private RecyclerView recyclerView;
     private int oldScrollerPosition;
@@ -49,7 +50,7 @@ public class ListAdapter extends RecyclerApplicationAdapter
         this.applicationManager = applicationManager;
         this.oldScrollerPosition = -1;
 
-        listener = new ProfileApplicationManager.ApplicationListener() {
+        listener = new LauncherApplicationListener() {
             @Override
             public void onHidden(LauncherApplication application) {
                 recyclerView.post(() -> notifyItemRemovedInternal());
@@ -191,7 +192,8 @@ public class ListAdapter extends RecyclerApplicationAdapter
 
     @Override
     protected LauncherApplication getApplication(int index) {
-        return applicationManager.get(index, true);
+        return applicationManager != null ?
+                applicationManager.get(index, true) : LauncherApplication.FALLBACK_APP;
     }
 
     @Override
@@ -204,8 +206,7 @@ public class ListAdapter extends RecyclerApplicationAdapter
         LauncherApplication application = applicationManager.get(position, true);
 
         if (application != null) {
-            return application.getInfo()
-                    .packageName.hashCode();
+            return application.getInfo().packageName.hashCode();
         } else {
             return -1;
         }

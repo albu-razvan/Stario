@@ -41,6 +41,7 @@ import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.apps.ProfileApplicationManager;
+import com.stario.launcher.apps.interfaces.LauncherApplicationListener;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
@@ -53,7 +54,7 @@ public class OptionAdapter extends SuggestionSearchAdapter {
     private static final String TAG = "com.stario.launcher.OptionAdapter";
     private static final String[] PREDEFINED_URIS = new String[]{"market://search?q=", "geo:?q="};
 
-    private final ProfileApplicationManager.ApplicationListener listener;
+    private final LauncherApplicationListener listener;
     private final ProfileApplicationManager applicationManager;
     private final ArrayList<OptionEntry> options;
     private final ThemedActivity activity;
@@ -121,7 +122,7 @@ public class OptionAdapter extends SuggestionSearchAdapter {
             UiUtils.runOnUIThread(this::notifyInternal);
         });
 
-        listener = new ProfileApplicationManager.ApplicationListener() {
+        listener = new LauncherApplicationListener() {
             private void insert(LauncherApplication application) {
                 recyclerView.post(() -> {
                     String[] filters = new String[]{Intent.ACTION_WEB_SEARCH, Intent.ACTION_SEARCH};
