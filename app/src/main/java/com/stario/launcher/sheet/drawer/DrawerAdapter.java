@@ -18,14 +18,18 @@
 package com.stario.launcher.sheet.drawer;
 
 import android.os.UserHandle;
-import android.util.Log;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.apps.ProfileManager;
@@ -47,6 +51,8 @@ public class DrawerAdapter extends FragmentPagerAdapter {
 
     private final FragmentManager fragmentManager;
     private final ArrayList<Fragment> fragments;
+
+    private FragmentTransaction transaction;
 
     public DrawerAdapter(FragmentManager fragmentManager) {
         super(fragmentManager);
@@ -158,22 +164,47 @@ public class DrawerAdapter extends FragmentPagerAdapter {
     }
 
     private void removeFragment(int position) {
-        for(Fragment fragment : fragmentManager.getFragments()) {
-            Log.e("TAG", "preRemove: " + fragment.getTag());
-        }
-
         Fragment fragment = fragments.get(position);
 
         if (fragment != null) {
-            //noinspection DataFlowIssue
-            destroyItem(null, position, fragment);
-            fragmentManager.beginTransaction()
-                    .remove(fragment)
-                    .commitNow();
-        }
+            Object host = fragment.getHost();
 
-        for(Fragment fragment2 : fragmentManager.getFragments()) {
-            Log.e("TAG", "postRemove: " + fragment2.getTag());
+            if (host instanceof FragmentActivity) {
+                Lifecycle lifecycle = ((FragmentActivity) host).getLifecycle();
+
+                if (lifecycle.getCurrentState() == Lifecycle.State.RESUMED) {
+                    //noinspection DataFlowIssue
+                    destroyItem(null, position, fragment);
+                    fragmentManager.beginTransaction()
+                            .remove(fragment)
+                            .commitNow();
+                } else {
+                    if (transaction == null) {
+                        transaction = fragmentManager.beginTransaction();
+                    }
+
+                    transaction.remove(fragment);
+
+                    lifecycle.addObserver(new DefaultLifecycleObserver() {
+                        @Override
+                        public void onDestroy(@NonNull LifecycleOwner owner) {
+                            transaction = null;
+
+                            lifecycle.removeObserver(this);
+                        }
+
+                        @Override
+                        public void onResume(@NonNull LifecycleOwner owner) {
+                            if(transaction != null) {
+                                transaction.commitNow();
+                                transaction = null;
+                            }
+
+                            lifecycle.removeObserver(this);
+                        }
+                    });
+                }
+            }
         }
     }
 

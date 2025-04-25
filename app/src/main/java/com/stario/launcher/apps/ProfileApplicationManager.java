@@ -249,8 +249,8 @@ public final class ProfileApplicationManager {
     }
 
     void update() {
-        for (LauncherApplication application : applicationListHidden) {
-           updateApplication(application);
+        for (int index = 0; index < applicationListHidden.size(); index++) {
+            updateApplication(applicationListHidden.get(index));
         }
     }
 
