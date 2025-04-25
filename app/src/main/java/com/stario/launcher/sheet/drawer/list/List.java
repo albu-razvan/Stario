@@ -18,10 +18,7 @@
 package com.stario.launcher.sheet.drawer.list;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.UserHandle;
@@ -31,26 +28,20 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.stario.launcher.R;
-import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.apps.ProfileApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.sheet.drawer.DrawerPage;
-import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.FastScroller;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
-import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 public class List extends DrawerPage {
     private static final String USER_HANDLE_KEY = "com.stario.UserHandle";
 
-    private LocalBroadcastManager broadcastManager;
-    private BroadcastReceiver visibilityReceiver;
-    private BroadcastReceiver positionReceiver;
     private FastScroller fastScroller;
     private UserHandle handle;
 
@@ -65,31 +56,6 @@ public class List extends DrawerPage {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-
-        broadcastManager = LocalBroadcastManager.getInstance(context);
-    }
-
-    @Override
-    public void onDetach() {
-        if (visibilityReceiver != null) {
-            broadcastManager.unregisterReceiver(visibilityReceiver);
-        }
-
-        if (positionReceiver != null) {
-            broadcastManager.unregisterReceiver(positionReceiver);
-        }
-
-        super.onDetach();
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        broadcastManager.registerReceiver(visibilityReceiver,
-                new IntentFilter(ApplicationsDialog.getTopic()));
-        broadcastManager.registerReceiver(positionReceiver,
-                new IntentFilter(ApplicationsDialog.getTopic(getView())));
     }
 
     @NonNull
@@ -115,8 +81,14 @@ public class List extends DrawerPage {
 
         Measurements.addSysUIListener(value -> fastScroller.setTopOffset(drawer.getPaddingTop()));
 
-        View searchContainer = (View) search.getParent();
+        return rootView;
+    }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        View searchContainer = (View) search.getParent();
         search.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
             if (Measurements.isLandscape() && Measurements.getWidth() >
                     // FastScroller popup size * 2 + search width
@@ -127,52 +99,23 @@ public class List extends DrawerPage {
                         Measurements.spToPx(32) + Measurements.dpToPx(20));
             }
         });
+    }
 
-        positionReceiver = new BroadcastReceiver() {
-            private boolean loaded;
+    @Override
+    public void setSelected(boolean selected) {
+        if (isSelected() == selected) {
+            super.setSelected(selected);
 
-            {
-                this.loaded = false;
-            }
+            return;
+        }
 
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                float position = intent.getFloatExtra(ApplicationsDialog.INTENT_EXTRA_PAGE_POSITION, 0f);
-
-                if (!loaded && handle != null) {
-                    AsyncRecyclerAdapter<?> adapter = new ListAdapter(activity,
-                            LauncherApplicationManager.getInstance().getProfile(handle));
-
-                    UiUtils.runOnUIThread(() -> {
-                        if (position == 0) {
-                            synchronizeAdapter(adapter);
-                        } else {
-                            drawer.setAdapter(adapter);
-                        }
-                    });
-
-                    loaded = true;
-                }
-
-                fastScroller.animateVisibility(position == 0);
-            }
-        };
-
-        visibilityReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                fastScroller.animateVisibility(
-                        intent.getBooleanExtra(ApplicationsDialog.INTENT_EXTRA_PAGER_VISIBILITY, true));
-            }
-        };
-
-        return rootView;
+        super.setSelected(selected);
+        fastScroller.animateVisibility(selected);
     }
 
     @Override
     public void onResume() {
-        if (LauncherApplicationManager.getInstance()
-                .getProfiles().size() == 1) {
+        if (ProfileManager.getInstance().getProfiles().size() <= 1) {
             title.setText(R.string.apps);
         } else {
             title.setText(Utils.isMainProfile(handle) ? R.string.personal : R.string.managed);
@@ -190,6 +133,10 @@ public class List extends DrawerPage {
                 handle = savedInstanceState.getParcelable(USER_HANDLE_KEY);
             }
         }
+
+        AsyncRecyclerAdapter<?> adapter = new ListAdapter(activity,
+                ProfileManager.getInstance().getProfile(handle));
+        drawer.setAdapter(adapter);
 
         super.onViewStateRestored(savedInstanceState);
     }

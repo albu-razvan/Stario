@@ -24,7 +24,9 @@ import android.content.IntentFilter;
 import android.content.pm.LauncherApps;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Process;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -43,9 +45,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class LauncherApplicationManager {
+public final class ProfileManager {
     private static final String TAG = "LauncherApplicationManager";
-    private static LauncherApplicationManager instance = null;
+    private static ProfileManager instance = null;
+    private static UserHandle owner;
 
     private final Map<UserHandle, ProfileApplicationManager> profilesMap;
     private final List<ProfileApplicationManager> profilesList;
@@ -54,7 +57,7 @@ public final class LauncherApplicationManager {
 
     private boolean registered;
 
-    private LauncherApplicationManager(ThemedActivity activity) {
+    private ProfileManager(ThemedActivity activity) {
         // CategoryData and IconPackManager needs LauncherApplicationManager
         // to be instantiated. Assign the instance in the constructor before
         // everything else to guarantee that the instance will be supplied.
@@ -67,24 +70,34 @@ public final class LauncherApplicationManager {
         this.registered = false;
 
         LauncherApps launcherApps = (LauncherApps) activity.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        UserManager userManager = (UserManager) activity.getSystemService(Context.USER_SERVICE);
 
-        for (UserHandle profileHandle : launcherApps.getProfiles()) {
-            ProfileApplicationManager manager = new ProfileApplicationManager(activity,
-                    profileHandle, Utils.isMainProfile(profileHandle));
+        // work profiles will always be created after the owner
+        List<UserHandle> profiles = launcherApps.getProfiles();
+        profiles.sort((handle1, handle2) -> {
+            long diff = userManager.getUserCreationTime(handle1) -
+                    userManager.getUserCreationTime(handle2);
 
-            profilesMap.put(profileHandle, manager);
+            return diff < 0 ? -1 : (diff > 0 ? 1 : 0);
+        });
 
-            if (Utils.isMainProfile(profileHandle)) {
-                profilesList.add(0, manager);
-            } else {
-                profilesList.add(manager);
-            }
+        for (int index = 0; index < profiles.size(); index++) {
+            UserHandle handle = profiles.get(index);
+
+            ProfileApplicationManager manager =
+                    new ProfileApplicationManager(activity, handle, index == 0);
+
+            profilesMap.put(handle, manager);
+            profilesList.add(manager);
         }
+
+        // there should always be a profile, if not, something TERRIBLE happened
+        owner = !profilesList.isEmpty() ? profilesList.get(0).handle : Process.myUserHandle();
     }
 
-    public static LauncherApplicationManager from(@NonNull ThemedActivity activity) {
+    public static ProfileManager from(@NonNull ThemedActivity activity) {
         if (instance == null) {
-            instance = new LauncherApplicationManager(activity);
+            instance = new ProfileManager(activity);
         } else {
             instance.iconPacks.refresh();
             instance.update();
@@ -96,6 +109,14 @@ public final class LauncherApplicationManager {
         }
 
         return instance;
+    }
+
+    public static UserHandle getOwner() {
+        if (instance == null || owner == null) {
+            throw new IllegalStateException("ProfileManager not initialized");
+        }
+
+        return owner;
     }
 
     private void refreshReceiver(ThemedActivity activity) {
@@ -199,7 +220,7 @@ public final class LauncherApplicationManager {
     }
 
 
-    public static LauncherApplicationManager getInstance() {
+    public static ProfileManager getInstance() {
         if (instance == null) {
             throw new RuntimeException("Applications not initialized.");
         }
@@ -209,7 +230,7 @@ public final class LauncherApplicationManager {
 
     public ProfileApplicationManager getProfile(UserHandle handle) {
         if (handle == null) {
-            return instance.profilesMap.getOrDefault(Utils.getMainUser(), null);
+            return instance.profilesMap.getOrDefault(owner, null);
         }
 
         return instance.profilesMap.getOrDefault(handle, null);
@@ -279,7 +300,7 @@ public final class LauncherApplicationManager {
     }
 
     public int size() {
-        return profilesMap.size();
+        return profilesList.size();
     }
 
     public void addLauncherProfileListener(LauncherProfileListener listener) {

@@ -61,7 +61,6 @@ import com.stario.launcher.ui.keyboard.ImeAnimationController;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
-import com.stario.launcher.ui.recyclers.async.InflationType;
 import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.ui.utils.animation.Animation;
@@ -177,8 +176,6 @@ public class SearchFragment extends Fragment {
         apps.setItemAnimator(null);
 
         AppAdapter appAdapter = new AppAdapter(activity);
-        appAdapter.setInflationType(InflationType.SYNCED);
-        appAdapter.setOnVisibilityChangeListener(new OnSearchRecyclerVisibilityChangeListener(searchLayoutTransition));
 
         apps.setAdapter(appAdapter);
 

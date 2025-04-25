@@ -41,7 +41,7 @@ import com.stario.launcher.R;
 import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.Measurements;
@@ -80,7 +80,7 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
         entries.clear();
 
         ProfileApplicationManager mainProfile =
-                LauncherApplicationManager.getInstance().getProfile(null);
+                ProfileManager.getInstance().getProfile(null);
 
         if(mainProfile != null) {
             for (AppWidgetProviderInfo info : widgets) {

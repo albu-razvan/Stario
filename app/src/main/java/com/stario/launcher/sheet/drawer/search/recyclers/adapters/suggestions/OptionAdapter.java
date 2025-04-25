@@ -39,7 +39,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.apps.interfaces.LauncherApplicationListener;
 import com.stario.launcher.themes.ThemedActivity;
@@ -72,7 +72,7 @@ public class OptionAdapter extends SuggestionSearchAdapter {
 
         this.activity = activity;
 
-        this.applicationManager = LauncherApplicationManager.getInstance()
+        this.applicationManager = ProfileManager.getInstance()
                 .getProfile(null);
         this.packageManager = activity.getPackageManager();
 

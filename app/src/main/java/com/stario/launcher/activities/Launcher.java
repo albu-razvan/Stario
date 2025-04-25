@@ -38,7 +38,7 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.stario.launcher.R;
 import com.stario.launcher.activities.settings.Settings;
-import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.glance.Glance;
 import com.stario.launcher.glance.extensions.GlanceDialogExtension;
 import com.stario.launcher.glance.extensions.calendar.Calendar;
@@ -72,7 +72,7 @@ public class Launcher extends ThemedActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Vibrations.from(this);
-        LauncherApplicationManager.from(this);
+        ProfileManager.from(this);
 
         Window window = getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_SPLIT_TOUCH);

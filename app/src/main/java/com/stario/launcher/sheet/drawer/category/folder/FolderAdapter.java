@@ -28,6 +28,7 @@ import com.stario.launcher.apps.Category;
 import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.ui.recyclers.async.InflationType;
 
 import java.util.UUID;
 
@@ -38,7 +39,7 @@ class FolderAdapter extends RecyclerApplicationAdapter {
     private RecyclerView recyclerView;
 
     public FolderAdapter(ThemedActivity activity, UUID categoryID, ItemTouchHelper itemTouchHelper) {
-        super(activity, itemTouchHelper);
+        super(activity, itemTouchHelper, InflationType.SYNCED);
 
         this.category = CategoryManager.getInstance().get(categoryID);
 

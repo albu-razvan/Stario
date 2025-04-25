@@ -43,7 +43,6 @@ import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.AccurateScrollComputeGridLayoutManager;
-import com.stario.launcher.ui.recyclers.async.InflationType;
 
 import java.lang.reflect.Method;
 import java.util.UUID;
@@ -200,7 +199,6 @@ public class Folder extends DrawerPage {
             this.identifier = identifier;
 
             adapter = new FolderAdapter(activity, identifier, itemTouchHelper);
-            adapter.setInflationType(InflationType.SYNCED);
 
             drawer.setAdapter(adapter);
 

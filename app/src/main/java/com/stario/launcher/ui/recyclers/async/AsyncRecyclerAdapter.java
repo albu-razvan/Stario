@@ -47,32 +47,22 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
 
     private final Activity activity;
     private final AsyncLayoutInflater layoutInflater;
+    private final InflationType type;
 
     private RecyclerView recyclerView;
-    private InflationType type;
     private int holderHeight;
     private int limit;
 
     public AsyncRecyclerAdapter(Activity activity) {
-        this.activity = activity;
-        this.type = InflationType.ASYNC;
+        this(activity, InflationType.ASYNC);
+    }
+
+    public AsyncRecyclerAdapter(Activity activity, InflationType type) {
         this.layoutInflater = new AsyncLayoutInflater(activity);
         this.holderHeight = AsyncViewHolder.HEIGHT_UNMEASURED;
-        this.limit = 1;
-    }
-
-    public void setInflationType(InflationType type) {
-        int oldLimit = getItemCount();
+        this.activity = activity;
         this.type = type;
-
-        if (type == InflationType.SYNCED) {
-            limit = NO_LIMIT;
-            notifyItemRangeInserted(oldLimit, Integer.MAX_VALUE);
-        }
-    }
-
-    public InflationType getInflationType() {
-        return type;
+        this.limit = 1;
     }
 
     public abstract class AsyncViewHolder extends RecyclerView.ViewHolder {
@@ -101,7 +91,8 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
                 itemView.setLayoutParams(params);
                 itemView.requestLayout();
 
-                LayoutInflater.from(activity).inflate(getLayout(), (ViewGroup) itemView, true);
+                LayoutInflater.from(activity).inflate(getLayout(),
+                        (ViewGroup) itemView, true);
 
                 postInflate();
             }

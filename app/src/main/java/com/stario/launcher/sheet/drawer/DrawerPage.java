@@ -35,16 +35,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
-import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
-import com.stario.launcher.ui.recyclers.async.InflationType;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
 
 public abstract class DrawerPage extends Fragment implements ScrollToTop {
     private int currentlyRunningAnimations;
-    private AsyncRecyclerAdapter<?> adapter;
     private RelativeLayout titleContainer;
-    private InflationType baseInflationType;
+    private boolean selected;
 
     protected OverScrollRecyclerView drawer;
     protected ThemedActivity activity;
@@ -54,6 +51,7 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
     public DrawerPage() {
         super();
 
+        this.selected = false;
         this.currentlyRunningAnimations = 0;
     }
 
@@ -77,17 +75,13 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
         drawer = root.findViewById(R.id.drawer);
         title = root.findViewById(R.id.title);
 
+        assert container != null;
         search = container.getRootView().findViewById(R.id.search);
-
         drawer.addOnLayoutChangeListener((v, left, top, right, bottom,
                                           oldLeft, oldTop, oldRight, oldBottom) -> updateTitleTransforms(drawer));
         drawer.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                if(adapter != null) {
-                    adapter.setInflationType(baseInflationType);
-                }
-
                 updateTitleTransforms(drawer);
             }
         });
@@ -122,30 +116,28 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
         return root;
     }
 
-    protected void updateTitleTransforms(@NonNull RecyclerView recyclerView) {
-        int translation = recyclerView.computeVerticalScrollOffset();
-
-        titleContainer.setTranslationY(-translation / 2f);
-
-        float alpha = 1f - translation / (Measurements.dpToPx(Measurements.HEADER_SIZE_DP) / 2f);
-        if (alpha > 0 && !Measurements.isLandscape()) {
-            titleContainer.setAlpha(alpha);
-            titleContainer.setVisibility(View.VISIBLE);
-        } else {
-            titleContainer.setVisibility(View.GONE);
-        }
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 
-    protected void synchronizeAdapter(AsyncRecyclerAdapter<?> adapter) {
-        if(drawer != null) {
-            baseInflationType = adapter.getInflationType();
-            adapter.setInflationType(InflationType.SYNCED);
+    public boolean isSelected() {
+        return selected;
+    }
 
-            this.adapter = adapter;
-            drawer.setAdapter(adapter);
-        } else {
-            this.adapter = null;
-        }
+    protected void updateTitleTransforms(@NonNull RecyclerView recyclerView) {
+        titleContainer.post(() -> {
+            int translation = recyclerView.computeVerticalScrollOffset();
+
+            titleContainer.setTranslationY(-translation / 2f);
+
+            float alpha = 1f - translation / (Measurements.dpToPx(Measurements.HEADER_SIZE_DP) / 2f);
+            if (alpha > 0 && !Measurements.isLandscape()) {
+                titleContainer.setAlpha(alpha);
+                titleContainer.setVisibility(View.VISIBLE);
+            } else {
+                titleContainer.setVisibility(View.GONE);
+            }
+        });
     }
 
     @Override

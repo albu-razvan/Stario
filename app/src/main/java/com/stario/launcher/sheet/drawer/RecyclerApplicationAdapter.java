@@ -46,6 +46,7 @@ import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.popup.PopupMenu;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
+import com.stario.launcher.ui.recyclers.async.InflationType;
 import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.util.ArrayList;
@@ -55,21 +56,24 @@ import java.util.function.Supplier;
 public abstract class RecyclerApplicationAdapter
         extends AsyncRecyclerAdapter<RecyclerApplicationAdapter.ViewHolder> {
     private final ThemedActivity activity;
-
-    private ItemTouchHelper itemTouchHelper;
+    private final ItemTouchHelper itemTouchHelper;
 
     public RecyclerApplicationAdapter(ThemedActivity activity) {
-        super(activity);
-
-        this.activity = activity;
-
-        setHasStableIds(true);
+        this(activity, null);
     }
 
     public RecyclerApplicationAdapter(ThemedActivity activity, ItemTouchHelper itemTouchHelper) {
-        this(activity);
+        this(activity, itemTouchHelper, InflationType.ASYNC);
+    }
 
+    public RecyclerApplicationAdapter(ThemedActivity activity,
+                                      ItemTouchHelper itemTouchHelper, InflationType type) {
+        super(activity, type);
+
+        this.activity = activity;
         this.itemTouchHelper = itemTouchHelper;
+
+        setHasStableIds(true);
     }
 
     public class ViewHolder extends AsyncViewHolder {
@@ -134,7 +138,7 @@ public abstract class RecyclerApplicationAdapter
 
                                 ((ViewGroup) itemView).requestDisallowInterceptTouchEvent(true);
 
-                                if(Math.abs(x - event.getRawX()) > moveSlop ||
+                                if (Math.abs(x - event.getRawX()) > moveSlop ||
                                         Math.abs(y - event.getRawY()) > moveSlop) {
                                     ((ViewGroup) itemView).requestDisallowInterceptTouchEvent(false);
                                     itemTouchHelper.startDrag(ViewHolder.this);

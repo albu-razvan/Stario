@@ -18,27 +18,32 @@
 package com.stario.launcher.sheet.drawer;
 
 import android.os.UserHandle;
+import android.util.Log;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.stario.launcher.apps.LauncherApplicationManager;
 import com.stario.launcher.apps.ProfileApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.apps.interfaces.LauncherProfileListener;
 import com.stario.launcher.sheet.drawer.category.Categories;
 import com.stario.launcher.sheet.drawer.list.List;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
+/**
+ * @noinspection deprecation
+ */
 public class DrawerAdapter extends FragmentPagerAdapter {
     public static final String SHARED_ELEMENT_PREFIX = "SharedElementApp";
     public static final int CATEGORIES_POSITION = 1;
 
-    private static final int PAGES = 3; // category page + 2 empty pages for transitioning
+    // category page + 2 empty pages for transitioning
+    private static final int PAGES = 3;
 
     private final FragmentManager fragmentManager;
     private final ArrayList<Fragment> fragments;
@@ -52,6 +57,20 @@ public class DrawerAdapter extends FragmentPagerAdapter {
         LauncherProfileListener listener = new LauncherProfileListener() {
             @Override
             public void onInserted(UserHandle handle) {
+                int oldCount = getCount() - 1;
+
+                if (fragments.size() > oldCount - 1) {
+                    removeFragment(oldCount - 1);
+
+                    if (fragments.size() > oldCount) {
+                        fragments.set(oldCount, fragments.get(oldCount - 1));
+                    } else {
+                        fragments.add(fragments.get(oldCount - 1));
+                    }
+
+                    fragments.set(oldCount - 1, null);
+                }
+
                 notifyDataSetChanged();
             }
 
@@ -62,7 +81,28 @@ public class DrawerAdapter extends FragmentPagerAdapter {
 
                     if (fragment instanceof List &&
                             handle.equals(((List) fragment).getUserHandle())) {
-                        fragments.set(index, null);
+                        removeFragment(index);
+
+                        for (int move = index + 1; move < fragments.size(); move++) {
+                            Fragment fragmentToRemove = fragments.get(move);
+
+                            if (fragmentToRemove != null) {
+                                removeFragment(move);
+                            }
+
+                            fragments.set(move - 1, fragments.get(move));
+                        }
+
+                        int count = getCount();
+                        if (fragments.size() > count) {
+                            Fragment fragmentToRemove = fragments.get(count);
+
+                            if (fragmentToRemove != null) {
+                                removeFragment(count);
+                                fragments.set(getCount(), null);
+                            }
+                        }
+
                         break;
                     }
                 }
@@ -83,9 +123,9 @@ public class DrawerAdapter extends FragmentPagerAdapter {
             }
         };
 
-        LauncherApplicationManager manager = LauncherApplicationManager.getInstance();
+        ProfileManager manager = ProfileManager.getInstance();
 
-        // will have the same hash, therefore remove then add the updated one
+        // Will have the same hash, therefore remove then add the updated one
         manager.removeLauncherProfileListener(listener);
         manager.addLauncherProfileListener(listener);
     }
@@ -97,18 +137,15 @@ public class DrawerAdapter extends FragmentPagerAdapter {
             fragments.add(null);
         }
 
-        if (fragments.get(position) == null ||
-                (position > 0 && position < getCount() - 1 && // case where profile could not be loaded
-                        fragments.get(position).getClass() == Fragment.class)) {
-
+        if (fragments.get(position) == null) {
             if (position == 0 || position == getCount() - 1) {
                 fragments.set(position, new Fragment());
             } else if (position == CATEGORIES_POSITION) {
                 fragments.set(position, new Categories());
             } else {
                 ProfileApplicationManager manager =
-                        LauncherApplicationManager.getInstance()
-                                .getProfile(position - 2);
+                        ProfileManager.getInstance().getProfile(position - 2);
+
                 if (manager == null) {
                     fragments.set(position, new Fragment());
                 } else {
@@ -117,7 +154,35 @@ public class DrawerAdapter extends FragmentPagerAdapter {
             }
         }
 
-        return Objects.requireNonNull(fragments.get(position));
+        return fragments.get(position);
+    }
+
+    private void removeFragment(int position) {
+        for(Fragment fragment : fragmentManager.getFragments()) {
+            Log.e("TAG", "preRemove: " + fragment.getTag());
+        }
+
+        Fragment fragment = fragments.get(position);
+
+        if (fragment != null) {
+            //noinspection DataFlowIssue
+            destroyItem(null, position, fragment);
+            fragmentManager.beginTransaction()
+                    .remove(fragment)
+                    .commitNow();
+        }
+
+        for(Fragment fragment2 : fragmentManager.getFragments()) {
+            Log.e("TAG", "postRemove: " + fragment2.getTag());
+        }
+    }
+
+    public Fragment getFragment(int position) {
+        if (position < 0 || position >= fragments.size()) {
+            return null;
+        }
+
+        return fragments.get(position);
     }
 
     @Override
@@ -125,12 +190,13 @@ public class DrawerAdapter extends FragmentPagerAdapter {
         //noinspection SuspiciousMethodCalls
         int index = fragments.indexOf(object);
 
-        return index >= 0 ? index : POSITION_NONE;
+        return (index >= 0 && index < getCount()) ? index : POSITION_NONE;
     }
 
     @Override
+    @IntRange(from = PAGES)
     public int getCount() {
-        return PAGES + LauncherApplicationManager.getInstance().size();
+        return PAGES + ProfileManager.getInstance().size();
     }
 
     public void reset() {

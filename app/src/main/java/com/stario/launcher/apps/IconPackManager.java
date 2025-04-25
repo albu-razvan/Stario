@@ -218,10 +218,10 @@ public final class IconPackManager {
 
                 final Drawable drawable = icon;
                 UiUtils.runOnUIThread(() ->
-                        LauncherApplicationManager.getInstance().updateIcon(packageName, drawable));
+                        ProfileManager.getInstance().updateIcon(packageName, drawable));
             });
         } else {
-            LauncherApplicationManager.getInstance().updateIcon(packageName,
+            ProfileManager.getInstance().updateIcon(packageName,
                     ImageUtils.getIcon(launcherApps, packageName));
         }
     }

@@ -36,7 +36,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.stario.launcher.R;
 import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
 import com.stario.launcher.ui.keyboard.InlineAutocompleteEditText;
@@ -56,7 +56,7 @@ public class ApplicationCustomizationDialog extends ActionDialog {
         this.categoryManager = CategoryManager.getInstance();
 
         setOnDismissListener(dialog -> {
-            LauncherApplicationManager manager = LauncherApplicationManager.getInstance();
+            ProfileManager manager = ProfileManager.getInstance();
 
             Editable newLabel = label.getText();
             if (newLabel != null) {

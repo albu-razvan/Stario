@@ -21,21 +21,18 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.os.Process;
 import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.FloatRange;
 
 import com.google.gson.Gson;
 import com.stario.launcher.BuildConfig;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.services.AccessibilityService;
 
 import java.io.BufferedReader;
@@ -105,7 +102,7 @@ public class Utils {
     public static LauncherActivityInfo getMainActivity(LauncherApps launcherApps, String packageName, UserHandle handle) {
         List<LauncherActivityInfo> activityInfoList = launcherApps.getActivityList(packageName, handle);
 
-        if(!activityInfoList.isEmpty()) {
+        if (!activityInfoList.isEmpty()) {
             return activityInfoList.get(0);
         }
 
@@ -117,26 +114,7 @@ public class Utils {
     }
 
     public static boolean isMainProfile(UserHandle handle) {
-        return handle != null && handle.equals(getMainUser());
-    }
-
-    // This will identify the work profile as primary if the launcher process
-    // is started from there. Maybe look into it in the future?
-    public static UserHandle getMainUser() {
-        return Process.myUserHandle();
-    }
-
-    public static Bitmap getSnapshot(View view) {
-        if (view != null) {
-            Bitmap bitmap = Bitmap.createBitmap(view.getWidth(),
-                    view.getHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            view.draw(canvas);
-
-            return bitmap;
-        }
-
-        return null;
+        return handle != null && handle.equals(ProfileManager.getOwner());
     }
 
     public static boolean isNetworkAvailable(Context context) {

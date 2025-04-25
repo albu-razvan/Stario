@@ -49,7 +49,7 @@ import com.stario.launcher.activities.settings.dialogs.search.engine.SearchEngin
 import com.stario.launcher.activities.settings.dialogs.search.results.SearchResultsDialog;
 import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.glance.extensions.media.Media;
 import com.stario.launcher.glance.extensions.weather.Weather;
 import com.stario.launcher.preferences.Entry;
@@ -377,7 +377,7 @@ public class Settings extends ThemedActivity {
         String packPackageName = iconPreferences.getString(IconPackManager.ICON_PACK_ENTRY, null);
 
         if (packPackageName != null) {
-            LauncherApplication iconPackApplication = LauncherApplicationManager
+            LauncherApplication iconPackApplication = ProfileManager
                     .getInstance().getApplication(packPackageName);
 
             if (iconPackApplication != LauncherApplication.FALLBACK_APP) {

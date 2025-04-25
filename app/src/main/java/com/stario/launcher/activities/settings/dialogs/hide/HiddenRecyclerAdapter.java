@@ -31,7 +31,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.preferences.Entry;
@@ -46,7 +46,7 @@ public class HiddenRecyclerAdapter extends RecyclerView.Adapter<HiddenRecyclerAd
     public HiddenRecyclerAdapter(ThemedActivity activity) {
         this.activity = activity;
         this.hiddenApps = activity.getSharedPreferences(Entry.HIDDEN_APPS);
-        this.manager = LauncherApplicationManager.getInstance().getProfile(null);
+        this.manager = ProfileManager.getInstance().getProfile(null);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

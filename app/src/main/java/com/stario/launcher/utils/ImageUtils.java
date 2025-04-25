@@ -25,7 +25,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
 
-import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.ui.Measurements;
 
@@ -35,7 +35,7 @@ public class ImageUtils {
     public static Drawable getIcon(LauncherApps service, String packageName) {
         Drawable drawable = null;
 
-        List<ProfileApplicationManager> profiles = LauncherApplicationManager.getInstance().getProfiles();
+        List<ProfileApplicationManager> profiles = ProfileManager.getInstance().getProfiles();
 
         for (ProfileApplicationManager profile : profiles) {
             LauncherActivityInfo main = Utils.getMainActivity(service, packageName, profile.handle);

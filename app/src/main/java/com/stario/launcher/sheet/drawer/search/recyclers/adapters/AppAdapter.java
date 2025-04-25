@@ -24,7 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.sheet.drawer.search.JaroWinklerDistance;
@@ -44,11 +44,9 @@ public class AppAdapter extends RecyclerApplicationAdapter
     private RecyclerView recyclerView;
 
     public AppAdapter(ThemedActivity activity) {
-        super(activity);
+        super(activity, null, InflationType.SYNCED);
 
         this.applications = new ArrayList<>();
-
-        setInflationType(InflationType.SYNCED);
     }
 
     @Override
@@ -84,7 +82,7 @@ public class AppAdapter extends RecyclerApplicationAdapter
             String filterPattern = query.toLowerCase();
 
             List<ProfileApplicationManager> profileManagers =
-                    LauncherApplicationManager.getInstance().getProfiles();
+                    ProfileManager.getInstance().getProfiles();
 
             for(ProfileApplicationManager manager : profileManagers) {
                 for (int index = 0; index < manager.getSize(); index++) {
