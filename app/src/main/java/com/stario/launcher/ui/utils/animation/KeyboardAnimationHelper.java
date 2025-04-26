@@ -32,6 +32,8 @@ import com.stario.launcher.ui.utils.UiUtils;
 import java.util.List;
 
 public class KeyboardAnimationHelper {
+    private static final int CONTROLLER_DISALLOW_DELAY = 50;
+
     public static void configureKeyboardAnimator(@NonNull View root,
                                                  @NonNull KeyboardHeightProvider heightProvider,
                                                  @NonNull ContentTranslationListener listener) {
@@ -44,6 +46,8 @@ public class KeyboardAnimationHelper {
                                                  @NonNull ContentTranslationListener listener) {
         ViewCompat.setWindowInsetsAnimationCallback(root, new WindowInsetsAnimationCompat
                 .Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
+            private final Runnable allowControllerAnimation;
+
             private WindowInsetsAnimationCompat imeAnimation;
             private boolean pendingTransition;
             private float startBottom;
@@ -56,10 +60,17 @@ public class KeyboardAnimationHelper {
                 this.startBottom = 0;
                 this.endBottom = 0;
 
+                if (controller != null) {
+                    this.allowControllerAnimation = () ->
+                            controller.disallowAnimationControl(false);
+                } else {
+                    this.allowControllerAnimation = null;
+                }
+
                 heightProvider.addKeyboardHeightListener((height) -> {
                     if (!running &&
                             !pendingTransition) { // fix initial calculation flicker
-                        // sometimes, detecting the keyboard height rakes longer than the actual animation
+                        // sometimes, detecting the keyboard height takes longer than the actual animation
                         // dev tools -> animation scale 0
                         listener.translate(-height);
                     } else {
@@ -104,6 +115,14 @@ public class KeyboardAnimationHelper {
                 }
 
                 if (imeAnimation != null) {
+                    if (allowControllerAnimation != null) {
+                        UiUtils.removeOnUIThreadCallback(allowControllerAnimation);
+                    }
+
+                    if (controller != null) {
+                        controller.disallowAnimationControl(true);
+                    }
+
                     float delta = endBottom - startBottom;
                     float fraction = (delta < 0 ? 1 : 0) - imeAnimation.getInterpolatedFraction();
                     float translation = delta * fraction;
@@ -118,6 +137,10 @@ public class KeyboardAnimationHelper {
             public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
                 running = false;
                 imeAnimation = null;
+
+                if (allowControllerAnimation != null) {
+                    UiUtils.runOnUIThreadDelayed(allowControllerAnimation, CONTROLLER_DISALLOW_DELAY);
+                }
             }
         });
     }

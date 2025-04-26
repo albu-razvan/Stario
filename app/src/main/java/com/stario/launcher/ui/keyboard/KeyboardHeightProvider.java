@@ -77,7 +77,7 @@ public class KeyboardHeightProvider extends PopupWindow {
             setBackgroundDrawable(new ColorDrawable(0));
             showAtLocation(parentView, Gravity.NO_GRAVITY, 0, 0);
 
-            popupView.getViewTreeObserver()
+            parentView.getViewTreeObserver()
                     .addOnGlobalLayoutListener(listener);
 
             notifyKeyboardHeightChanged(getKeyboardHeight());

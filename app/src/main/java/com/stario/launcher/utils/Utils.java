@@ -19,19 +19,21 @@ package com.stario.launcher.utils;
 
 import android.content.ComponentName;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
+import android.content.pm.LauncherActivityInfo;
+import android.content.pm.LauncherApps;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.UserHandle;
+import android.os.UserManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.FloatRange;
 
 import com.google.gson.Gson;
 import com.stario.launcher.BuildConfig;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.services.AccessibilityService;
 
 import java.io.BufferedReader;
@@ -39,6 +41,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -97,17 +100,26 @@ public class Utils {
         return value < 0.5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2;
     }
 
-    public static Bitmap getSnapshot(View view) {
-        if (view != null) {
-            Bitmap bitmap = Bitmap.createBitmap(view.getWidth(),
-                    view.getHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            view.draw(canvas);
+    public static LauncherActivityInfo getMainActivity(LauncherApps launcherApps, String packageName, UserHandle handle) {
+        List<LauncherActivityInfo> activityInfoList = launcherApps.getActivityList(packageName, handle);
 
-            return bitmap;
+        if (!activityInfoList.isEmpty()) {
+            return activityInfoList.get(0);
         }
 
         return null;
+    }
+
+    public static LauncherActivityInfo getMainActivity(Context context, String packageName, UserHandle handle) {
+        return getMainActivity(context.getSystemService(LauncherApps.class), packageName, handle);
+    }
+
+    public static boolean isMainProfile(UserHandle handle) {
+        return handle != null && handle.equals(ProfileManager.getOwner());
+    }
+
+    public static boolean isProfileAvailable(Context context, UserHandle handle) {
+        return context.getSystemService(UserManager.class).isUserUnlocked(handle);
     }
 
     public static boolean isNetworkAvailable(Context context) {

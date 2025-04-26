@@ -18,15 +18,14 @@
 package com.stario.launcher.sheet.drawer.category.list;
 
 import android.annotation.SuppressLint;
-import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
+import com.stario.launcher.apps.Category;
 import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.apps.categories.Category;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
@@ -117,8 +116,6 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
             LauncherApplication application = category.get(position);
 
             if (application != LauncherApplication.FALLBACK_APP) {
-                Drawable appIcon = application.getIcon();
-
                 if (position >= SOFT_LIMIT && category.getSize() >= HARD_LIMIT) {
                     holder.itemView.setOnClickListener((view) -> {
                         View folder = (View) holder.itemView.getParent();
@@ -130,13 +127,10 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
                         folder.callOnClick();
                     });
                 } else {
-                    holder.itemView.setOnClickListener(view ->
-                            application.launch(activity, holder.icon));
+                    holder.itemView.setOnClickListener(view -> application.launch(activity));
                 }
 
-                if (appIcon != null) {
-                    holder.icon.setIcon(appIcon);
-                }
+                holder.icon.setApplication(application);
             }
         } else {
             holder.icon.setIcon(null);

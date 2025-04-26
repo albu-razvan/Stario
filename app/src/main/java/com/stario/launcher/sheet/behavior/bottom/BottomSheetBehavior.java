@@ -36,7 +36,6 @@ import com.stario.launcher.ui.Measurements;
 
 public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
     private Boolean rememberInterceptResult = null;
-    private boolean touchingScrollingChild;
     private boolean flung;
     private int initialX;
 
@@ -134,6 +133,11 @@ public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
                 ViewCompat.offsetTopAndBottom(child, -consumed[1]);
                 setStateInternal(STATE_EXPANDED);
             } else {
+                if (!draggable) {
+                    // Prevent dragging
+                    return;
+                }
+
                 consumed[1] = dy;
                 ViewCompat.offsetTopAndBottom(child, -dy);
                 setStateInternal(STATE_DRAGGING);
@@ -141,6 +145,11 @@ public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
         } else if (dy < 0) { // Downward
             if (!target.canScrollVertically(-1)) {
                 if (newTop <= collapsedOffset) {
+                    if (!draggable) {
+                        // Prevent dragging
+                        return;
+                    }
+
                     consumed[1] = dy;
                     ViewCompat.offsetTopAndBottom(child, -dy);
                     setStateInternal(STATE_DRAGGING);
@@ -174,7 +183,6 @@ public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL: {
-                touchingScrollingChild = false;
                 activePointerId = MotionEvent.INVALID_POINTER_ID;
 
                 // Reset the ignore flag
@@ -197,7 +205,6 @@ public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
 
                     if (scroll != null && parent.isPointInChildBounds(scroll, initialX, initial)) {
                         activePointerId = event.getPointerId(event.getActionIndex());
-                        touchingScrollingChild = true;
                     }
                 }
                 ignoreEvents = activePointerId == MotionEvent.INVALID_POINTER_ID
@@ -236,10 +243,6 @@ public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
                     return false;
                 }
 
-                if (touchingScrollingChild) {
-                    return false;
-                }
-
                 if (state == STATE_EXPANDED && activePointerId == pointerId) {
                     View scroll = nestedScrollingChildRef != null ? nestedScrollingChildRef.get() : null;
 
@@ -259,7 +262,7 @@ public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
 
             @Override
             public void onViewDragStateChanged(int state) {
-                if (state == ViewDragHelper.STATE_DRAGGING) {
+                if (state == ViewDragHelper.STATE_DRAGGING && draggable) {
                     setStateInternal(STATE_DRAGGING);
                 }
             }

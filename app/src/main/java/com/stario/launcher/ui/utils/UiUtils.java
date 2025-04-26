@@ -128,6 +128,10 @@ public class UiUtils {
         UIHandler.post(runnable);
     }
 
+    public static void removeOnUIThreadCallback(Runnable runnable) {
+        UIHandler.removeCallbacks(runnable);
+    }
+
     public static void runOnUIThreadDelayed(Runnable runnable, long delay) {
         UIHandler.postDelayed(runnable, delay);
     }

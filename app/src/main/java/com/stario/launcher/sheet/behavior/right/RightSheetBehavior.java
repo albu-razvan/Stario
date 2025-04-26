@@ -38,7 +38,6 @@ import com.stario.launcher.ui.Measurements;
 
 public class RightSheetBehavior<V extends View> extends SheetBehavior<V> {
     private Boolean rememberInterceptResult = null;
-    private boolean touchingScrollingChild;
     private boolean flung;
     private int initialY;
 
@@ -137,6 +136,11 @@ public class RightSheetBehavior<V extends View> extends SheetBehavior<V> {
                 ViewCompat.offsetLeftAndRight(child, -consumed[1]);
                 setStateInternal(STATE_EXPANDED);
             } else {
+                if (!draggable) {
+                    // Prevent dragging
+                    return;
+                }
+
                 consumed[1] = dx;
                 ViewCompat.offsetLeftAndRight(child, -dx);
                 setStateInternal(STATE_DRAGGING);
@@ -144,6 +148,11 @@ public class RightSheetBehavior<V extends View> extends SheetBehavior<V> {
         } else if (dx < 0) { // Right
             if (!target.canScrollHorizontally(-1)) {
                 if (newLeft <= collapsedOffset) {
+                    if (!draggable) {
+                        // Prevent dragging
+                        return;
+                    }
+
                     consumed[1] = dx;
                     ViewCompat.offsetLeftAndRight(child, -dx);
                     setStateInternal(STATE_DRAGGING);
@@ -177,7 +186,6 @@ public class RightSheetBehavior<V extends View> extends SheetBehavior<V> {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL: {
-                touchingScrollingChild = false;
                 activePointerId = MotionEvent.INVALID_POINTER_ID;
 
                 // Reset the ignore flag
@@ -201,7 +209,6 @@ public class RightSheetBehavior<V extends View> extends SheetBehavior<V> {
 
                     if (scroll != null && parent.isPointInChildBounds(scroll, initial, initialY)) {
                         activePointerId = event.getPointerId(event.getActionIndex());
-                        touchingScrollingChild = true;
                     }
                 }
 
@@ -242,7 +249,7 @@ public class RightSheetBehavior<V extends View> extends SheetBehavior<V> {
                     return false;
                 }
 
-                if (touchingScrollingChild) {
+                if (state == STATE_EXPANDED && activePointerId == pointerId) {
                     ViewPager pager = pagerRef != null ? pagerRef.get() : null;
 
                     if (pager != null) {
@@ -252,9 +259,7 @@ public class RightSheetBehavior<V extends View> extends SheetBehavior<V> {
                             return false;
                         }
                     }
-                }
 
-                if (state == STATE_EXPANDED && activePointerId == pointerId) {
                     View scroll = nestedScrollingChildRef != null ? nestedScrollingChildRef.get() : null;
 
                     if (scroll != null && scroll.canScrollHorizontally(-1)) {
@@ -278,7 +283,7 @@ public class RightSheetBehavior<V extends View> extends SheetBehavior<V> {
 
             @Override
             public void onViewDragStateChanged(int state) {
-                if (state == ViewDragHelper.STATE_DRAGGING) {
+                if (state == ViewDragHelper.STATE_DRAGGING && draggable) {
                     setStateInternal(STATE_DRAGGING);
                 }
             }

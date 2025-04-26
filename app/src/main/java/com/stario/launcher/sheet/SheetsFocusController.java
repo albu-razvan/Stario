@@ -137,6 +137,7 @@ public class SheetsFocusController extends ConstraintLayout {
             if (shouldDispatch) {
                 Wrapper.sendMotionEvent(MotionEvent.obtain(ev));
             }
+
             removeCheck();
 
             sheetType = SheetType.UNDEFINED;
@@ -269,8 +270,8 @@ public class SheetsFocusController extends ConstraintLayout {
     public static class Wrapper {
         private static final String TAG = "SheetWrapper";
         private final static Wrapper[] instances = new Wrapper[SheetType.values().length];
-        private SheetDialogFragment dialog;
         private Wrapper.OnShowRequest showRequest;
+        private SheetDialogFragment dialog;
 
         private Wrapper(Launcher launcher, SheetType type,
                         @NonNull SheetDialogFragment.OnSlideListener listener) {
@@ -354,6 +355,22 @@ public class SheetsFocusController extends ConstraintLayout {
         }
 
         private static void sendMotionEvent(SheetType type, MotionEvent event) {
+            for (int index = 0; index < instances.length; index++) {
+                if (index == type.ordinal()) {
+                    continue;
+                }
+
+                if(instances[index] != null) {
+                    SheetBehavior<?> behavior = instances[index].dialog.getBehavior();
+
+                    if (behavior != null &&
+                            (behavior.getState() == SheetBehavior.STATE_SETTLING ||
+                                    behavior.getState() == SheetBehavior.STATE_EXPANDED)) {
+                        return;
+                    }
+                }
+            }
+
             Wrapper wrapper = instances[type.ordinal()];
 
             if (wrapper != null) {

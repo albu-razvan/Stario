@@ -19,7 +19,5 @@ android {
 
 dependencies {
     compileOnly 'dev.rikka.tools.refine:annotation:4.4.0'
-    runtimeOnly 'com.github.ChickenHook:RestrictionBypass:2.2'
-
     annotationProcessor 'dev.rikka.tools.refine:annotation-processor:4.4.0'
 }

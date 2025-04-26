@@ -15,12 +15,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.apps.categories;
+package com.stario.launcher.apps;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.utils.ThreadSafeArrayList;
 
 import java.util.ArrayList;
@@ -74,8 +73,21 @@ public class Category {
                 left = middle + 1;
             } else if (compareValue > 0) {
                 right = middle - 1;
-            } else {
+            } else if (!applicationAtMiddle.info.packageName
+                    .equals(applicationToAdd.info.packageName)) {
+                for (CategoryItemListener listener : listeners) {
+                    listener.onPrepareInsertion(applicationToAdd);
+                }
+
+                applications.add(middle, applicationToAdd);
+
+                for (CategoryItemListener listener : listeners) {
+                    listener.onInserted(applicationToAdd);
+                }
+
                 return;
+            } else {
+                return; // same package found
             }
         }
 

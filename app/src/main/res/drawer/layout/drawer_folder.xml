@@ -31,16 +31,24 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp" />
 
-    <TextView
-        android:id="@+id/title"
+    <RelativeLayout
+        android:id="@+id/title_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:fontFamily="@font/dm_sans_medium"
-        android:gravity="center"
-        android:letterSpacing="-0.03"
-        android:lines="1"
-        android:textColor="?attr/colorOnSurface"
-        android:textSize="30sp" />
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:fontFamily="@font/dm_sans_medium"
+            android:gravity="center"
+            android:letterSpacing="-0.03"
+            android:lines="1"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="30sp" />
+
+    </RelativeLayout>
 
 </RelativeLayout>

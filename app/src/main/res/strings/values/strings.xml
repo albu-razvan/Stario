@@ -31,6 +31,8 @@
     <string name="search">Search</string>
     <string name="miscellaneous">Miscellaneous</string>
     <string name="apps">Applications</string>
+    <string name="personal">Personal</string>
+    <string name="managed">Managed</string>
     <string name="something_went_wrong">Something went wrong!</string>
     <string name="refresh">Refresh</string>
 

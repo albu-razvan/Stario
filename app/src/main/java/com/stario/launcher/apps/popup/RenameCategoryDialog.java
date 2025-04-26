@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.apps.categories.popup;
+package com.stario.launcher.apps.popup;
 
 import android.text.Editable;
 import android.text.InputType;
@@ -30,7 +30,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.stario.launcher.R;
-import com.stario.launcher.apps.categories.CategoryManager;
+import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
 import com.stario.launcher.ui.keyboard.extract.ExtractEditText;

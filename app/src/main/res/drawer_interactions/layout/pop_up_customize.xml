@@ -139,88 +139,96 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/category_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginBottom="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:translationY="10dp">
+                android:orientation="vertical">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_category" />
-
-                <Space
-                    android:layout_width="5dp"
-                    android:layout_height="0dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="14dp"
-                    android:layout_marginRight="14dp"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/dm_sans_medium"
-                    android:letterSpacing="-0.03"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:translationY="10dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_category" />
+
+                    <Space
+                        android:layout_width="5dp"
+                        android:layout_height="0dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="14dp"
+                        android:layout_marginRight="14dp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/dm_sans_medium"
+                        android:letterSpacing="-0.03"
+                        android:lines="1"
+                        android:maxLines="1"
+                        android:text="@string/category"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="20sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/category_warning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="30dp"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_warning_category" />
+
+                    <Space
+                        android:layout_width="20dp"
+                        android:layout_height="0px" />
+
+                    <TextView
+                        android:layout_width="0px"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/dm_sans_regular"
+                        android:text="@string/category_warning"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="18sp" />
+
+                </LinearLayout>
+
+                <com.stario.launcher.ui.keyboard.extract.ExtractEditText
+                    android:id="@+id/category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="30dp"
+                    android:background="@drawable/label_background"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:imeOptions="actionGo"
                     android:lines="1"
                     android:maxLines="1"
-                    android:text="@string/category"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="20sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/category_warning"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="30dp"
-                android:layout_marginBottom="10dp"
-                android:gravity="center_vertical"
-                android:visibility="gone">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_warning_category" />
-
-                <Space
-                    android:layout_width="20dp"
-                    android:layout_height="0px" />
-
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/dm_sans_regular"
-                    android:text="@string/category_warning"
-                    android:textColor="?attr/colorOnSurface"
+                    android:padding="15dp"
+                    android:singleLine="true"
+                    android:textColor="?attr/colorOnPrimaryContainer"
                     android:textSize="18sp" />
 
             </LinearLayout>
-
-            <com.stario.launcher.ui.keyboard.extract.ExtractEditText
-                android:id="@+id/category"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="30dp"
-                android:background="@drawable/label_background"
-                android:fontFamily="@font/dm_sans_regular"
-                android:imeOptions="actionGo"
-                android:lines="1"
-                android:maxLines="1"
-                android:padding="15dp"
-                android:singleLine="true"
-                android:textColor="?attr/colorOnPrimaryContainer"
-                android:textSize="18sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"

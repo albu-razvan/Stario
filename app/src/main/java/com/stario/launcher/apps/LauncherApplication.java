@@ -17,19 +17,17 @@
 
 package com.stario.launcher.apps;
 
-import android.app.ActivityOptions;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
+import android.content.pm.LauncherActivityInfo;
+import android.content.pm.LauncherApps;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
+import android.os.UserHandle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.utils.Utils;
 
 import java.util.UUID;
@@ -44,33 +42,28 @@ public class LauncherApplication {
     @NonNull
     String label;
     UUID category;
+    UserHandle handle;
     Drawable icon;
     int notificationCount;
 
-    public LauncherApplication(@NonNull ApplicationInfo info, @NonNull String label) {
+    public LauncherApplication(@NonNull ApplicationInfo info, @NonNull UserHandle handle, @NonNull String label) {
         this.info = info;
         this.label = label;
         this.category = UUID.randomUUID();
         this.icon = null;
+        this.handle = handle;
         this.notificationCount = 0;
         this.systemPackage = (info.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
     }
 
-    public void launch(ThemedActivity activity, AdaptiveIconView view) {
+    public void launch(ThemedActivity activity) {
         Vibrations.getInstance().vibrate();
 
-        PackageManager packageManager = activity.getPackageManager();
+        LauncherActivityInfo info = Utils.getMainActivity(activity, getInfo().packageName, handle);
 
-        ActivityOptions activityOptions = ActivityOptions.makeBasic();
-
-        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
-            activityOptions.setSplashScreenStyle(android.window.SplashScreen.SPLASH_SCREEN_STYLE_ICON);
-        }
-
-        Intent intent = packageManager.getLaunchIntentForPackage(info.packageName);
-
-        if (intent != null) {
-            activity.startActivity(intent, activityOptions.toBundle());
+        if (info != null) {
+            activity.getSystemService(LauncherApps.class).startMainActivity(info.getComponentName(),
+                    handle, null, null);
         }
     }
 
@@ -92,14 +85,8 @@ public class LauncherApplication {
         return category;
     }
 
-    public int getNotificationCount() {
-        return notificationCount;
-    }
-
-    public void setNotificationCount(int count) {
-        if (count >= 0) {
-            notificationCount = count;
-        }
+    public UserHandle getProfile() {
+        return handle;
     }
 
     @Override

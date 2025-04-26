@@ -39,7 +39,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
+import com.stario.launcher.apps.ProfileApplicationManager;
+import com.stario.launcher.apps.interfaces.LauncherApplicationListener;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
@@ -52,8 +54,8 @@ public class OptionAdapter extends SuggestionSearchAdapter {
     private static final String TAG = "com.stario.launcher.OptionAdapter";
     private static final String[] PREDEFINED_URIS = new String[]{"market://search?q=", "geo:?q="};
 
-    private final LauncherApplicationManager.ApplicationListener listener;
-    private final LauncherApplicationManager applicationManager;
+    private final LauncherApplicationListener listener;
+    private final ProfileApplicationManager applicationManager;
     private final ArrayList<OptionEntry> options;
     private final ThemedActivity activity;
     private final PackageManager packageManager;
@@ -70,17 +72,18 @@ public class OptionAdapter extends SuggestionSearchAdapter {
 
         this.activity = activity;
 
-        this.applicationManager = LauncherApplicationManager.from(activity);
+        this.applicationManager = ProfileManager.getInstance()
+                .getProfile(null);
         this.packageManager = activity.getPackageManager();
-
-        LauncherApplicationManager manager = LauncherApplicationManager.getInstance();
 
         Utils.submitTask(() -> {
             for (String uri : PREDEFINED_URIS) {
-                List<ResolveInfo> resolvers = packageManager.queryIntentActivities(new Intent(Intent.ACTION_VIEW, Uri.parse(uri)), PackageManager.MATCH_ALL);
+                List<ResolveInfo> resolvers = packageManager.queryIntentActivities(
+                        new Intent(Intent.ACTION_VIEW, Uri.parse(uri)), PackageManager.MATCH_ALL
+                );
 
                 for (ResolveInfo info : resolvers) {
-                    LauncherApplication application = manager.get(info.activityInfo.packageName);
+                    LauncherApplication application = applicationManager.get(info.activityInfo.packageName);
 
                     if (application != LauncherApplication.FALLBACK_APP) {
                         OptionEntry entry = new OptionEntry(application, uri);
@@ -98,7 +101,7 @@ public class OptionAdapter extends SuggestionSearchAdapter {
                 List<ResolveInfo> resolvers = packageManager.queryIntentActivities(new Intent(filter), PackageManager.MATCH_ALL);
 
                 for (ResolveInfo info : resolvers) {
-                    LauncherApplication application = manager.get(info.activityInfo.packageName);
+                    LauncherApplication application = applicationManager.get(info.activityInfo.packageName);
 
                     if (application != LauncherApplication.FALLBACK_APP &&
                             info.activityInfo != null &&
@@ -119,7 +122,7 @@ public class OptionAdapter extends SuggestionSearchAdapter {
             UiUtils.runOnUIThread(this::notifyInternal);
         });
 
-        listener = new LauncherApplicationManager.ApplicationListener() {
+        listener = new LauncherApplicationListener() {
             private void insert(LauncherApplication application) {
                 recyclerView.post(() -> {
                     String[] filters = new String[]{Intent.ACTION_WEB_SEARCH, Intent.ACTION_SEARCH};
@@ -238,7 +241,7 @@ public class OptionAdapter extends SuggestionSearchAdapter {
 
         viewHolder.label.setText(activity.getResources().getString(R.string.search_on) + " " + entry.application.getLabel());
 
-        viewHolder.icon.setIcon(entry.application.getIcon());
+        viewHolder.icon.setApplication(entry.application);
 
         viewHolder.itemView.setOnClickListener(view -> {
             ActivityOptions activityOptions =

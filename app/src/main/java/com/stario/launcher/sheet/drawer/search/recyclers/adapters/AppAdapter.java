@@ -24,7 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
+import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.sheet.drawer.search.JaroWinklerDistance;
 import com.stario.launcher.sheet.drawer.search.SearchFragment;
@@ -43,11 +44,9 @@ public class AppAdapter extends RecyclerApplicationAdapter
     private RecyclerView recyclerView;
 
     public AppAdapter(ThemedActivity activity) {
-        super(activity);
+        super(activity, null, InflationType.SYNCED);
 
         this.applications = new ArrayList<>();
-
-        setInflationType(InflationType.SYNCED);
     }
 
     @Override
@@ -79,23 +78,26 @@ public class AppAdapter extends RecyclerApplicationAdapter
         int containing = 0;
         int close = 0;
 
-        if (query != null && query.length() > 0) {
+        if (query != null && !query.isEmpty()) {
             String filterPattern = query.toLowerCase();
 
-            LauncherApplicationManager manager = LauncherApplicationManager.getInstance();
+            List<ProfileApplicationManager> profileManagers =
+                    ProfileManager.getInstance().getProfiles();
 
-            for (int index = 0; index < manager.getSize(); index++) {
-                LauncherApplication application = manager.get(index, true);
+            for(ProfileApplicationManager manager : profileManagers) {
+                for (int index = 0; index < manager.getSize(); index++) {
+                    LauncherApplication application = manager.get(index, true);
 
-                if (application != null) {
-                    String lowercaseLabel = application.getLabel().toLowerCase();
+                    if (application != null) {
+                        String lowercaseLabel = application.getLabel().toLowerCase();
 
-                    if (lowercaseLabel.startsWith(filterPattern)) {
-                        filteredList.add(starting++, application);
-                    } else if (lowercaseLabel.contains(filterPattern)) {
-                        filteredList.add(starting + containing++, application);
-                    } else if (JaroWinklerDistance.getScore(lowercaseLabel, filterPattern) > 0.87d) {
-                        filteredList.add(starting + containing + close++, application);
+                        if (lowercaseLabel.startsWith(filterPattern)) {
+                            filteredList.add(starting++, application);
+                        } else if (lowercaseLabel.contains(filterPattern)) {
+                            filteredList.add(starting + containing++, application);
+                        } else if (JaroWinklerDistance.getScore(lowercaseLabel, filterPattern) > 0.87d) {
+                            filteredList.add(starting + containing + close++, application);
+                        }
                     }
                 }
             }

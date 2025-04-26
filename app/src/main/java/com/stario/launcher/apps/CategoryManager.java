@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.apps.categories;
+package com.stario.launcher.apps;
 
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
@@ -23,12 +23,11 @@ import android.content.pm.ApplicationInfo;
 import androidx.annotation.NonNull;
 
 import com.stario.launcher.R;
-import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.apps.LauncherApplicationManager;
+import com.stario.launcher.apps.interfaces.LauncherApplicationListener;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.utils.ThreadSafeArrayList;
 import com.stario.launcher.ui.utils.UiUtils;
+import com.stario.launcher.utils.ThreadSafeArrayList;
 import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
@@ -66,8 +65,7 @@ public final class CategoryManager {
     private final SharedPreferences hiddenApplications;
     private final ArrayList<Category> categories;
 
-
-    private CategoryManager(ThemedActivity activity) {
+    private CategoryManager(ThemedActivity activity, ProfileApplicationManager applicationManager) {
         this.categories = new ThreadSafeArrayList<>();
         this.hiddenApplications = activity.getSharedPreferences(Entry.HIDDEN_APPS);
         this.remappedCategories = activity.getSharedPreferences(Entry.CATEGORIES);
@@ -78,8 +76,7 @@ public final class CategoryManager {
         CategoryMappings.from(activity);
         comparator = CategoryMappings.getCategoryComparator();
 
-        LauncherApplicationManager.getInstance()
-                .addApplicationListener(new LauncherApplicationManager.ApplicationListener() {
+        applicationManager.addApplicationListener(new LauncherApplicationListener() {
                     @Override
                     public void onUpdated(LauncherApplication application) {
                         for (Category category : categories) {
@@ -93,9 +90,9 @@ public final class CategoryManager {
                 });
     }
 
-    public static CategoryManager from(ThemedActivity activity) {
+    public static CategoryManager from(ThemedActivity activity, ProfileApplicationManager applicationManager) {
         if (instance == null) {
-            instance = new CategoryManager(activity);
+            instance = new CategoryManager(activity, applicationManager);
         }
 
         DEFAULT_CATEGORIES.forEach((id, resource) ->
@@ -287,7 +284,14 @@ public final class CategoryManager {
 
         remappedCategories.edit()
                 .putString(application.getInfo().packageName, uuid.toString()).apply();
-        LauncherApplicationManager.getInstance().updateApplication(application);
+
+        UUID category = getCategoryIdentifier(application.info);
+
+        if (!application.category.equals(category)) {
+            removeApplication(application);
+            application.category = category;
+            addApplication(application);
+        }
     }
 
     public void updateCategory(UUID categoryIdentifier, String text) {

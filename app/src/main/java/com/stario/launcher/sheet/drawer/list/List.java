@@ -18,61 +18,45 @@
 package com.stario.launcher.sheet.drawer.list;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.stario.launcher.R;
-import com.stario.launcher.sheet.drawer.DrawerAdapter;
+import com.stario.launcher.apps.ProfileApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.sheet.drawer.DrawerPage;
-import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.FastScroller;
+import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
+import com.stario.launcher.utils.Utils;
 
 public class List extends DrawerPage {
-    private LocalBroadcastManager broadcastManager;
-    private BroadcastReceiver visibilityReceiver;
-    private BroadcastReceiver positionReceiver;
+    private static final String USER_HANDLE_KEY = "com.stario.UserHandle";
+
     private FastScroller fastScroller;
+    private UserHandle handle;
+
+    public List() {
+        this.handle = null;
+    }
+
+    public List(@NonNull ProfileApplicationManager profile) {
+        this.handle = profile.handle;
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-
-        broadcastManager = LocalBroadcastManager.getInstance(context);
-    }
-
-    @Override
-    public void onDetach() {
-        if (visibilityReceiver != null) {
-            broadcastManager.unregisterReceiver(visibilityReceiver);
-        }
-
-        if (positionReceiver != null) {
-            broadcastManager.unregisterReceiver(positionReceiver);
-        }
-
-        super.onDetach();
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        broadcastManager.registerReceiver(visibilityReceiver,
-                new IntentFilter(ApplicationsDialog.getTopic()));
-        broadcastManager.registerReceiver(positionReceiver,
-                new IntentFilter(ApplicationsDialog.getTopic(getView())));
     }
 
     @NonNull
@@ -96,16 +80,16 @@ public class List extends DrawerPage {
         drawer.setLayoutManager(manager);
         drawer.setItemAnimator(null);
 
-        ListAdapter adapter = new ListAdapter(activity);
+        Measurements.addSysUIListener(value -> fastScroller.setTopOffset(drawer.getPaddingTop()));
 
-        drawer.setAdapter(adapter);
+        return rootView;
+    }
 
-        Measurements.addSysUIListener(value -> {
-            fastScroller.setTopOffset(drawer.getPaddingTop());
-        });
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         View searchContainer = (View) search.getParent();
-
         search.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
             if (Measurements.isLandscape() && Measurements.getWidth() >
                     // FastScroller popup size * 2 + search width
@@ -116,24 +100,70 @@ public class List extends DrawerPage {
                         Measurements.spToPx(32) + Measurements.dpToPx(20));
             }
         });
+    }
 
-        positionReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                fastScroller.animateVisibility(
-                        intent.getFloatExtra(ApplicationsDialog.INTENT_EXTRA_PAGE_POSITION, 0f) == 0);
+    @Override
+    public void setSelected(boolean selected) {
+        if (isSelected() == selected) {
+            super.setSelected(selected);
+
+            return;
+        }
+
+        super.setSelected(selected);
+        fastScroller.animateVisibility(selected);
+    }
+
+    @Override
+    public void onResume() {
+        if (ProfileManager.getInstance().getProfiles().size() <= 1) {
+            title.setText(R.string.apps);
+        } else {
+            title.setText(Utils.isMainProfile(handle) ? R.string.personal : R.string.managed);
+        }
+
+        super.onResume();
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(USER_HANDLE_KEY)) {
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+                handle = savedInstanceState.getParcelable(USER_HANDLE_KEY, UserHandle.class);
+            } else {
+                handle = savedInstanceState.getParcelable(USER_HANDLE_KEY);
             }
-        };
+        }
 
-        visibilityReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                fastScroller.animateVisibility(
-                        intent.getBooleanExtra(ApplicationsDialog.INTENT_EXTRA_PAGER_VISIBILITY, true));
+        AsyncRecyclerAdapter<?> adapter = new ListAdapter(activity,
+                ProfileManager.getInstance().getProfile(handle));
+        adapter.setRecyclerHeightApproximationListener(height -> {
+            ViewGroup parent = (ViewGroup) drawer.getParent();
+            ConstraintLayout.LayoutParams params =
+                    (ConstraintLayout.LayoutParams) drawer.getLayoutParams();
+
+            if (parent.getMeasuredHeight() < height) {
+                if (params.height == ConstraintLayout.LayoutParams.WRAP_CONTENT) {
+                    params.height = ConstraintLayout.LayoutParams.MATCH_PARENT;
+                    drawer.requestLayout();
+                }
+            } else if (params.height == ConstraintLayout.LayoutParams.MATCH_PARENT) {
+                params.height = ConstraintLayout.LayoutParams.WRAP_CONTENT;
+                drawer.requestLayout();
             }
-        };
 
-        return rootView;
+            drawer.requestLayout();
+        });
+        drawer.setAdapter(adapter);
+
+        super.onViewStateRestored(savedInstanceState);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putParcelable(USER_HANDLE_KEY, handle);
+
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -144,12 +174,11 @@ public class List extends DrawerPage {
     }
 
     @Override
-    protected int getPosition() {
-        return DrawerAdapter.LIST_POSITION;
-    }
-
-    @Override
     protected int getLayoutResID() {
         return R.layout.drawer_list;
+    }
+
+    public UserHandle getUserHandle() {
+        return handle;
     }
 }

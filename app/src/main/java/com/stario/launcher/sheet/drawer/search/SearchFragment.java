@@ -31,7 +31,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -62,16 +61,17 @@ import com.stario.launcher.ui.keyboard.ImeAnimationController;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
-import com.stario.launcher.ui.recyclers.async.InflationType;
-import com.stario.launcher.ui.utils.animation.KeyboardAnimationHelper;
+import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.ui.utils.UiUtils;
-import com.stario.launcher.utils.Utils;
 import com.stario.launcher.ui.utils.animation.Animation;
+import com.stario.launcher.ui.utils.animation.KeyboardAnimationHelper;
+import com.stario.launcher.utils.Utils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class SearchFragment extends Fragment {
+    private static final int SCROLL_STOP_TIMEOUT = 50;
+
     public static final String TAG = "SearchFragment";
     public static final int MAX_APP_QUERY_ITEMS = 4;
 
@@ -83,6 +83,7 @@ public class SearchFragment extends Fragment {
     private ConstraintLayout searchContainer;
     private RecyclerView suggestions;
     private ThemedActivity activity;
+    private HomeWatcher homeWatcher;
     private RecyclerView options;
     private RecyclerView apps;
     private RecyclerView web;
@@ -108,6 +109,13 @@ public class SearchFragment extends Fragment {
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 
         searchPreferences = activity.getSharedPreferences(Entry.SEARCH);
+
+        homeWatcher = new HomeWatcher(context);
+        homeWatcher.setOnHomePressedListener(() -> {
+            if (search != null) {
+                UiUtils.hideKeyboard(search);
+            }
+        });
 
         super.onAttach(context);
     }
@@ -168,8 +176,6 @@ public class SearchFragment extends Fragment {
         apps.setItemAnimator(null);
 
         AppAdapter appAdapter = new AppAdapter(activity);
-        appAdapter.setInflationType(InflationType.SYNCED);
-        appAdapter.setOnVisibilityChangeListener(new OnSearchRecyclerVisibilityChangeListener(searchLayoutTransition));
 
         apps.setAdapter(appAdapter);
 
@@ -286,130 +292,139 @@ public class SearchFragment extends Fragment {
         heightProvider.start();
 
         if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
-            AtomicReference<Integer> lastVelocity = new AtomicReference<>(null);
-            AtomicBoolean isPointerDown = new AtomicBoolean(false);
-            AtomicBoolean isAScroll = new AtomicBoolean(false);
+            AtomicBoolean isTouching = new AtomicBoolean(false);
+            Runnable scrollStopCallback = () -> {
+                if (!controller.isSettleAnimationInProgress()) {
+                    controller.finish();
+                }
+            };
+
+            scrollView.setOnTouchListener((v, event) -> {
+                if (event.getAction() == MotionEvent.ACTION_UP ||
+                        event.getAction() == MotionEvent.ACTION_CANCEL) {
+                    scrollView.postDelayed(scrollStopCallback, SCROLL_STOP_TIMEOUT);
+                    isTouching.set(false);
+                } else {
+                    scrollView.removeCallbacks(scrollStopCallback);
+                    isTouching.set(true);
+                }
+
+                return false;
+            });
 
             scrollView.setOnPreScrollListener(new PreEventNestedScrollView.PreEvent() {
+                private final Runnable flingStop;
+
+                private boolean intercepted;
+                private int flingDistance;
+
+                {
+                    this.intercepted = false;
+                    this.flingDistance = 0;
+                    this.flingStop = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!controller.isSettleAnimationInProgress()) {
+                                controller.finish(0);
+                            }
+                        }
+                    };
+                }
+
                 @Override
                 public boolean onPreScroll(int delta) {
-                    if (controller.isAnimationInProgress() &&
-                            !controller.isSettleAnimationInProgress() &&
-                            ((scrollView.getScrollY() == 0 && delta > 0 && !controller.isCurrentPositionFullyShown()) ||
-                                    (delta < 0 && !controller.isCurrentPositionFullyHidden()))) {
-
-                        return controller.insetBy(-delta) != 0;
+                    if (controller.isRequestPending() ||
+                            controller.isAnimationControllDisallowed() ||
+                            controller.isSettleAnimationInProgress()) {
+                        return true;
                     }
 
-                    boolean isKeyboardVisible = UiUtils.isKeyboardVisible(getView());
+                    scrollView.removeCallbacks(scrollStopCallback);
+                    scrollView.removeCallbacks(flingStop);
 
-                    if (delta < 0 && !isKeyboardVisible) {
-                        return false;
+                    if (delta != 0 && !controller.isAnimationInProgress()) {
+                        controller.startControlRequest(search);
+                        search.requestFocus();
+                        return true;
                     }
 
-                    if ((delta > 0 && isKeyboardVisible) || scrollView.getScrollY() > 0) {
-                        return false;
+                    intercepted = false;
+
+                    if (controller.isAnimationInProgress()) {
+                        if (delta < 0 && !controller.isCurrentPositionFullyHidden()) {
+                            controller.insetBy(-delta);
+                            intercepted = true;
+                        }
+
+                        if (delta > 0 && scrollView.getScrollY() == 0 &&
+                                !controller.isCurrentPositionFullyShown()) {
+                            controller.insetBy(-delta);
+                            intercepted = true;
+                        }
                     }
 
-                    return !isAScroll.get() || controller.isRequestPending();
+                    if (!intercepted) {
+                        consumeFlingDistance(delta);
+
+                        if (flingDistance != 0) {
+                            if (scrollView.getScrollY() - delta < 0) {
+                                if (controller.isAnimationInProgress()) {
+                                    controller.finish(scrollView.getSplineFlingVelocity(flingDistance));
+                                }
+
+                                flingDistance = 0;
+                            } else if (flingDistance < 0 &&
+                                    (content.getMeasuredHeight() + scrollView.getPaddingBottom() +
+                                            scrollView.getPaddingTop() - scrollView.getMeasuredHeight()) <
+                                            (scrollView.getScrollY() - delta)) {
+                                if (controller.isAnimationInProgress()) {
+                                    controller.finish(scrollView.getSplineFlingVelocity(flingDistance));
+                                }
+
+                                flingDistance = 0;
+                            }
+                        } else if (!isTouching.get() &&
+                                controller.isAnimationInProgress()) {
+                            scrollView.postDelayed(flingStop, SCROLL_STOP_TIMEOUT);
+                        }
+                    }
+
+                    return intercepted;
                 }
 
                 @Override
                 public boolean onPreFling(int velocity) {
-                    lastVelocity.set(velocity);
-
-                    if (scrollView.getScrollY() == 0 && controller.isAnimationInProgress()) {
-                        if (!controller.isSettleAnimationInProgress()) {
-                            controller.finish(-velocity);
-                        }
-
+                    if (controller.isRequestPending() ||
+                            controller.isAnimationControllDisallowed() ||
+                            controller.isSettleAnimationInProgress()) {
                         return true;
                     }
 
-                    boolean isKeyboardVisible = UiUtils.isKeyboardVisible(getView());
+                    if (intercepted) {
+                        controller.finish(-velocity);
+                        flingDistance = 0;
 
-                    if (velocity > 0 && !isKeyboardVisible) {
-                        return false;
-                    }
-
-                    if ((velocity < 0 && isKeyboardVisible) || scrollView.getScrollY() > 0) {
-                        return false;
-                    }
-
-                    return !isAScroll.get() || controller.isRequestPending();
-                }
-            });
-
-            scrollView.setOnTouchListener(new View.OnTouchListener() {
-                private Float x = null;
-                private Float y = null;
-
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN ||
-                            event.getAction() == MotionEvent.ACTION_MOVE) {
-                        isPointerDown.set(true);
-
-                        if (x == null && y == null) {
-                            x = event.getRawX();
-                            y = event.getRawY();
-                        } else if (x != null && y != null) {
-                            float absDeltaX = Math.abs(event.getRawX() - x);
-                            float absDeltaY = Math.abs(event.getRawY() - y);
-
-                            float slop = ViewConfiguration.get(activity)
-                                    .getScaledTouchSlop();
-
-                            if (absDeltaX > absDeltaY && absDeltaX > slop) {
-                                x = null;
-                                isAScroll.set(true);
-                            } else if (absDeltaY > absDeltaX && absDeltaY > slop) {
-                                y = null;
-                                isAScroll.set(true);
-
-                                if (!controller.isAnimationInProgress() &&
-                                        !controller.isRequestPending()) {
-                                    controller.startControlRequest(search, new ImeAnimationController.StateListener() {
-                                        @Override
-                                        public void onReady() {
-                                            if (!isPointerDown.get()) {
-                                                if (lastVelocity.get() != null) {
-                                                    if ((scrollView.getScrollY() == 0 && lastVelocity.get() < 0 && !controller.isCurrentPositionFullyShown()) ||
-                                                            (lastVelocity.get() > 0 && !controller.isCurrentPositionFullyHidden())) {
-                                                        controller.finish(-lastVelocity.get());
-                                                    } else {
-                                                        controller.finish();
-                                                    }
-                                                } else {
-                                                    controller.finish();
-                                                }
-
-                                                lastVelocity.set(null);
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-                        }
-                    }
-
-                    if (event.getAction() == MotionEvent.ACTION_UP ||
-                            event.getAction() == MotionEvent.ACTION_CANCEL) {
-                        isPointerDown.set(false);
-                        isAScroll.set(false);
-
-                        scrollView.post(() -> {
-                            if (controller.isAnimationInProgress() &&
-                                    !controller.isSettleAnimationInProgress()) {
-                                controller.finish();
-                            }
-                        });
-
-                        x = null;
-                        y = null;
+                        return true;
+                    } else if (velocity > 0) {
+                        flingDistance = -scrollView.getSplineFlingDistance(velocity);
+                    } else if (velocity < 0 && scrollView.getScrollY() > 0) {
+                        flingDistance = scrollView.getSplineFlingDistance(velocity);
                     }
 
                     return false;
+                }
+
+                private void consumeFlingDistance(int distance) {
+                    if (flingDistance == 0
+                            || (distance > 0 && flingDistance < 0)
+                            || (distance < 0 && flingDistance > 0)) {
+                        flingDistance = 0;
+                        return;
+                    }
+
+                    flingDistance = flingDistance > 0 ?
+                            Math.max(0, flingDistance - distance)
+                            : Math.min(0, flingDistance - distance);
                 }
             });
 
@@ -565,7 +580,15 @@ public class SearchFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        homeWatcher.startWatch();
+
+        super.onStart();
+    }
+
+    @Override
     public void onStop() {
+        homeWatcher.stopWatch();
         UiUtils.hideKeyboard(search);
 
         super.onStop();

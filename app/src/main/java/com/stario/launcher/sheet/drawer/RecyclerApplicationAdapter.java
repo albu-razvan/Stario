@@ -20,13 +20,14 @@ package com.stario.launcher.sheet.drawer;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.content.pm.ShortcutInfo;
 import android.content.res.Resources;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Process;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -48,7 +49,9 @@ import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.popup.PopupMenu;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
+import com.stario.launcher.ui.recyclers.async.InflationType;
 import com.stario.launcher.ui.utils.animation.Animation;
+import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,31 +59,35 @@ import java.util.function.Supplier;
 
 public abstract class RecyclerApplicationAdapter
         extends AsyncRecyclerAdapter<RecyclerApplicationAdapter.ViewHolder> {
-    private final ThemedActivity activity;
+    private static final String TAG = "RecyclerApplicationAdapter";
 
-    private ItemTouchHelper itemTouchHelper;
+    private final ThemedActivity activity;
+    private final ItemTouchHelper itemTouchHelper;
 
     public RecyclerApplicationAdapter(ThemedActivity activity) {
-        super(activity);
+        this(activity, null);
+    }
+
+    public RecyclerApplicationAdapter(ThemedActivity activity, ItemTouchHelper itemTouchHelper) {
+        this(activity, itemTouchHelper, InflationType.ASYNC);
+    }
+
+    public RecyclerApplicationAdapter(ThemedActivity activity,
+                                      ItemTouchHelper itemTouchHelper, InflationType type) {
+        super(activity, type);
 
         this.activity = activity;
+        this.itemTouchHelper = itemTouchHelper;
 
         setHasStableIds(true);
     }
 
-    public RecyclerApplicationAdapter(ThemedActivity activity, ItemTouchHelper itemTouchHelper) {
-        this(activity);
-
-        this.itemTouchHelper = itemTouchHelper;
-    }
-
     public class ViewHolder extends AsyncViewHolder {
-        public TextView label;
-
         private boolean hasPerformedLongClick;
         private AdaptiveIconView icon;
         private PopupWindow dialog;
         private View notification;
+        private TextView label;
 
         @SuppressLint("ClickableViewAccessibility")
         @Override
@@ -101,7 +108,7 @@ public abstract class RecyclerApplicationAdapter
                 LauncherApplication application = getApplication(getAbsoluteAdapterPosition());
 
                 if (application != LauncherApplication.FALLBACK_APP) {
-                    application.launch(activity, icon);
+                    application.launch(activity);
                 }
             });
 
@@ -137,7 +144,7 @@ public abstract class RecyclerApplicationAdapter
 
                                 ((ViewGroup) itemView).requestDisallowInterceptTouchEvent(true);
 
-                                if(Math.abs(x - event.getRawX()) > moveSlop ||
+                                if (Math.abs(x - event.getRawX()) > moveSlop ||
                                         Math.abs(y - event.getRawY()) > moveSlop) {
                                     ((ViewGroup) itemView).requestDisallowInterceptTouchEvent(false);
                                     itemTouchHelper.startDrag(ViewHolder.this);
@@ -193,19 +200,31 @@ public abstract class RecyclerApplicationAdapter
 
             PopupMenu menu = new PopupMenu(activity);
 
-            List<ShortcutInfo> shortcuts = getShortcutForApplication(launcherApps, application);
-            menu.addShortcuts(launcherApps, shortcuts);
+            if(Utils.isProfileAvailable(activity, application.getProfile())) {
+                List<ShortcutInfo> shortcuts = getShortcutForApplication(launcherApps, application);
+                menu.addShortcuts(launcherApps, shortcuts);
+            }
 
             Resources resources = activity.getResources();
 
             menu.add(new PopupMenu.Item(resources.getString(R.string.app_info),
                     ResourcesCompat.getDrawable(resources, R.drawable.ic_info, activity.getTheme()),
                     view -> {
-                        Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                        intent.setData(Uri.parse("package:" + application.getInfo().packageName));
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        List<LauncherActivityInfo> activities =
+                                launcherApps.getActivityList(application.getInfo().packageName,
+                                        application.getProfile());
 
-                        activity.startActivity(intent);
+                        if (activities.isEmpty()) {
+                            return;
+                        }
+
+                        try {
+                            activity.getSystemService(LauncherApps.class)
+                                    .startAppDetailsActivity(activities.get(0).getComponentName(),
+                                            application.getProfile(), null, null);
+                        } catch (Exception exception) {
+                            Log.e(TAG, "Unable to launch settings", exception);
+                        }
                     }));
 
             if (allowApplicationStateEditing()) {
@@ -217,11 +236,17 @@ public abstract class RecyclerApplicationAdapter
                     menu.add(new PopupMenu.Item(resources.getString(R.string.uninstall),
                             ResourcesCompat.getDrawable(resources, R.drawable.ic_delete, activity.getTheme()),
                             view -> {
-                                Intent intent = new Intent(Intent.ACTION_DELETE);
-                                intent.setData(Uri.parse("package:" + application.getInfo().packageName));
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                ApplicationInfo info = application.getInfo();
 
-                                activity.startActivity(intent);
+                                try {
+                                    // https://github.com/LawnchairLauncher/lawnchair/blob/d69b89e5e1367117690580deb331ed5fb63e9068/res/values/config.xml#L25
+                                    Intent intent = Intent.parseUri("#Intent;action=android.intent.action.DELETE;launchFlags=0x10800000;end", 0)
+                                            .setData(Uri.fromParts("package", info.packageName, info.name))
+                                            .putExtra(Intent.EXTRA_USER, application.getProfile());
+                                    activity.startActivity(intent);
+                                } catch (Exception exception) {
+                                    Log.e(TAG, "Unable to uninstall application", exception);
+                                }
                             }));
                 }
             }
@@ -262,7 +287,7 @@ public abstract class RecyclerApplicationAdapter
         shortcutQuery.setPackage(application.getInfo().packageName);
 
         try {
-            return launcherApps.getShortcuts(shortcutQuery, Process.myUserHandle());
+            return launcherApps.getShortcuts(shortcutQuery, application.getProfile());
         } catch (SecurityException exception) {
             return new ArrayList<>();
         }
@@ -274,16 +299,11 @@ public abstract class RecyclerApplicationAdapter
 
         if (application != LauncherApplication.FALLBACK_APP) {
             viewHolder.label.setText(application.getLabel());
-            viewHolder.notification.setVisibility(
-                    application.getNotificationCount() > 0 ? View.VISIBLE : View.GONE);
+            // TODO: notification dots
+            viewHolder.notification.setVisibility(false ? View.VISIBLE : View.GONE);
 
-            Drawable appIcon = application.getIcon();
-
-            if (appIcon != null) {
-                viewHolder.icon.setIcon(appIcon);
-
-                viewHolder.icon.setTransitionName(DrawerAdapter.SHARED_ELEMENT_PREFIX + index);
-            }
+            viewHolder.icon.setApplication(application);
+            viewHolder.icon.setTransitionName(DrawerAdapter.SHARED_ELEMENT_PREFIX + index);
 
             viewHolder.itemView.setVisibility(View.VISIBLE);
         }

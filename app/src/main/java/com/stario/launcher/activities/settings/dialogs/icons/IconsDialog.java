@@ -34,10 +34,10 @@ import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.slider.Slider;
 import com.stario.launcher.R;
-import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
+import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.icons.PathCornerTreatmentAlgorithm;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 
@@ -110,21 +110,24 @@ public class IconsDialog extends ActionDialog {
 
         adapter = new IconsRecyclerAdapter(activity, v -> dismiss());
 
-        slider.setValue(preferences.getFloat(IconPackManager.CORNER_RADIUS_ENTRY, 1f));
+        slider.setValue(preferences.getFloat(AdaptiveIconView.CORNER_RADIUS_ENTRY,
+                AdaptiveIconView.DEFAULT_CORNER_RADIUS));
         slider.addOnChangeListener((slider1, value, fromUser) -> {
             Intent intent = new Intent(INTENT_CHANGE_CORNER_RADIUS);
             intent.putExtra(EXTRA_CORNER_RADIUS, value);
 
             preferences.edit()
-                    .putFloat(IconPackManager.CORNER_RADIUS_ENTRY, value)
+                    .putFloat(AdaptiveIconView.CORNER_RADIUS_ENTRY, value)
                     .apply();
 
             localBroadcastManager.sendBroadcastSync(intent);
         });
 
-        PathCornerTreatmentAlgorithm currentPathCornerTreatmentAlgorithm = PathCornerTreatmentAlgorithm.fromIdentifier(
-                preferences.getInt(IconPackManager.PATH_ALGORITHM_ENTRY, 0)
-        );
+        PathCornerTreatmentAlgorithm currentPathCornerTreatmentAlgorithm =
+                PathCornerTreatmentAlgorithm.fromIdentifier(
+                        preferences.getInt(PathCornerTreatmentAlgorithm.PATH_ALGORITHM_ENTRY,
+                                PathCornerTreatmentAlgorithm.DEFAULT_PATH_ALGORITHM_ENTRY)
+                );
 
         if (currentPathCornerTreatmentAlgorithm == PathCornerTreatmentAlgorithm.SQUIRCLE) {
             algorithm.check(R.id.squircle);
@@ -139,14 +142,14 @@ public class IconsDialog extends ActionDialog {
                 intent.putExtra(EXTRA_PATH_ALGORITHM, PathCornerTreatmentAlgorithm.SQUIRCLE);
 
                 preferences.edit()
-                        .putInt(IconPackManager.PATH_ALGORITHM_ENTRY,
+                        .putInt(PathCornerTreatmentAlgorithm.PATH_ALGORITHM_ENTRY,
                                 PathCornerTreatmentAlgorithm.SQUIRCLE.ordinal())
                         .apply();
             } else {
                 intent.putExtra(EXTRA_PATH_ALGORITHM, PathCornerTreatmentAlgorithm.REGULAR);
 
                 preferences.edit()
-                        .putInt(IconPackManager.PATH_ALGORITHM_ENTRY,
+                        .putInt(PathCornerTreatmentAlgorithm.PATH_ALGORITHM_ENTRY,
                                 PathCornerTreatmentAlgorithm.REGULAR.ordinal())
                         .apply();
             }

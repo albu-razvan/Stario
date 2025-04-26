@@ -18,6 +18,7 @@
 package com.stario.launcher.sheet.drawer.category;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,9 +69,15 @@ public class Categories extends Fragment {
         }
 
         if (!restored) {
-            getParentFragmentManager().beginTransaction()
-                    .add(R.id.categories, new FolderList())
-                    .commit();
+            view.post(() -> {
+                try {
+                    getParentFragmentManager().beginTransaction()
+                            .add(R.id.categories, new FolderList())
+                            .commit();
+                } catch (Exception exception) {
+                    Log.e("Categories", "FolderList failed to attach.");
+                }
+            });
         }
 
         return view;
