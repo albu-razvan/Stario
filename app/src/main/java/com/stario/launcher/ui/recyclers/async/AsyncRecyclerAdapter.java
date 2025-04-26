@@ -45,10 +45,12 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     private final static int NO_LIMIT = -1;
     private final static int MAX_POOL_SIZE = 20;
 
-    private final Activity activity;
     private final AsyncLayoutInflater layoutInflater;
+    private final Activity activity;
     private final InflationType type;
 
+    private RecyclerHeightApproximationListener listener;
+    private int approximatedRecyclerHeight;
     private RecyclerView recyclerView;
     private int holderHeight;
     private int limit;
@@ -58,6 +60,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     }
 
     public AsyncRecyclerAdapter(Activity activity, InflationType type) {
+        this.approximatedRecyclerHeight = AsyncViewHolder.HEIGHT_UNMEASURED;
         this.layoutInflater = new AsyncLayoutInflater(activity);
         this.holderHeight = AsyncViewHolder.HEIGHT_UNMEASURED;
         this.activity = activity;
@@ -68,7 +71,8 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     public abstract class AsyncViewHolder extends RecyclerView.ViewHolder {
         private static final String TAG = "AsyncViewHolder";
         public static final int HEIGHT_UNMEASURED = -1;
-        private InflationListener listener;
+
+        private InflationListener inflationListener;
         private boolean inflated;
 
         public AsyncViewHolder() {
@@ -104,19 +108,23 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
             itemView.post(() -> {
                 if (holderHeight == HEIGHT_UNMEASURED) {
                     holderHeight = itemView.getMeasuredHeight();
+
+                    approximateRecyclerHeight();
                 } else if (holderHeight != itemView.getMeasuredHeight()) {
                     holderHeight = itemView.getMeasuredHeight();
 
                     Log.w(TAG, "Holder height estimation for " + AsyncRecyclerAdapter.this.getClass() +
                             "async holders changed. New estimation: " + holderHeight);
+
+                    approximateRecyclerHeight();
                 }
             });
 
-            if (listener != null) {
-                listener.onInflated();
+            if (inflationListener != null) {
+                inflationListener.onInflated();
             }
 
-            listener = null;
+            inflationListener = null;
             inflated = true;
         }
 
@@ -124,11 +132,31 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
             if (inflated) {
                 listener.onInflated();
             } else {
-                this.listener = listener;
+                this.inflationListener = listener;
             }
         }
 
         protected abstract void onInflated();
+    }
+
+    public int approximateRecyclerHeight() {
+        if (holderHeight == AsyncViewHolder.HEIGHT_UNMEASURED) {
+            return AsyncViewHolder.HEIGHT_UNMEASURED;
+        }
+
+        if (approximatedRecyclerHeight == AsyncViewHolder.HEIGHT_UNMEASURED) {
+            approximatedRecyclerHeight = holderHeight * getSize();
+
+            if (listener != null) {
+                listener.onNewApproximation(approximatedRecyclerHeight);
+            }
+        } else if (approximatedRecyclerHeight != holderHeight * getSize()) {
+            if (listener != null) {
+                listener.onNewApproximation(approximatedRecyclerHeight);
+            }
+        }
+
+        return approximatedRecyclerHeight;
     }
 
     private View createHolderRoot() {
@@ -219,6 +247,12 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
         return limit > 0 ? Math.min(limit, getSize()) : getSize();
     }
 
+    public void setRecyclerHeightApproximationListener(RecyclerHeightApproximationListener listener) {
+        this.listener = listener;
+
+        approximateRecyclerHeight();
+    }
+
     protected abstract void onBind(@NonNull AVH holder, int position);
 
     protected abstract int getLayout();
@@ -229,5 +263,9 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
 
     private interface InflationListener {
         void onInflated();
+    }
+
+    public interface RecyclerHeightApproximationListener {
+        void onNewApproximation(int height);
     }
 }

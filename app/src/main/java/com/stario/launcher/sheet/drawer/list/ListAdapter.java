@@ -53,22 +53,34 @@ public class ListAdapter extends RecyclerApplicationAdapter
         listener = new LauncherApplicationListener() {
             @Override
             public void onHidden(LauncherApplication application) {
-                recyclerView.post(() -> notifyItemRemovedInternal());
+                recyclerView.post(() -> {
+                    notifyItemRemovedInternal();
+                    approximateRecyclerHeight();
+                });
             }
 
             @Override
             public void onInserted(LauncherApplication application) {
-                recyclerView.post(() -> notifyItemInsertedInternal(applicationManager.indexOf(application)));
+                recyclerView.post(() -> {
+                    notifyItemInsertedInternal(applicationManager.indexOf(application));
+                    approximateRecyclerHeight();
+                });
             }
 
             @Override
             public void onRemoved(LauncherApplication application) {
-                recyclerView.post(() -> notifyItemRemovedInternal());
+                recyclerView.post(() -> {
+                    notifyItemRemovedInternal();
+                    approximateRecyclerHeight();
+                });
             }
 
             @Override
             public void onShowed(LauncherApplication application) {
-                recyclerView.post(() -> notifyItemInsertedInternal(applicationManager.indexOf(application)));
+                recyclerView.post(() -> {
+                    notifyItemInsertedInternal(applicationManager.indexOf(application));
+                    approximateRecyclerHeight();
+                });
             }
 
             @Override

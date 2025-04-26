@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.stario.launcher.R;
@@ -136,6 +137,23 @@ public class List extends DrawerPage {
 
         AsyncRecyclerAdapter<?> adapter = new ListAdapter(activity,
                 ProfileManager.getInstance().getProfile(handle));
+        adapter.setRecyclerHeightApproximationListener(height -> {
+            ViewGroup parent = (ViewGroup) drawer.getParent();
+            ConstraintLayout.LayoutParams params =
+                    (ConstraintLayout.LayoutParams) drawer.getLayoutParams();
+
+            if (parent.getMeasuredHeight() < height) {
+                if (params.height == ConstraintLayout.LayoutParams.WRAP_CONTENT) {
+                    params.height = ConstraintLayout.LayoutParams.MATCH_PARENT;
+                    drawer.requestLayout();
+                }
+            } else if (params.height == ConstraintLayout.LayoutParams.MATCH_PARENT) {
+                params.height = ConstraintLayout.LayoutParams.WRAP_CONTENT;
+                drawer.requestLayout();
+            }
+
+            drawer.requestLayout();
+        });
         drawer.setAdapter(adapter);
 
         super.onViewStateRestored(savedInstanceState);
