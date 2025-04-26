@@ -57,9 +57,13 @@ import com.stario.launcher.ui.utils.animation.WallpaperAnimator;
 import com.stario.launcher.utils.Utils;
 
 public class Launcher extends ThemedActivity {
-    public final static int MAX_BACKGROUND_ALPHA = 230;
+    public static final int MAX_BACKGROUND_ALPHA = 230;
+    public static final String ACTION_KILL_TASK = "com.stario.launcher.ACTION_KILL_TASK";
+    public static final String INTENT_KILL_TASK_ID_EXTRA = "com.stario.launcher.INTENT_KILL_TASK_ID_EXTRA";
+
     private BroadcastReceiver screenOnReceiver;
     private SheetsFocusController coordinator;
+    private BroadcastReceiver killReceiver;
     private ClosingAnimationView main;
     private LockDetector detector;
     private View decorView;
@@ -68,9 +72,35 @@ public class Launcher extends ThemedActivity {
     public Launcher() {
     }
 
-    @SuppressLint({"ClickableViewAccessibility", "UseCompatLoadingForDrawables"})
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // On some devices, the application is killed when recents screen is open
+        // Maybe multiple tasks might affect it?
+        // https://github.com/albu-razvan/Stario/issues/104#issue-2836388598
+        
+        Intent intent = new Intent(ACTION_KILL_TASK);
+        intent.putExtra(INTENT_KILL_TASK_ID_EXTRA, getTaskId());
+        intent.setPackage(getPackageName());
+        sendBroadcast(intent);
+
+        killReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int task = intent.getIntExtra(INTENT_KILL_TASK_ID_EXTRA, getTaskId());
+
+                if (task != getTaskId()) {
+                    finishAndRemoveTask();
+                }
+            }
+        };
+
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+            registerReceiver(killReceiver, new IntentFilter(ACTION_KILL_TASK), RECEIVER_EXPORTED);
+        } else {
+            //noinspection UnspecifiedRegisterReceiverFlag
+            registerReceiver(killReceiver, new IntentFilter(ACTION_KILL_TASK));
+        }
+
         Vibrations.from(this);
         ProfileManager.from(this);
 
@@ -245,6 +275,12 @@ public class Launcher extends ThemedActivity {
             unregisterReceiver(screenOnReceiver);
         } catch (Exception exception) {
             Log.e("Launcher", "onDestroy: Screen On receiver was not registered.");
+        }
+
+        try {
+            unregisterReceiver(killReceiver);
+        } catch (Exception exception) {
+            Log.e("Launcher", "onDestroy: Kill receiver was not registered.");
         }
 
         super.onDestroy();
