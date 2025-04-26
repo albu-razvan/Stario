@@ -324,7 +324,10 @@ public class Settings extends ThemedActivity {
 
         findViewById(R.id.about).setOnClickListener((view) -> {
             Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                    Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
             intent.setData(Uri.parse("package:" + getPackageName()));
+
             startActivity(intent);
         });
 

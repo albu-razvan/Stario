@@ -133,12 +133,9 @@ public class Launcher extends ThemedActivity {
     }
 
     private void attachSheets() {
-        SheetsFocusController.Wrapper.wrapInDialog(this, SheetType.BOTTOM_SHEET, (slideOffset) ->
-                animateSheet(SheetType.BOTTOM_SHEET, slideOffset));
-        SheetsFocusController.Wrapper.wrapInDialog(this, SheetType.TOP_SHEET, (slideOffset) ->
-                animateSheet(SheetType.TOP_SHEET, slideOffset));
-        SheetsFocusController.Wrapper.wrapInDialog(this, SheetType.LEFT_SHEET, (slideOffset) ->
-                animateSheet(SheetType.LEFT_SHEET, slideOffset));
+        SheetsFocusController.Wrapper.wrapInDialog(this, SheetType.BOTTOM_SHEET, this::animateSheet);
+        SheetsFocusController.Wrapper.wrapInDialog(this, SheetType.TOP_SHEET, this::animateSheet);
+        SheetsFocusController.Wrapper.wrapInDialog(this, SheetType.LEFT_SHEET, this::animateSheet);
     }
 
     public void displayLauncherOptions(Launcher activity) {
@@ -179,33 +176,20 @@ public class Launcher extends ThemedActivity {
                 coordinator.getLastY(), PopupMenu.PIVOT_CENTER_HORIZONTAL);
     }
 
-    private void animateSheet(SheetType type, float slideOffset) {
+    private void animateSheet(float slideOffset) {
         if (Float.isNaN(slideOffset)) {
             slideOffset = 0;
         }
 
         float targetAlpha = 1f - slideOffset * 2f;
         slideOffset = slideOffset * slideOffset;
+        float scale = 1f - slideOffset / 3;
 
         if (targetAlpha > 0) {
             main.setAlpha((float) Math.sqrt(targetAlpha));
             if (decorView.getWindowToken() != null) {
-                if (type == SheetType.TOP_SHEET) {
-                    decorView.setTranslationY(slideOffset / 2f * main.getMeasuredHeight());
-                    decorView.setTranslationX(0);
-                } else if (type == SheetType.LEFT_SHEET) {
-                    decorView.setTranslationY(0);
-                    decorView.setTranslationX(slideOffset / 2f * main.getMeasuredWidth());
-                } else if (type == SheetType.BOTTOM_SHEET) {
-                    decorView.setTranslationY(-slideOffset / 2f * main.getMeasuredHeight());
-                    decorView.setTranslationX(0);
-                } else if (type == SheetType.RIGHT_SHEET) {
-                    decorView.setTranslationY(0);
-                    decorView.setTranslationX(-slideOffset / 2f * main.getMeasuredWidth());
-                } else {
-                    decorView.setTranslationY(0);
-                    decorView.setTranslationX(0);
-                }
+                decorView.setScaleY(scale);
+                decorView.setScaleX(scale);
             }
 
             main.setVisibility(View.VISIBLE);
