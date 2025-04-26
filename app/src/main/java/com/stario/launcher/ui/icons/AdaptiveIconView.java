@@ -24,6 +24,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.drawable.AdaptiveIconDrawable;
@@ -39,6 +41,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.stario.launcher.R;
 import com.stario.launcher.activities.settings.dialogs.icons.IconsDialog;
 import com.stario.launcher.apps.LauncherApplication;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.utils.Utils;
@@ -51,17 +54,20 @@ public class AdaptiveIconView extends View {
     public static final float DEFAULT_CORNER_RADIUS = 1f;
     public static final float MAX_SCALE = 1.12f;
 
-    private ObjectDelegate<Float> radius;
     private ObjectDelegate<PathCornerTreatmentAlgorithm> pathAlgorithm;
-    private ObjectDelegate<Drawable> icon;
     private LocalBroadcastManager localBroadcastManager;
-    private BroadcastReceiver radiusReceiver;
+    private ColorMatrixColorFilter grayscaleFilter;
     private BroadcastReceiver squircleReceiver;
+    private BroadcastReceiver radiusReceiver;
+    private BroadcastReceiver pausedReceiver;
+    private ObjectDelegate<Drawable> icon;
     private SharedPreferences preferences;
+    private ObjectDelegate<Float> radius;
     private boolean applyAlternateBadge;
     private Drawable alternateBadge;
     private boolean sizeRestricted;
     private boolean looseClipping;
+    private boolean paused;
     private Path path;
 
     public AdaptiveIconView(Context context) {
@@ -130,6 +136,12 @@ public class AdaptiveIconView extends View {
                         DEFAULT_CORNER_RADIUS), (o) -> requestLayout());
         this.alternateBadge = ResourcesCompat.getDrawable(context.getResources(),
                 R.drawable.ic_alternate_badge, context.getTheme());
+
+        ColorMatrix matrix = new ColorMatrix();
+        matrix.setSaturation(0);
+        this.grayscaleFilter = new ColorMatrixColorFilter(matrix);
+        this.pausedReceiver = null;
+        this.paused = false;
 
         setLayerType(LAYER_TYPE_HARDWARE, null);
     }
@@ -242,13 +254,30 @@ public class AdaptiveIconView extends View {
     public void setApplication(LauncherApplication application) {
         if (application != null) {
             setIcon(application.getIcon());
+
+            paused = !Utils.isProfileAvailable(getContext(), application.getProfile());
             applyAlternateBadge = !Utils.isMainProfile(application.getProfile());
+
+            pausedReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    paused = !intent.getBooleanExtra(ProfileManager.PROFILE_AVAILABLE_EXTRA, true);
+                    requestLayout();
+                }
+            };
+            localBroadcastManager.registerReceiver(pausedReceiver,
+                    new IntentFilter(ProfileManager.getProfileAvailabilityIntentAction(application.getProfile())));
         } else {
             setIcon(null);
         }
     }
 
     public void setIcon(Drawable icon) {
+        if (pausedReceiver != null) {
+            localBroadcastManager.unregisterReceiver(pausedReceiver);
+            pausedReceiver = null;
+        }
+
         if (icon != null && icon.getConstantState() != null) {
             Drawable constantStateIcon = icon.getConstantState().newDrawable();
 
@@ -259,7 +288,8 @@ public class AdaptiveIconView extends View {
             this.icon.setValue(null);
         }
 
-        this.applyAlternateBadge = false;
+        paused = false;
+        applyAlternateBadge = false;
     }
 
     @Override
@@ -320,14 +350,29 @@ public class AdaptiveIconView extends View {
                 Drawable foreground = adaptiveIconDrawable.getForeground();
 
                 if (background != null) {
+                    if (paused) {
+                        background.setColorFilter(grayscaleFilter);
+                    }
+
                     background.draw(canvas);
+                    background.setColorFilter(null);
                 }
 
                 if (foreground != null) {
+                    if (paused) {
+                        foreground.setColorFilter(grayscaleFilter);
+                    }
+
                     foreground.draw(canvas);
+                    foreground.setColorFilter(null);
                 }
             } else {
+                if (paused) {
+                    icon.setColorFilter(grayscaleFilter);
+                }
+
                 icon.draw(canvas);
+                icon.setColorFilter(null);
             }
         }
     }

@@ -25,6 +25,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -115,6 +116,10 @@ public class Utils {
 
     public static boolean isMainProfile(UserHandle handle) {
         return handle != null && handle.equals(ProfileManager.getOwner());
+    }
+
+    public static boolean isProfileAvailable(Context context, UserHandle handle) {
+        return context.getSystemService(UserManager.class).isUserUnlocked(handle);
     }
 
     public static boolean isNetworkAvailable(Context context) {

@@ -33,6 +33,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.stario.launcher.apps.interfaces.LauncherProfileListener;
 import com.stario.launcher.themes.ThemedActivity;
@@ -46,6 +47,9 @@ import java.util.List;
 import java.util.Map;
 
 public final class ProfileManager {
+    public static final String PROFILE_AVAILABLE_EXTRA = "com.stario.launcher.PROFILE_AVAILABLE_EXTRA";
+
+    private static final String PROFILE_AVAILABLE_INTENT = "com.stario.launcher.PROFILE_AVAILABLE_INTENT";
     private static final String TAG = "LauncherApplicationManager";
     private static ProfileManager instance = null;
     private static UserHandle owner;
@@ -164,7 +168,6 @@ public final class ProfileManager {
                     return;
                 }
 
-                // TODO update work profile enabled state
                 String action = intent.getAction();
                 if (action != null) {
                     if (action.equals(Intent.ACTION_MANAGED_PROFILE_ADDED)) {
@@ -202,10 +205,26 @@ public final class ProfileManager {
                                 listener.onRemoved(handle);
                             }
                         }
+                    } else if (action.equals(Intent.ACTION_MANAGED_PROFILE_AVAILABLE)) {
+                        intent = new Intent(getProfileAvailabilityIntentAction(handle));
+                        intent.putExtra(PROFILE_AVAILABLE_EXTRA, true);
+
+                        LocalBroadcastManager.getInstance(context)
+                                .sendBroadcastSync(intent);
+                    } else if (action.equals(Intent.ACTION_MANAGED_PROFILE_UNAVAILABLE)) {
+                        intent = new Intent(getProfileAvailabilityIntentAction(handle));
+                        intent.putExtra(PROFILE_AVAILABLE_EXTRA, false);
+
+                        LocalBroadcastManager.getInstance(context)
+                                .sendBroadcastSync(intent);
                     }
                 }
             }
         };
+    }
+
+    public static String getProfileAvailabilityIntentAction(UserHandle handle) {
+        return PROFILE_AVAILABLE_INTENT + (handle != null ? (":" + handle) : "");
     }
 
     private static IntentFilter getIntentFilter() {

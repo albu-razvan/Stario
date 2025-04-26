@@ -51,6 +51,7 @@ import com.stario.launcher.ui.popup.PopupMenu;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
 import com.stario.launcher.ui.recyclers.async.InflationType;
 import com.stario.launcher.ui.utils.animation.Animation;
+import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -199,8 +200,10 @@ public abstract class RecyclerApplicationAdapter
 
             PopupMenu menu = new PopupMenu(activity);
 
-            List<ShortcutInfo> shortcuts = getShortcutForApplication(launcherApps, application);
-            menu.addShortcuts(launcherApps, shortcuts);
+            if(Utils.isProfileAvailable(activity, application.getProfile())) {
+                List<ShortcutInfo> shortcuts = getShortcutForApplication(launcherApps, application);
+                menu.addShortcuts(launcherApps, shortcuts);
+            }
 
             Resources resources = activity.getResources();
 
