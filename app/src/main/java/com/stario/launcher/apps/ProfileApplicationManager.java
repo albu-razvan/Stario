@@ -17,17 +17,12 @@
 
 package com.stario.launcher.apps;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.UserHandle;
 import android.util.Log;
 
@@ -87,21 +82,16 @@ public final class ProfileApplicationManager {
 
     void refreshReceiver(ThemedActivity activity) {
         if (!registered) {
-            BroadcastReceiver receiver = getReceiver();
-
-            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
-                activity.registerReceiver(receiver, getIntentFilter(), Context.RECEIVER_EXPORTED);
-            } else {
-                //noinspection UnspecifiedRegisterReceiverFlag
-                activity.registerReceiver(receiver, getIntentFilter());
-            }
+            LauncherApps launcherApps = ((LauncherApps) activity.getSystemService(Context.LAUNCHER_APPS_SERVICE));
+            LauncherApps.Callback callback = getReceiver(launcherApps);
+            launcherApps.registerCallback(callback);
 
             Lifecycle lifecycle = activity.getLifecycle();
             lifecycle.addObserver(new DefaultLifecycleObserver() {
                 @Override
                 public void onDestroy(@NonNull LifecycleOwner owner) {
                     try {
-                        activity.unregisterReceiver(receiver);
+                        launcherApps.unregisterCallback(callback);
                         registered = false;
                     } catch (Exception exception) {
                         Log.e(TAG, "Receiver not registered");
@@ -115,97 +105,106 @@ public final class ProfileApplicationManager {
         }
     }
 
-    private BroadcastReceiver getReceiver() {
-        return new BroadcastReceiver() {
+    private LauncherApps.Callback getReceiver(LauncherApps launcherApps) {
+        return new LauncherApps.Callback() {
             @Override
-            public void onReceive(Context context, Intent intent) {
-                Uri data = intent.getData();
-
-                if (data == null) {
+            public void onPackageRemoved(String packageName, UserHandle user) {
+                if (!handle.equals(user) || BuildConfig.APPLICATION_ID.equals(packageName)) {
                     return;
                 }
 
-                LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
-                String packageName = data.getSchemeSpecificPart();
+                removeApplication(packageName);
+            }
 
-                String action = intent.getAction();
-                boolean containsPackage = applicationMap.containsKey(packageName);
+            @Override
+            public void onPackageAdded(String packageName, UserHandle user) {
+                if (!handle.equals(user) || BuildConfig.APPLICATION_ID.equals(packageName)) {
+                    return;
+                }
 
-                if (action != null && !BuildConfig.APPLICATION_ID.equals(packageName)) {
-                    Utils.submitTask(() -> {
-                        if ((action.equals(Intent.ACTION_PACKAGE_REMOVED) &&
-                                !intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) ||
-                                action.equals(Intent.ACTION_PACKAGE_FULLY_REMOVED)) {
+                ApplicationInfo applicationInfo = getApplicationInfo(packageName);
 
-                            removeApplication(packageName);
-                        } else {
-                            if (launcherApps.getActivityList(packageName, handle).isEmpty()) {
-                                return;
-                            }
-
-                            ApplicationInfo applicationInfo;
-
-                            try {
-                                applicationInfo = packageManager.getApplicationInfo(packageName, 0);
-
-                                if (launcherApps.getActivityList(packageName,
-                                        handle).isEmpty()) {
-                                    // Doesn't have any activity that specifies
-                                    // Intent.ACTION_MAIN and Intent.CATEGORY_LAUNCHER
-
-                                    if (containsPackage) {
-                                        removeApplication(packageName);
-                                    }
-
-                                    return;
-                                }
-                            } catch (PackageManager.NameNotFoundException exception) {
-                                Log.e(TAG, "Package " + packageName + " does not exist.");
-
-                                return;
-                            }
-
-                            if ((action.equals(Intent.ACTION_PACKAGE_CHANGED) ||
-                                    action.equals(Intent.ACTION_PACKAGE_VERIFIED) ||
-                                    action.equals(Intent.ACTION_PACKAGE_REPLACED)) &&
-                                    containsPackage) {
-
-                                LauncherApplication application = get(packageName);
-
-                                if (application != null) {
-                                    if (!applicationInfo.enabled) {
-                                        removeApplication(packageName);
-                                    } else {
-                                        application.info = applicationInfo;
-                                        updateApplication(application);
-                                    }
-                                }
-                            } else if ((action.equals(Intent.ACTION_PACKAGE_ADDED) &&
-                                    intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) ||
-                                    (!containsPackage && action.equals(Intent.ACTION_PACKAGE_CHANGED))) {
-
-                                if (applicationInfo.enabled) {
-                                    addApplication(createApplication(applicationInfo));
-                                }
-                            }
-                        }
-                    });
+                if (applicationInfo != null && applicationInfo.enabled) {
+                    addApplication(createApplication(applicationInfo));
                 }
             }
+
+            @Override
+            public void onPackageChanged(String packageName, UserHandle user) {
+                if (!handle.equals(user) || BuildConfig.APPLICATION_ID.equals(packageName)) {
+                    return;
+                }
+
+                ApplicationInfo applicationInfo = getApplicationInfo(packageName);
+
+                if (applicationInfo != null) {
+                    LauncherApplication application = get(packageName);
+
+                    if (application != null) {
+                        if (!applicationInfo.enabled) {
+                            removeApplication(packageName);
+                        } else {
+                            application.info = applicationInfo;
+                            updateApplication(application);
+                        }
+                    } else {
+                        addApplication(createApplication(applicationInfo));
+                    }
+                } else {
+                    removeApplication(packageName);
+                }
+            }
+
+            @Override
+            public void onPackagesAvailable(String[] packageNames, UserHandle user, boolean replacing) {
+                for (String packageName : packageNames) {
+                    if (replacing) {
+                        onPackageChanged(packageName, user);
+                    } else {
+                        onPackageAdded(packageName, user);
+                    }
+                }
+            }
+
+            @Override
+            public void onPackagesUnavailable(String[] packageNames, UserHandle user, boolean replacing) {
+                for (String packageName : packageNames) {
+                    if (!replacing) {
+                        onPackageRemoved(packageName, user);
+                    }
+                }
+            }
+
+            private ApplicationInfo getApplicationInfo(String packageName) {
+                boolean containsPackage = applicationMap.containsKey(packageName);
+                if (launcherApps.getActivityList(packageName, handle).isEmpty()) {
+                    return null;
+                }
+
+                ApplicationInfo applicationInfo;
+                try {
+                    applicationInfo = launcherApps.getApplicationInfo(packageName, 0, handle);
+
+                    if (launcherApps.getActivityList(packageName,
+                            handle).isEmpty()) {
+                        // Doesn't have any activity that specifies
+                        // Intent.ACTION_MAIN and Intent.CATEGORY_LAUNCHER
+
+                        if (containsPackage) {
+                            removeApplication(packageName);
+                        }
+
+                        return null;
+                    }
+                } catch (PackageManager.NameNotFoundException exception) {
+                    Log.e(TAG, "Package " + packageName + " does not exist.");
+
+                    return null;
+                }
+
+                return applicationInfo;
+            }
         };
-    }
-
-    private static IntentFilter getIntentFilter() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_VERIFIED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-        intentFilter.addDataScheme("package");
-
-        return intentFilter;
     }
 
     private void loadApplications(ThemedActivity activity) {
