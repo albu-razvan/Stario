@@ -46,8 +46,8 @@ import com.stario.launcher.glance.Glance;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
 import com.stario.launcher.ui.dialogs.PersistentFullscreenDialog;
-import com.stario.launcher.utils.Utils;
 import com.stario.launcher.ui.utils.animation.Animation;
+import com.stario.launcher.utils.Utils;
 
 public abstract class GlanceDialogExtension extends DialogFragment
         implements GlanceExtension {
@@ -65,6 +65,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
     private int gravity;
 
     protected GlanceDialogExtension() {
+        super();
     }
 
     @Nullable
@@ -79,6 +80,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
         this.listener = listener;
 
         show(glance.getActivity().getSupportFragmentManager(), getTag());
+        glance.attachViewExtension(getViewExtensionPreview(), v -> show());
     }
 
     @Override
@@ -106,14 +108,11 @@ public abstract class GlanceDialogExtension extends DialogFragment
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        //noinspection deprecation
-        setRetainInstance(true);
-
-        super.onCreate(savedInstanceState);
-
         if (savedInstanceState != null) {
             dismissAllowingStateLoss();
         }
+
+        super.onCreate(null);
     }
 
     @NonNull
@@ -142,8 +141,6 @@ public abstract class GlanceDialogExtension extends DialogFragment
         root.addView(this.container);
 
         root.setOnClickListener(v -> hide());
-
-        glance.attachViewExtension(getViewExtensionPreview(), v -> show());
 
         return root;
     }
@@ -328,7 +325,6 @@ public abstract class GlanceDialogExtension extends DialogFragment
     }
 
     public interface TransitionListener {
-
         void onProgressFraction(float fraction);
     }
 

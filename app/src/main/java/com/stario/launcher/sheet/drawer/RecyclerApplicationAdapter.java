@@ -277,7 +277,7 @@ public abstract class RecyclerApplicationAdapter
         }
     }
 
-    private static List<ShortcutInfo> getShortcutForApplication(LauncherApps launcherApps,
+    private List<ShortcutInfo> getShortcutForApplication(LauncherApps launcherApps,
                                                                 LauncherApplication application) {
         LauncherApps.ShortcutQuery shortcutQuery = new LauncherApps.ShortcutQuery();
         shortcutQuery.setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST |

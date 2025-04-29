@@ -57,9 +57,13 @@ import com.stario.launcher.ui.utils.animation.WallpaperAnimator;
 import com.stario.launcher.utils.Utils;
 
 public class Launcher extends ThemedActivity {
-    public final static int MAX_BACKGROUND_ALPHA = 230;
+    public static final int MAX_BACKGROUND_ALPHA = 230;
+    public static final String ACTION_KILL_TASK = "com.stario.launcher.ACTION_KILL_TASK";
+    public static final String INTENT_KILL_TASK_ID_EXTRA = "com.stario.launcher.INTENT_KILL_TASK_ID_EXTRA";
+
     private BroadcastReceiver screenOnReceiver;
-    private SheetsFocusController coordinator;
+    private SheetsFocusController controller;
+    private BroadcastReceiver killReceiver;
     private ClosingAnimationView main;
     private LockDetector detector;
     private View decorView;
@@ -68,9 +72,35 @@ public class Launcher extends ThemedActivity {
     public Launcher() {
     }
 
-    @SuppressLint({"ClickableViewAccessibility", "UseCompatLoadingForDrawables"})
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // On some devices, the application is killed when recents screen is open
+        // Maybe multiple tasks might affect it?
+        // https://github.com/albu-razvan/Stario/issues/104#issue-2836388598
+        
+        Intent intent = new Intent(ACTION_KILL_TASK);
+        intent.putExtra(INTENT_KILL_TASK_ID_EXTRA, getTaskId());
+        intent.setPackage(getPackageName());
+        sendBroadcast(intent);
+
+        killReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int task = intent.getIntExtra(INTENT_KILL_TASK_ID_EXTRA, getTaskId());
+
+                if (task != getTaskId()) {
+                    finishAndRemoveTask();
+                }
+            }
+        };
+
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+            registerReceiver(killReceiver, new IntentFilter(ACTION_KILL_TASK), RECEIVER_EXPORTED);
+        } else {
+            //noinspection UnspecifiedRegisterReceiverFlag
+            registerReceiver(killReceiver, new IntentFilter(ACTION_KILL_TASK));
+        }
+
         Vibrations.from(this);
         ProfileManager.from(this);
 
@@ -80,23 +110,24 @@ public class Launcher extends ThemedActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.launcher);
 
+        controller = findViewById(R.id.controller);
+
         main = findViewById(R.id.main);
-        coordinator = findViewById(R.id.coordinator);
         detector = findViewById(R.id.detector);
         decorView = window.getDecorView();
 
         Measurements.measure(getRoot(), (insets) -> {
-            coordinator.setPadding(0, Measurements.getSysUIHeight(), 0,
+            controller.setPadding(0, Measurements.getSysUIHeight(), 0,
                     Measurements.getNavHeight() + Measurements.dpToPx(20));
 
             return insets;
         });
 
-        UiUtils.applyNotchMargin(coordinator);
-        coordinator.setOnLongClickListener((v) -> {
+        UiUtils.applyNotchMargin(controller);
+        controller.setOnLongClickListener((v) -> {
             Vibrations.getInstance().vibrate();
 
-            displayLauncherOptions(this);
+            displayLauncherOptions(this, controller);
             return true;
         });
 
@@ -116,7 +147,7 @@ public class Launcher extends ThemedActivity {
 
         prepareWallpaperTransitions();
 
-        attachSheets();
+        attachSheets(controller);
         attachGlance();
     }
 
@@ -132,13 +163,13 @@ public class Launcher extends ThemedActivity {
         glance.attachDialogExtension(new Weather(), Gravity.BOTTOM, listener);
     }
 
-    private void attachSheets() {
-        SheetsFocusController.Wrapper.wrapInDialog(this, SheetType.BOTTOM_SHEET, this::animateSheet);
-        SheetsFocusController.Wrapper.wrapInDialog(this, SheetType.TOP_SHEET, this::animateSheet);
-        SheetsFocusController.Wrapper.wrapInDialog(this, SheetType.LEFT_SHEET, this::animateSheet);
+    private void attachSheets(SheetsFocusController controller) {
+        controller.wrapInDialog(this, SheetType.BOTTOM_SHEET, this::animateSheet);
+        controller.wrapInDialog(this, SheetType.TOP_SHEET, this::animateSheet);
+        controller.wrapInDialog(this, SheetType.LEFT_SHEET, this::animateSheet);
     }
 
-    public void displayLauncherOptions(Launcher activity) {
+    public void displayLauncherOptions(Launcher activity, SheetsFocusController controller) {
         PopupMenu menu = new PopupMenu(activity);
 
         Resources resources = activity.getResources();
@@ -172,8 +203,8 @@ public class Launcher extends ThemedActivity {
                     });
                 }));
 
-        menu.showAtLocation(activity, coordinator, coordinator.getLastX(),
-                coordinator.getLastY(), PopupMenu.PIVOT_CENTER_HORIZONTAL);
+        menu.showAtLocation(activity, controller, controller.getLastX(),
+                controller.getLastY(), PopupMenu.PIVOT_CENTER_HORIZONTAL);
     }
 
     private void animateSheet(float slideOffset) {
@@ -247,6 +278,12 @@ public class Launcher extends ThemedActivity {
             Log.e("Launcher", "onDestroy: Screen On receiver was not registered.");
         }
 
+        try {
+            unregisterReceiver(killReceiver);
+        } catch (Exception exception) {
+            Log.e("Launcher", "onDestroy: Kill receiver was not registered.");
+        }
+
         super.onDestroy();
     }
 
@@ -274,7 +311,7 @@ public class Launcher extends ThemedActivity {
     public void requestIgnoreCurrentTouchEvent(boolean enabled) {
         super.requestIgnoreCurrentTouchEvent(enabled);
 
-        SheetsFocusController.Wrapper.requestIgnoreCurrentTouchEvent(enabled);
+        controller.requestIgnoreCurrentTouchEvent(enabled);
     }
 
     @Override
