@@ -24,7 +24,7 @@
     android:transitionGroup="true">
 
     <com.stario.launcher.sheet.SheetsFocusController
-        android:id="@+id/coordinator"
+        android:id="@+id/controller"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 

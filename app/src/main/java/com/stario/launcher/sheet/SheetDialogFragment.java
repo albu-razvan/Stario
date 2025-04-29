@@ -28,6 +28,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,7 +52,6 @@ import com.stario.launcher.utils.Utils;
 import java.util.ArrayList;
 
 public abstract class SheetDialogFragment extends DialogFragment {
-    private final static String TYPE_KEY = "com.stario.launcher.SheetDialog.TYPE_KEY";
     private final ArrayList<DialogInterface.OnShowListener> showListeners;
     private final ArrayList<OnDestroyListener> destroyListeners;
     private OnSlideListener slideListener;
@@ -103,13 +103,6 @@ public abstract class SheetDialogFragment extends DialogFragment {
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putSerializable(TYPE_KEY, type);
-
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
     public void onDestroy() {
         for (OnDestroyListener listener : destroyListeners) {
             listener.onDestroy(type);
@@ -134,24 +127,12 @@ public abstract class SheetDialogFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null) {
-            type = (SheetType) savedInstanceState.getSerializable(TYPE_KEY);
-
-            if (type != null) {
-                boolean valid = SheetsFocusController.Wrapper.update(this, type);
-
-                if (!valid) {
-                    dismissAllowingStateLoss();
-                }
-            } else {
-                dismissAllowingStateLoss();
-            }
-        }
-
-        if (type == null) {
+            dismissAllowingStateLoss();
+        } else if (type == null) {
             throw new RuntimeException("SheetDialogFragment type cannot be null.");
         }
 
-        super.onCreate(savedInstanceState);
+        super.onCreate(null);
     }
 
     @NonNull
@@ -236,8 +217,7 @@ public abstract class SheetDialogFragment extends DialogFragment {
                 listener.onShow(dialog);
             }
 
-            if (!capturing && receivedMoveEvent &&
-                    SheetsFocusController.Wrapper.getActiveSheetCount() == 0) {
+            if (!capturing && receivedMoveEvent) {
                 dialog.behavior.setState(SheetBehavior.STATE_EXPANDED, true);
             }
 

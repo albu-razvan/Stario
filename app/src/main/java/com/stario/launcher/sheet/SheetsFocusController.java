@@ -20,7 +20,6 @@ package com.stario.launcher.sheet;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -38,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SheetsFocusController extends ConstraintLayout {
+
     private CheckForLongPress pendingCheckForLongPress;
     private View.OnLongClickListener longClickListener;
     private boolean hasPerformedLongPress;
@@ -45,6 +45,7 @@ public class SheetsFocusController extends ConstraintLayout {
     private boolean shouldDispatch;
     private float deltaX, deltaY;
     private SheetType sheetType;
+    private SheetWrapper[] wrappers;
     private float moveSlop;
     private float X, Y;
 
@@ -67,6 +68,7 @@ public class SheetsFocusController extends ConstraintLayout {
     }
 
     private void init(Context context) {
+        wrappers = new SheetWrapper[SheetType.values().length];
         targetPointers = new ArrayList<>();
         sheetType = SheetType.UNDEFINED;
         moveSlop = ViewConfiguration.get(context).getScaledTouchSlop();
@@ -78,7 +80,7 @@ public class SheetsFocusController extends ConstraintLayout {
         int action = ev.getAction();
 
         if (action == MotionEvent.ACTION_DOWN) {
-            shouldDispatch = Wrapper.getActiveSheetCount() == 0;
+            shouldDispatch = getActiveSheetCount() == 0;
 
             targetPointers.add(0,
                     ev.getAction() >> MotionEvent.ACTION_POINTER_INDEX_SHIFT);
@@ -90,7 +92,7 @@ public class SheetsFocusController extends ConstraintLayout {
             deltaY = 0;
 
             if (shouldDispatch) {
-                Wrapper.sendMotionEvent(MotionEvent.obtain(ev));
+                sendMotionEvent(MotionEvent.obtain(ev));
             }
 
             super.onInterceptTouchEvent(ev);
@@ -102,7 +104,7 @@ public class SheetsFocusController extends ConstraintLayout {
                 targetPointers.clear();
 
                 if (shouldDispatch) {
-                    Wrapper.sendMotionEvent(MotionEvent.obtain(ev));
+                    sendMotionEvent(MotionEvent.obtain(ev));
                 }
 
                 removeCheck();
@@ -135,7 +137,7 @@ public class SheetsFocusController extends ConstraintLayout {
         if (action == MotionEvent.ACTION_UP ||
                 action == MotionEvent.ACTION_CANCEL) {
             if (shouldDispatch) {
-                Wrapper.sendMotionEvent(MotionEvent.obtain(ev));
+                sendMotionEvent(MotionEvent.obtain(ev));
             }
 
             removeCheck();
@@ -154,7 +156,7 @@ public class SheetsFocusController extends ConstraintLayout {
                 deltaY = 0;
 
                 if (shouldDispatch) {
-                    Wrapper.sendMotionEvent(MotionEvent.obtain(ev));
+                    sendMotionEvent(MotionEvent.obtain(ev));
                 }
 
                 postCheckForLongClick();
@@ -183,7 +185,7 @@ public class SheetsFocusController extends ConstraintLayout {
                 }
 
                 if (shouldDispatch) {
-                    Wrapper.sendMotionEvent(sheetType, MotionEvent.obtain(ev));
+                    sendMotionEvent(sheetType, MotionEvent.obtain(ev));
                 }
             }
         }
@@ -211,10 +213,6 @@ public class SheetsFocusController extends ConstraintLayout {
             pendingCheckForLongPress = new CheckForLongPress();
             postDelayed(pendingCheckForLongPress, ViewConfiguration.getLongPressTimeout());
         }
-    }
-
-    private void hideAllSheets() {
-        Wrapper.hideAll();
     }
 
     @Override
@@ -261,163 +259,114 @@ public class SheetsFocusController extends ConstraintLayout {
                         removeCallbacks(pendingCheckForLongPress);
                     }
 
-                    hideAllSheets();
+                    for (SheetWrapper instance : wrappers) {
+                        if (instance != null) {
+                            SheetBehavior<?> behavior = instance.dialog.getBehavior();
+
+                            if (behavior != null) {
+                                instance.dialog.dialog.hide();
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
-    public static class Wrapper {
+    public void wrapInDialog(Launcher launcher, SheetType type,
+                             @NonNull SheetDialogFragment.OnSlideListener slideListener) {
+        wrappers[type.ordinal()] = new SheetWrapper(launcher, type, slideListener);
+    }
+
+    private void sendMotionEvent(MotionEvent event) {
+        for (SheetWrapper wrapper : wrappers) {
+            if (wrapper != null &&
+                    wrapper.dialog != null) {
+
+                if (wrapper.dialog.isAdded()) {
+                    wrapper.dialog.sendMotionEvent(event);
+                }
+            }
+        }
+    }
+
+    private void sendMotionEvent(SheetType type, MotionEvent event) {
+        for (int index = 0; index < wrappers.length; index++) {
+            if (index == type.ordinal()) {
+                continue;
+            }
+
+            if (wrappers[index] != null) {
+                SheetBehavior<?> behavior = wrappers[index].dialog.getBehavior();
+
+                if (behavior != null &&
+                        (behavior.getState() == SheetBehavior.STATE_SETTLING ||
+                                behavior.getState() == SheetBehavior.STATE_EXPANDED)) {
+                    return;
+                }
+            }
+        }
+
+        SheetWrapper wrapper = wrappers[type.ordinal()];
+
+        if (wrapper != null) {
+            if (wrapper.dialog.isAdded()) {
+                wrapper.dialog.sendMotionEvent(event);
+            } else if (wrapper.showRequest != null) {
+                wrapper.showRequest.show();
+            }
+        }
+    }
+
+    public void requestIgnoreCurrentTouchEvent(boolean enabled) {
+        for (SheetWrapper instance : wrappers) {
+            if (instance != null) {
+                instance.dialog.requestIgnoreCurrentTouchEvent(enabled);
+            }
+        }
+    }
+
+    public int getActiveSheetCount() {
+        int count = 0;
+
+        for (SheetWrapper instance : wrappers) {
+            if (instance != null && instance.dialog.dialog != null &&
+                    instance.dialog.dialog.isShowing()) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    public static class SheetWrapper {
         private static final String TAG = "SheetWrapper";
-        private final static Wrapper[] instances = new Wrapper[SheetType.values().length];
-        private Wrapper.OnShowRequest showRequest;
-        private SheetDialogFragment dialog;
 
-        private Wrapper(Launcher launcher, SheetType type,
-                        @NonNull SheetDialogFragment.OnSlideListener listener) {
-            try {
-                dialog = SheetDialogFactory.forType(type, launcher.getSharedPreferences(Entry.STARIO));
-                dialog.setCancelable(false);
+        private final SheetDialogFragment dialog;
 
-                dialog.setOnSlideListener(listener);
+        private SheetWrapper.OnShowRequest showRequest;
 
-                updateShowListener(this, type, launcher);
-            } catch (IllegalArgumentException exception) {
-                Log.e(TAG, "Cannot inflate dialog.\n", exception);
-            }
-        }
+        private SheetWrapper(Launcher launcher, SheetType type,
+                             @NonNull SheetDialogFragment.OnSlideListener listener) {
+            this.dialog = SheetDialogFactory.forType(type,
+                    launcher.getSharedPreferences(Entry.STARIO));
 
-        public static void wrapInDialog(Launcher launcher, SheetType type,
-                                        @NonNull SheetDialogFragment.OnSlideListener slideListener) {
-            Wrapper wrapper;
+            dialog.setCancelable(false);
+            dialog.setOnSlideListener(listener);
 
-            if (instances[type.ordinal()] != null) {
-                wrapper = instances[type.ordinal()];
-                wrapper.dialog.setOnSlideListener(slideListener);
-
-                updateShowListener(wrapper, type, launcher);
-            } else {
-                wrapper = new Wrapper(launcher, type, slideListener);
-            }
-
-            instances[type.ordinal()] = wrapper;
-        }
-
-        private static void updateShowListener(Wrapper wrapper, SheetType type, Launcher launcher) {
-            wrapper.showRequest = () -> {
+            showRequest = () -> {
                 FragmentManager manager = launcher.getSupportFragmentManager();
 
                 if (!manager.isDestroyed() && manager.findFragmentByTag(type.toString()) == null) {
-                    wrapper.dialog.show(manager, type.toString());
+                    dialog.show(manager, type.toString());
                 }
 
-                wrapper.showRequest = null;
+                showRequest = null;
             };
-        }
-
-        static boolean update(SheetDialogFragment dialog, SheetType type) {
-            if (dialog != null) {
-                Wrapper wrapper = instances[type.ordinal()];
-
-                if (wrapper != null) {
-                    if (dialog.getType() == type) {
-                        if (!dialog.isResumed()) {
-                            wrapper.dialog = dialog;
-
-                            return true;
-                        } else {
-                            Log.e(TAG, "updateDialog: Dialog must not be resumed when updating");
-                        }
-                    } else {
-                        Log.e(TAG, "updateDialog: Dialog must have the same SheetType " +
-                                "as the old one. Previous: " + type + "Current: " + dialog.getType());
-                    }
-                } else {
-                    Log.e(TAG, "updateDialog: No instance to update of type " + dialog.getType());
-                }
-            } else {
-                Log.e(TAG, "updateDialog: Dialog must not be null");
-            }
-
-            return false;
-        }
-
-        private static void sendMotionEvent(MotionEvent event) {
-            for (Wrapper wrapper : instances) {
-                if (wrapper != null &&
-                        wrapper.dialog != null) {
-
-                    if (wrapper.dialog.isAdded()) {
-                        wrapper.dialog.sendMotionEvent(event);
-                    }
-                }
-            }
-        }
-
-        private static void sendMotionEvent(SheetType type, MotionEvent event) {
-            for (int index = 0; index < instances.length; index++) {
-                if (index == type.ordinal()) {
-                    continue;
-                }
-
-                if(instances[index] != null) {
-                    SheetBehavior<?> behavior = instances[index].dialog.getBehavior();
-
-                    if (behavior != null &&
-                            (behavior.getState() == SheetBehavior.STATE_SETTLING ||
-                                    behavior.getState() == SheetBehavior.STATE_EXPANDED)) {
-                        return;
-                    }
-                }
-            }
-
-            Wrapper wrapper = instances[type.ordinal()];
-
-            if (wrapper != null) {
-                if (wrapper.dialog.isAdded()) {
-                    wrapper.dialog.sendMotionEvent(event);
-                } else if (wrapper.showRequest != null) {
-                    wrapper.showRequest.show();
-                }
-            }
-        }
-
-        private static void hideAll() {
-            for (Wrapper instance : instances) {
-                if (instance != null) {
-                    SheetBehavior<?> behavior = instance.dialog.getBehavior();
-
-                    if (behavior != null) {
-                        instance.dialog.dialog.hide();
-                    }
-                }
-            }
-        }
-
-        public static void requestIgnoreCurrentTouchEvent(boolean enabled) {
-            for (Wrapper instance : instances) {
-                if (instance != null) {
-                    instance.dialog.requestIgnoreCurrentTouchEvent(enabled);
-                }
-            }
-        }
-
-        public static int getActiveSheetCount() {
-            int count = 0;
-
-            for (Wrapper instance : instances) {
-                if (instance != null && instance.dialog.dialog != null &&
-                        instance.dialog.dialog.isShowing()) {
-                    count++;
-                }
-            }
-
-            return count;
         }
 
         private interface OnShowRequest {
             void show();
         }
     }
-
 }
