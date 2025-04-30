@@ -126,7 +126,7 @@ public class FeedPage extends Fragment {
                     titleHeight + tabsHeight, (int) ((titleHeight + tabsHeight) * 1.5f));
         });
 
-        Measurements.addSysUIListener(object ->
+        Measurements.addStatusBarListener(object ->
                 recyclerView.setPadding(0, recyclerView.getPaddingTop(),
                         0, Measurements.getNavHeight()));
 

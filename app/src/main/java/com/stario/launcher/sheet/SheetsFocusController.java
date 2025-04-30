@@ -240,6 +240,14 @@ public class SheetsFocusController extends ConstraintLayout {
         return Y;
     }
 
+    public void updateSheetSystemUI(boolean value) {
+        for(SheetWrapper wrapper : wrappers) {
+            if(wrapper != null && wrapper.dialog != null) {
+                wrapper.dialog.updateSheetSystemUI(value);
+            }
+        }
+    }
+
     private class CheckForLongPress implements Runnable {
         private final int mOriginalWindowAttachCount;
 

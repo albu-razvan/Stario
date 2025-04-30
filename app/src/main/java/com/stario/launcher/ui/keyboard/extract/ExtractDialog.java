@@ -174,7 +174,7 @@ public class ExtractDialog extends DialogFragment {
 
         ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
 
-        Measurements.addSysUIListener(value -> {
+        Measurements.addStatusBarListener(value -> {
             params.topMargin = value;
 
             view.requestLayout();

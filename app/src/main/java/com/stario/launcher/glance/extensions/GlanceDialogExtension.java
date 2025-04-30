@@ -324,6 +324,28 @@ public abstract class GlanceDialogExtension extends DialogFragment
         container.invalidate();
     }
 
+    public void updateSheetSystemUI(boolean lightMode) {
+        if (dialog == null) {
+            return;
+        }
+
+        Window window = dialog.getWindow();
+
+        if (window != null) {
+            View decor = window.getDecorView();
+
+            if (lightMode) {
+                decor.setSystemUiVisibility(decor.getSystemUiVisibility()
+                        & ~(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                        | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR));
+            } else {
+                decor.setSystemUiVisibility(decor.getSystemUiVisibility()
+                        | (View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                        | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR));
+            }
+        }
+    }
+
     public interface TransitionListener {
         void onProgressFraction(float fraction);
     }
