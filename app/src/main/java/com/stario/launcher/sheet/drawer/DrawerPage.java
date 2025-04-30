@@ -90,7 +90,7 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
         titleContainer.getLayoutParams().height =
                 Measurements.dpToPx(Measurements.HEADER_SIZE_DP) + Measurements.spToPx(8);
 
-        Measurements.addSysUIListener(value -> {
+        Measurements.addStatusBarListener(value -> {
             drawer.setPadding(drawer.getPaddingLeft(),
                     value + (Measurements.isLandscape() ? Measurements.getDefaultPadding() :
                             Measurements.dpToPx(Measurements.HEADER_SIZE_DP) + Measurements.getDefaultPadding()),

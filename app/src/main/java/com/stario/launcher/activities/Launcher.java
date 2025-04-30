@@ -53,6 +53,7 @@ import com.stario.launcher.ui.common.lock.ClosingAnimationView;
 import com.stario.launcher.ui.common.lock.LockDetector;
 import com.stario.launcher.ui.popup.PopupMenu;
 import com.stario.launcher.ui.utils.UiUtils;
+import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.ui.utils.animation.WallpaperAnimator;
 import com.stario.launcher.utils.Utils;
 
@@ -65,7 +66,9 @@ public class Launcher extends ThemedActivity {
     private SheetsFocusController controller;
     private BroadcastReceiver killReceiver;
     private ClosingAnimationView main;
+    private View statusBarContrast;
     private LockDetector detector;
+    private View navBarContrast;
     private View decorView;
     private Glance glance;
 
@@ -77,7 +80,7 @@ public class Launcher extends ThemedActivity {
         // On some devices, the application is killed when recents screen is open
         // Maybe multiple tasks might affect it?
         // https://github.com/albu-razvan/Stario/issues/104#issue-2836388598
-        
+
         Intent intent = new Intent(ACTION_KILL_TASK);
         intent.putExtra(INTENT_KILL_TASK_ID_EXTRA, getTaskId());
         intent.setPackage(getPackageName());
@@ -106,12 +109,12 @@ public class Launcher extends ThemedActivity {
 
         Window window = getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_SPLIT_TOUCH);
+        UiUtils.enforceLightSystemUI(getWindow());
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.launcher);
 
         controller = findViewById(R.id.controller);
-
         main = findViewById(R.id.main);
         detector = findViewById(R.id.detector);
         decorView = window.getDecorView();
@@ -121,6 +124,22 @@ public class Launcher extends ThemedActivity {
                     Measurements.getNavHeight() + Measurements.dpToPx(20));
 
             return insets;
+        });
+
+        statusBarContrast = findViewById(R.id.status_bar_contrast);
+        navBarContrast = findViewById(R.id.navigation_bar_contrast);
+
+        statusBarContrast.setOnTouchListener((v, event) -> false);
+        navBarContrast.setOnTouchListener((v, event) -> false);
+
+        Measurements.addNavListener(value -> {
+            navBarContrast.getLayoutParams().height = (int) (value * 1.5f);
+            navBarContrast.requestLayout();
+        });
+
+        Measurements.addStatusBarListener(value -> {
+            statusBarContrast.getLayoutParams().height = (int) (value * 1.5f);
+            statusBarContrast.requestLayout();
         });
 
         UiUtils.applyNotchMargin(controller);
@@ -155,7 +174,8 @@ public class Launcher extends ThemedActivity {
         glance = new Glance(this);
         glance.attach(detector);
 
-        GlanceDialogExtension.TransitionListener listener = this::updateWallpaperZoom;
+        GlanceDialogExtension.TransitionListener listener = slideOffset ->
+                animateSheet(slideOffset, false);
 
         Calendar calendar = new Calendar();
         glance.attachViewExtension(calendar);
@@ -208,24 +228,34 @@ public class Launcher extends ThemedActivity {
     }
 
     private void animateSheet(float slideOffset) {
+        animateSheet(slideOffset, true);
+    }
+
+    private void animateSheet(float slideOffset, boolean scale) {
         if (Float.isNaN(slideOffset)) {
             slideOffset = 0;
         }
 
+        boolean value = slideOffset < 0.5f ||
+                getAttributeData(android.R.attr.windowLightStatusBar) == 0;
+        controller.updateSheetSystemUI(value);
+        glance.updateSheetSystemUI(value);
+
         float targetAlpha = 1f - slideOffset * 2f;
         slideOffset = slideOffset * slideOffset;
-        float scale = 1f - slideOffset / 3;
 
         if (targetAlpha > 0) {
-            main.setAlpha((float) Math.sqrt(targetAlpha));
-            if (decorView.getWindowToken() != null) {
-                decorView.setScaleY(scale);
-                decorView.setScaleX(scale);
+            controller.setAlpha((float) Math.sqrt(targetAlpha));
+
+            if(scale) {
+                float scaleFactor = 1f - slideOffset / 3;
+                controller.setScaleY(scaleFactor);
+                controller.setScaleX(scaleFactor);
             }
 
-            main.setVisibility(View.VISIBLE);
+            controller.setVisibility(View.VISIBLE);
         } else {
-            main.setVisibility(View.INVISIBLE);
+            controller.setVisibility(View.INVISIBLE);
         }
 
         updateWallpaperZoom(slideOffset);
@@ -297,9 +327,23 @@ public class Launcher extends ThemedActivity {
     }
 
     @Override
+    public void onEnterAnimationComplete() {
+        super.onEnterAnimationComplete();
+
+        navBarContrast.animate().alpha(1)
+                .setDuration(Animation.LONG.getDuration());
+        statusBarContrast.animate().alpha(1)
+                .setDuration(Animation.LONG.getDuration());
+    }
+
+    @Override
     protected void onStop() {
         prepareWallpaperTransitions();
         WallpaperAnimator.animateZoom(this, null, 1f);
+
+        // also cancel other animators
+        navBarContrast.animate().alpha(0).setDuration(0);
+        statusBarContrast.animate().alpha(0).setDuration(0);
 
         super.onStop();
 

@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
+import android.transition.Fade;
 import android.transition.TransitionSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,12 +44,22 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
 import com.google.android.material.transition.platform.MaterialSharedAxis;
+import com.stario.launcher.R;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.utils.Utils;
 
 public class UiUtils {
     private static final Handler UIHandler = new Handler(Looper.getMainLooper());
+
+    public static void enforceLightSystemUI(Window window) {
+        View decor = window.getDecorView();
+
+        int flags = decor.getSystemUiVisibility();
+        flags &= ~(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+        decor.setSystemUiVisibility(flags);
+    }
 
     public static void setWindowTransitions(Window window) {
         window.setAllowEnterTransitionOverlap(true);
@@ -58,16 +69,22 @@ public class UiUtils {
         TransitionSet enterTransition = new TransitionSet();
         enterTransition.addTransition(new MaterialSharedAxis(MaterialSharedAxis.Z, false));
         enterTransition.setInterpolator(new FastOutSlowInInterpolator());
-        enterTransition.setDuration(Animation.LONG.getDuration());
+        enterTransition.setDuration(Animation.EXTENDED.getDuration());
+
+        enterTransition.excludeTarget(R.id.navigation_bar_contrast, true);
+        enterTransition.excludeTarget(R.id.status_bar_contrast, true);
 
         window.setEnterTransition(enterTransition);
         window.setReenterTransition(enterTransition);
         window.setReturnTransition(enterTransition);
 
         TransitionSet exitTransition = new TransitionSet();
-        exitTransition.addTransition(new MaterialSharedAxis(MaterialSharedAxis.Z, false));
+        exitTransition.addTransition(new Fade());
         exitTransition.setInterpolator(new AccelerateInterpolator());
-        exitTransition.setDuration(Animation.LONG.getDuration());
+        exitTransition.setDuration(Animation.SHORT.getDuration());
+
+        exitTransition.excludeTarget(R.id.navigation_bar_contrast, true);
+        exitTransition.excludeTarget(R.id.status_bar_contrast, true);
 
         window.setExitTransition(exitTransition);
     }

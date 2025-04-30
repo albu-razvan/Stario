@@ -223,7 +223,7 @@ public class BriefingDialog extends SheetDialogFragment {
             return false;
         });
 
-        Measurements.addSysUIListener(value -> root.setPadding(0, value, 0, 0));
+        Measurements.addStatusBarListener(value -> root.setPadding(0, value, 0, 0));
         Measurements.addNavListener(value -> placeholder.setPadding(0, 0, 0, value));
 
         return root;

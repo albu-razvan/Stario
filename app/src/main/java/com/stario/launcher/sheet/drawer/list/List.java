@@ -80,7 +80,7 @@ public class List extends DrawerPage {
         drawer.setLayoutManager(manager);
         drawer.setItemAnimator(null);
 
-        Measurements.addSysUIListener(value -> fastScroller.setTopOffset(drawer.getPaddingTop()));
+        Measurements.addStatusBarListener(value -> fastScroller.setTopOffset(drawer.getPaddingTop()));
 
         return rootView;
     }

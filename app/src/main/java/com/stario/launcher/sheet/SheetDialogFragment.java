@@ -33,6 +33,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
@@ -41,6 +42,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.stario.launcher.R;
 import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
@@ -140,20 +142,20 @@ public abstract class SheetDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         dialog = SheetDialogFactory.forType(type, activity, getTheme());
 
+        Window window = dialog.getWindow();
+        if (window != null) {
+            UiUtils.enforceLightSystemUI(window);
+
+            Drawable background = new ColorDrawable(
+                    activity.getAttributeData(com.google.android.material.R.attr.colorSurface, false)
+            );
+            background.setAlpha(0);
+
+            window.setBackgroundDrawable(background);
+        }
+
         dialog.setOnShowListener(dialogInterface -> {
-            Window window = dialog.getWindow();
-
             dialog.behavior.setState(SheetBehavior.STATE_COLLAPSED);
-
-            if (window != null) {
-                Drawable background = new ColorDrawable(
-                        activity.getAttributeData(com.google.android.material.R.attr.colorSurface, false)
-                );
-                background.setAlpha(0);
-
-                window.setBackgroundDrawable(background);
-            }
-
             dialog.behavior.addSheetCallback(new SheetBehavior.SheetCallback() {
                 private int lastBlurStep = -1;
                 private float lastSlideOffset = -1;
@@ -335,6 +337,28 @@ public abstract class SheetDialogFragment extends DialogFragment {
 
     public void setOnSlideListener(OnSlideListener listener) {
         this.slideListener = listener;
+    }
+
+    public void updateSheetSystemUI(boolean lightMode) {
+        if (dialog == null) {
+            return;
+        }
+
+        Window window = dialog.getWindow();
+
+        if (window != null) {
+            View decor = window.getDecorView();
+
+            if (lightMode) {
+                decor.setSystemUiVisibility(decor.getSystemUiVisibility()
+                        & ~(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                        | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR));
+            } else {
+                decor.setSystemUiVisibility(decor.getSystemUiVisibility()
+                        | (View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                        | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR));
+            }
+        }
     }
 
     public interface OnDestroyListener {

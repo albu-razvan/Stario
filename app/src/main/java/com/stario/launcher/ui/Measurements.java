@@ -189,7 +189,7 @@ public class Measurements {
         }
     }
 
-    public static void addSysUIListener(ObservableObject.OnSet<Integer> listener) {
+    public static void addStatusBarListener(ObservableObject.OnSet<Integer> listener) {
         if (listener != null) {
             SYS_UI_HEIGHT.addListener(listener);
 

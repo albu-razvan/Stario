@@ -255,7 +255,7 @@ public class SearchFragment extends Fragment {
         search.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
 
-        Measurements.addSysUIListener(value -> {
+        Measurements.addStatusBarListener(value -> {
             scrollView.setPadding(scrollView.getPaddingLeft(),
                     value + Measurements.getDefaultPadding(),
                     scrollView.getPaddingRight(), scrollView.getPaddingBottom());

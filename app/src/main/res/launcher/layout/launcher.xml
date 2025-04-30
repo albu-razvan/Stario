@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -17,11 +16,20 @@
   -->
 
 <com.stario.launcher.ui.common.lock.ClosingAnimationView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:forceDarkAllowed="false"
     android:transitionGroup="true">
+
+    <View
+        android:id="@+id/status_bar_contrast"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:rotation="180"
+        android:background="@drawable/contrast_gradient"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.stario.launcher.sheet.SheetsFocusController
         android:id="@+id/controller"
@@ -45,5 +53,12 @@
         </com.stario.launcher.ui.common.lock.LockDetector>
 
     </com.stario.launcher.sheet.SheetsFocusController>
+
+    <View
+        android:id="@+id/navigation_bar_contrast"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/contrast_gradient"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </com.stario.launcher.ui.common.lock.ClosingAnimationView>

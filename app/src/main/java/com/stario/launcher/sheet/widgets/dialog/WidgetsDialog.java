@@ -150,7 +150,7 @@ public class WidgetsDialog extends SheetDialogFragment {
                     content.getPaddingRight(), value);
         });
 
-        Measurements.addSysUIListener(value -> {
+        Measurements.addStatusBarListener(value -> {
             fader.setFadeSizes(value +
                             (Measurements.isLandscape() ? 0 : Measurements.getDefaultPadding()),
                     0, Measurements.getNavHeight() + Measurements.getDefaultPadding(), 0);

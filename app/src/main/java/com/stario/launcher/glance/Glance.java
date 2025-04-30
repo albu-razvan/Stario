@@ -159,6 +159,14 @@ public class Glance {
         });
     }
 
+    public void updateSheetSystemUI(boolean value) {
+        for(GlanceExtension extension : extensions) {
+            if(extension instanceof GlanceDialogExtension) {
+                ((GlanceDialogExtension) extension).updateSheetSystemUI(value);
+            }
+        }
+    }
+
     public FragmentActivity getActivity() {
         return activity;
     }

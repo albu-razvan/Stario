@@ -421,6 +421,7 @@ public class Settings extends ThemedActivity {
     @Override
     protected void onStop() {
         homeWatcher.stopWatch();
+        finish();
 
         super.onStop();
     }
