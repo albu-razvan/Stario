@@ -31,7 +31,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -47,20 +46,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.utils.UiUtils;
-import com.stario.launcher.utils.Utils;
 import com.stario.launcher.ui.utils.animation.Animation;
+import com.stario.launcher.utils.Utils;
 
 import java.util.HashMap;
 
 abstract public class ThemedActivity extends AppCompatActivity {
     public static final String THEME = "com.stario.THEME";
     public static final String FORCE_DARK = "com.stario.FORCE_DARK";
+
     private final HashMap<Integer, OnActivityResult> activityResultListeners;
-    private boolean dispatchTouchEvents;
+
     private Theme theme;
 
     public ThemedActivity() {
-        this.dispatchTouchEvents = true;
         this.activityResultListeners = new HashMap<>();
     }
 
@@ -197,28 +196,6 @@ abstract public class ThemedActivity extends AppCompatActivity {
         }
 
         super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        int action = event.getAction();
-
-        if (action == MotionEvent.ACTION_DOWN) {
-            dispatchTouchEvents = true;
-        }
-
-        boolean result = dispatchTouchEvents && super.dispatchTouchEvent(event);
-
-        if (action == MotionEvent.ACTION_UP ||
-                action == MotionEvent.ACTION_CANCEL) {
-            dispatchTouchEvents = true;
-        }
-
-        return result;
-    }
-
-    public void requestIgnoreCurrentTouchEvent(boolean enabled) {
-        dispatchTouchEvents = enabled;
     }
 
     @Override

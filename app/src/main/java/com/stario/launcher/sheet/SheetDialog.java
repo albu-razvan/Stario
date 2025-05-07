@@ -21,8 +21,6 @@ import android.annotation.SuppressLint;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -125,12 +123,6 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
                 receivedMoveEvent = false;
                 dispatchedDownEvent = false;
 
-                Window window = getWindow();
-
-                if (window != null) {
-                    window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                }
-
                 return;
             } else {
                 if (!dispatchedDownEvent) {
@@ -142,13 +134,6 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
 
                     motionEvent.setAction(MotionEvent.ACTION_DOWN);
                 }
-            }
-
-            Window window = getWindow();
-
-            if (window != null) {
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             }
 
             if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {

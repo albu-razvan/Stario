@@ -352,13 +352,6 @@ public class Launcher extends ThemedActivity {
     }
 
     @Override
-    public void requestIgnoreCurrentTouchEvent(boolean enabled) {
-        super.requestIgnoreCurrentTouchEvent(enabled);
-
-        controller.requestIgnoreCurrentTouchEvent(enabled);
-    }
-
-    @Override
     protected boolean isOpaque() {
         return false;
     }

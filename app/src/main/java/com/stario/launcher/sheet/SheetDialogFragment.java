@@ -28,12 +28,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
@@ -42,7 +40,6 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.stario.launcher.R;
 import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
@@ -142,15 +139,15 @@ public abstract class SheetDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         dialog = SheetDialogFactory.forType(type, activity, getTheme());
 
+        Drawable background = new ColorDrawable(
+                activity.getAttributeData(com.google.android.material.R.attr.colorSurface, false)
+        );
+
         Window window = dialog.getWindow();
         if (window != null) {
             UiUtils.enforceLightSystemUI(window);
 
-            Drawable background = new ColorDrawable(
-                    activity.getAttributeData(com.google.android.material.R.attr.colorSurface, false)
-            );
             background.setAlpha(0);
-
             window.setBackgroundDrawable(background);
         }
 
@@ -179,8 +176,8 @@ public abstract class SheetDialogFragment extends DialogFragment {
                     if (window != null) {
                         double offsetSemi = Utils.getGenericInterpolatedValue(slideOffset);
 
-                        Drawable background = window.getDecorView().getBackground();
                         background.setAlpha((int) (Launcher.MAX_BACKGROUND_ALPHA * offsetSemi));
+                        window.setBackgroundDrawable(background);
 
                         // only STEP_COUNT states for performance
                         int step = (int) (STEP_COUNT * offsetSemi);
@@ -310,12 +307,6 @@ public abstract class SheetDialogFragment extends DialogFragment {
     public void show() {
         if (dialog != null) {
             dialog.showDialog();
-        }
-    }
-
-    public void requestIgnoreCurrentTouchEvent(boolean enabled) {
-        if (dialog != null) {
-            dialog.requestIgnoreCurrentTouchEvent(enabled);
         }
     }
 

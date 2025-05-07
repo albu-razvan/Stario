@@ -21,7 +21,6 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -41,7 +40,6 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
     public final static float BLUR_STEP = 1.3f;
     public final static int STEP_COUNT = 50;
 
-    private boolean dispatchTouchEvents;
 
     protected OnBackPressed listener;
     private final boolean blur;
@@ -149,38 +147,31 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
     }
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        int action = event.getAction();
-
-        if (action == MotionEvent.ACTION_DOWN) {
-            dispatchTouchEvents = true;
-        }
-
-        boolean result = dispatchTouchEvents && super.dispatchTouchEvent(event);
-
-        if (action == MotionEvent.ACTION_UP ||
-                action == MotionEvent.ACTION_CANCEL) {
-            dispatchTouchEvents = true;
-        }
-
-        return result;
-    }
-
-    @Override
     public void show() {
         // Override default show behaviour
     }
 
+    @Override
+    public void hide() {
+        Window window = getWindow();
+        if(window != null) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        }
+
+        super.hide();
+    }
+
     public void showDialog() {
+        Window window = getWindow();
+        if(window != null) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        }
+
         super.show();
     }
 
     public void setOnBackPressed(PersistentFullscreenDialog.OnBackPressed listener) {
         this.listener = listener;
-    }
-
-    public void requestIgnoreCurrentTouchEvent(boolean enabled) {
-        dispatchTouchEvents = enabled;
     }
 
     public interface OnBackPressed {
