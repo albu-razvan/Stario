@@ -241,13 +241,13 @@ public class Launcher extends ThemedActivity {
         controller.updateSheetSystemUI(value);
         glance.updateSheetSystemUI(value);
 
-        float targetAlpha = 1f - slideOffset * 2f;
+        float targetAlpha = 1f - slideOffset * slideOffset * 4f;
         slideOffset = slideOffset * slideOffset;
 
         if (targetAlpha > 0) {
             controller.setAlpha((float) Math.sqrt(targetAlpha));
 
-            if(scale) {
+            if (scale) {
                 float scaleFactor = 1f - slideOffset / 3;
                 controller.setScaleY(scaleFactor);
                 controller.setScaleX(scaleFactor);

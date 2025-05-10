@@ -101,7 +101,7 @@ public class ApplicationsDialog extends SheetDialogFragment {
             }
         });
 
-        addOnShowListener(dialogInterface -> {
+        addOnShowListener(() -> {
             SheetBehavior<?> behavior = getBehavior();
 
             if (behavior != null) {

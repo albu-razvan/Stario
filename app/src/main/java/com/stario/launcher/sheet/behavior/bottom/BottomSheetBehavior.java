@@ -311,6 +311,19 @@ public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
         };
     }
 
+    @Override
+    protected boolean isFullySettled(@NonNull V sheet, int state) {
+        if (state == STATE_COLLAPSED && sheet.getTop() == collapsedOffset) {
+            return true;
+        }
+
+        if (state == STATE_EXPANDED && sheet.getTop() == expandedOffset) {
+            return true;
+        }
+
+        return false;
+    }
+
     protected void settleToState(@NonNull View child, int state, boolean animate) {
         int top;
 

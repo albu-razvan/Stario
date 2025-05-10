@@ -148,22 +148,26 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
 
     @Override
     public void show() {
-        // Override default show behaviour
+        // Disable default show behaviour
     }
 
     @Override
     public void hide() {
         Window window = getWindow();
-        if(window != null) {
+        if (window != null) {
             window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         }
 
         super.hide();
     }
 
+    protected void superShow() {
+        super.show();
+    }
+
     public void showDialog() {
         Window window = getWindow();
-        if(window != null) {
+        if (window != null) {
             window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         }
 

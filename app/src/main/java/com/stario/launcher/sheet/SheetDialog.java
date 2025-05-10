@@ -18,21 +18,36 @@
 package com.stario.launcher.sheet;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
+import com.stario.launcher.activities.Launcher;
+import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.PersistentFullscreenDialog;
+import com.stario.launcher.ui.utils.UiUtils;
+import com.stario.launcher.utils.Utils;
 
 public abstract class SheetDialog extends PersistentFullscreenDialog {
-    private boolean dispatchedDownEvent;
+    private final Drawable background;
+
+    private boolean dispatchedMotionEventToCoordinator;
+    private boolean shouldDispatchMotionEventsToParent;
+    private boolean dispatchMotionEventsToParent;
     private boolean receivedMoveEvent;
 
     protected SheetBehavior<ConstraintLayout> behavior;
@@ -41,8 +56,14 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
     public SheetDialog(ThemedActivity activity, int theme) {
         super(activity, theme, true);
 
-        this.dispatchedDownEvent = false;
+        this.dispatchedMotionEventToCoordinator = false;
+        this.shouldDispatchMotionEventsToParent = false;
+        this.dispatchMotionEventsToParent = false;
         this.receivedMoveEvent = false;
+
+        this.background = new ColorDrawable(
+                activity.getAttributeData(com.google.android.material.R.attr.colorSurface, false)
+        );
     }
 
     @Override
@@ -58,6 +79,11 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
     @Override
     public void cancel() {
         // ignore cancel event so that the sheet will never close
+    }
+
+    @Override
+    public void showDialog() {
+        superShow();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -78,18 +104,48 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
 
         sheet.setOnTouchListener((v, event) -> true);
 
+        Window window = getWindow();
+        if (window != null) {
+            UiUtils.enforceLightSystemUI(window);
+
+            background.setAlpha(0);
+            window.setBackgroundDrawable(background);
+        }
+
         behavior.addSheetCallback(new SheetBehavior.SheetCallback() {
+            private int lastBlurStep;
+            boolean wasCollapsed;
+
+            {
+                this.lastBlurStep = -1;
+                this.wasCollapsed = true;
+            }
+
             @Override
             public void onStateChanged(@NonNull View sheet, int state) {
                 if (state == SheetBehavior.STATE_COLLAPSED) {
                     hide();
 
+                    wasCollapsed = true;
                     container.intercept(SheetCoordinator.ALL);
-                } else {
+                } else if (state == SheetBehavior.STATE_EXPANDED ||
+                        state == SheetBehavior.STATE_SETTLING) {
+                    container.intercept(SheetCoordinator.OWN);
+
                     if (state == SheetBehavior.STATE_EXPANDED) {
-                        container.intercept(SheetCoordinator.OWN);
+                        shouldDispatchMotionEventsToParent = false;
+                    }
+
+                    Window window = getWindow();
+                    if (window != null) {
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     }
                 }
+            }
+
+            @Override
+            public void onSettleToState(@NonNull View sheet, int stateToSettle) {
+                shouldDispatchMotionEventsToParent = stateToSettle == SheetBehavior.STATE_COLLAPSED;
             }
 
             @Override
@@ -99,6 +155,44 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
                 // sheet and preparing for sliding
                 if (slideOffset != 0 && !isShowing()) {
                     showDialog();
+                } else {
+                    if (slideOffset >= 0.5f) {
+                        if (wasCollapsed) {
+                            Vibrations.getInstance().vibrate();
+                        }
+
+                        wasCollapsed = false;
+                    }
+
+                    Window window = getWindow();
+                    if (window != null) {
+                        double offsetSemi = Utils.getGenericInterpolatedValue(slideOffset);
+
+                        background.setAlpha((int) (Launcher.MAX_BACKGROUND_ALPHA * offsetSemi));
+                        window.setBackgroundDrawable(background);
+
+                        // only STEP_COUNT states for performance
+                        int step = (int) (STEP_COUNT * offsetSemi);
+
+                        if (Utils.isMinimumSDK(Build.VERSION_CODES.S) && lastBlurStep != step) {
+                            window.setBackgroundBlurRadius((int) (step * BLUR_STEP));
+
+                            this.lastBlurStep = step;
+                        }
+                    }
+
+                    float alpha = slideOffset * 2 - 1f;
+
+                    if (alpha > 0) {
+                        sheet.setAlpha(alpha);
+                        sheet.setVisibility(View.VISIBLE);
+                    } else {
+                        if (shouldDispatchMotionEventsToParent) {
+                            dispatchMotionEventsToParent = true;
+                        }
+
+                        sheet.setVisibility(View.INVISIBLE);
+                    }
                 }
             }
         });
@@ -106,43 +200,60 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
         return container;
     }
 
-    void captureMotionEvent(MotionEvent event) {
+    void onMotionEvent(MotionEvent event) {
         CoordinatorLayout coordinator = getContainer();
 
         if (coordinator != null && behavior != null) {
-            MotionEvent motionEvent = MotionEvent.obtain(event);
-
-            if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
-                    motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
+            if (event.getAction() == MotionEvent.ACTION_UP ||
+                    event.getAction() == MotionEvent.ACTION_CANCEL) {
                 if (!receivedMoveEvent && isShowing()) {
                     hide();
                 }
 
-                coordinator.dispatchTouchEvent(motionEvent);
+                coordinator.dispatchTouchEvent(event);
 
+                dispatchedMotionEventToCoordinator = false;
+                dispatchMotionEventsToParent = false;
                 receivedMoveEvent = false;
-                dispatchedDownEvent = false;
 
                 return;
-            } else {
-                if (!dispatchedDownEvent) {
-                    if (!isShowing()) {
-                        showDialog();
+            } else if (!dispatchedMotionEventToCoordinator) {
+                if (!isShowing()) {
+                    showDialog();
 
-                        return;
-                    }
-
-                    motionEvent.setAction(MotionEvent.ACTION_DOWN);
+                    return;
                 }
+
+                event.setAction(MotionEvent.ACTION_DOWN);
             }
 
-            if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
+            if (event.getAction() == MotionEvent.ACTION_MOVE) {
                 receivedMoveEvent = true;
             }
 
-            dispatchedDownEvent = behavior.isDragHelperInstantiated() &&
-                    coordinator.dispatchTouchEvent(motionEvent);
+            dispatchedMotionEventToCoordinator = behavior.isDragHelperInstantiated() &&
+                    coordinator.dispatchTouchEvent(event);
         }
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
+        if (dispatchMotionEventsToParent) {
+            MotionEvent newEvent = MotionEvent.obtain(event);
+            newEvent.setLocation(event.getRawX(), event.getRawY());
+
+            Activity activity = getOwnerActivity();
+
+            if (activity != null) {
+                activity.dispatchTouchEvent(newEvent);
+            }
+
+            newEvent.recycle();
+
+            return true;
+        }
+
+        return super.dispatchTouchEvent(event);
     }
 
     public SheetBehavior<ConstraintLayout> getBehavior() {

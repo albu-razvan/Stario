@@ -61,6 +61,16 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
         }
 
         /**
+         * Called when the sheet changes its state.
+         *
+         * @param sheet         The sheet view.
+         * @param stateToSettle The state to settle to. This will be one of {@link #STATE_EXPANDED}
+         *                      or {@link #STATE_COLLAPSED}.
+         */
+        default void onSettleToState(@NonNull View sheet, @State int stateToSettle) {
+        }
+
+        /**
          * Called when the sheet is being dragged.
          *
          * @param sheet       The sheet view.
@@ -288,6 +298,10 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
             }
         }
 
+        if (state != STATE_COLLAPSED && state != STATE_EXPANDED) {
+            return true;
+        }
+
         // We have to handle cases that the ViewDragHelper does not capture the sheet because
         // it is not the top most view of its parent. This is not necessary when the touch event is
         // happening over the scrolling content as nested scrolling logic handles that case.
@@ -461,11 +475,25 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
             ViewParent parent = child.getParent();
 
             if (parent != null && parent.isLayoutRequested() && ViewCompat.isAttachedToWindow(child)) {
-                final int finalState = state;
-                child.post(() -> settleToState(child, finalState, animate));
+                child.post(() -> settleToState(child, state, animate));
             } else {
                 settleToState(child, state, animate);
             }
+        }
+    }
+
+    private void notifySettleToState(int state) {
+        if (viewRef == null) {
+            return;
+        }
+
+        View sheet = viewRef.get();
+        if (sheet == null) {
+            return;
+        }
+
+        for (int i = 0; i < callbacks.size(); i++) {
+            callbacks.get(i).onSettleToState(sheet, state);
         }
     }
 
@@ -484,19 +512,27 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
         if (this.state == state) {
             return;
         }
-        this.state = state;
 
         if (viewRef == null) {
+            this.state = state;
             return;
         }
 
-        View sheet = viewRef.get();
+        V sheet = viewRef.get();
         if (sheet == null) {
+            this.state = state;
             return;
         }
 
-        for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onStateChanged(sheet, state);
+        // dragging the sheet while settling will still fire the callback
+        // even if the sheet is not fully settled
+        if (state == STATE_SETTLING || state == STATE_DRAGGING
+                || isFullySettled(sheet, state)) {
+            this.state = state;
+
+            for (int i = 0; i < callbacks.size(); i++) {
+                callbacks.get(i).onStateChanged(sheet, state);
+            }
         }
     }
 
@@ -642,6 +678,7 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
                     // If the singleton SettleRunnable instance has not been instantiated, create it.
                     settleRunnable = new SettleRunnable(child, state);
                 }
+
                 // If the SettleRunnable has not been posted, post it with the correct state.
                 if (!settleRunnable.isPosted) {
                     settleRunnable.targetState = state;
@@ -652,6 +689,8 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
                     // Otherwise, if it has been posted, just update the target state.
                     settleRunnable.targetState = state;
                 }
+
+                notifySettleToState(state);
             } else {
                 setStateInternal(state);
             }
@@ -727,6 +766,15 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
     protected abstract int getPositionInParent(V child);
 
     protected abstract void offset(V child, int offset);
+
+    /**
+     * Check if a view is fully settled to a state.
+     *
+     * @param sheet The sheet instance.
+     * @param state The state to check. This will be one of {@link #STATE_EXPANDED}
+     *              or {@link #STATE_COLLAPSED}.
+     */
+    protected abstract boolean isFullySettled(@NonNull V sheet, int state);
 
     protected abstract void stopNestedScrollLogic(V child);
 

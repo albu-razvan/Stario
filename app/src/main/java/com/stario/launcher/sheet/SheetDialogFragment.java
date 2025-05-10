@@ -17,16 +17,9 @@
 
 package com.stario.launcher.sheet;
 
-import static com.stario.launcher.ui.dialogs.PersistentFullscreenDialog.BLUR_STEP;
-import static com.stario.launcher.ui.dialogs.PersistentFullscreenDialog.STEP_COUNT;
-
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.Configuration;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -40,31 +33,28 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.stario.launcher.activities.Launcher;
-import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.ui.utils.UiUtils;
-import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
 
 public abstract class SheetDialogFragment extends DialogFragment {
-    private final ArrayList<DialogInterface.OnShowListener> showListeners;
     private final ArrayList<OnDestroyListener> destroyListeners;
+    private final ArrayList<OnShowListener> onShowListeners;
     private OnSlideListener slideListener;
-    private boolean receivedMoveEvent;
+    private boolean dispatchedMotionEvent;
     private HomeWatcher homeWatcher;
-    private boolean capturing;
     private SheetType type;
 
     protected ThemedActivity activity;
     protected SheetDialog dialog;
 
     public SheetDialogFragment() {
-        showListeners = new ArrayList<>();
-        destroyListeners = new ArrayList<>();
+        this.dispatchedMotionEvent = false;
+        this.onShowListeners = new ArrayList<>();
+        this.destroyListeners = new ArrayList<>();
     }
 
     protected SheetDialogFragment(@NonNull SheetType type) {
@@ -138,89 +128,27 @@ public abstract class SheetDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         dialog = SheetDialogFactory.forType(type, activity, getTheme());
-
-        Drawable background = new ColorDrawable(
-                activity.getAttributeData(com.google.android.material.R.attr.colorSurface, false)
-        );
-
-        Window window = dialog.getWindow();
-        if (window != null) {
-            UiUtils.enforceLightSystemUI(window);
-
-            background.setAlpha(0);
-            window.setBackgroundDrawable(background);
-        }
-
         dialog.setOnShowListener(dialogInterface -> {
-            dialog.behavior.setState(SheetBehavior.STATE_COLLAPSED);
             dialog.behavior.addSheetCallback(new SheetBehavior.SheetCallback() {
-                private int lastBlurStep = -1;
-                private float lastSlideOffset = -1;
-                boolean wasCollapsed = true;
-
-                @Override
-                public void onStateChanged(@NonNull View view, int newState) {
-                    if (newState == SheetBehavior.STATE_COLLAPSED) {
-                        wasCollapsed = true;
-                    }
-                }
-
                 @Override
                 public void onSlide(@NonNull View sheet, float slideOffset) {
-                    if (slideOffset == lastSlideOffset) {
-                        return;
-                    }
-
-                    lastSlideOffset = slideOffset;
-
-                    if (window != null) {
-                        double offsetSemi = Utils.getGenericInterpolatedValue(slideOffset);
-
-                        background.setAlpha((int) (Launcher.MAX_BACKGROUND_ALPHA * offsetSemi));
-                        window.setBackgroundDrawable(background);
-
-                        // only STEP_COUNT states for performance
-                        int step = (int) (STEP_COUNT * offsetSemi);
-
-                        if (Utils.isMinimumSDK(Build.VERSION_CODES.S) && lastBlurStep != step) {
-                            window.setBackgroundBlurRadius((int) (step * BLUR_STEP));
-
-                            this.lastBlurStep = step;
-                        }
-                    }
-
-                    if (slideOffset >= 0.5f) {
-                        if (wasCollapsed) {
-                            Vibrations.getInstance().vibrate();
-                        }
-
-                        wasCollapsed = false;
-                    }
-
-                    float alpha = slideOffset * 2 - 1f;
-
-                    if (alpha > 0) {
-                        sheet.setAlpha(alpha);
-                        sheet.setVisibility(View.VISIBLE);
-                    } else {
-                        sheet.setVisibility(View.INVISIBLE);
-                    }
-
                     if (slideListener != null) {
                         slideListener.onSlide(slideOffset);
                     }
                 }
             });
 
-            for (DialogInterface.OnShowListener listener : showListeners) {
-                listener.onShow(dialog);
+            if (dispatchedMotionEvent) {
+                dialog.behavior.setState(SheetBehavior.STATE_COLLAPSED, false);
+            } else {
+                dialog.behavior.setState(SheetBehavior.STATE_EXPANDED);
             }
 
-            if (!capturing && receivedMoveEvent) {
-                dialog.behavior.setState(SheetBehavior.STATE_EXPANDED, true);
+            for (OnShowListener listener : onShowListeners) {
+                listener.onShow();
             }
 
-            showListeners.clear();
+            onShowListeners.clear();
         });
 
         UiUtils.applyNotchMargin(dialog.getContainer());
@@ -291,17 +219,11 @@ public abstract class SheetDialogFragment extends DialogFragment {
         return dialog != null ? dialog.behavior : null;
     }
 
-    public void sendMotionEvent(MotionEvent event) {
-        dialog.captureMotionEvent(event);
+    public void onMotionEvent(MotionEvent event) {
+        dialog.onMotionEvent(event);
 
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            receivedMoveEvent = false;
-        } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            receivedMoveEvent = true;
-        }
-
-        capturing = event.getAction() != MotionEvent.ACTION_UP &&
-                event.getAction() != MotionEvent.ACTION_CANCEL;
+        dispatchedMotionEvent = event.getAction() != MotionEvent.ACTION_CANCEL &&
+                event.getAction() != MotionEvent.ACTION_UP;
     }
 
     public void show() {
@@ -310,9 +232,12 @@ public abstract class SheetDialogFragment extends DialogFragment {
         }
     }
 
-    protected void addOnShowListener(DialogInterface.OnShowListener listener) {
+    /**
+     * Add a one time show listener
+     */
+    protected void addOnShowListener(OnShowListener listener) {
         if (listener != null) {
-            this.showListeners.add(listener);
+            this.onShowListeners.add(listener);
         }
     }
 
@@ -354,6 +279,10 @@ public abstract class SheetDialogFragment extends DialogFragment {
 
     public interface OnDestroyListener {
         void onDestroy(SheetType type);
+    }
+
+    public interface OnShowListener {
+        void onShow();
     }
 
     public interface OnSlideListener {
