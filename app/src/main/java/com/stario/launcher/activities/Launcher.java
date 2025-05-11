@@ -352,6 +352,11 @@ public class Launcher extends ThemedActivity {
     }
 
     @Override
+    public boolean hasWindowFocus() {
+        return super.hasWindowFocus() || !(controller.hasSheetFocus() || glance.hasFocus());
+    }
+
+    @Override
     protected boolean isOpaque() {
         return false;
     }

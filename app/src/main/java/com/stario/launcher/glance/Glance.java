@@ -18,6 +18,7 @@
 package com.stario.launcher.glance;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -37,10 +38,11 @@ import com.stario.launcher.ui.utils.animation.Animation;
 import java.util.ArrayList;
 
 public class Glance {
-    private final ThemedActivity activity;
     private final ArrayList<GlanceExtension> extensions;
-    private GlanceConstraintLayout root;
+    private final ThemedActivity activity;
+
     private LinearLayout extensionContainer;
+    private GlanceConstraintLayout root;
 
     public Glance(ThemedActivity activity) {
         this.activity = activity;
@@ -160,8 +162,8 @@ public class Glance {
     }
 
     public void updateSheetSystemUI(boolean value) {
-        for(GlanceExtension extension : extensions) {
-            if(extension instanceof GlanceDialogExtension) {
+        for (GlanceExtension extension : extensions) {
+            if (extension instanceof GlanceDialogExtension) {
                 ((GlanceDialogExtension) extension).updateSheetSystemUI(value);
             }
         }
@@ -187,5 +189,19 @@ public class Glance {
         for (GlanceExtension extension : extensions) {
             extension.update();
         }
+    }
+
+    public boolean hasFocus() {
+        for (GlanceExtension extension : extensions) {
+            if (extension instanceof GlanceDialogExtension) {
+                Dialog dialog = ((GlanceDialogExtension) extension).getDialog();
+
+                if(dialog != null && dialog.isShowing()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

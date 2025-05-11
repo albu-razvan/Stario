@@ -41,6 +41,7 @@ public class SheetsFocusController extends ConstraintLayout {
     private View.OnLongClickListener longClickListener;
     private boolean hasPerformedLongPress;
     private List<Integer> targetPointers;
+    private boolean dispatchedMoveEvent;
     private SheetWrapper[] wrappers;
     private float deltaX, deltaY;
     private SheetType sheetType;
@@ -66,10 +67,11 @@ public class SheetsFocusController extends ConstraintLayout {
     }
 
     private void init(Context context) {
-        wrappers = new SheetWrapper[SheetType.values().length];
-        targetPointers = new ArrayList<>();
-        sheetType = SheetType.UNDEFINED;
-        moveSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+        this.moveSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+        this.wrappers = new SheetWrapper[SheetType.values().length];
+        this.targetPointers = new ArrayList<>();
+        this.dispatchedMoveEvent = false;
+        this.sheetType = null;
     }
 
     @Override
@@ -86,6 +88,7 @@ public class SheetsFocusController extends ConstraintLayout {
             deltaX = 0;
             deltaY = 0;
 
+            dispatchedMoveEvent = false;
             dispatchSheetMotionEvent(MotionEvent.obtain(ev));
 
             super.onInterceptTouchEvent(ev);
@@ -97,7 +100,7 @@ public class SheetsFocusController extends ConstraintLayout {
 
                 removeCheck();
 
-                sheetType = SheetType.UNDEFINED;
+                sheetType = null;
                 targetPointers.clear();
 
                 super.onInterceptTouchEvent(ev);
@@ -131,7 +134,7 @@ public class SheetsFocusController extends ConstraintLayout {
 
             removeCheck();
 
-            sheetType = SheetType.UNDEFINED;
+            sheetType = null;
             targetPointers.clear();
         } else {
             if (action == MotionEvent.ACTION_DOWN) {
@@ -144,6 +147,7 @@ public class SheetsFocusController extends ConstraintLayout {
                 deltaX = 0;
                 deltaY = 0;
 
+                dispatchedMoveEvent = false;
                 dispatchSheetMotionEvent(MotionEvent.obtain(ev));
                 postCheckForLongClick();
             } else {
@@ -160,7 +164,7 @@ public class SheetsFocusController extends ConstraintLayout {
                 if (ev.getAction() == MotionEvent.ACTION_MOVE &&
                         (Math.abs(deltaX) >= moveSlop ||
                                 Math.abs(deltaY) >= moveSlop)) {
-                    if (sheetType == SheetType.UNDEFINED) {
+                    if (sheetType == null) {
                         if (Math.abs(deltaY) > Math.abs(deltaX)) {
                             sheetType = Math.signum(deltaY) >= 0 ? SheetType.BOTTOM_SHEET : SheetType.TOP_SHEET;
                         } else {
@@ -235,6 +239,10 @@ public class SheetsFocusController extends ConstraintLayout {
         }
     }
 
+    public boolean hasSheetFocus() {
+        return sheetType != null && dispatchedMoveEvent;
+    }
+
     private class CheckForLongPress implements Runnable {
         private final int mOriginalWindowAttachCount;
 
@@ -259,7 +267,11 @@ public class SheetsFocusController extends ConstraintLayout {
                             SheetBehavior<?> behavior = instance.dialogFragment.getBehavior();
 
                             if (behavior != null) {
-                                instance.dialogFragment.dialog.hide();
+                                SheetDialog dialog = instance.dialogFragment.getSheetDialog();
+
+                                if (dialog != null) {
+                                    dialog.hide();
+                                }
                             }
                         }
                     }
@@ -278,14 +290,20 @@ public class SheetsFocusController extends ConstraintLayout {
             if (wrapper != null &&
                     wrapper.dialogFragment != null) {
 
-                if (wrapper.dialogFragment.isAdded()) {
-                    wrapper.dialogFragment.onMotionEvent(event);
+                if (wrapper.dialogFragment.isAdded() &&
+                        wrapper.dialogFragment.onMotionEvent(event) &&
+                        event.getAction() == MotionEvent.ACTION_MOVE) {
+                    dispatchedMoveEvent = true;
                 }
             }
         }
     }
 
     private void dispatchSheetMotionEvent(SheetType type, MotionEvent event) {
+        if (type == null) {
+            return;
+        }
+
         for (int index = 0; index < wrappers.length; index++) {
             if (index == type.ordinal()) {
                 continue;
@@ -306,7 +324,10 @@ public class SheetsFocusController extends ConstraintLayout {
 
         if (wrapper != null) {
             if (wrapper.dialogFragment.isAdded()) {
-                wrapper.dialogFragment.onMotionEvent(event);
+                if (wrapper.dialogFragment.onMotionEvent(event) &&
+                        event.getAction() == MotionEvent.ACTION_MOVE) {
+                    dispatchedMoveEvent = true;
+                }
             } else if (wrapper.showRequest != null) {
                 wrapper.showRequest.show();
             }
@@ -328,14 +349,14 @@ public class SheetsFocusController extends ConstraintLayout {
             if (hide) {
                 SheetWrapper instance = wrappers[index];
 
-                if (instance != null && instance.dialogFragment.dialog != null) {
+                if (instance != null && instance.dialogFragment.getSheetDialog() != null) {
                     SheetBehavior<?> behavior = instance.dialogFragment.getBehavior();
 
                     if (behavior != null) {
                         behavior.setState(SheetBehavior.STATE_COLLAPSED, false);
                     }
 
-                    instance.dialogFragment.dialog.hide();
+                    instance.dialogFragment.getSheetDialog().hide();
                 }
             }
         }

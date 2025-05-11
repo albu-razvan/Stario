@@ -51,6 +51,7 @@ import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.sheet.widgets.Widget;
 import com.stario.launcher.sheet.widgets.WidgetSize;
 import com.stario.launcher.sheet.widgets.configurator.WidgetConfigurator;
+import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.popup.PopupMenu;
 import com.stario.launcher.ui.widgets.WidgetGrid;
@@ -72,6 +73,7 @@ public class WidgetsDialog extends SheetDialogFragment {
     private SharedPreferences widgetStore;
     private WidgetSize pendingWidgetSize;
     private AppWidgetManager manager;
+    private ThemedActivity activity;
     private ViewGroup placeholder;
     private LinearLayout content;
     private WidgetHost host;
@@ -89,6 +91,7 @@ public class WidgetsDialog extends SheetDialogFragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
+        this.activity = (ThemedActivity) context;
         this.manager = AppWidgetManager.getInstance(activity);
         this.widgetStore = activity.getSharedPreferences(Entry.WIDGETS);
 

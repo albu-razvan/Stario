@@ -736,6 +736,19 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
         }
     }
 
+    public void invalidate() {
+        if (viewRef == null) {
+            return;
+        }
+
+        V sheet = viewRef.get();
+        if (sheet == null) {
+            return;
+        }
+
+        dispatchOnSlide(sheet);
+    }
+
     /**
      * A utility function to get the {@link SheetBehavior} associated with the {@code view}.
      *

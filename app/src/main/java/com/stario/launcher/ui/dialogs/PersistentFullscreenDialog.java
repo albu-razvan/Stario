@@ -42,11 +42,14 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
 
 
     protected OnBackPressed listener;
+
+    private final ThemedActivity activity;
     private final boolean blur;
 
     public PersistentFullscreenDialog(ThemedActivity activity, int theme, boolean blur) {
         super(activity, getThemeResId(activity, theme));
 
+        this.activity = activity;
         this.blur = blur;
 
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -161,17 +164,29 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
         super.hide();
     }
 
-    protected void superShow() {
-        super.show();
-    }
+    protected boolean superShow() {
+        if (activity.hasWindowFocus()) {
+            super.show();
 
-    public void showDialog() {
-        Window window = getWindow();
-        if (window != null) {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            return true;
         }
 
-        super.show();
+        return false;
+    }
+
+    public boolean showDialog() {
+        if (activity.hasWindowFocus()) {
+            Window window = getWindow();
+            if (window != null) {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            }
+
+            super.show();
+
+            return true;
+        }
+
+        return false;
     }
 
     public void setOnBackPressed(PersistentFullscreenDialog.OnBackPressed listener) {

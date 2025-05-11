@@ -45,11 +45,10 @@ public abstract class SheetDialogFragment extends DialogFragment {
     private final ArrayList<OnShowListener> onShowListeners;
     private OnSlideListener slideListener;
     private boolean dispatchedMotionEvent;
+    private ThemedActivity activity;
     private HomeWatcher homeWatcher;
+    private SheetDialog dialog;
     private SheetType type;
-
-    protected ThemedActivity activity;
-    protected SheetDialog dialog;
 
     public SheetDialogFragment() {
         this.dispatchedMotionEvent = false;
@@ -100,6 +99,11 @@ public abstract class SheetDialogFragment extends DialogFragment {
         super.onDestroy();
     }
 
+    @Nullable
+    public SheetDialog getSheetDialog() {
+        return dialog;
+    }
+
     @Override
     public void onStop() {
         SheetBehavior<?> behavior = getBehavior();
@@ -138,9 +142,7 @@ public abstract class SheetDialogFragment extends DialogFragment {
                 }
             });
 
-            if (dispatchedMotionEvent) {
-                dialog.behavior.setState(SheetBehavior.STATE_COLLAPSED, false);
-            } else {
+            if (!dispatchedMotionEvent) {
                 dialog.behavior.setState(SheetBehavior.STATE_EXPANDED);
             }
 
@@ -219,11 +221,11 @@ public abstract class SheetDialogFragment extends DialogFragment {
         return dialog != null ? dialog.behavior : null;
     }
 
-    public void onMotionEvent(MotionEvent event) {
-        dialog.onMotionEvent(event);
-
+    public boolean onMotionEvent(MotionEvent event) {
         dispatchedMotionEvent = event.getAction() != MotionEvent.ACTION_CANCEL &&
                 event.getAction() != MotionEvent.ACTION_UP;
+
+        return dialog.onMotionEvent(event);
     }
 
     public void show() {

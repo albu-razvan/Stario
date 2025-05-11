@@ -18,6 +18,7 @@
 package com.stario.launcher.sheet.drawer.dialog;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.transition.Transition;
@@ -47,6 +48,7 @@ import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.sheet.drawer.search.SearchEngine;
 import com.stario.launcher.sheet.drawer.search.SearchFragment;
+import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.ui.utils.animation.FragmentTransition;
@@ -55,6 +57,7 @@ import com.stario.launcher.utils.Utils;
 public class ApplicationsDialog extends SheetDialogFragment {
     private static final String APPLICATIONS_PAGE = "com.stario.APPLICATIONS_PAGE";
 
+    private ThemedActivity activity;
     private ResumeListener listener;
     private DrawerAdapter adapter;
     private ViewPager pager;
@@ -66,6 +69,13 @@ public class ApplicationsDialog extends SheetDialogFragment {
 
     public ApplicationsDialog(SheetType type) {
         super(type);
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        activity = (ThemedActivity) context;
     }
 
 

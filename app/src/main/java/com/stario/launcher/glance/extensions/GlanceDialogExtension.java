@@ -46,6 +46,7 @@ import com.stario.launcher.glance.Glance;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
 import com.stario.launcher.ui.dialogs.PersistentFullscreenDialog;
+import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.utils.Utils;
 
@@ -61,6 +62,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
     private PersistentFullscreenDialog dialog;
     private GlanceConstraintLayout container;
     private TransitionListener listener;
+    private HomeWatcher homeWatcher;
     private Glance glance;
     private int gravity;
 
@@ -91,7 +93,18 @@ public abstract class GlanceDialogExtension extends DialogFragment
 
         activity = (ThemedActivity) context;
 
+        homeWatcher = new HomeWatcher(activity);
+        homeWatcher.setOnHomePressedListener(this::hide);
+        homeWatcher.startWatch();
+
         super.onAttach(context);
+    }
+
+    @Override
+    public void onDetach() {
+        homeWatcher.stopWatch();
+
+        super.onDetach();
     }
 
     @Override
@@ -186,8 +199,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
 
     protected void show() {
         if (dialog != null && isEnabled() &&
-                !dialog.isShowing()) {
-
+                !dialog.isShowing() && dialog.showDialog()) {
             container.post(new Runnable() {
                 @Override
                 public void run() {
@@ -198,7 +210,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
                         container.setScaleY(scale);
                         container.setVisibility(View.VISIBLE);
 
-                        container.animate()
+                        container.post(() -> container.animate()
                                 .scaleY(1)
                                 .setInterpolator(new PathInterpolator(X1, Y1, X2, Y2))
                                 .setDuration(Animation.LONG.getDuration())
@@ -220,7 +232,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
                                         updateScalingInternal(1);
                                         container.setRadiusPercentage(0);
                                     }
-                                });
+                                }));
                     } else {
                         container.setVisibility(View.INVISIBLE);
                         container.post(this);
@@ -228,7 +240,6 @@ public abstract class GlanceDialogExtension extends DialogFragment
                 }
             });
 
-            dialog.showDialog();
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         }
     }

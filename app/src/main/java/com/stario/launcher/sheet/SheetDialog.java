@@ -43,6 +43,8 @@ import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 public abstract class SheetDialog extends PersistentFullscreenDialog {
+    private static final String TAG = "SheetDialog";
+
     private final Drawable background;
 
     private boolean dispatchedMotionEventToCoordinator;
@@ -82,8 +84,8 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
     }
 
     @Override
-    public void showDialog() {
-        superShow();
+    public boolean showDialog() {
+        return superShow();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -150,20 +152,22 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
 
             @Override
             public void onSlide(@NonNull View sheet, float slideOffset) {
+                if (slideOffset >= 0.5f) {
+                    if (wasCollapsed) {
+                        Vibrations.getInstance().vibrate();
+                    }
+
+                    wasCollapsed = false;
+                }
+
                 // in case motion event capture or state change hide()
                 // happens to be called accidentally after showing the
                 // sheet and preparing for sliding
                 if (slideOffset != 0 && !isShowing()) {
-                    showDialog();
-                } else {
-                    if (slideOffset >= 0.5f) {
-                        if (wasCollapsed) {
-                            Vibrations.getInstance().vibrate();
-                        }
-
-                        wasCollapsed = false;
+                    if (showDialog()) {
+                        behavior.invalidate();
                     }
-
+                } else {
                     Window window = getWindow();
                     if (window != null) {
                         double offsetSemi = Utils.getGenericInterpolatedValue(slideOffset);
@@ -200,40 +204,52 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
         return container;
     }
 
-    void onMotionEvent(MotionEvent event) {
+    boolean onMotionEvent(MotionEvent event) {
         CoordinatorLayout coordinator = getContainer();
 
-        if (coordinator != null && behavior != null) {
-            if (event.getAction() == MotionEvent.ACTION_UP ||
-                    event.getAction() == MotionEvent.ACTION_CANCEL) {
-                if (!receivedMoveEvent && isShowing()) {
-                    hide();
+        try {
+            if (coordinator != null && behavior != null) {
+                if (event.getAction() == MotionEvent.ACTION_UP ||
+                        event.getAction() == MotionEvent.ACTION_CANCEL) {
+                    if (!receivedMoveEvent) {
+                        hide();
+                    }
+
+                    boolean result = coordinator.dispatchTouchEvent(event);
+
+                    dispatchedMotionEventToCoordinator = false;
+                    dispatchMotionEventsToParent = false;
+                    receivedMoveEvent = false;
+
+                    return result;
+                } else if (!dispatchedMotionEventToCoordinator) {
+                    if (!isShowing()) {
+                        showDialog();
+
+                        return false;
+                    }
+
+                    event.setAction(MotionEvent.ACTION_DOWN);
                 }
 
-                coordinator.dispatchTouchEvent(event);
-
-                dispatchedMotionEventToCoordinator = false;
-                dispatchMotionEventsToParent = false;
-                receivedMoveEvent = false;
-
-                return;
-            } else if (!dispatchedMotionEventToCoordinator) {
-                if (!isShowing()) {
-                    showDialog();
-
-                    return;
+                if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                    receivedMoveEvent = true;
                 }
 
-                event.setAction(MotionEvent.ACTION_DOWN);
-            }
+                dispatchedMotionEventToCoordinator = behavior.isDragHelperInstantiated() &&
+                        coordinator.dispatchTouchEvent(event);
 
-            if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                receivedMoveEvent = true;
+                return dispatchedMotionEventToCoordinator;
             }
+        } catch (IllegalArgumentException exception) {
+            Log.e(TAG, "onMotionEvent: " + exception.getMessage());
 
-            dispatchedMotionEventToCoordinator = behavior.isDragHelperInstantiated() &&
-                    coordinator.dispatchTouchEvent(event);
+            dispatchedMotionEventToCoordinator = false;
+            dispatchMotionEventsToParent = false;
+            receivedMoveEvent = false;
         }
+
+        return false;
     }
 
     @Override
@@ -253,7 +269,13 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
             return true;
         }
 
-        return super.dispatchTouchEvent(event);
+        try {
+            return super.dispatchTouchEvent(event);
+        } catch (RuntimeException exception) {
+            Log.e(TAG, "dispatchTouchEvent: " + exception.getMessage());
+
+            return false;
+        }
     }
 
     public SheetBehavior<ConstraintLayout> getBehavior() {

@@ -38,7 +38,7 @@ public class SheetDialogFactory {
     private static final SheetDialog[] dialogs = new SheetDialog[SheetType.values().length];
     private static final String PREFIX = "sheet:";
 
-    public static SheetDialog forType(SheetType type, ThemedActivity activity, int theme) {
+    public static SheetDialog forType(@NonNull SheetType type, ThemedActivity activity, int theme) {
         if (dialogs[type.ordinal()] == null ||
                 !activity.equals(dialogs[type.ordinal()].getOwnerActivity())) {
             switch (type) {
