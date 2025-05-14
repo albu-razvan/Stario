@@ -262,7 +262,8 @@ public class AdaptiveIconView extends View {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     paused = !intent.getBooleanExtra(ProfileManager.PROFILE_AVAILABLE_EXTRA, true);
-                    requestLayout();
+
+                    post(() -> invalidate());
                 }
             };
             localBroadcastManager.registerReceiver(pausedReceiver,

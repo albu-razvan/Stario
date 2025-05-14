@@ -39,19 +39,20 @@ import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.ui.utils.UiUtils;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class SheetDialogFragment extends DialogFragment {
     private final ArrayList<OnDestroyListener> destroyListeners;
     private final ArrayList<OnShowListener> onShowListeners;
     private OnSlideListener slideListener;
-    private boolean dispatchedMotionEvent;
     private ThemedActivity activity;
     private HomeWatcher homeWatcher;
+    private int receivedDragEvents;
     private SheetDialog dialog;
     private SheetType type;
 
     public SheetDialogFragment() {
-        this.dispatchedMotionEvent = false;
+        this.receivedDragEvents = 0;
         this.onShowListeners = new ArrayList<>();
         this.destroyListeners = new ArrayList<>();
     }
@@ -133,6 +134,8 @@ public abstract class SheetDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         dialog = SheetDialogFactory.forType(type, activity, getTheme());
         dialog.setOnShowListener(dialogInterface -> {
+            AtomicInteger state = new AtomicInteger(SheetBehavior.STATE_COLLAPSED);
+
             dialog.behavior.addSheetCallback(new SheetBehavior.SheetCallback() {
                 @Override
                 public void onSlide(@NonNull View sheet, float slideOffset) {
@@ -140,9 +143,19 @@ public abstract class SheetDialogFragment extends DialogFragment {
                         slideListener.onSlide(slideOffset);
                     }
                 }
+
+                @Override
+                public void onStateChanged(@NonNull View sheet, int newState) {
+                    state.set(newState);
+
+                    if (newState == SheetBehavior.STATE_DRAGGING &&
+                            receivedDragEvents < Integer.MAX_VALUE) {
+                        receivedDragEvents++;
+                    }
+                }
             });
 
-            if (!dispatchedMotionEvent) {
+            if (receivedDragEvents == 0 && state.get() == SheetBehavior.STATE_COLLAPSED) {
                 dialog.behavior.setState(SheetBehavior.STATE_EXPANDED);
             }
 
@@ -222,8 +235,11 @@ public abstract class SheetDialogFragment extends DialogFragment {
     }
 
     public boolean onMotionEvent(MotionEvent event) {
-        dispatchedMotionEvent = event.getAction() != MotionEvent.ACTION_CANCEL &&
-                event.getAction() != MotionEvent.ACTION_UP;
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (receivedDragEvents < Integer.MAX_VALUE) {
+                receivedDragEvents++;
+            }
+        }
 
         return dialog.onMotionEvent(event);
     }
