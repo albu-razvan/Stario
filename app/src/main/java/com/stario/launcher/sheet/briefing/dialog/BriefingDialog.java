@@ -18,6 +18,7 @@
 package com.stario.launcher.sheet.briefing.dialog;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ import com.stario.launcher.sheet.briefing.BriefingFeedList;
 import com.stario.launcher.sheet.briefing.configurator.BriefingConfigurator;
 import com.stario.launcher.sheet.briefing.feed.BriefingAdapter;
 import com.stario.launcher.sheet.briefing.feed.FeedPage;
+import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.pager.CustomDurationViewPager;
 import com.stario.launcher.ui.popup.PopupMenu;
@@ -54,6 +56,7 @@ public class BriefingDialog extends SheetDialogFragment {
     private static final ObservableObject<Integer> TABS_HEIGHT = new ObservableObject<>(0);
     private BriefingDialogPageListener listener;
     private CustomDurationViewPager pager;
+    private ThemedActivity activity;
     private BriefingAdapter adapter;
     private ViewGroup placeholder;
     private View tabsContainer;
@@ -70,10 +73,18 @@ public class BriefingDialog extends SheetDialogFragment {
         super(type);
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        activity = (ThemedActivity) context;
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.briefing, container, false);
 
         title = root.findViewById(R.id.title_feeds);

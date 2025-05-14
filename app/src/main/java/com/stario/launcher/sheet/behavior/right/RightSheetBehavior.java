@@ -331,6 +331,19 @@ public class RightSheetBehavior<V extends View> extends SheetBehavior<V> {
         };
     }
 
+    @Override
+    protected boolean isFullySettled(@NonNull V sheet, int state) {
+        if (state == STATE_COLLAPSED && sheet.getLeft() == collapsedOffset) {
+            return true;
+        }
+
+        if (state == STATE_EXPANDED && sheet.getLeft() == expandedOffset) {
+            return true;
+        }
+
+        return false;
+    }
+
     protected void settleToState(@NonNull View child, int state, boolean animate) {
         int left;
 

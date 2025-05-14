@@ -20,8 +20,8 @@ package com.stario.launcher.ui.dialogs;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -41,14 +41,20 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
     public final static float BLUR_STEP = 1.3f;
     public final static int STEP_COUNT = 50;
 
-    private boolean dispatchTouchEvents;
 
     protected OnBackPressed listener;
+
+    private final ThemedActivity activity;
     private final boolean blur;
+
+    private Runnable visibilityRunner;
+    private boolean showing;
 
     public PersistentFullscreenDialog(ThemedActivity activity, int theme, boolean blur) {
         super(activity, getThemeResId(activity, theme));
 
+        this.activity = activity;
+        this.showing = false;
         this.blur = blur;
 
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -149,38 +155,81 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
     }
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        int action = event.getAction();
-
-        if (action == MotionEvent.ACTION_DOWN) {
-            dispatchTouchEvents = true;
-        }
-
-        boolean result = dispatchTouchEvents && super.dispatchTouchEvent(event);
-
-        if (action == MotionEvent.ACTION_UP ||
-                action == MotionEvent.ACTION_CANCEL) {
-            dispatchTouchEvents = true;
-        }
-
-        return result;
+    public void show() {
+        // Disable default show behaviour
     }
 
     @Override
-    public void show() {
-        // Override default show behaviour
+    public void hide() {
+        Window window = getWindow();
+        if (window != null) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+            View decor = window.getDecorView();
+
+            if (visibilityRunner != null) {
+                decor.removeCallbacks(visibilityRunner);
+            }
+        }
+
+        super.hide();
+        showing = false;
     }
 
-    public void showDialog() {
-        super.show();
+    @Override
+    public boolean isShowing() {
+        return showing;
+    }
+
+    protected boolean superShow() {
+        if (activity.hasWindowFocus()) {
+            showInternal();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean showDialog() {
+        if (activity.hasWindowFocus()) {
+            showInternal();
+
+            Window window = getWindow();
+            if (window != null) {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private void showInternal() {
+        Window window = getWindow();
+        if (window != null) {
+            View decor = window.getDecorView();
+
+            if (visibilityRunner != null) {
+                decor.removeCallbacks(visibilityRunner);
+            }
+
+            super.show();
+
+            // Sometimes, the decor does not update its visibility
+            decor.setVisibility(View.GONE);
+            visibilityRunner = () -> decor.setVisibility(View.VISIBLE);
+            UiUtils.runOnUIThread(visibilityRunner);
+        } else {
+            super.show();
+        }
+
+        showing = true;
     }
 
     public void setOnBackPressed(PersistentFullscreenDialog.OnBackPressed listener) {
         this.listener = listener;
-    }
-
-    public void requestIgnoreCurrentTouchEvent(boolean enabled) {
-        dispatchTouchEvents = enabled;
     }
 
     public interface OnBackPressed {

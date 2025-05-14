@@ -432,10 +432,6 @@ public class PopupMenu {
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
             activity.getLifecycle().addObserver(observer);
 
-            if (interceptTouches) {
-                activity.requestIgnoreCurrentTouchEvent(false);
-            }
-
             return popupWindow;
         }
 

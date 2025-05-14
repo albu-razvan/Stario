@@ -17,23 +17,14 @@
 
 package com.stario.launcher.sheet;
 
-import static com.stario.launcher.ui.dialogs.PersistentFullscreenDialog.BLUR_STEP;
-import static com.stario.launcher.ui.dialogs.PersistentFullscreenDialog.STEP_COUNT;
-
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.Configuration;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
@@ -42,32 +33,28 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.stario.launcher.R;
-import com.stario.launcher.activities.Launcher;
-import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.ui.utils.UiUtils;
-import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class SheetDialogFragment extends DialogFragment {
-    private final ArrayList<DialogInterface.OnShowListener> showListeners;
     private final ArrayList<OnDestroyListener> destroyListeners;
+    private final ArrayList<OnShowListener> onShowListeners;
     private OnSlideListener slideListener;
-    private boolean receivedMoveEvent;
+    private ThemedActivity activity;
     private HomeWatcher homeWatcher;
-    private boolean capturing;
+    private int receivedDragEvents;
+    private SheetDialog dialog;
     private SheetType type;
 
-    protected ThemedActivity activity;
-    protected SheetDialog dialog;
-
     public SheetDialogFragment() {
-        showListeners = new ArrayList<>();
-        destroyListeners = new ArrayList<>();
+        this.receivedDragEvents = 0;
+        this.onShowListeners = new ArrayList<>();
+        this.destroyListeners = new ArrayList<>();
     }
 
     protected SheetDialogFragment(@NonNull SheetType type) {
@@ -113,6 +100,11 @@ public abstract class SheetDialogFragment extends DialogFragment {
         super.onDestroy();
     }
 
+    @Nullable
+    public SheetDialog getSheetDialog() {
+        return dialog;
+    }
+
     @Override
     public void onStop() {
         SheetBehavior<?> behavior = getBehavior();
@@ -141,89 +133,37 @@ public abstract class SheetDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         dialog = SheetDialogFactory.forType(type, activity, getTheme());
-
-        Window window = dialog.getWindow();
-        if (window != null) {
-            UiUtils.enforceLightSystemUI(window);
-
-            Drawable background = new ColorDrawable(
-                    activity.getAttributeData(com.google.android.material.R.attr.colorSurface, false)
-            );
-            background.setAlpha(0);
-
-            window.setBackgroundDrawable(background);
-        }
-
         dialog.setOnShowListener(dialogInterface -> {
-            dialog.behavior.setState(SheetBehavior.STATE_COLLAPSED);
+            AtomicInteger state = new AtomicInteger(SheetBehavior.STATE_COLLAPSED);
+
             dialog.behavior.addSheetCallback(new SheetBehavior.SheetCallback() {
-                private int lastBlurStep = -1;
-                private float lastSlideOffset = -1;
-                boolean wasCollapsed = true;
-
-                @Override
-                public void onStateChanged(@NonNull View view, int newState) {
-                    if (newState == SheetBehavior.STATE_COLLAPSED) {
-                        wasCollapsed = true;
-                    }
-                }
-
                 @Override
                 public void onSlide(@NonNull View sheet, float slideOffset) {
-                    if (slideOffset == lastSlideOffset) {
-                        return;
-                    }
-
-                    lastSlideOffset = slideOffset;
-
-                    if (window != null) {
-                        double offsetSemi = Utils.getGenericInterpolatedValue(slideOffset);
-
-                        Drawable background = window.getDecorView().getBackground();
-                        background.setAlpha((int) (Launcher.MAX_BACKGROUND_ALPHA * offsetSemi));
-
-                        // only STEP_COUNT states for performance
-                        int step = (int) (STEP_COUNT * offsetSemi);
-
-                        if (Utils.isMinimumSDK(Build.VERSION_CODES.S) && lastBlurStep != step) {
-                            window.setBackgroundBlurRadius((int) (step * BLUR_STEP));
-
-                            this.lastBlurStep = step;
-                        }
-                    }
-
-                    if (slideOffset >= 0.5f) {
-                        if (wasCollapsed) {
-                            Vibrations.getInstance().vibrate();
-                        }
-
-                        wasCollapsed = false;
-                    }
-
-                    float alpha = slideOffset * 2 - 1f;
-
-                    if (alpha > 0) {
-                        sheet.setAlpha(alpha);
-                        sheet.setVisibility(View.VISIBLE);
-                    } else {
-                        sheet.setVisibility(View.INVISIBLE);
-                    }
-
                     if (slideListener != null) {
                         slideListener.onSlide(slideOffset);
                     }
                 }
+
+                @Override
+                public void onStateChanged(@NonNull View sheet, int newState) {
+                    state.set(newState);
+
+                    if (newState == SheetBehavior.STATE_DRAGGING &&
+                            receivedDragEvents < Integer.MAX_VALUE) {
+                        receivedDragEvents++;
+                    }
+                }
             });
 
-            for (DialogInterface.OnShowListener listener : showListeners) {
-                listener.onShow(dialog);
+            if (receivedDragEvents == 0 && state.get() == SheetBehavior.STATE_COLLAPSED) {
+                dialog.behavior.setState(SheetBehavior.STATE_EXPANDED);
             }
 
-            if (!capturing && receivedMoveEvent) {
-                dialog.behavior.setState(SheetBehavior.STATE_EXPANDED, true);
+            for (OnShowListener listener : onShowListeners) {
+                listener.onShow();
             }
 
-            showListeners.clear();
+            onShowListeners.clear();
         });
 
         UiUtils.applyNotchMargin(dialog.getContainer());
@@ -294,17 +234,14 @@ public abstract class SheetDialogFragment extends DialogFragment {
         return dialog != null ? dialog.behavior : null;
     }
 
-    public void sendMotionEvent(MotionEvent event) {
-        dialog.captureMotionEvent(event);
-
+    public boolean onMotionEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            receivedMoveEvent = false;
-        } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            receivedMoveEvent = true;
+            if (receivedDragEvents < Integer.MAX_VALUE) {
+                receivedDragEvents++;
+            }
         }
 
-        capturing = event.getAction() != MotionEvent.ACTION_UP &&
-                event.getAction() != MotionEvent.ACTION_CANCEL;
+        return dialog.onMotionEvent(event);
     }
 
     public void show() {
@@ -313,15 +250,12 @@ public abstract class SheetDialogFragment extends DialogFragment {
         }
     }
 
-    public void requestIgnoreCurrentTouchEvent(boolean enabled) {
-        if (dialog != null) {
-            dialog.requestIgnoreCurrentTouchEvent(enabled);
-        }
-    }
-
-    protected void addOnShowListener(DialogInterface.OnShowListener listener) {
+    /**
+     * Add a one time show listener
+     */
+    protected void addOnShowListener(OnShowListener listener) {
         if (listener != null) {
-            this.showListeners.add(listener);
+            this.onShowListeners.add(listener);
         }
     }
 
@@ -363,6 +297,10 @@ public abstract class SheetDialogFragment extends DialogFragment {
 
     public interface OnDestroyListener {
         void onDestroy(SheetType type);
+    }
+
+    public interface OnShowListener {
+        void onShow();
     }
 
     public interface OnSlideListener {

@@ -25,8 +25,7 @@ public enum SheetType {
     TOP_SHEET("com.stario.launcher.TOP_SHEET", View.SCROLL_AXIS_VERTICAL),
     BOTTOM_SHEET("com.stario.launcher.BOTTOM_SHEET", View.SCROLL_AXIS_VERTICAL),
     LEFT_SHEET("com.stario.launcher.LEFT_SHEET", View.SCROLL_AXIS_HORIZONTAL),
-    RIGHT_SHEET("com.stario.launcher.RIGHT_SHEET", View.SCROLL_AXIS_HORIZONTAL),
-    UNDEFINED("com.stario.launcher.UNDEFINED", View.SCROLL_AXIS_NONE);
+    RIGHT_SHEET("com.stario.launcher.RIGHT_SHEET", View.SCROLL_AXIS_HORIZONTAL);
 
     private final String stringType;
     private final int axes;
