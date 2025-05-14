@@ -163,24 +163,16 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
     public void hide() {
         Window window = getWindow();
         if (window != null) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
             View decor = window.getDecorView();
 
             if (visibilityRunner != null) {
                 decor.removeCallbacks(visibilityRunner);
             }
-
-            super.hide();
-
-            // Sometimes, the decor does not update its visibility
-            decor.setVisibility(View.VISIBLE);
-            visibilityRunner = () -> decor.setVisibility(View.GONE);
-            decor.post(visibilityRunner);
-
-            window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-        } else {
-            super.hide();
         }
 
+        super.hide();
         showing = false;
     }
 
