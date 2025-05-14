@@ -20,6 +20,7 @@ package com.stario.launcher.ui.dialogs;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,10 +47,14 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
     private final ThemedActivity activity;
     private final boolean blur;
 
+    private Runnable visibilityRunner;
+    private boolean showing;
+
     public PersistentFullscreenDialog(ThemedActivity activity, int theme, boolean blur) {
         super(activity, getThemeResId(activity, theme));
 
         this.activity = activity;
+        this.showing = false;
         this.blur = blur;
 
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -158,15 +163,35 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
     public void hide() {
         Window window = getWindow();
         if (window != null) {
+            View decor = window.getDecorView();
+
+            if (visibilityRunner != null) {
+                decor.removeCallbacks(visibilityRunner);
+            }
+
+            super.hide();
+
+            // Sometimes, the decor does not update its visibility
+            decor.setVisibility(View.VISIBLE);
+            visibilityRunner = () -> decor.setVisibility(View.GONE);
+            decor.post(visibilityRunner);
+
             window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        } else {
+            super.hide();
         }
 
-        super.hide();
+        showing = false;
+    }
+
+    @Override
+    public boolean isShowing() {
+        return showing;
     }
 
     protected boolean superShow() {
         if (activity.hasWindowFocus()) {
-            super.show();
+            showInternal();
 
             return true;
         }
@@ -176,17 +201,39 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
 
     public boolean showDialog() {
         if (activity.hasWindowFocus()) {
+            showInternal();
+
             Window window = getWindow();
             if (window != null) {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             }
 
-            super.show();
-
             return true;
         }
 
         return false;
+    }
+
+    private void showInternal() {
+        Window window = getWindow();
+        if (window != null) {
+            View decor = window.getDecorView();
+
+            if (visibilityRunner != null) {
+                decor.removeCallbacks(visibilityRunner);
+            }
+
+            super.show();
+
+            // Sometimes, the decor does not update its visibility
+            decor.setVisibility(View.GONE);
+            visibilityRunner = () -> decor.setVisibility(View.VISIBLE);
+            UiUtils.runOnUIThread(visibilityRunner);
+        } else {
+            super.show();
+        }
+
+        showing = true;
     }
 
     public void setOnBackPressed(PersistentFullscreenDialog.OnBackPressed listener) {
