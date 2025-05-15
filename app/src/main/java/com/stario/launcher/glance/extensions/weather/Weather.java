@@ -65,17 +65,64 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Weather extends GlanceDialogExtension {
+    public static final String IMPERIAL_KEY = "com.stario.IMPERIAL";
+
     private static final String TAG = "com.stario.launcher.Weather";
     private static final String LATITUDE_KEY = "com.stario.LATITUDE";
     private static final String LONGITUDE_KEY = "com.stario.LONGITUDE";
-    public static final String IMPERIAL_KEY = "com.stario.IMPERIAL";
+
     private static final int FORECAST_MAX_ENTRIES = 20;
     private static final int UPDATE_INTERVAL = 3_600_000;
     private static final int REQUEST_TIMEOUT = 10_000;
     private static final int DAY = 0;
     private static final int NIGHT = 1;
     private static final int SUMMARY = 2;
-    private static final HashMap<String, HashMap<Integer, Integer>> weatherResources = new HashMap<>() {{
+    private static final String LOCATION_API_IP_WILDCARD = "$";
+    private static final IpApiEntry[] LOCATION_APIS = new IpApiEntry[]{
+            new IpApiEntry("http://ip-api.com/json/$", new IpApiEntry.Callback[]{
+                    new IpApiEntry.Callback("lat") {
+                        @Override
+                        void assign(double value) {
+                            lat = value;
+                        }
+                    },
+                    new IpApiEntry.Callback("lon") {
+                        @Override
+                        void assign(double value) {
+                            lon = value;
+                        }
+                    }
+            }),
+            new IpApiEntry("https://freeipapi.com/api/json/$", new IpApiEntry.Callback[]{
+                    new IpApiEntry.Callback("latitude") {
+                        @Override
+                        void assign(double value) {
+                            lat = value;
+                        }
+                    },
+                    new IpApiEntry.Callback("longitude") {
+                        @Override
+                        void assign(double value) {
+                            lon = value;
+                        }
+                    }
+            }),
+            new IpApiEntry("https://ipapi.co/$/json/", new IpApiEntry.Callback[]{
+                    new IpApiEntry.Callback("latitude") {
+                        @Override
+                        void assign(double value) {
+                            lat = value;
+                        }
+                    },
+                    new IpApiEntry.Callback("longitude") {
+                        @Override
+                        void assign(double value) {
+                            lon = value;
+                        }
+                    }
+            })
+    };
+    private static final HashMap<String, HashMap<Integer, Integer>> WEATHER_RESOURCES = new HashMap<>() {{
         put("clearsky", new HashMap<>() {{
             put(DAY, R.drawable.clear_day);
             put(NIGHT, R.drawable.clear_night);
@@ -283,8 +330,8 @@ public class Weather extends GlanceDialogExtension {
         }});
     }};
 
-    private static double lat = -1;
-    private static double lon = -1;
+    private static double lat = Integer.MAX_VALUE;
+    private static double lon = Integer.MAX_VALUE;
 
     private final WeatherPreview preview;
     private final DateParser dateParser;
@@ -294,6 +341,7 @@ public class Weather extends GlanceDialogExtension {
     private SharedPreferences settings;
     private RecyclerView recycler;
     private TextView temperature;
+    private Geocoder geocoder;
     private TextView location;
     private TextView summary;
     private boolean updating;
@@ -307,7 +355,7 @@ public class Weather extends GlanceDialogExtension {
     public Weather() {
         this.weatherData = new ArrayList<>();
         this.dateParser = DateParser.newBuilder().build();
-        this.lastUpdate = -UPDATE_INTERVAL;
+        this.lastUpdate = 0;
 
         this.preview = new WeatherPreview();
     }
@@ -329,6 +377,8 @@ public class Weather extends GlanceDialogExtension {
 
         coordinates = activity.getSharedPreferences(Entry.WEATHER);
         settings = activity.getSharedPreferences(Entry.STARIO);
+
+        geocoder = new Geocoder(activity);
 
         this.container = root.findViewById(R.id.container);
         temperature = root.findViewById(R.id.temperature);
@@ -399,13 +449,16 @@ public class Weather extends GlanceDialogExtension {
                     updateLocation(Utils.getPublicIPAddress());
                 }
 
-                if (lat < 0 || lon < 0) {
+                if (lat < -90 || lat > 90 ||
+                        lon < -180 || lon > 180) {
+                    updating = false;
                     return;
                 }
 
                 JSONObject weatherData = getWeatherInfo();
 
                 if (weatherData == null) {
+                    updating = false;
                     return;
                 }
 
@@ -442,7 +495,7 @@ public class Weather extends GlanceDialogExtension {
                         }
                     }
 
-                    if (entries.size() > 0) {
+                    if (!entries.isEmpty()) {
                         this.weatherData = entries;
                     }
 
@@ -457,7 +510,7 @@ public class Weather extends GlanceDialogExtension {
                         });
                     }
 
-                    lastUpdate = System.currentTimeMillis() - lastUpdate;
+                    lastUpdate = System.currentTimeMillis();
                 } catch (JSONException exception) {
                     Log.e(TAG, "update: ", exception);
                 }
@@ -538,7 +591,7 @@ public class Weather extends GlanceDialogExtension {
         Calendar sunrise = calculator.getOfficialSunriseCalendarForDate(calendar);
         Calendar sunset = calculator.getOfficialSunsetCalendarForDate(calendar);
 
-        HashMap<Integer, Integer> dataForCode = weatherResources.get(iconCode);
+        HashMap<Integer, Integer> dataForCode = WEATHER_RESOURCES.get(iconCode);
 
         if (dataForCode == null) {
             return R.drawable.unavailable;
@@ -556,7 +609,7 @@ public class Weather extends GlanceDialogExtension {
     }
 
     public static int getSummary(String iconCode) {
-        HashMap<Integer, Integer> dataForCode = weatherResources.get(iconCode);
+        HashMap<Integer, Integer> dataForCode = WEATHER_RESOURCES.get(iconCode);
 
         Integer summary;
         if (dataForCode == null) {
@@ -569,46 +622,50 @@ public class Weather extends GlanceDialogExtension {
     }
 
     private void updateLocation(String ip) {
-        StringBuilder response = new StringBuilder();
+        for (IpApiEntry entry : LOCATION_APIS) {
+            StringBuilder response = new StringBuilder();
 
-        try {
-            HttpURLConnection connection = (HttpURLConnection)
-                    (new URL("http://ip-api.com/json/" + ip).openConnection());
+            try {
+                HttpURLConnection connection = (HttpURLConnection)
+                        (new URL(entry.api.replace(LOCATION_API_IP_WILDCARD, ip)).openConnection());
 
-            connection.setReadTimeout(REQUEST_TIMEOUT);
-            connection.setConnectTimeout(REQUEST_TIMEOUT);
-            connection.setRequestMethod("GET");
-            connection.addRequestProperty("User-Agent", WebSettings.getDefaultUserAgent(activity));
-            connection.addRequestProperty("Content-type", "application/json");
+                connection.setReadTimeout(REQUEST_TIMEOUT);
+                connection.setConnectTimeout(REQUEST_TIMEOUT);
+                connection.setRequestMethod("GET");
+                connection.addRequestProperty("User-Agent", WebSettings.getDefaultUserAgent(activity));
+                connection.addRequestProperty("Content-type", "application/json");
 
-            connection.connect();
+                connection.connect();
 
-            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 
-                InputStream inputStream = new BufferedInputStream(connection.getInputStream());
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    InputStream inputStream = new BufferedInputStream(connection.getInputStream());
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
-                String line;
+                    String line;
 
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
                 }
+
+                connection.disconnect();
+
+                JSONObject jsonObject = new JSONObject(response.toString());
+                for (IpApiEntry.Callback callback : entry.callback) {
+                    callback.assign(jsonObject.getDouble(callback.field));
+                }
+
+                List<Address> addresses = geocoder.getFromLocation(lat, lon, 1);
+
+                if (addresses != null && !addresses.isEmpty()) {
+                    address = addresses.get(0);
+                }
+
+                return;
+            } catch (Exception exception) {
+                Log.e(TAG, "updateLocation: " + exception.getMessage());
             }
-
-            connection.disconnect();
-
-            JSONObject jsonObject = new JSONObject(response.toString());
-            lat = jsonObject.getDouble("lat");
-            lon = jsonObject.getDouble("lon");
-
-            List<Address> addresses = new Geocoder(activity)
-                    .getFromLocation(lat, lon, 1);
-
-            if (addresses != null && addresses.size() > 0) {
-                address = addresses.get(0);
-            }
-        } catch (Exception exception) {
-            Log.e(TAG, "getLocationInfo: ", exception);
         }
     }
 
@@ -644,9 +701,29 @@ public class Weather extends GlanceDialogExtension {
 
             return new JSONObject(response.toString());
         } catch (Exception exception) {
-            Log.e(TAG, "getWeatherInfo: ", exception);
+            Log.e(TAG, "getWeatherInfo: " + exception.getMessage());
 
             return null;
+        }
+    }
+
+    private static class IpApiEntry {
+        private final String api;
+        private final Callback[] callback;
+
+        private IpApiEntry(@NonNull String api, @NonNull Callback[] callback) {
+            this.api = api;
+            this.callback = callback;
+        }
+
+        abstract static class Callback {
+            private final String field;
+
+            Callback(String field) {
+                this.field = field;
+            }
+
+            abstract void assign(double value);
         }
     }
 

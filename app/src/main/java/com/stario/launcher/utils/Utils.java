@@ -50,9 +50,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class Utils {
-    private static final String TAG = "com.stario.Utils";
     public static final String USER_AGENT = "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/W.X.Y.Z Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
+
+    private static final String TAG = "com.stario.Utils";
     private static final ExecutorService executorPool = Executors.newFixedThreadPool(10);
+    private static final String[] IPV4_APIS = {
+            "http://checkip.amazonaws.com/",
+            "http://ipv4.icanhazip.com/",
+            "http://ipv4.seeip.org",
+            "http://api.ipify.org/"
+    };
     private static Gson gson;
 
     public static Future<?> submitTask(Runnable runnable) {
@@ -131,17 +138,19 @@ public class Utils {
     }
 
     public static String getPublicIPAddress() {
-        try {
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(new URL("https://api.ipify.org/").openStream(),
-                            StandardCharsets.UTF_8));
+        for (String api : IPV4_APIS) {
+            try {
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(new URL(api).openStream(),
+                                StandardCharsets.UTF_8));
 
-            return reader.readLine();
-        } catch (Exception exception) {
-            Log.e(TAG, "getPublicIPAddress: ", exception);
-
-            return null;
+                return reader.readLine();
+            } catch (Exception exception) {
+                Log.e(TAG, "getPublicIPAddress: ", exception);
+            }
         }
+
+        return null;
     }
 
     public static boolean isNotificationServiceEnabled(Context context) {
