@@ -47,7 +47,7 @@ public class IconsRecyclerAdapter extends RecyclerView.Adapter<IconsRecyclerAdap
         this.manager = IconPackManager.from(activity);
     }
 
-    protected static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         private final AdaptiveIconView icon;
         private final TextView label;
         private final TextView count;

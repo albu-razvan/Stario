@@ -117,7 +117,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
                         @Override
                         public void handleOnBackStarted(@NonNull BackEventCompat backEvent) {
-                            if (isAffectedByBackGesture()) {
+                            if (isAffectedByBackGesture() && !isActivityTransitionRunning()) {
                                 View root = getRoot();
 
                                 if (root != null) {
@@ -141,7 +141,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
                         @Override
                         public void handleOnBackProgressed(@NonNull BackEventCompat backEvent) {
-                            if (isAffectedByBackGesture()) {
+                            if (isAffectedByBackGesture() && !isActivityTransitionRunning()) {
                                 View root = getRoot();
 
                                 float progress = backEvent.getProgress();
@@ -162,7 +162,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
                         @Override
                         public void handleOnBackCancelled() {
-                            if (isAffectedByBackGesture()) {
+                            if (isAffectedByBackGesture() && !isActivityTransitionRunning()) {
                                 View root = getRoot();
 
                                 if (root != null) {

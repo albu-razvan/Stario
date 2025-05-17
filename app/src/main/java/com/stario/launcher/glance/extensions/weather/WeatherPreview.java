@@ -70,24 +70,34 @@ final class WeatherPreview implements GlanceViewExtension {
     }
 
     @SuppressLint("SetTextI18n")
-    void updateTemperature(double temperature) {
-        if (!Double.isNaN(temperature)) {
+    void update(Weather.Data data) {
+        if (data == null) {
+            hasIcon = false;
+            hasTemperature = false;
+
+            update();
+
+            return;
+        }
+
+        if (!Double.isNaN(data.temperature)) {
             if (preferences.getBoolean(Weather.IMPERIAL_KEY, false)) {
-                this.temperature.setText((int) Math.round(Utils.toFahrenheit(temperature)) + FAHRENHEIT);
+                this.temperature.setText((int) Math.round(
+                        Utils.toFahrenheit(data.temperature)) + FAHRENHEIT);
             } else {
-                this.temperature.setText((int) Math.round(temperature) + CELSIUS);
+                this.temperature.setText((int) Math.round(data.temperature) + CELSIUS);
             }
 
             hasTemperature = true;
+        } else {
+            hasTemperature = false;
         }
 
-        update();
-    }
-
-    void updateIcon(String code) {
-        if (code != null) {
-            icon.setImageResource(Weather.getIcon(code));
+        if (data.iconCode != null) {
+            icon.setImageResource(Weather.getIcon(data.iconCode));
             hasIcon = true;
+        } else {
+            hasIcon = false;
         }
 
         update();

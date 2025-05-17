@@ -45,6 +45,7 @@ import com.stario.launcher.activities.settings.dialogs.NotificationConfigurator;
 import com.stario.launcher.activities.settings.dialogs.hide.HideApplicationsDialog;
 import com.stario.launcher.activities.settings.dialogs.icons.IconsDialog;
 import com.stario.launcher.activities.settings.dialogs.license.LicensesDialog;
+import com.stario.launcher.activities.settings.dialogs.location.LocationDialog;
 import com.stario.launcher.activities.settings.dialogs.search.engine.SearchEngineDialog;
 import com.stario.launcher.activities.settings.dialogs.search.results.SearchResultsDialog;
 import com.stario.launcher.apps.IconPackManager;
@@ -126,6 +127,9 @@ public class Settings extends ThemedActivity {
         searchEngineName = findViewById(R.id.engine_name);
         iconPackName = findViewById(R.id.pack_name);
         hideCount = findViewById(R.id.hidden_count);
+
+        View location = findViewById(R.id.location);
+        TextView locationName = findViewById(R.id.location_name);
 
         updateIconPackName();
         updateHiddenAppsCount();
@@ -282,6 +286,28 @@ public class Settings extends ThemedActivity {
             }
         });
 
+        SharedPreferences weather = getSharedPreferences(Entry.WEATHER);
+
+        locationName.setText(weather.getString(Weather.LOCATION_NAME,
+                getResources().getString(R.string.location_ip_based)));
+        location.setOnClickListener(new View.OnClickListener() {
+            private LocationDialog dialog;
+
+            @Override
+            public void onClick(View view) {
+                if (dialog == null || !Settings.this.equals(dialog.getContext())) {
+                    dialog = new LocationDialog(Settings.this);
+
+                    dialog.setOnDismissListener(dialog ->
+                            locationName.setText(weather.getString(Weather.LOCATION_NAME,
+                                    getResources().getString(R.string.location_ip_based)))
+                    );
+                }
+
+                dialog.show();
+            }
+        });
+
         findViewById(R.id.licenses).setOnClickListener(new View.OnClickListener() {
             private LicensesDialog dialog;
 
@@ -361,7 +387,7 @@ public class Settings extends ThemedActivity {
     private void updateLockAnimationState(boolean enabled) {
         lockAnimSwitchContainer.setAlpha(enabled ? 1f : 0.5f);
 
-        if(enabled) {
+        if (enabled) {
             lockAnimSwitchContainer.setOnClickListener((view) -> lockAnimSwitch.performClick());
         } else {
             lockAnimSwitchContainer.setOnClickListener(null);
