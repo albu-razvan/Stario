@@ -166,7 +166,7 @@ public abstract class SheetDialogFragment extends DialogFragment {
             onShowListeners.clear();
         });
 
-        UiUtils.applyNotchMargin(dialog.getContainer());
+        UiUtils.Notch.applyNotchMargin(dialog.getContainer(), UiUtils.Notch.CENTER);
 
         return dialog;
     }

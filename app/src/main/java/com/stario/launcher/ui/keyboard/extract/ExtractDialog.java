@@ -146,7 +146,7 @@ public class ExtractDialog extends DialogFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        UiUtils.applyNotchMargin(view, false);
+        UiUtils.Notch.applyNotchMargin(view);
 
         MaterialButton done = view.findViewById(R.id.proceed);
         done.setOnClickListener(v -> dismiss());
