@@ -137,6 +137,8 @@ public class List extends DrawerPage {
 
         AsyncRecyclerAdapter<?> adapter = new ListAdapter(activity,
                 ProfileManager.getInstance().getProfile(handle));
+        Measurements.addListColumnCountChangeListener(object ->
+                adapter.approximateRecyclerHeight());
         adapter.setRecyclerHeightApproximationListener(height -> {
             ViewGroup parent = (ViewGroup) drawer.getParent();
             ConstraintLayout.LayoutParams params =

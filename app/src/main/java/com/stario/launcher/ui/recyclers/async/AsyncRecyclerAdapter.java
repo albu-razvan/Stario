@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.ui.Measurements;
@@ -144,13 +145,28 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
             return AsyncViewHolder.HEIGHT_UNMEASURED;
         }
 
+        if (recyclerView == null) {
+            return approximatedRecyclerHeight;
+        }
+
+        int size = getSize();
+        int newApproximation;
+        RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
+        if (manager instanceof GridLayoutManager) {
+            int spanCount = ((GridLayoutManager) manager).getSpanCount();
+
+            newApproximation = holderHeight * (size / spanCount + (size % spanCount == 0 ? 0 : 1));
+        } else {
+            newApproximation = holderHeight * size;
+        }
+
         if (approximatedRecyclerHeight == AsyncViewHolder.HEIGHT_UNMEASURED) {
-            approximatedRecyclerHeight = holderHeight * getSize();
+            approximatedRecyclerHeight = newApproximation;
 
             if (listener != null) {
                 listener.onNewApproximation(approximatedRecyclerHeight);
             }
-        } else if (approximatedRecyclerHeight != holderHeight * getSize()) {
+        } else if (approximatedRecyclerHeight != newApproximation) {
             if (listener != null) {
                 listener.onNewApproximation(approximatedRecyclerHeight);
             }
