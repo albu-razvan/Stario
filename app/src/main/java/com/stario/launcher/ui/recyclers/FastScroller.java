@@ -175,6 +175,15 @@ public class FastScroller extends RelativeLayout {
 
                                 if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
                                         motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
+                                    isEngaged = false;
+
+                                    post(() -> animatePopupVisibility(false, view.equals(trackRight)));
+
+                                    if (recyclerView.getAdapter() instanceof OnPopupViewReset) {
+                                        ((OnPopupViewReset) recyclerView.getAdapter())
+                                                .onReset(currentPosition);
+                                    }
+
                                     x = null;
                                     y = null;
                                 }
