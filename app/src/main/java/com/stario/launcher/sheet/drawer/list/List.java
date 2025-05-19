@@ -29,13 +29,13 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.stario.launcher.R;
 import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.recyclers.autogrid.AutoGridLayoutManager;
 import com.stario.launcher.ui.recyclers.FastScroller;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
 import com.stario.launcher.utils.Utils;
@@ -67,14 +67,7 @@ public class List extends DrawerPage {
 
         fastScroller = rootView.findViewById(R.id.fast_scroller);
 
-        GridLayoutManager manager = new GridLayoutManager(activity,
-                Measurements.getListColumnCount()) {
-            @Override
-            public boolean supportsPredictiveItemAnimations() {
-                return false;
-            }
-        };
-
+        AutoGridLayoutManager manager = new AutoGridLayoutManager(activity, Measurements.getListColumnCount());
         Measurements.addListColumnCountChangeListener(manager::setSpanCount);
 
         drawer.setLayoutManager(manager);

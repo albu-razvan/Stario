@@ -149,7 +149,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
             return approximatedRecyclerHeight;
         }
 
-        int size = getSize();
+        int size = getTotalItemCount();
         int newApproximation;
         RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
         if (manager instanceof GridLayoutManager) {
@@ -216,7 +216,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
             int oldLimit = limit;
 
             limit = NO_LIMIT;
-            recyclerView.post(() -> notifyItemRangeInserted(oldLimit, getSize() - oldLimit));
+            recyclerView.post(() -> notifyItemRangeInserted(oldLimit, getTotalItemCount() - oldLimit));
         }
     }
 
@@ -237,7 +237,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
             if (type == InflationType.ASYNC && limit != NO_LIMIT) {
                 limit++;
 
-                if (limit < getSize()) {
+                if (limit <= getTotalItemCount()) {
                     if (recyclerView != null) {
                         if (recyclerView.isComputingLayout()) {
                             recyclerView.post(() -> notifyItemInserted(limit));
@@ -257,10 +257,10 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
     @Override
     public final int getItemCount() {
         if (type == InflationType.SYNCED) {
-            return getSize();
+            return getTotalItemCount();
         }
 
-        return limit > 0 ? Math.min(limit, getSize()) : getSize();
+        return limit > 0 ? Math.min(limit, getTotalItemCount()) : getTotalItemCount();
     }
 
     public void setRecyclerHeightApproximationListener(RecyclerHeightApproximationListener listener) {
@@ -269,11 +269,11 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
         approximateRecyclerHeight();
     }
 
+    public abstract int getTotalItemCount();
+
     protected abstract void onBind(@NonNull AVH holder, int position);
 
     protected abstract int getLayout();
-
-    protected abstract int getSize();
 
     protected abstract Supplier<AVH> getHolderSupplier();
 

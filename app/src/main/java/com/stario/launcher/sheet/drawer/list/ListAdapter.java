@@ -225,7 +225,7 @@ public class ListAdapter extends RecyclerApplicationAdapter
     }
 
     @Override
-    protected int getSize() {
+    public int getTotalItemCount() {
         return applicationManager.getSize();
     }
 }
