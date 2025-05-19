@@ -350,7 +350,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
     }
 
     @Override
-    public int getSize() {
+    public int getTotalItemCount() {
         return categoryManager.size();
     }
 }

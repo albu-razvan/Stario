@@ -29,13 +29,13 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.stario.launcher.R;
 import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.recyclers.autogrid.AutoGridLayoutManager;
 import com.stario.launcher.ui.recyclers.FastScroller;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
 import com.stario.launcher.utils.Utils;
@@ -67,14 +67,7 @@ public class List extends DrawerPage {
 
         fastScroller = rootView.findViewById(R.id.fast_scroller);
 
-        GridLayoutManager manager = new GridLayoutManager(activity,
-                Measurements.getListColumnCount()) {
-            @Override
-            public boolean supportsPredictiveItemAnimations() {
-                return false;
-            }
-        };
-
+        AutoGridLayoutManager manager = new AutoGridLayoutManager(activity, Measurements.getListColumnCount());
         Measurements.addListColumnCountChangeListener(manager::setSpanCount);
 
         drawer.setLayoutManager(manager);
@@ -91,10 +84,10 @@ public class List extends DrawerPage {
 
         View searchContainer = (View) search.getParent();
         search.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-            if (Measurements.isLandscape() && Measurements.getWidth() >
+            if (Measurements.isLandscape() && view.getMeasuredWidth() >
                     // FastScroller popup size * 2 + search width
                     Measurements.spToPx(200) + searchContainer.getMeasuredWidth()) {
-                fastScroller.setBottomOffset(searchContainer.getPaddingBottom() + (bottom - top));
+                fastScroller.setBottomOffset(searchContainer.getPaddingBottom());
             } else {
                 fastScroller.setBottomOffset(searchContainer.getPaddingBottom() + (bottom - top) +
                         Measurements.spToPx(32) + Measurements.dpToPx(20));
@@ -137,6 +130,8 @@ public class List extends DrawerPage {
 
         AsyncRecyclerAdapter<?> adapter = new ListAdapter(activity,
                 ProfileManager.getInstance().getProfile(handle));
+        Measurements.addListColumnCountChangeListener(object ->
+                adapter.approximateRecyclerHeight());
         adapter.setRecyclerHeightApproximationListener(height -> {
             ViewGroup parent = (ViewGroup) drawer.getParent();
             ConstraintLayout.LayoutParams params =

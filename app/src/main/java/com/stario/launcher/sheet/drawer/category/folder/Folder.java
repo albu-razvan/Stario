@@ -30,7 +30,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,7 +41,7 @@ import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.ui.Measurements;
-import com.stario.launcher.ui.recyclers.AccurateScrollComputeGridLayoutManager;
+import com.stario.launcher.ui.recyclers.autogrid.AutoGridLayoutManager;
 
 import java.lang.reflect.Method;
 import java.util.UUID;
@@ -75,9 +74,8 @@ public class Folder extends DrawerPage {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
 
-        GridLayoutManager manager = new AccurateScrollComputeGridLayoutManager(activity,
+        AutoGridLayoutManager manager = new AutoGridLayoutManager(activity,
                 Measurements.getListColumnCount());
-
         Measurements.addListColumnCountChangeListener(manager::setSpanCount);
 
         drawer.setLayoutManager(manager);

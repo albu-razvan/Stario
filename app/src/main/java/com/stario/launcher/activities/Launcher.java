@@ -142,7 +142,7 @@ public class Launcher extends ThemedActivity {
             statusBarContrast.requestLayout();
         });
 
-        UiUtils.applyNotchMargin(controller);
+        UiUtils.Notch.applyNotchMargin(controller, UiUtils.Notch.CENTER);
         controller.setOnLongClickListener((v) -> {
             Vibrations.getInstance().vibrate();
 

@@ -74,7 +74,7 @@ public class Measurements {
         defaultPadding = dpToPx(20);
 
         LIST_COLUMNS.updateObject(Math.min(6, width / dpToPx(90)));
-        FOLDER_COLUMNS.updateObject(width / dpToPx(200));
+        FOLDER_COLUMNS.updateObject(width / dpToPx(190));
 
         //ensure that the number of columns is a multiple of 2
         WIDGET_COLUMNS.updateObject((width / dpToPx(150) / 2) * 2);

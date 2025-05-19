@@ -150,7 +150,7 @@ class FolderAdapter extends RecyclerApplicationAdapter {
     }
 
     @Override
-    protected int getSize() {
+    public int getTotalItemCount() {
         return category.getSize();
     }
 }

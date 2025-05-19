@@ -65,7 +65,7 @@ public class AppAdapter extends RecyclerApplicationAdapter
     }
 
     @Override
-    protected int getSize() {
+    public int getTotalItemCount() {
         return applications.size();
     }
 

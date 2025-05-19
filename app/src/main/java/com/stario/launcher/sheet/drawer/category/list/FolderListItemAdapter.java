@@ -174,7 +174,7 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
     }
 
     @Override
-    protected int getSize() {
+    public int getTotalItemCount() {
         return category != null ? Math.min(category.getSize(), HARD_LIMIT) : 0;
     }
 }

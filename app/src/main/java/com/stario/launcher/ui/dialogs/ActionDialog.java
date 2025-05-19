@@ -39,8 +39,8 @@ import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
-import com.stario.launcher.ui.utils.animation.KeyboardAnimationHelper;
 import com.stario.launcher.ui.utils.UiUtils;
+import com.stario.launcher.ui.utils.animation.KeyboardAnimationHelper;
 import com.stario.launcher.utils.Utils;
 
 import java.util.Objects;
@@ -128,7 +128,7 @@ public abstract class ActionDialog extends BottomSheetDialog {
         params.rightMargin = Measurements.dpToPx(10);
         ((View) root.getParent()).setBackgroundColor(Color.TRANSPARENT);
 
-        UiUtils.applyNotchMargin(root, true);
+        UiUtils.Notch.applyNotchMargin(root, UiUtils.Notch.INVERSE);
 
         getBehavior().addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override

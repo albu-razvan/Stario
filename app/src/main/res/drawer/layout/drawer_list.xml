@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView
+        <com.stario.launcher.ui.recyclers.autogrid.AutoGridRecyclerView
             android:id="@+id/drawer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
