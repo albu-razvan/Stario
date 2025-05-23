@@ -52,6 +52,7 @@ import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.lock.ClosingAnimationView;
 import com.stario.launcher.ui.common.lock.LockDetector;
 import com.stario.launcher.ui.popup.PopupMenu;
+import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.ui.utils.animation.WallpaperAnimator;
@@ -66,6 +67,7 @@ public class Launcher extends ThemedActivity {
     private SheetsFocusController controller;
     private BroadcastReceiver killReceiver;
     private ClosingAnimationView main;
+    private HomeWatcher homeWatcher;
     private View statusBarContrast;
     private LockDetector detector;
     private View navBarContrast;
@@ -96,6 +98,9 @@ public class Launcher extends ThemedActivity {
                 }
             }
         };
+
+        homeWatcher = new HomeWatcher(this);
+        homeWatcher.setOnHomePressedListener(() -> setContrastVisibility(View.GONE));
 
         if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
             registerReceiver(killReceiver, new IntentFilter(ACTION_KILL_TASK), RECEIVER_EXPORTED);
@@ -330,10 +335,28 @@ public class Launcher extends ThemedActivity {
     public void onEnterAnimationComplete() {
         super.onEnterAnimationComplete();
 
-        navBarContrast.animate().alpha(1)
-                .setDuration(Animation.LONG.getDuration());
-        statusBarContrast.animate().alpha(1)
-                .setDuration(Animation.LONG.getDuration());
+        setContrastVisibility(View.VISIBLE);
+    }
+
+    private void setContrastVisibility(int visible) {
+        if (visible == View.VISIBLE) {
+            navBarContrast.animate().alpha(1)
+                    .setDuration(Animation.LONG.getDuration());
+            statusBarContrast.animate().alpha(1)
+                    .setDuration(Animation.LONG.getDuration());
+        } else {
+            navBarContrast.animate().alpha(0)
+                    .setDuration(Animation.BRIEF.getDuration());
+            statusBarContrast.animate().alpha(0)
+                    .setDuration(Animation.BRIEF.getDuration());
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        homeWatcher.startWatch();
     }
 
     @Override
@@ -341,14 +364,23 @@ public class Launcher extends ThemedActivity {
         prepareWallpaperTransitions();
         WallpaperAnimator.animateZoom(this, null, 1f);
 
-        // also cancel other animators
-        navBarContrast.animate().alpha(0).setDuration(0);
-        statusBarContrast.animate().alpha(0).setDuration(0);
+        setContrastVisibility(View.GONE);
+
+        homeWatcher.stopWatch();
 
         super.onStop();
 
         setShowWhenLocked(false);
         main.reset();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if (hasFocus) {
+            setContrastVisibility(View.VISIBLE);
+        }
+
+        super.onWindowFocusChanged(hasFocus);
     }
 
     @Override
