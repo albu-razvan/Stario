@@ -65,14 +65,16 @@ import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.services.NotificationService;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
 import com.stario.launcher.ui.common.media.SliderComposeView;
-import com.stario.launcher.utils.Utils;
 import com.stario.launcher.ui.utils.animation.Animation;
+import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.media.AccentBitmapTransformation;
 import com.stario.launcher.utils.media.BlurBitmapTransformation;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
+
+import jp.wasabeef.glide.transformations.CropSquareTransformation;
 
 public class Media extends GlanceDialogExtension {
     public static final String PREFERENCE_ENTRY = "com.stario.Media.MEDIA";
@@ -95,6 +97,7 @@ public class Media extends GlanceDialogExtension {
     private ImageView playPause;
     private boolean skipUpdate;
     private ImageView forward;
+    private Bitmap lastCover;
     private ImageView rewind;
     private ImageView cover;
     private TextView artist;
@@ -511,6 +514,11 @@ public class Media extends GlanceDialogExtension {
     }
 
     public void updateCover(Bitmap bitmap) {
+        if ((bitmap != null && bitmap.sameAs(lastCover)) ||
+                (bitmap == null && lastCover == null)) {
+            return;
+        }
+
         if (bitmap != null) {
             DrawableCrossFadeFactory factory =
                     new DrawableCrossFadeFactory.Builder()
@@ -520,13 +528,17 @@ public class Media extends GlanceDialogExtension {
                 Glide.with(activity)
                         .load(bitmap)
                         .apply(RequestOptions.bitmapTransform(
-                                new MultiTransformation<>(new BlurBitmapTransformation(5),
+                                new MultiTransformation<>(
+                                        new CropSquareTransformation(),
+                                        new BlurBitmapTransformation(5),
                                         new AccentBitmapTransformation())))
                         .placeholder(cover.getDrawable())
                         .transition(DrawableTransitionOptions.withCrossFade(factory))
                         .into(cover);
             }
         }
+
+        lastCover = bitmap;
     }
 
     private void updateSlider(MediaMetadata metadata) {
@@ -536,6 +548,10 @@ public class Media extends GlanceDialogExtension {
             if (playbackState != null && !skipUpdate) {
                 float progress = (float) playbackState.getPosition() /
                         metadata.getLong(MediaMetadata.METADATA_KEY_DURATION);
+
+                if (Float.isNaN(progress) || Float.isInfinite(progress)) {
+                    progress = 0;
+                }
 
                 slider.getProgress().setValue(progress);
             }
