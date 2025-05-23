@@ -15,8 +15,8 @@ android {
         applicationId 'com.stario.launcher'
         minSdkVersion 28
         targetSdkVersion 35
-        versionCode 87
-        versionName '2.6 (Alpha)'
+        versionCode 88
+        versionName '2.7 (Alpha)'
         resourceConfigurations += ["en"]
     }
     buildTypes {
