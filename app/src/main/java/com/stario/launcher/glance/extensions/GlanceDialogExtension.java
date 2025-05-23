@@ -153,6 +153,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
         this.container = inflateExpanded(inflater, root);
         root.addView(this.container);
 
+        updateScalingInternal(0);
         root.setOnClickListener(v -> hide());
 
         return root;
@@ -208,7 +209,6 @@ public abstract class GlanceDialogExtension extends DialogFragment
 
                     if (scale >= 0 && !Float.isInfinite(scale)) {
                         container.setScaleY(scale);
-                        container.setVisibility(View.VISIBLE);
 
                         container.post(() -> container.animate()
                                 .scaleY(1)
@@ -218,23 +218,19 @@ public abstract class GlanceDialogExtension extends DialogFragment
                                     float fraction = animation.getAnimatedFraction();
 
                                     updateScalingInternal(fraction);
-                                    container.setRadiusPercentage(1f - fraction);
                                 })
                                 .setListener(new AnimatorListenerAdapter() {
                                     @Override
                                     public void onAnimationCancel(Animator animation) {
                                         updateScalingInternal(1);
-                                        container.setRadiusPercentage(0);
                                     }
 
                                     @Override
                                     public void onAnimationEnd(Animator animation) {
                                         updateScalingInternal(1);
-                                        container.setRadiusPercentage(0);
                                     }
                                 }));
                     } else {
-                        container.setVisibility(View.INVISIBLE);
                         container.post(this);
                     }
                 }
@@ -249,18 +245,9 @@ public abstract class GlanceDialogExtension extends DialogFragment
             if (animate) {
                 hide();
             } else {
-                float scale = glance.getHeight() /
-                        container.getMeasuredHeight();
+                updateScalingInternal(0);
 
-                if (scale >= 0 && !Float.isInfinite(scale)) {
-                    container.setScaleY(scale);
-
-                    container.setVisibility(View.INVISIBLE);
-
-                    updateScalingInternal(0);
-                }
-
-                container.post(() -> dialog.hide());
+                dialog.hide();
             }
 
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -281,22 +268,19 @@ public abstract class GlanceDialogExtension extends DialogFragment
                         float fraction = 1f - animation.getAnimatedFraction();
 
                         updateScalingInternal(fraction);
-                        container.setRadiusPercentage(1f - fraction);
                     }).setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationCancel(Animator animation) {
-                            container.setScaleY(targetScale);
+                            updateScalingInternal(0);
 
-                            container.setVisibility(View.INVISIBLE);
-
-                            container.post(() -> dialog.hide());
+                            dialog.hide();
                         }
 
                         @Override
                         public void onAnimationEnd(Animator animation) {
-                            container.setVisibility(View.INVISIBLE);
+                            updateScalingInternal(0);
 
-                            container.post(() -> dialog.hide());
+                            dialog.hide();
                         }
                     });
 
@@ -311,6 +295,8 @@ public abstract class GlanceDialogExtension extends DialogFragment
             updateScaling(fraction, scale);
         }
 
+        container.setRadiusPercentage(1f - fraction);
+
         Window window = dialog.getWindow();
 
         if (window != null) {
@@ -322,14 +308,18 @@ public abstract class GlanceDialogExtension extends DialogFragment
             background.setAlpha((int) (fraction * Launcher.MAX_BACKGROUND_ALPHA));
 
             if (Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
-                decor.post(() -> {
-                    window.setBackgroundBlurRadius((int) (step * BLUR_STEP));
-                });
+                window.setBackgroundBlurRadius((int) (step * BLUR_STEP));
             }
         }
 
         if (listener != null) {
             listener.onProgressFraction(fraction);
+        }
+
+        if (fraction == 0) {
+            container.setVisibility(View.INVISIBLE);
+        } else {
+            container.setVisibility(View.VISIBLE);
         }
 
         container.invalidate();

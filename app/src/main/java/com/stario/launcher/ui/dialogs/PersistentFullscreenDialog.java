@@ -20,18 +20,13 @@ package com.stario.launcher.ui.dialogs;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.TypedValue;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialog;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
 
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.utils.UiUtils;
@@ -47,64 +42,14 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
     private final ThemedActivity activity;
     private final boolean blur;
 
-    private Runnable visibilityRunner;
-    private boolean showing;
-
     public PersistentFullscreenDialog(ThemedActivity activity, int theme, boolean blur) {
         super(activity, getThemeResId(activity, theme));
 
         this.activity = activity;
-        this.showing = false;
         this.blur = blur;
 
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         supportRequestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
-
-        Lifecycle lifecycle = activity.getLifecycle();
-        lifecycle.addObserver(new DefaultLifecycleObserver() {
-            boolean hasCalledOnPause = false;
-            boolean hasCalledOnStart = false;
-
-            @Override
-            public void onStart(@NonNull LifecycleOwner owner) {
-                hasCalledOnStart = true;
-            }
-
-            @Override
-            public void onResume(@NonNull LifecycleOwner owner) {
-                // If the dialog is hidden, parent activity is paused, but not stopped,
-                // the decorView will be visible despite it having View.GONE on activity
-                // resume. It is not just visual, it behaves as if the dialog is shown.
-                // A workaround is to toggle between visibility states onResume, but that results
-                // in a small flicker. This half-baked solution sends the dialog window way off-screen
-                // and disables window touches when hidden, so that no one can see it when it happens.
-
-                if (hasCalledOnPause && !hasCalledOnStart) {
-                    Window window = getWindow();
-
-                    if (window != null) {
-                        View decor = window.getDecorView();
-
-                        int visibility = decor.getVisibility();
-                        decor.setVisibility(View.INVISIBLE);
-                        decor.post(() -> decor.setVisibility(visibility));
-                    }
-                }
-
-                hasCalledOnPause = false;
-                hasCalledOnStart = false;
-            }
-
-            @Override
-            public void onPause(@NonNull LifecycleOwner owner) {
-                hasCalledOnPause = true;
-            }
-
-            @Override
-            public void onDestroy(@NonNull LifecycleOwner owner) {
-                lifecycle.removeObserver(this);
-            }
-        });
     }
 
     @Override
@@ -164,26 +109,14 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
         Window window = getWindow();
         if (window != null) {
             window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-            View decor = window.getDecorView();
-
-            if (visibilityRunner != null) {
-                decor.removeCallbacks(visibilityRunner);
-            }
         }
 
         super.hide();
-        showing = false;
-    }
-
-    @Override
-    public boolean isShowing() {
-        return showing;
     }
 
     protected boolean superShow() {
         if (activity.hasWindowFocus()) {
-            showInternal();
+            super.show();
 
             return true;
         }
@@ -193,7 +126,7 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
 
     public boolean showDialog() {
         if (activity.hasWindowFocus()) {
-            showInternal();
+            super.show();
 
             Window window = getWindow();
             if (window != null) {
@@ -204,28 +137,6 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
         }
 
         return false;
-    }
-
-    private void showInternal() {
-        Window window = getWindow();
-        if (window != null) {
-            View decor = window.getDecorView();
-
-            if (visibilityRunner != null) {
-                decor.removeCallbacks(visibilityRunner);
-            }
-
-            super.show();
-
-            // Sometimes, the decor does not update its visibility
-            decor.setVisibility(View.GONE);
-            visibilityRunner = () -> decor.setVisibility(View.VISIBLE);
-            UiUtils.runOnUIThread(visibilityRunner);
-        } else {
-            super.show();
-        }
-
-        showing = true;
     }
 
     public void setOnBackPressed(PersistentFullscreenDialog.OnBackPressed listener) {

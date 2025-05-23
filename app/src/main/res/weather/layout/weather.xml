@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -27,6 +26,7 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:alpha="0"
         android:orientation="vertical">
 
         <LinearLayout

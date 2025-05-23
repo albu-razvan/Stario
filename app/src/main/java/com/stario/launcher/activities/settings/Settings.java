@@ -93,7 +93,11 @@ public class Settings extends ThemedActivity {
         postponeEnterTransition();
 
         homeWatcher = new HomeWatcher(this);
-        homeWatcher.setOnHomePressedListener(this::finishAfterTransition);
+        homeWatcher.setOnHomePressedListener(() -> {
+            if(!isActivityTransitionRunning() && !isFinishing()) {
+                finishAfterTransition();
+            }
+        });
 
         SharedPreferences settings = getSettings();
         search = getSharedPreferences(Entry.SEARCH);
@@ -109,7 +113,7 @@ public class Settings extends ThemedActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-                        onBackPressed();
+                        finishAfterTransition();
                     }
                 });
 
@@ -323,7 +327,10 @@ public class Settings extends ThemedActivity {
 
         findViewById(R.id.restart).setOnClickListener(view -> {
             shouldRebirth = true;
-            finishAfterTransition();
+
+            if(!isActivityTransitionRunning() && !isFinishing()) {
+                finishAfterTransition();
+            }
         });
 
         findViewById(R.id.def_launcher).setOnClickListener((view) -> {

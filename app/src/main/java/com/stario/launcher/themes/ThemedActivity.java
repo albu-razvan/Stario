@@ -154,8 +154,10 @@ abstract public class ThemedActivity extends AppCompatActivity {
                                     root.setScaleX(1f - progress * 0.15f);
                                     root.setScaleY(1f - progress * 0.15f);
 
-                                    progressRootBackground.setCornerRadius(Measurements.dpToPx(10) +
-                                            progress * Measurements.dpToPx(20));
+                                    if(progressRootBackground != null) {
+                                        progressRootBackground.setCornerRadius(Measurements.dpToPx(10) +
+                                                progress * Measurements.dpToPx(20));
+                                    }
                                 }
                             }
                         }
