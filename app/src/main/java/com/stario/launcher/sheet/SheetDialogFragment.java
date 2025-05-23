@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class SheetDialogFragment extends DialogFragment {
     private final ArrayList<OnDestroyListener> destroyListeners;
     private final ArrayList<OnShowListener> onShowListeners;
-    private OnSlideListener slideListener;
+    private SheetDialog.OnSlideListener slideListener;
     private ThemedActivity activity;
     private HomeWatcher homeWatcher;
     private int receivedDragEvents;
@@ -52,6 +52,7 @@ public abstract class SheetDialogFragment extends DialogFragment {
     private SheetType type;
 
     public SheetDialogFragment() {
+        this.slideListener = null;
         this.receivedDragEvents = 0;
         this.onShowListeners = new ArrayList<>();
         this.destroyListeners = new ArrayList<>();
@@ -133,17 +134,17 @@ public abstract class SheetDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         dialog = SheetDialogFactory.forType(type, activity, getTheme());
+
+        if (slideListener != null) {
+            dialog.setOnSlideListener(slideListener);
+
+            slideListener = null;
+        }
+
         dialog.setOnShowListener(dialogInterface -> {
             AtomicInteger state = new AtomicInteger(SheetBehavior.STATE_COLLAPSED);
 
             dialog.behavior.addSheetCallback(new SheetBehavior.SheetCallback() {
-                @Override
-                public void onSlide(@NonNull View sheet, float slideOffset) {
-                    if (slideListener != null) {
-                        slideListener.onSlide(slideOffset);
-                    }
-                }
-
                 @Override
                 public void onStateChanged(@NonNull View sheet, int newState) {
                     state.set(newState);
@@ -269,8 +270,12 @@ public abstract class SheetDialogFragment extends DialogFragment {
         dialog.setOnBackPressed(listener);
     }
 
-    public void setOnSlideListener(OnSlideListener listener) {
-        this.slideListener = listener;
+    public void setOnSlideListener(SheetDialog.OnSlideListener listener) {
+        if (dialog != null) {
+            dialog.setOnSlideListener(listener);
+        } else {
+            slideListener = listener;
+        }
     }
 
     public void updateSheetSystemUI(boolean lightMode) {
@@ -301,9 +306,5 @@ public abstract class SheetDialogFragment extends DialogFragment {
 
     public interface OnShowListener {
         void onShow();
-    }
-
-    public interface OnSlideListener {
-        void onSlide(float slideOffset);
     }
 }

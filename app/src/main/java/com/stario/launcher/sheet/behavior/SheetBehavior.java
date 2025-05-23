@@ -116,7 +116,7 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
     /**
      * Offset difference between EXPANDED and COLLAPSED state in dp
      */
-    protected static final int COLLAPSED_DELTA_DP = 350;
+    public static final int COLLAPSED_DELTA_DP = 350;
 
     private SettleRunnable settleRunnable;
     protected int expandedOffset;

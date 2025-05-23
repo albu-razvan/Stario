@@ -281,7 +281,7 @@ public class SheetsFocusController extends ConstraintLayout {
     }
 
     public void wrapInDialog(Launcher launcher, SheetType type,
-                             @NonNull SheetDialogFragment.OnSlideListener slideListener) {
+                             @NonNull SheetDialog.OnSlideListener slideListener) {
         wrappers[type.ordinal()] = new SheetWrapper(launcher, type, slideListener);
     }
 
@@ -370,7 +370,7 @@ public class SheetsFocusController extends ConstraintLayout {
         private SheetWrapper.OnShowRequest showRequest;
 
         private SheetWrapper(Launcher launcher, SheetType type,
-                             @NonNull SheetDialogFragment.OnSlideListener listener) {
+                             @NonNull SheetDialog.OnSlideListener listener) {
             this.dialogFragment = SheetDialogFactory.forType(type,
                     launcher.getSharedPreferences(Entry.STARIO));
 

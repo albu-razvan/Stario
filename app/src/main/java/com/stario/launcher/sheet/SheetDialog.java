@@ -50,6 +50,7 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
     private boolean dispatchedMotionEventToCoordinator;
     private boolean shouldDispatchMotionEventsToParent;
     private boolean dispatchMotionEventsToParent;
+    private OnSlideListener slideListener;
     private boolean receivedMoveEvent;
 
     protected SheetBehavior<ConstraintLayout> behavior;
@@ -58,6 +59,7 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
     public SheetDialog(ThemedActivity activity, int theme) {
         super(activity, theme, true);
 
+        this.slideListener = null;
         this.dispatchedMotionEventToCoordinator = false;
         this.shouldDispatchMotionEventsToParent = false;
         this.dispatchMotionEventsToParent = false;
@@ -158,6 +160,10 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
                     }
 
                     wasCollapsed = false;
+                }
+
+                if (slideListener != null) {
+                    slideListener.onSlide(slideOffset);
                 }
 
                 // in case motion event capture or state change hide()
@@ -278,8 +284,16 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
         }
     }
 
+    public void setOnSlideListener(OnSlideListener listener) {
+        this.slideListener = listener;
+    }
+
     public SheetBehavior<ConstraintLayout> getBehavior() {
         return behavior;
+    }
+
+    public interface OnSlideListener {
+        void onSlide(float slideOffset);
     }
 
     protected abstract SheetCoordinator getContainer();
