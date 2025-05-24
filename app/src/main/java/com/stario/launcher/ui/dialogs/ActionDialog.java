@@ -39,6 +39,7 @@ import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
+import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.ui.utils.animation.KeyboardAnimationHelper;
 import com.stario.launcher.utils.Utils;
@@ -49,6 +50,7 @@ public abstract class ActionDialog extends BottomSheetDialog {
     protected final ThemedActivity activity;
 
     private KeyboardHeightProvider heightProvider;
+    private HomeWatcher homeWatcher;
     private boolean canCollapse;
     private View root;
 
@@ -57,6 +59,15 @@ public abstract class ActionDialog extends BottomSheetDialog {
 
         this.activity = activity;
         this.canCollapse = false;
+
+        homeWatcher = new HomeWatcher(activity);
+        homeWatcher.setOnHomePressedListener(() -> {
+            BottomSheetBehavior<?> behavior = getBehavior();
+            behavior.setDraggable(false);
+            behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+            UiUtils.hideKeyboard(root);
+        });
 
         activity.addOnConfigurationChangedListener(
                 configuration -> {
@@ -199,6 +210,8 @@ public abstract class ActionDialog extends BottomSheetDialog {
             getBehavior().setState(BottomSheetBehavior.STATE_HIDDEN);
         }
 
+        homeWatcher.startWatch();
+
         root.post(() -> {
             ViewParent frame = root.getParent();
 
@@ -233,6 +246,8 @@ public abstract class ActionDialog extends BottomSheetDialog {
     public void onDetachedFromWindow() {
         ViewParent frame = root.getParent();
 
+        homeWatcher.stopWatch();
+
         if (frame != null) {
             fitToBottomInset((View) frame, true);
 
@@ -261,6 +276,9 @@ public abstract class ActionDialog extends BottomSheetDialog {
     @Override
     public void show() {
         super.show();
+
+        BottomSheetBehavior<?> behavior = getBehavior();
+        behavior.setDraggable(heightProvider.getKeyboardHeight() == 0);
 
         if (heightProvider != null) {
             heightProvider.start();
