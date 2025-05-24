@@ -42,6 +42,7 @@ public class PulsingTextView extends AppCompatTextView {
     private static final int FADE_LENGTH = 50;
     private ValueAnimator animator;
     private Paint gradientPaint;
+    private boolean pulsating;
     private int[] evenColors;
     private int[] oddColors;
     private float offset;
@@ -66,6 +67,7 @@ public class PulsingTextView extends AppCompatTextView {
 
     private void init() {
         offset = 0;
+        pulsating = true;
 
         gradientPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         gradientPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
@@ -74,6 +76,12 @@ public class PulsingTextView extends AppCompatTextView {
                 .setDuration(Animation.SUSTAINED.getDuration());
         animator.setInterpolator(new LinearInterpolator());
         animator.setRepeatCount(ValueAnimator.INFINITE);
+    }
+
+    public void setPulsating(boolean pulsating) {
+        this.pulsating = pulsating;
+
+        invalidate();
     }
 
     @Override
@@ -135,24 +143,28 @@ public class PulsingTextView extends AppCompatTextView {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (getVisibility() != VISIBLE) {
+        if(pulsating) {
+            if (getVisibility() != VISIBLE) {
+                super.onDraw(canvas);
+
+                return;
+            }
+
+            if (evenColors != null) {
+                initGradient();
+
+                int count = canvas.saveLayer(0.0f, 0.0f, (float) getWidth(), (float) getHeight(), null);
+                super.onDraw(canvas);
+
+                canvas.drawRect(0, 0, getWidth(), getHeight(), gradientPaint);
+
+                canvas.restoreToCount(count);
+            }
+
+            invalidate();
+        } else {
             super.onDraw(canvas);
-
-            return;
         }
-
-        if (evenColors != null) {
-            initGradient();
-
-            int count = canvas.saveLayer(0.0f, 0.0f, (float) getWidth(), (float) getHeight(), null);
-            super.onDraw(canvas);
-
-            canvas.drawRect(0, 0, getWidth(), getHeight(), gradientPaint);
-
-            canvas.restoreToCount(count);
-        }
-
-        invalidate();
     }
 
     private void initGradient() {

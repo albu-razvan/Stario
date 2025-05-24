@@ -18,13 +18,19 @@
 package com.stario.launcher.ui;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.database.ContentObserver;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.objects.ObservableObject;
@@ -36,6 +42,10 @@ public class Measurements {
     private static final ObservableObject<Integer> LIST_COLUMNS = new ObservableObject<>(0);
     private static final ObservableObject<Integer> FOLDER_COLUMNS = new ObservableObject<>(0);
     private static final ObservableObject<Integer> WIDGET_COLUMNS = new ObservableObject<>(0);
+    private static final ObservableObject<Float> WINDOW_ANIMATION_SCALE = new ObservableObject<>(1f);
+    private static final ObservableObject<Float> ANIMATOR_DURATION_SCALE = new ObservableObject<>(1f);
+    private static final ObservableObject<Float> TRANSITION_ANIMATION_SCALE = new ObservableObject<>(1f);
+    private static ContentObserver contentObserver = null;
     private static boolean measured = false;
     private static OnMeasureRoot listener;
     private static int defaultPadding;
@@ -61,6 +71,8 @@ public class Measurements {
 
     private static void measure(View root) {
         Activity activity = (Activity) root.getContext();
+
+        registerContentObservers(activity);
         DisplayMetrics displayMetrics = activity.getResources()
                 .getDisplayMetrics();
 
@@ -107,6 +119,60 @@ public class Measurements {
         root.requestApplyInsets();
 
         measured = true;
+    }
+
+    private static void registerContentObservers(Activity activity) {
+        if (contentObserver == null) {
+            ContentResolver resolver = activity.getContentResolver();
+            WINDOW_ANIMATION_SCALE.updateObject(Settings.Global.getFloat(
+                    resolver, Settings.Global.WINDOW_ANIMATION_SCALE,
+                    1.0f
+            ));
+            TRANSITION_ANIMATION_SCALE.updateObject(Settings.Global.getFloat(
+                    resolver, Settings.Global.TRANSITION_ANIMATION_SCALE,
+                    1.0f
+            ));
+            ANIMATOR_DURATION_SCALE.updateObject(Settings.Global.getFloat(
+                    resolver, Settings.Global.ANIMATOR_DURATION_SCALE,
+                    1.0f
+            ));
+
+            contentObserver = new ContentObserver(new Handler()) {
+                @Override
+                public void onChange(boolean selfChange) {
+                    onChange(selfChange, null);
+                }
+
+                @Override
+                public void onChange(boolean selfChange, @Nullable Uri uri) {
+                    WINDOW_ANIMATION_SCALE.updateObject(Settings.Global.getFloat(
+                            resolver, Settings.Global.WINDOW_ANIMATION_SCALE,
+                            1.0f
+                    ));
+                    TRANSITION_ANIMATION_SCALE.updateObject(Settings.Global.getFloat(
+                            resolver, Settings.Global.TRANSITION_ANIMATION_SCALE,
+                            1.0f
+                    ));
+                    ANIMATOR_DURATION_SCALE.updateObject(Settings.Global.getFloat(
+                            resolver, Settings.Global.ANIMATOR_DURATION_SCALE,
+                            1.0f
+                    ));
+                }
+            };
+
+            resolver.registerContentObserver(
+                    Settings.Global.getUriFor(Settings.Global.WINDOW_ANIMATION_SCALE),
+                    true, contentObserver
+            );
+            resolver.registerContentObserver(
+                    Settings.Global.getUriFor(Settings.Global.TRANSITION_ANIMATION_SCALE),
+                    true, contentObserver
+            );
+            resolver.registerContentObserver(
+                    Settings.Global.getUriFor(Settings.Global.ANIMATOR_DURATION_SCALE),
+                    true, contentObserver
+            );
+        }
     }
 
     public static int getIconSize() {
@@ -163,6 +229,18 @@ public class Measurements {
 
     public static int getWidgetColumnCount() {
         return WIDGET_COLUMNS.getObject();
+    }
+
+    public static float getWindowAnimationScale() {
+        return WINDOW_ANIMATION_SCALE.getObject();
+    }
+
+    public static float getTransitionAnimationScale() {
+        return TRANSITION_ANIMATION_SCALE.getObject();
+    }
+
+    public static float getAnimatorDurationScale() {
+        return ANIMATOR_DURATION_SCALE.getObject();
     }
 
     public static void addListColumnCountChangeListener(ObservableObject.OnSet<Integer> listener) {

@@ -96,7 +96,8 @@ public class BriefingAdapter extends FragmentStatePagerAdapter {
             if (!skipped) {
                 WeakReference<FeedPage> fragmentReference = registeredFragments.get(index);
 
-                if (fragmentReference.get() != null) {
+                if (fragmentReference != null &&
+                        fragmentReference.get() != null) {
                     fragmentReference.get().reset();
                 }
             }

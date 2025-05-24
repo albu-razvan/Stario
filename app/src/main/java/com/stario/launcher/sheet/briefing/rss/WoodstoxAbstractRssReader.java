@@ -46,7 +46,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.ArrayDeque;
-import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -58,10 +57,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -348,86 +344,16 @@ public abstract class WoodstoxAbstractRssReader<C extends Channel, I extends Ite
      *
      * @param url URL to RSS feed.
      * @return Stream of items
-     * @throws IOException Fail to read url or its content
      */
     @SuppressWarnings("squid:S1181")
-    public Stream<I> read(String url) throws IOException {
+    public Stream<I> read(String url) {
         Objects.requireNonNull(url, "URL must not be null");
 
         try {
             return readAsync(url).get(15, TimeUnit.SECONDS);
-        } catch (CompletionException exception) {
-            try {
-                throw exception.getCause();
-            } catch (IOException exception2) {
-                throw exception2;
-            } catch (Throwable exception2) {
-                throw new AssertionError(exception2);
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException(e);
-        } catch (ExecutionException | TimeoutException e) {
-            throw new IOException(e);
+        } catch (Exception exception) {
+            return null;
         }
-    }
-
-    /**
-     * Read from a collections of RSS feed.
-     *
-     * @param urls collections of URLs
-     * @return Stream of items
-     */
-    public Stream<Item> read(Collection<String> urls) {
-        Objects.requireNonNull(urls, "URLs collection must not be null");
-
-        if (!isInitialized) {
-            initialize();
-            isInitialized = true;
-        }
-
-        return urls.stream()
-                .parallel()
-                .map(url -> {
-                    try {
-                        return Map.entry(url, readAsync(url));
-                    } catch (Exception e) {
-                        var logger = Logger.getLogger(LOG_GROUP);
-                        if (logger.isLoggable(Level.WARNING))
-                            logger.log(Level.WARNING, () -> String.format("Failed read URL %s. Message: %s", url, e.getMessage()));
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .flatMap(f -> {
-                    try {
-                        return f.getValue().join();
-                    } catch (Exception e) {
-                        var logger = Logger.getLogger(LOG_GROUP);
-                        if (logger.isLoggable(Level.WARNING))
-                            logger.log(Level.WARNING, () -> String.format("Failed to read URL %s. Message: %s", f.getKey(), e.getMessage()));
-                        return null;
-                    }
-                });
-    }
-
-    /**
-     * Read RSS feed from input stream.
-     *
-     * @param inputStream inputStream containing the RSS feed.
-     * @return Stream of items
-     */
-    public Stream<I> read(InputStream inputStream) {
-        Objects.requireNonNull(inputStream, "Input stream must not be null");
-
-        if (!isInitialized) {
-            initialize();
-            isInitialized = true;
-        }
-
-        var itemIterator = new RssItemIterator(inputStream);
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(itemIterator, Spliterator.ORDERED), false)
-                .onClose(itemIterator::close);
     }
 
     /**
@@ -436,7 +362,7 @@ public abstract class WoodstoxAbstractRssReader<C extends Channel, I extends Ite
      * @param url URL to RSS feed.
      * @return Stream of items
      */
-    public CompletableFuture<Stream<I>> readAsync(String url) {
+    public CancellableStreamFuture<I> readAsync(String url) {
         Objects.requireNonNull(url, "URL must not be null");
 
         if (!isInitialized) {
@@ -453,46 +379,48 @@ public abstract class WoodstoxAbstractRssReader<C extends Channel, I extends Ite
      * @param url url
      * @return response
      */
-    protected CompletableFuture<Stream<I>> sendAsyncRequest(String url) {
+    protected CancellableStreamFuture<I> sendAsyncRequest(String url) {
         var builder = new Request.Builder()
                 .url(url)
                 .header("Accept-Encoding", "gzip");
 
         headers.forEach(builder::header);
 
-        CompletableFuture<Stream<I>> future = new CompletableFuture<>();
+        Call call = httpClient.newCall(builder.build());
+        CancellableStreamFuture<I> future = new CancellableStreamFuture<>(call);
 
-        httpClient.newCall(builder.build())
-                .enqueue(new Callback() {
-                    @Override
-                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                future.complete(null);
+            }
 
-                    }
-
-                    @Override
-                    public void onResponse(@NonNull Call call, @NonNull Response response) {
-                        if (response.code() < 400 || response.code() >= 600) {
-                            try {
-                                var inputStream = response.body().byteStream();
-                                if ("gzip".equals(response
-                                        .headers().get("Content-Encoding"))) {
-                                    inputStream = new GZIPInputStream(inputStream);
-                                }
-
-                                inputStream = new BufferedInputStream(inputStream);
-
-                                removeBadData(inputStream);
-                                var itemIterator = new RssItemIterator(inputStream);
-
-                                future.complete(StreamSupport.stream(
-                                        Spliterators.spliteratorUnknownSize(itemIterator, Spliterator.ORDERED), false
-                                ).onClose(itemIterator::close));
-                            } catch (IOException exception) {
-                                Log.e("AbstractRssReader", "onResponse: ", exception);
-                            }
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                if (response.code() < 400 || response.code() >= 600) {
+                    try {
+                        var inputStream = response.body().byteStream();
+                        if ("gzip".equals(response
+                                .headers().get("Content-Encoding"))) {
+                            inputStream = new GZIPInputStream(inputStream);
                         }
+
+                        inputStream = new BufferedInputStream(inputStream);
+
+                        removeBadData(inputStream);
+                        var itemIterator = new RssItemIterator(inputStream);
+
+                        future.complete(StreamSupport.stream(
+                                Spliterators.spliteratorUnknownSize(itemIterator, Spliterator.ORDERED), false
+                        ).onClose(itemIterator::close));
+                    } catch (IOException exception) {
+                        Log.e("AbstractRssReader", "onResponse: ", exception);
+
+                        future.complete(null);
                     }
-                });
+                }
+            }
+        });
 
         return future;
     }
@@ -823,5 +751,19 @@ public abstract class WoodstoxAbstractRssReader<C extends Channel, I extends Ite
         }
 
         return client;
+    }
+
+    public static class CancellableStreamFuture<I extends Item> extends CompletableFuture<Stream<I>> {
+        private final Call call;
+
+        public CancellableStreamFuture(Call call) {
+            this.call = call;
+        }
+
+        public void cancelCall() {
+            if (call != null && !call.isCanceled()) {
+                call.cancel();
+            }
+        }
     }
 }

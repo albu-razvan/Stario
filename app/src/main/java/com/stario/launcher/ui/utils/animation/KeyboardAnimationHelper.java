@@ -17,29 +17,37 @@
 
 package com.stario.launcher.ui.utils.animation;
 
+import android.os.Build;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsAnimationCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.keyboard.ImeAnimationController;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
 import com.stario.launcher.ui.utils.UiUtils;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
+@RequiresApi(Build.VERSION_CODES.R)
 public class KeyboardAnimationHelper {
     private static final int CONTROLLER_DISALLOW_DELAY = 50;
 
+    @RequiresApi(Build.VERSION_CODES.R)
     public static void configureKeyboardAnimator(@NonNull View root,
                                                  @NonNull KeyboardHeightProvider heightProvider,
                                                  @NonNull ContentTranslationListener listener) {
         configureKeyboardAnimator(root, heightProvider, null, listener);
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     public static void configureKeyboardAnimator(@NonNull View root,
                                                  @NonNull KeyboardHeightProvider heightProvider,
                                                  @Nullable ImeAnimationController controller,
@@ -47,6 +55,7 @@ public class KeyboardAnimationHelper {
         ViewCompat.setWindowInsetsAnimationCallback(root, new WindowInsetsAnimationCompat
                 .Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
             private final Runnable allowControllerAnimation;
+            private final Queue<Float> queue;
 
             private WindowInsetsAnimationCompat imeAnimation;
             private boolean pendingTransition;
@@ -59,6 +68,7 @@ public class KeyboardAnimationHelper {
                 this.pendingTransition = true;
                 this.startBottom = 0;
                 this.endBottom = 0;
+                this.queue = new LinkedList<>();
 
                 if (controller != null) {
                     this.allowControllerAnimation = () ->
@@ -68,13 +78,15 @@ public class KeyboardAnimationHelper {
                 }
 
                 heightProvider.addKeyboardHeightListener((height) -> {
-                    if (!running &&
-                            !pendingTransition) { // fix initial calculation flicker
+                    if ((!running && !pendingTransition) ||
+                            Measurements.getAnimatorDurationScale() == 0) {
+                        // fix initial calculation flicker
                         // sometimes, detecting the keyboard height takes longer than the actual animation
                         // dev tools -> animation scale 0
                         listener.translate(-height);
                     } else {
                         endBottom = height;
+
                     }
                 });
             }
@@ -114,7 +126,8 @@ public class KeyboardAnimationHelper {
                     }
                 }
 
-                if (imeAnimation != null) {
+                if (imeAnimation != null && (imeAnimation.getDurationMillis() < 0 ||
+                        Measurements.getAnimatorDurationScale() > 0)) {
                     if (allowControllerAnimation != null) {
                         UiUtils.removeOnUIThreadCallback(allowControllerAnimation);
                     }
@@ -123,8 +136,17 @@ public class KeyboardAnimationHelper {
                         controller.disallowAnimationControl(true);
                     }
 
+                    float fraction = imeAnimation.getInterpolatedFraction();
+
+                    // last frame will always return 1 as a fraction
+                    // bypass this by remembering the last frame as well
+                    if (queue.size() >= 2) {
+                        queue.remove();
+                    }
+                    queue.add(fraction);
+
                     float delta = endBottom - startBottom;
-                    float fraction = (delta < 0 ? 1 : 0) - imeAnimation.getInterpolatedFraction();
+                    fraction = (delta < 0 ? 1 : 0) - fraction;
                     float translation = delta * fraction;
 
                     listener.translate(translation);
@@ -137,6 +159,18 @@ public class KeyboardAnimationHelper {
             public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
                 running = false;
                 imeAnimation = null;
+
+                // we have at least two frames (animate only the first in queue)
+                if (queue.size() > 1) {
+                    float delta = endBottom - startBottom;
+                    //noinspection DataFlowIssue
+                    float fraction = (delta < 0 ? 1 : 0) - queue.poll();
+                    float translation = delta * fraction;
+
+                    listener.translate(translation);
+                }
+
+                queue.clear();
 
                 if (allowControllerAnimation != null) {
                     UiUtils.runOnUIThreadDelayed(allowControllerAnimation, CONTROLLER_DISALLOW_DELAY);
