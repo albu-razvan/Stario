@@ -31,7 +31,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.viewpager.widget.ViewPager;
 
 import com.stario.launcher.R;
@@ -45,10 +44,9 @@ import com.stario.launcher.sheet.briefing.feed.BriefingAdapter;
 import com.stario.launcher.sheet.briefing.feed.FeedPage;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.common.TabLayout;
 import com.stario.launcher.ui.common.pager.CustomDurationViewPager;
 import com.stario.launcher.ui.popup.PopupMenu;
-import com.stario.launcher.ui.common.TabLayout;
-import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.utils.objects.ObservableObject;
 
 public class BriefingDialog extends SheetDialogFragment {
@@ -206,16 +204,6 @@ public class BriefingDialog extends SheetDialogFragment {
             public void onClick(View view) {
                 if (configurator == null || !activity.equals(configurator.getContext())) {
                     configurator = new BriefingConfigurator(activity);
-
-                    configurator.setOnShowListener(dialog -> root.animate()
-                            .alpha(0)
-                            .setInterpolator(new FastOutSlowInInterpolator())
-                            .setDuration(Animation.MEDIUM.getDuration()));
-
-                    configurator.setOnDismissListener(dialog -> root.animate()
-                            .alpha(1)
-                            .setInterpolator(new FastOutSlowInInterpolator())
-                            .setDuration(Animation.MEDIUM.getDuration()));
                 }
 
                 configurator.show();

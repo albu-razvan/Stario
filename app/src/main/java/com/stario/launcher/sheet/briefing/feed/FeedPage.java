@@ -34,15 +34,15 @@ import com.stario.launcher.R;
 import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.sheet.briefing.BriefingFeedList;
 import com.stario.launcher.sheet.briefing.dialog.BriefingDialog;
-import com.stario.launcher.sheet.briefing.rss.Parser;
+import com.stario.launcher.sheet.briefing.rss.RssParser;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
 import com.stario.launcher.ui.utils.UiUtils;
-import com.stario.launcher.utils.Utils;
 import com.stario.launcher.ui.utils.animation.Animation;
+import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.objects.ObservableObject;
 
 import java.util.concurrent.Future;
@@ -202,8 +202,8 @@ public class FeedPage extends Fragment {
                     position < BriefingFeedList.from(activity).size() &&
                     adapter.shouldUpdate()) {
                 runningTask = Utils.submitTask(() -> {
-                    Stream<Item> stream = Parser
-                            .parseData(BriefingFeedList.getInstance()
+                    Stream<Item> stream = RssParser
+                            .parse(BriefingFeedList.getInstance()
                                     .get(position).getRSSLink());
 
                     if (stream != null) {

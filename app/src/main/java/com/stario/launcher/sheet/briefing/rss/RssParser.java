@@ -21,21 +21,25 @@ import com.apptasticsoftware.rssreader.Item;
 
 import java.util.stream.Stream;
 
-public class Parser {
+public class RssParser {
     private static RssReader reader;
 
-    private Parser() {
+    private RssParser() {
     }
 
-    public static Stream<Item> parseData(String rss) {
+    public static WoodstoxAbstractRssReader.CancellableStreamFuture<Item> futureParse(String rss) {
         if (reader == null) {
             reader = new RssReader();
         }
 
-        try {
-            return reader.read(rss);
-        } catch (Exception exception) {
-            return null;
+        return reader.readAsync(rss);
+    }
+
+    public static Stream<Item> parse(String rss) {
+        if (reader == null) {
+            reader = new RssReader();
         }
+
+        return reader.read(rss);
     }
 }

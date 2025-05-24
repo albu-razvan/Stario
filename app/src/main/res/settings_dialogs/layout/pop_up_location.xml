@@ -44,8 +44,7 @@
         android:paddingEnd="18dp"
         android:singleLine="true"
         android:textColor="?attr/colorOnPrimaryContainer"
-        android:textSize="18sp"
-        android:translationZ="1px" />
+        android:textSize="18sp" />
 
     <carbon.widget.RecyclerView
         android:id="@+id/recycler"
