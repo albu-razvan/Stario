@@ -74,23 +74,14 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
             }
         }
 
-        if (filteredList.size() > 0) {
+        if (!filteredList.isEmpty()) {
             DiffUtil.DiffResult diffResult =
                     DiffUtil.calculateDiff(new ComparableDiffUtil<>(this.items, filteredList));
 
             this.items = filteredList;
 
-            recyclerView.post(() -> {
-                recyclerView.stopScroll();
-
-                diffResult.dispatchUpdatesTo(this);
-
-                recyclerView.post(() -> {
-                    recyclerView.scrollBy(0, -Integer.MAX_VALUE);
-                });
-
-                getItemCount();
-            });
+            diffResult.dispatchUpdatesTo(this);
+            getItemCount();
 
             lastUpdate = System.currentTimeMillis();
         }
@@ -228,7 +219,7 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        if (items.size() > 0) {
+        if (!items.isEmpty()) {
             if (recyclerView.getVisibility() == View.INVISIBLE) {
                 UiUtils.runOnUIThread(() -> {
                     recyclerView.setVisibility(View.VISIBLE);

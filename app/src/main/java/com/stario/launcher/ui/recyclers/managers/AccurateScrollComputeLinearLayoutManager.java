@@ -15,12 +15,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.ui.recyclers;
+package com.stario.launcher.ui.recyclers.managers;
 
 import android.content.Context;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
@@ -31,14 +33,27 @@ import androidx.recyclerview.widget.RecyclerView;
  *
  * @see GridLayoutManager
  */
-public class AccurateScrollComputeGridLayoutManager extends GridLayoutManager {
-    public AccurateScrollComputeGridLayoutManager(Context context, int spanCount) {
-        super(context, spanCount, RecyclerView.VERTICAL, false);
+public class AccurateScrollComputeLinearLayoutManager extends LinearLayoutManager {
+    private boolean canScroll;
+
+    public AccurateScrollComputeLinearLayoutManager(Context context) {
+        super(context, RecyclerView.VERTICAL, false);
+
+        this.canScroll = true;
     }
 
     @Override
     public boolean supportsPredictiveItemAnimations() {
         return false;
+    }
+
+    @Override
+    public void setOrientation(int orientation) {
+        if (orientation != RecyclerView.VERTICAL) {
+            throw new RuntimeException("This layout manager supports only vertical orientation.");
+        }
+
+        super.setOrientation(orientation);
     }
 
     @Override
@@ -53,9 +68,9 @@ public class AccurateScrollComputeGridLayoutManager extends GridLayoutManager {
             View view = findViewByPosition(position);
 
             if (view != null) {
-                return (int) -(view.getTop() -
-                        view.getHeight() * Math.ceil(position / (float) getSpanCount()) -
-                        getPaddingTop());
+                return -(view.getTop()
+                        - ((ViewGroup.MarginLayoutParams) view.getLayoutParams()).topMargin
+                        - getPaddingTop() - view.getHeight() * position);
             }
         }
 
@@ -73,10 +88,8 @@ public class AccurateScrollComputeGridLayoutManager extends GridLayoutManager {
         if (position != RecyclerView.NO_POSITION) {
             View view = findViewByPosition(position);
 
-            int rows = (int) Math.ceil(getItemCount() / (float) getSpanCount());
-
             if (view != null) {
-                return Math.max(0, view.getHeight() * rows);
+                return view.getHeight() * getItemCount();
             }
         }
 
@@ -86,5 +99,19 @@ public class AccurateScrollComputeGridLayoutManager extends GridLayoutManager {
     @Override
     public int computeVerticalScrollExtent(RecyclerView.State state) {
         return getHeight() - getPaddingTop() - getPaddingBottom();
+    }
+
+    @Override
+    public boolean canScrollHorizontally() {
+        return false;
+    }
+
+    @Override
+    public boolean canScrollVertically() {
+        return canScroll && super.canScrollVertically();
+    }
+
+    public void setScrollEnabled(boolean enabled) {
+        this.canScroll = enabled;
     }
 }

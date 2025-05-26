@@ -23,7 +23,7 @@ import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.stario.launcher.ui.recyclers.AccurateScrollComputeGridLayoutManager;
+import com.stario.launcher.ui.recyclers.managers.AccurateScrollComputeGridLayoutManager;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
 
 public class AutoGridLayoutManager extends AccurateScrollComputeGridLayoutManager {
