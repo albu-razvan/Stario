@@ -23,20 +23,6 @@
     app:fel_edge="top"
     app:fel_size_top="130dp">
 
-    <com.stario.launcher.ui.common.scrollers.CustomSwipeRefreshLayout
-        android:id="@+id/refresh"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView
-            android:id="@+id/recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:visibility="invisible" />
-
-    </com.stario.launcher.ui.common.scrollers.CustomSwipeRefreshLayout>
-
     <LinearLayout
         android:id="@+id/exception"
         android:layout_width="wrap_content"
@@ -71,5 +57,19 @@
             android:textSize="16sp" />
 
     </LinearLayout>
+
+    <com.stario.launcher.ui.common.scrollers.CustomSwipeRefreshLayout
+        android:id="@+id/refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:visibility="invisible" />
+
+    </com.stario.launcher.ui.common.scrollers.CustomSwipeRefreshLayout>
 
 </com.bosphere.fadingedgelayout.FadingEdgeLayout>

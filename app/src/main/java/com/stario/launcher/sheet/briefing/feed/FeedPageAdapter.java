@@ -42,9 +42,9 @@ import com.bumptech.glide.request.target.Target;
 import com.stario.launcher.R;
 import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.preferences.Vibrations;
-import com.stario.launcher.utils.ComparableDiffUtil;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.ui.utils.animation.Animation;
+import com.stario.launcher.utils.ComparableDiffUtil;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -88,7 +88,7 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
     }
 
     public boolean shouldUpdate() {
-        return items != null || System.currentTimeMillis() - lastUpdate > UPDATE_TIME_THRESHOLD;
+        return items == null || System.currentTimeMillis() - lastUpdate > UPDATE_TIME_THRESHOLD;
     }
 
     public void updateAttributes(RecyclerView recyclerView) {

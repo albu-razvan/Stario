@@ -204,51 +204,59 @@ public class FeedPage extends Fragment {
     public void update() {
         if (runningTask == null || runningTask.isDone()) {
             if (position >= 0 &&
-                    position < BriefingFeedList.from(activity).size() &&
-                    adapter.shouldUpdate()) {
-                manager.setScrollEnabled(false);
+                    position < BriefingFeedList.from(activity).size()) {
+                if (adapter.shouldUpdate()) {
+                    manager.setScrollEnabled(false);
 
-                exception.setVisibility(View.GONE);
-                recyclerView.animate()
-                        .alpha(0)
-                        .scaleX(UPDATE_SCALE)
-                        .scaleY(UPDATE_SCALE)
-                        .setDuration(Animation.MEDIUM.getDuration())
-                        .setInterpolator(new FastOutSlowInInterpolator());
+                    exception.setVisibility(View.GONE);
+                    recyclerView.animate()
+                            .alpha(0)
+                            .scaleX(UPDATE_SCALE)
+                            .scaleY(UPDATE_SCALE)
+                            .setDuration(Animation.MEDIUM.getDuration())
+                            .setInterpolator(new FastOutSlowInInterpolator());
 
-                runningTask = Utils.submitTask(() -> {
-                    Stream<Item> stream = RssParser
-                            .parse(BriefingFeedList.getInstance()
-                                    .get(position).getRSSLink());
+                    runningTask = Utils.submitTask(() -> {
+                        Stream<Item> stream = RssParser
+                                .parse(BriefingFeedList.getInstance()
+                                        .get(position).getRSSLink());
 
-                    if (stream != null) {
-                        Item[] items = stream.toArray(Item[]::new);
+                        if (stream != null) {
+                            Item[] items = stream.toArray(Item[]::new);
 
-                        UiUtils.runOnUIThread(() -> {
-                            adapter.update(items);
+                            UiUtils.runOnUIThread(() -> {
+                                adapter.update(items);
 
-                            if (adapter.getItemCount() == 0) {
+                                if (adapter.getItemCount() == 0) {
+                                    exception.setVisibility(View.VISIBLE);
+                                } else {
+                                    recyclerView.animate()
+                                            .alpha(1)
+                                            .scaleX(1f)
+                                            .scaleY(1f);
+
+                                    manager.setScrollEnabled(true);
+                                }
+
+                                swipeRefreshLayout.setRefreshing(false);
+                            });
+                        } else {
+                            UiUtils.runOnUIThread(() -> {
                                 exception.setVisibility(View.VISIBLE);
-                            } else {
-                                recyclerView.animate()
-                                        .alpha(1)
-                                        .scaleX(1f)
-                                        .scaleY(1f);
 
-                                manager.setScrollEnabled(true);
-                            }
-                        });
-                    } else {
-                        exception.setVisibility(View.GONE);
-                    }
-
-                    UiUtils.runOnUIThread(() -> swipeRefreshLayout.setRefreshing(false));
-                });
+                                swipeRefreshLayout.setRefreshing(false);
+                            });
+                        }
+                    });
+                } else {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             } else {
+                exception.setVisibility(View.VISIBLE);
                 swipeRefreshLayout.setRefreshing(false);
             }
         } else {
-            swipeRefreshLayout.setRefreshing(true);
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 
