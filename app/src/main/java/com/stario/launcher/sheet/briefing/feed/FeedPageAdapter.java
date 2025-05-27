@@ -42,9 +42,9 @@ import com.bumptech.glide.request.target.Target;
 import com.stario.launcher.R;
 import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.preferences.Vibrations;
-import com.stario.launcher.utils.ComparableDiffUtil;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.ui.utils.animation.Animation;
+import com.stario.launcher.utils.ComparableDiffUtil;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -74,30 +74,21 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
             }
         }
 
-        if (filteredList.size() > 0) {
+        if (!filteredList.isEmpty()) {
             DiffUtil.DiffResult diffResult =
                     DiffUtil.calculateDiff(new ComparableDiffUtil<>(this.items, filteredList));
 
             this.items = filteredList;
 
-            recyclerView.post(() -> {
-                recyclerView.stopScroll();
-
-                diffResult.dispatchUpdatesTo(this);
-
-                recyclerView.post(() -> {
-                    recyclerView.scrollBy(0, -Integer.MAX_VALUE);
-                });
-
-                getItemCount();
-            });
+            diffResult.dispatchUpdatesTo(this);
+            getItemCount();
 
             lastUpdate = System.currentTimeMillis();
         }
     }
 
     public boolean shouldUpdate() {
-        return items != null || System.currentTimeMillis() - lastUpdate > UPDATE_TIME_THRESHOLD;
+        return items == null || System.currentTimeMillis() - lastUpdate > UPDATE_TIME_THRESHOLD;
     }
 
     public void updateAttributes(RecyclerView recyclerView) {
@@ -228,16 +219,12 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        if (items.size() > 0) {
+        if (!items.isEmpty()) {
             if (recyclerView.getVisibility() == View.INVISIBLE) {
-                UiUtils.runOnUIThread(() -> {
-                    recyclerView.setVisibility(View.VISIBLE);
-                });
+                UiUtils.runOnUIThread(() -> recyclerView.setVisibility(View.VISIBLE));
             }
         } else if (recyclerView.getVisibility() != View.INVISIBLE) {
-            UiUtils.runOnUIThread(() -> {
-                recyclerView.setVisibility(View.INVISIBLE);
-            });
+            UiUtils.runOnUIThread(() -> recyclerView.setVisibility(View.INVISIBLE));
         }
 
         return items.size();

@@ -24,7 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.stario.launcher.sheet.briefing.BriefingFeedList;
@@ -32,7 +32,7 @@ import com.stario.launcher.themes.ThemedActivity;
 
 import java.lang.ref.WeakReference;
 
-public class BriefingAdapter extends FragmentStatePagerAdapter {
+public class BriefingAdapter extends FragmentPagerAdapter {
     private final SparseArray<WeakReference<FeedPage>> registeredFragments;
     private final BriefingFeedList list;
 
@@ -79,6 +79,16 @@ public class BriefingAdapter extends FragmentStatePagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return list.get(position).getTitle();
+    }
+
+    public FeedPage getRegisteredFragment(int position) {
+        WeakReference<FeedPage> page = registeredFragments.get(position);
+
+        if (page != null) {
+            return page.get();
+        } else {
+            return null;
+        }
     }
 
     public void reset(int... skipPositions) {

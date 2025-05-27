@@ -20,45 +20,55 @@ package com.stario.launcher.sheet.briefing.feed;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.apptasticsoftware.rssreader.Item;
 import com.stario.launcher.R;
 import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.sheet.briefing.BriefingFeedList;
-import com.stario.launcher.sheet.briefing.dialog.BriefingDialog;
 import com.stario.launcher.sheet.briefing.rss.RssParser;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.common.scrollers.CustomSwipeRefreshLayout;
 import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
+import com.stario.launcher.ui.recyclers.managers.AccurateScrollComputeLinearLayoutManager;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.utils.Utils;
-import com.stario.launcher.utils.objects.ObservableObject;
 
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
 public class FeedPage extends Fragment {
-    private static final ObservableObject<Float> SCROLL_OFFSET = new ObservableObject<>(0f);
     private static final String TAG = "FeedUpdate";
-    public static String FEED_POSITION = "com.stario.FeedTab.FEED_POSITION";
-    private SwipeRefreshLayout swipeRefreshLayout;
+    public static final String FEED_POSITION = "com.stario.FeedTab.FEED_POSITION";
+
+    private static final float UPDATE_SCALE = 0.9f;
+
+    private AccurateScrollComputeLinearLayoutManager manager;
+    private CustomSwipeRefreshLayout swipeRefreshLayout;
     private OverScrollRecyclerView recyclerView;
+    private ThemedActivity activity;
     private FeedPageAdapter adapter;
     private Future<?> runningTask;
     private ViewGroup exception;
-    private ThemedActivity activity;
     private int position;
+    private View title;
+    private View tabs;
 
     public FeedPage() {
         // default
@@ -96,35 +106,26 @@ public class FeedPage extends Fragment {
 
         View root = inflater.inflate(R.layout.articles, container, false);
 
+        assert container != null;
+        View containerRoot = container.getRootView();
+        title = containerRoot.findViewById(R.id.title_feeds);
+        tabs = containerRoot.findViewById(R.id.tabs);
+
         recyclerView = root.findViewById(R.id.recycler_view);
         swipeRefreshLayout = root.findViewById(R.id.refresh);
         exception = root.findViewById(R.id.exception);
 
         recyclerView.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE |
-                RecyclerItemAnimator.CHANGING, Animation.MEDIUM));
+                RecyclerItemAnimator.CHANGING, Animation.EXTENDED));
         recyclerView.setOverscrollPullEdges(OverScrollEffect.PULL_EDGE_BOTTOM);
 
-        final int baseTopPadding = Measurements.dpToPx(15);
-
-        recyclerView.setPadding(0, baseTopPadding +
-                BriefingDialog.getTitleHeightObservable().getObject() +
-                BriefingDialog.getTabsHeightObservable().getObject(), 0, 0);
-        swipeRefreshLayout.setProgressViewOffset(true,
-                BriefingDialog.getTitleHeightObservable().getObject() +
-                        BriefingDialog.getTabsHeightObservable().getObject(),
-                (int) ((BriefingDialog.getTitleHeightObservable().getObject() +
-                        BriefingDialog.getTabsHeightObservable().getObject()) * 1.5f));
-
-        //TITLE_HEIGHT is the only one updating
-        BriefingDialog.getTitleHeightObservable().addListener(titleHeight -> {
-            int tabsHeight = BriefingDialog.getTabsHeightObservable().getObject();
-
-            recyclerView.setPadding(0, baseTopPadding + titleHeight + tabsHeight,
-                    0, Measurements.getNavHeight());
-            exception.setPadding(0, (titleHeight + tabsHeight) / 2, 0, 0);
-            swipeRefreshLayout.setProgressViewOffset(true,
-                    titleHeight + tabsHeight, (int) ((titleHeight + tabsHeight) * 1.5f));
-        });
+        invalidateLayoutPadding();
+        Measurements.addNavListener(value ->
+                recyclerView.setPadding(0, recyclerView.getPaddingTop(), 0, value));
+        title.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop,
+                                         oldRight, oldBottom) -> invalidateLayoutPadding());
+        tabs.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop,
+                                        oldRight, oldBottom) -> invalidateLayoutPadding());
 
         Measurements.addStatusBarListener(object ->
                 recyclerView.setPadding(0, recyclerView.getPaddingTop(),
@@ -136,22 +137,15 @@ public class FeedPage extends Fragment {
             adapter.updateAttributes(recyclerView);
         }
 
-        LinearLayoutManager manager = new LinearLayoutManager(activity);
+        manager = new AccurateScrollComputeLinearLayoutManager(activity);
         manager.setItemPrefetchEnabled(true);
         manager.setInitialPrefetchItemCount(4);
 
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(adapter);
 
-        recyclerView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-            if (getUserVisibleHint()) {
-                SCROLL_OFFSET.updateObject((float) recyclerView.computeVerticalScrollOffset());
-            } else {
-                recyclerView.scrollBy(0, -Integer.MAX_VALUE);
-            }
-        });
-
         swipeRefreshLayout.setOnRefreshListener(this::update);
+        swipeRefreshLayout.setOnEngageListener(engaged -> manager.setScrollEnabled(!engaged));
         swipeRefreshLayout.setSize(SwipeRefreshLayout.LARGE);
         swipeRefreshLayout.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
@@ -160,9 +154,9 @@ public class FeedPage extends Fragment {
         );
 
         swipeRefreshLayout.setColorSchemeColors(
-                activity.getAttributeData(com.google.android.material.R.attr.colorPrimary),
                 activity.getAttributeData(com.google.android.material.R.attr.colorSecondary),
-                activity.getAttributeData(com.google.android.material.R.attr.colorTertiary)
+                activity.getAttributeData(com.google.android.material.R.attr.colorTertiary),
+                activity.getAttributeData(com.google.android.material.R.attr.colorPrimary)
         );
 
         root.findViewById(R.id.refresh_button)
@@ -177,6 +171,17 @@ public class FeedPage extends Fragment {
                 recyclerView.setPadding(0, recyclerView.getPaddingTop(), 0, bottomInset));
 
         return root;
+    }
+
+    public void invalidateLayoutPadding() {
+        int titleHeight = title.getMeasuredHeight();
+        int tabsHeight = tabs.getMeasuredHeight();
+
+        recyclerView.setPadding(0, Measurements.dpToPx(15) +
+                titleHeight + tabsHeight, 0, Measurements.getNavHeight());
+        exception.setPadding(0, (titleHeight + tabsHeight) / 2, 0, 0);
+        swipeRefreshLayout.setProgressViewOffset(true,
+                titleHeight + tabsHeight, (int) ((titleHeight + tabsHeight) * 1.5f));
     }
 
     @Override
@@ -199,45 +204,69 @@ public class FeedPage extends Fragment {
     public void update() {
         if (runningTask == null || runningTask.isDone()) {
             if (position >= 0 &&
-                    position < BriefingFeedList.from(activity).size() &&
-                    adapter.shouldUpdate()) {
-                runningTask = Utils.submitTask(() -> {
-                    Stream<Item> stream = RssParser
-                            .parse(BriefingFeedList.getInstance()
-                                    .get(position).getRSSLink());
+                    position < BriefingFeedList.from(activity).size()) {
+                if (adapter.shouldUpdate()) {
+                    manager.setScrollEnabled(false);
 
-                    if (stream != null) {
-                        Item[] items = stream.toArray(Item[]::new);
+                    exception.setVisibility(View.GONE);
+                    recyclerView.animate()
+                            .alpha(0)
+                            .scaleX(UPDATE_SCALE)
+                            .scaleY(UPDATE_SCALE)
+                            .setDuration(Animation.MEDIUM.getDuration())
+                            .setInterpolator(new FastOutSlowInInterpolator());
 
-                        UiUtils.runOnUIThread(() -> {
-                            adapter.update(items);
+                    runningTask = Utils.submitTask(() -> {
+                        Stream<Item> stream = RssParser
+                                .parse(BriefingFeedList.getInstance()
+                                        .get(position).getRSSLink());
 
-                            exception.setVisibility(View.GONE);
-                        });
-                    } else {
-                        if (adapter.getItemCount() == 0) {
-                            UiUtils.runOnUIThread(() ->
-                                    exception.setVisibility(View.VISIBLE));
+                        if (stream != null) {
+                            Item[] items = stream.toArray(Item[]::new);
+
+                            UiUtils.runOnUIThread(() -> {
+                                adapter.update(items);
+
+                                if (adapter.getItemCount() == 0) {
+                                    exception.setVisibility(View.VISIBLE);
+                                } else {
+                                    recyclerView.animate()
+                                            .alpha(1)
+                                            .scaleX(1f)
+                                            .scaleY(1f);
+
+                                    manager.setScrollEnabled(true);
+                                }
+
+                                swipeRefreshLayout.setRefreshing(false);
+                            });
+                        } else {
+                            UiUtils.runOnUIThread(() -> {
+                                exception.setVisibility(View.VISIBLE);
+
+                                swipeRefreshLayout.setRefreshing(false);
+                            });
                         }
-                    }
-
-                    UiUtils.runOnUIThread(() ->
-                            swipeRefreshLayout.setRefreshing(false));
-                });
+                    });
+                } else {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             } else {
+                exception.setVisibility(View.VISIBLE);
                 swipeRefreshLayout.setRefreshing(false);
             }
+        } else {
+            swipeRefreshLayout.setRefreshing(false);
         }
+    }
+
+    public RecyclerView getRecycler() {
+        return recyclerView;
     }
 
     public void reset() {
         swipeRefreshLayout.setRefreshing(false);
 
-        recyclerView.post(() ->
-                recyclerView.scrollBy(0, -Integer.MAX_VALUE));
-    }
-
-    public static ObservableObject.ClosedObservableObject<Float> getScrollOffsetObservable() {
-        return SCROLL_OFFSET.close();
+        recyclerView.post(() -> recyclerView.scrollBy(0, -Integer.MAX_VALUE));
     }
 }

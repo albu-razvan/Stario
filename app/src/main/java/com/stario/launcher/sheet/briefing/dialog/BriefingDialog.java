@@ -31,6 +31,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.stario.launcher.R;
@@ -47,12 +48,12 @@ import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.TabLayout;
 import com.stario.launcher.ui.common.pager.CustomDurationViewPager;
 import com.stario.launcher.ui.popup.PopupMenu;
-import com.stario.launcher.utils.objects.ObservableObject;
 
 public class BriefingDialog extends SheetDialogFragment {
-    private static final ObservableObject<Integer> TITLE_HEIGHT = new ObservableObject<>(0);
-    private static final ObservableObject<Integer> TABS_HEIGHT = new ObservableObject<>(0);
+    private RecyclerView.OnScrollListener scrollListener;
+    private View.OnLayoutChangeListener layoutListener;
     private BriefingDialogPageListener listener;
+    private RecyclerView recyclerToBeObserved;
     private CustomDurationViewPager pager;
     private ThemedActivity activity;
     private BriefingAdapter adapter;
@@ -65,10 +66,28 @@ public class BriefingDialog extends SheetDialogFragment {
 
     public BriefingDialog() {
         super();
+
+        init();
     }
 
     public BriefingDialog(SheetType type) {
         super(type);
+
+        init();
+    }
+
+    private void init() {
+        this.recyclerToBeObserved = null;
+        this.scrollListener = new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                updateHeader(recyclerView.computeVerticalScrollOffset());
+            }
+        };
+        this.layoutListener = (v, left, top, right, bottom, oldLeft, oldTop,
+                               oldRight, oldBottom) -> {
+            updateHeader(recyclerToBeObserved);
+        };
     }
 
     @Override
@@ -97,17 +116,31 @@ public class BriefingDialog extends SheetDialogFragment {
         pager.setOffscreenPageLimit(2);
         pager.setOverScrollMode(View.OVER_SCROLL_NEVER);
         pager.setSaveEnabled(false);
+        listener = new BriefingDialogPageListener();
+        pager.addOnPageChangeListener(listener);
 
         adapter = new BriefingAdapter(activity, getChildFragmentManager());
         pager.setAdapter(adapter);
 
+        pager.post(() -> {
+            if (adapter.getCount() > 0) {
+                observePageRecycler(pager.getCurrentItem());
+            }
+        });
+
         BriefingFeedList list = BriefingFeedList.from(activity);
-        list.setOnFeedUpdateListener(new BriefingFeedList.FeedListener() {
+        list.addOnFeedUpdateListener(new BriefingFeedList.FeedListener() {
             private void notifyUpdate() {
                 adapter.notifyDataSetChanged();
-
                 tabs.setViewPager(pager);
-                updateHeader(FeedPage.getScrollOffsetObservable().getObject());
+
+                if (adapter.getCount() > 0) {
+                    observePageRecycler(pager.getCurrentItem());
+                } else {
+                    observePageRecycler(null);
+                }
+
+                updateHeader(recyclerToBeObserved);
 
                 if (adapter.getCount() > 0) {
                     placeholder.setVisibility(View.GONE);
@@ -125,11 +158,6 @@ public class BriefingDialog extends SheetDialogFragment {
 
             @Override
             public void onRemoved(int index) {
-                notifyUpdate();
-            }
-
-            @Override
-            public void onMoved(int first, int second) {
                 notifyUpdate();
             }
         });
@@ -161,21 +189,14 @@ public class BriefingDialog extends SheetDialogFragment {
                     return false;
                 }
             });
+            textView.setOnClickListener(view -> pager.setCurrentItem(position));
             textView.setText(text);
 
             return textView;
         });
 
         tabs.setViewPager(pager);
-
         tabsContainer = (View) tabs.getParent();
-
-        FeedPage.getScrollOffsetObservable()
-                .addListener(this::updateHeader);
-
-        listener = new BriefingDialogPageListener();
-
-        pager.addOnPageChangeListener(listener);
 
         setOnBackPressed(() -> {
             SheetBehavior<?> behavior = getBehavior();
@@ -189,11 +210,8 @@ public class BriefingDialog extends SheetDialogFragment {
 
         title.addOnLayoutChangeListener((v, left, top, right, bottom,
                                          oldLeft, oldTop, oldRight, oldBottom) -> {
-            if (title.getMeasuredHeight() > 0 && tabs.getMeasuredHeight() > 0) {
-                TABS_HEIGHT.updateObject(tabs.getMeasuredHeight());
-                TITLE_HEIGHT.updateObject(title.getMeasuredHeight());
-
-                updateHeader(FeedPage.getScrollOffsetObservable().getObject());
+            if (recyclerToBeObserved != null) {
+                recyclerToBeObserved.post(() -> updateHeader(recyclerToBeObserved));
             }
         });
 
@@ -228,7 +246,38 @@ public class BriefingDialog extends SheetDialogFragment {
         return root;
     }
 
-    private void updateHeader(Float translation) {
+    private void observePageRecycler(Integer position) {
+        FeedPage page = null;
+        if (position != null) {
+            page = adapter.getRegisteredFragment(position);
+        }
+
+        if (recyclerToBeObserved != null) {
+            recyclerToBeObserved.removeOnScrollListener(scrollListener);
+            recyclerToBeObserved.removeOnLayoutChangeListener(layoutListener);
+        }
+
+        if (page != null) {
+            recyclerToBeObserved = page.getRecycler();
+
+            if (recyclerToBeObserved != null) {
+                recyclerToBeObserved.addOnScrollListener(scrollListener);
+                recyclerToBeObserved.addOnLayoutChangeListener(layoutListener);
+            }
+        } else {
+            recyclerToBeObserved = null;
+        }
+    }
+
+    private void updateHeader(RecyclerView recycler) {
+        if (recycler != null) {
+            updateHeader(recycler.computeVerticalScrollOffset());
+        } else {
+            updateHeader(0);
+        }
+    }
+
+    private void updateHeader(float translation) {
         int maxTranslation = title.getMeasuredHeight();
         translation = -Math.min(maxTranslation, translation);
 
@@ -311,13 +360,13 @@ public class BriefingDialog extends SheetDialogFragment {
                     Float.isNaN(startingAlphaTitle)) {
 
                 tabsContainer.setTranslationY((1 - positionOffset) +
-                        BriefingDialog.TITLE_HEIGHT.getObject() * positionOffset);
+                        title.getMeasuredHeight() * positionOffset);
 
                 title.setTranslationY((1 - positionOffset));
                 title.setAlpha(positionOffset);
             } else {
                 tabsContainer.setTranslationY(startingTranslationTabs * (1 - positionOffset) +
-                        BriefingDialog.TITLE_HEIGHT.getObject() * positionOffset);
+                        title.getMeasuredHeight() * positionOffset);
 
                 title.setTranslationY(startingTranslationTitle * (1 - positionOffset));
                 title.setAlpha(startingAlphaTitle + (1 - startingAlphaTitle) * positionOffset);
@@ -329,6 +378,7 @@ public class BriefingDialog extends SheetDialogFragment {
 
         @Override
         public void onPageSelected(int position) {
+            observePageRecycler(position);
         }
 
         @Override
@@ -363,13 +413,5 @@ public class BriefingDialog extends SheetDialogFragment {
                 adapter.reset(pager.getCurrentItem());
             }
         }
-    }
-
-    public static ObservableObject.ClosedObservableObject<Integer> getTitleHeightObservable() {
-        return TITLE_HEIGHT.close();
-    }
-
-    public static ObservableObject.ClosedObservableObject<Integer> getTabsHeightObservable() {
-        return TABS_HEIGHT.close();
     }
 }

@@ -24,27 +24,18 @@ import androidx.annotation.NonNull;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.util.Objects;
 
-public class Feed implements Serializable, Comparable<Feed> {
+public class Feed implements Serializable {
     private static final String TAG = "com.stario.FeedItem";
     private static final String FEED_TITLE = "com.stario.FEED_TITLE";
     private static final String FEED_RSS = "com.stario.FEED_RSS";
-    private static final String FEED_POSITION = "com.stario.FEED_POSITION";
-    public static final int NO_POSITION = -1;
     private final String title;
     private final String rss;
-    private int position;
 
-    public Feed(String title, @NonNull String rss) {
+    public Feed(@NonNull String title, @NonNull String rss) {
         this.title = title;
         this.rss = rss;
-        this.position = NO_POSITION;
-    }
-
-    private Feed(String title, String rss, int position) {
-        this.title = title;
-        this.rss = rss;
-        this.position = position;
     }
 
     public String getTitle() {
@@ -55,21 +46,12 @@ public class Feed implements Serializable, Comparable<Feed> {
         return rss;
     }
 
-    public int getListPosition() {
-        return position;
-    }
-
-    public void setPosition(int position) {
-        this.position = position;
-    }
-
     public static Feed deserialize(String data) {
         try {
             JSONObject jsonObject = new JSONObject(data);
 
             return new Feed(jsonObject.getString(FEED_TITLE),
-                    jsonObject.getString(FEED_RSS),
-                    jsonObject.getInt(FEED_POSITION));
+                    jsonObject.getString(FEED_RSS));
         } catch (Exception exception) {
             Log.e(TAG, "deserialize: Serialized object has corrupt data.");
 
@@ -78,21 +60,31 @@ public class Feed implements Serializable, Comparable<Feed> {
     }
 
     public String serialize() {
-        if (position == NO_POSITION ||
-                title == null || title.isEmpty() ||
-                rss == null || rss.isEmpty()) {
+        if (rss.isEmpty()) {
             return null;
         } else {
             return "{" +
                     "\"" + FEED_TITLE + "\":\"" + title + "\"," +
-                    "\"" + FEED_RSS + "\":\"" + rss + "\"," +
-                    "\"" + FEED_POSITION + "\":" + position +
+                    "\"" + FEED_RSS + "\":\"" + rss + "\"" +
                     "}";
         }
     }
 
     @Override
-    public int compareTo(Feed feed) {
-        return feed != null ? position - feed.getListPosition() : -1;
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+
+        return Objects.equals(rss, ((Feed) object).rss);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, rss);
     }
 }

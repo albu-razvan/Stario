@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -23,20 +22,6 @@
     android:forceDarkAllowed="false"
     app:fel_edge="top"
     app:fel_size_top="130dp">
-
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/refresh"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView
-            android:id="@+id/recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:visibility="invisible" />
-
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <LinearLayout
         android:id="@+id/exception"
@@ -72,5 +57,19 @@
             android:textSize="16sp" />
 
     </LinearLayout>
+
+    <com.stario.launcher.ui.common.scrollers.CustomSwipeRefreshLayout
+        android:id="@+id/refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:visibility="invisible" />
+
+    </com.stario.launcher.ui.common.scrollers.CustomSwipeRefreshLayout>
 
 </com.bosphere.fadingedgelayout.FadingEdgeLayout>

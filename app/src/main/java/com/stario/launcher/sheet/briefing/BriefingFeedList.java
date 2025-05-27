@@ -18,6 +18,7 @@
 package com.stario.launcher.sheet.briefing;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -25,37 +26,25 @@ import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.sheet.briefing.feed.Feed;
 import com.stario.launcher.themes.ThemedActivity;
 
+import org.json.JSONArray;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class BriefingFeedList {
+    private static final String FEEDS_KEY = "com.stario.FEEDS";
     private static BriefingFeedList instance = null;
+
+    private final List<FeedListener> listeners;
     private final SharedPreferences state;
     private final List<Feed> items;
-    private FeedListener listener;
 
     private BriefingFeedList(ThemedActivity activity) {
         this.items = new ArrayList<>();
+        this.listeners = new ArrayList<>();
         this.state = activity.getSharedPreferences(Entry.BRIEFING);
 
-        state.getAll()
-                .forEach((rssLink, serial) -> {
-                    if (serial instanceof String) {
-                        Feed feed = Feed.deserialize((String) serial);
-
-                        if (feed != null) {
-                            add(feed);
-                        } else {
-                            state.edit()
-                                    .remove(rssLink)
-                                    .apply();
-                        }
-                    } else {
-                        state.edit()
-                                .remove(rssLink)
-                                .apply();
-                    }
-                });
+        load(state.getString(FEEDS_KEY, null));
     }
 
     public static BriefingFeedList from(@NonNull ThemedActivity activity) {
@@ -82,73 +71,67 @@ public class BriefingFeedList {
         return items.size();
     }
 
-    public boolean add(Feed feed) {
-        if (feed.getListPosition() != Feed.NO_POSITION) {
-            for (int index = 0; index < size(); index++) {
-                int comparison = items.get(index).compareTo(feed);
+    private void load(String feedsSerial) {
+        if (feedsSerial == null) {
+            return;
+        }
 
-                if (comparison == 0) {
-                    state.edit()
-                            .remove(feed.getRSSLink())
-                            .apply();
+        try {
+            JSONArray array = new JSONArray(feedsSerial);
 
-                    return false;
-                } else if (comparison > 0) {
-                    items.add(index, feed);
+            for (int index = 0; index < array.length(); index++) {
+                Feed feed = Feed.deserialize((String) array.get(index));
 
-                    if (listener != null) {
-                        listener.onInserted(index);
+                if (feed != null && !items.contains(feed)) {
+                    items.add(feed);
+                    for (FeedListener listener : listeners) {
+                        listener.onInserted(size() - 1);
                     }
-
-                    return true;
                 }
             }
-        } else if (state.contains(feed.getRSSLink())) {
+        } catch (Exception exception) {
+            Log.e("BriefingFeedList", "Error loading feeds.", exception);
+
+            state.edit()
+                    .remove(FEEDS_KEY)
+                    .apply();
+        }
+    }
+
+    public boolean add(Feed feed) {
+        if (feed == null || items.contains(feed)) {
             return false;
         }
 
-        feed.setPosition(size() > 0 ? get(size() - 1).getListPosition() + 1 : 0);
         items.add(feed);
 
-        state.edit()
-                .putString(feed.getRSSLink(), feed.serialize())
-                .apply();
+        ArrayList<String> serials = new ArrayList<>();
+        for (Feed item : items) {
+            serials.add(item.serialize());
+        }
 
-        if (listener != null) {
-            listener.onInserted(items.size() - 1);
+        state.edit().putString(FEEDS_KEY,
+                new JSONArray(serials).toString()).apply();
+
+        for (FeedListener listener : listeners) {
+            listener.onInserted(size() - 1);
         }
 
         return true;
     }
 
-    public void swap(int first, int second) {
-        Feed firstFeed = items.get(first);
-        Feed secondFeed = items.get(second);
-
-        firstFeed.setPosition(second);
-        secondFeed.setPosition(first);
-
-        items.set(first, secondFeed);
-        items.set(second, firstFeed);
-
-        state.edit()
-                .putString(firstFeed.getRSSLink(), firstFeed.serialize())
-                .putString(secondFeed.getRSSLink(), secondFeed.serialize())
-                .apply();
-
-        if (listener != null) {
-            listener.onMoved(first, second);
-        }
-    }
-
     public void remove(int position) {
-        Feed feed = items.remove(position);
+        items.remove(position);
 
-        state.edit()
-                .remove(feed.getRSSLink())
-                .apply();
+        ArrayList<String> serials = new ArrayList<>();
+        for (Feed item : items) {
+            serials.add(item.serialize());
+        }
 
-        if (listener != null) {
+        state.edit().putString(FEEDS_KEY,
+                new JSONArray(serials).toString()).apply();
+
+        for (FeedListener listener : listeners) {
             listener.onRemoved(position);
         }
     }
@@ -159,9 +142,15 @@ public class BriefingFeedList {
         remove(index);
     }
 
-    public void setOnFeedUpdateListener(FeedListener listener) {
+    public void addOnFeedUpdateListener(FeedListener listener) {
         if (listener != null) {
-            this.listener = listener;
+            this.listeners.add(listener);
+        }
+    }
+
+    public void removeOnFeedUpdateListener(FeedListener listener) {
+        if (listener != null) {
+            this.listeners.remove(listener);
         }
     }
 
@@ -170,9 +159,6 @@ public class BriefingFeedList {
         }
 
         default void onRemoved(int index) {
-        }
-
-        default void onMoved(int first, int second) {
         }
     }
 }
