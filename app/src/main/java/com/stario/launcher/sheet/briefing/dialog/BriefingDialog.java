@@ -129,7 +129,7 @@ public class BriefingDialog extends SheetDialogFragment {
         });
 
         BriefingFeedList list = BriefingFeedList.from(activity);
-        list.setOnFeedUpdateListener(new BriefingFeedList.FeedListener() {
+        list.addOnFeedUpdateListener(new BriefingFeedList.FeedListener() {
             private void notifyUpdate() {
                 adapter.notifyDataSetChanged();
                 tabs.setViewPager(pager);
@@ -158,11 +158,6 @@ public class BriefingDialog extends SheetDialogFragment {
 
             @Override
             public void onRemoved(int index) {
-                notifyUpdate();
-            }
-
-            @Override
-            public void onMoved(int first, int second) {
                 notifyUpdate();
             }
         });
@@ -194,6 +189,7 @@ public class BriefingDialog extends SheetDialogFragment {
                     return false;
                 }
             });
+            textView.setOnClickListener(view -> pager.setCurrentItem(position));
             textView.setText(text);
 
             return textView;

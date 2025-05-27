@@ -49,6 +49,7 @@ import com.stario.launcher.sheet.briefing.rss.WoodstoxAbstractRssReader;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.common.PulsingTextView;
 import com.stario.launcher.ui.dialogs.ActionDialog;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 import org.jsoup.Jsoup;
@@ -109,13 +110,16 @@ public class BriefingConfigurator extends ActionDialog {
         contentView.findViewById(R.id.add).setOnClickListener((view) -> {
             view.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.bounce_small));
 
-            if (feed != null &&
-                    feed.getTitle() != null &&
-                    feed.getTitle().length() > 0) {
+            if (feed != null && feed.getTitle() != null &&
+                    !feed.getTitle().isEmpty()) {
                 boolean added = list.add(feed);
 
                 if (added) {
-                    dismiss();
+                    BottomSheetBehavior<?> behavior = getBehavior();
+                    behavior.setDraggable(false);
+                    behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+                    UiUtils.hideKeyboard(contentView);
                 } else {
                     Toast.makeText(activity,
                             R.string.already_subscribed, Toast.LENGTH_LONG).show();

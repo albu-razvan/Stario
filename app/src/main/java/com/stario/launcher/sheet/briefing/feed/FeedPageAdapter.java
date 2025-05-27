@@ -221,14 +221,10 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
     public int getItemCount() {
         if (!items.isEmpty()) {
             if (recyclerView.getVisibility() == View.INVISIBLE) {
-                UiUtils.runOnUIThread(() -> {
-                    recyclerView.setVisibility(View.VISIBLE);
-                });
+                UiUtils.runOnUIThread(() -> recyclerView.setVisibility(View.VISIBLE));
             }
         } else if (recyclerView.getVisibility() != View.INVISIBLE) {
-            UiUtils.runOnUIThread(() -> {
-                recyclerView.setVisibility(View.INVISIBLE);
-            });
+            UiUtils.runOnUIThread(() -> recyclerView.setVisibility(View.INVISIBLE));
         }
 
         return items.size();
