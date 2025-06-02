@@ -35,6 +35,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.core.content.res.ResourcesCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.stario.launcher.R;
 import com.stario.launcher.activities.settings.Settings;
@@ -45,8 +46,11 @@ import com.stario.launcher.glance.extensions.calendar.Calendar;
 import com.stario.launcher.glance.extensions.media.Media;
 import com.stario.launcher.glance.extensions.weather.Weather;
 import com.stario.launcher.preferences.Vibrations;
-import com.stario.launcher.sheet.SheetType;
+import com.stario.launcher.sheet.SheetDialogFragment;
 import com.stario.launcher.sheet.SheetsFocusController;
+import com.stario.launcher.sheet.briefing.dialog.BriefingDialog;
+import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
+import com.stario.launcher.sheet.widgets.dialog.WidgetsDialog;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.lock.ClosingAnimationView;
@@ -58,10 +62,16 @@ import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.ui.utils.animation.WallpaperAnimator;
 import com.stario.launcher.utils.Utils;
 
+import java.io.Serializable;
+
 public class Launcher extends ThemedActivity {
     public static final int MAX_BACKGROUND_ALPHA = 230;
-    public static final String ACTION_KILL_TASK = "com.stario.launcher.ACTION_KILL_TASK";
     public static final String INTENT_KILL_TASK_ID_EXTRA = "com.stario.launcher.INTENT_KILL_TASK_ID_EXTRA";
+    public static final String INTENT_SHEET_CLASS_EXTRA = "com.stario.launcher.INTENT_SHEET_CLASS_EXTRA";
+    public static final String ACTION_REMOVE_SHEET = "com.stario.launcher.ACTION_REMOVE_SHEET";
+    public static final String ACTION_MOVE_SHEET = "com.stario.launcher.ACTION_MOVE_SHEET";
+    public static final String ACTION_ADD_SHEET = "com.stario.launcher.ACTION_ADD_SHEET";
+    public static final String ACTION_KILL_TASK = "com.stario.launcher.ACTION_KILL_TASK";
 
     private BroadcastReceiver screenOnReceiver;
     private SheetsFocusController controller;
@@ -189,9 +199,61 @@ public class Launcher extends ThemedActivity {
     }
 
     private void attachSheets(SheetsFocusController controller) {
-        controller.wrapInDialog(this, SheetType.BOTTOM_SHEET, this::animateSheet);
-        controller.wrapInDialog(this, SheetType.TOP_SHEET, this::animateSheet);
-        controller.wrapInDialog(this, SheetType.LEFT_SHEET, this::animateSheet);
+        controller.wrapInSheetDialog(this, ApplicationsDialog.class, this::animateSheet);
+        controller.wrapInSheetDialog(this, WidgetsDialog.class, this::animateSheet);
+        controller.wrapInSheetDialog(this, BriefingDialog.class, this::animateSheet);
+
+        class Local {
+            Class<? extends SheetDialogFragment> getClass(Intent intent) {
+                if (intent == null) {
+                    return null;
+                }
+
+                Serializable clazz = intent.getSerializableExtra(INTENT_SHEET_CLASS_EXTRA);
+
+                if (clazz instanceof Class<?> &&
+                        SheetDialogFragment.class.isAssignableFrom((Class<?>) clazz)) {
+                    // noinspection unchecked
+                    return (Class<? extends SheetDialogFragment>) clazz;
+                }
+                return null;
+            }
+        }
+        Local local = new Local();
+
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
+        manager.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Class<? extends SheetDialogFragment> clazz = local.getClass(intent);
+
+                if (clazz != null) {
+                    controller.removeSheetDialog(clazz);
+                }
+            }
+        }, new IntentFilter(ACTION_REMOVE_SHEET));
+        manager.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Class<? extends SheetDialogFragment> clazz = local.getClass(intent);
+
+                if (clazz != null) {
+                    controller.moveSheetDialog(Launcher.this,
+                            clazz, Launcher.this::animateSheet);
+                }
+            }
+        }, new IntentFilter(ACTION_MOVE_SHEET));
+        manager.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Class<? extends SheetDialogFragment> clazz = local.getClass(intent);
+
+                if (clazz != null) {
+                    controller.wrapInSheetDialog(Launcher.this,
+                            clazz, Launcher.this::animateSheet);
+                }
+            }
+        }, new IntentFilter(ACTION_ADD_SHEET));
     }
 
     public void displayLauncherOptions(Launcher activity, SheetsFocusController controller) {

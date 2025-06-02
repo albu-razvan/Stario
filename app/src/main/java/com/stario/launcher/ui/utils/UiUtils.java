@@ -247,6 +247,8 @@ public class UiUtils {
                         view.requestLayout();
                     }
 
+                    v.onApplyWindowInsets(insets);
+
                     return insets;
                 }
             };

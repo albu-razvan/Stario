@@ -71,13 +71,16 @@ public class ApplicationsDialog extends SheetDialogFragment {
         super(type);
     }
 
+    public static String getName() {
+        return "Application Drawer";
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
         activity = (ThemedActivity) context;
     }
-
 
     @Nullable
     @Override

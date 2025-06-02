@@ -87,6 +87,10 @@ public class WidgetsDialog extends SheetDialogFragment {
         super(type);
     }
 
+    public static String getName() {
+        return "Widgets";
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);

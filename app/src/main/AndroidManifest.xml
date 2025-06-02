@@ -57,6 +57,18 @@
             android:theme="@style/Theme.Light.Blue.Opaque" />
 
         <activity
+            android:name=".activities.PageManager"
+            android:allowEmbedded="false"
+            android:alwaysRetainTaskState="false"
+            android:configChanges="orientation|screenSize|layoutDirection"
+            android:exported="true"
+            android:launchMode="standard"
+            android:rotationAnimation="crossfade"
+            android:supportsPictureInPicture="false"
+            android:taskAffinity="@string/affinity"
+            android:theme="@style/Theme.Light.Blue.Opaque" />
+
+        <activity
             android:name=".activities.Launcher"
             android:allowEmbedded="false"
             android:alwaysRetainTaskState="true"

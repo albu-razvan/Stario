@@ -33,6 +33,7 @@ import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -280,9 +281,54 @@ public class SheetsFocusController extends ConstraintLayout {
         }
     }
 
-    public void wrapInDialog(Launcher launcher, SheetType type,
-                             @NonNull SheetDialog.OnSlideListener slideListener) {
-        wrappers[type.ordinal()] = new SheetWrapper(launcher, type, slideListener);
+    public void removeSheetDialog(
+            @NonNull Class<? extends SheetDialogFragment> dialogFragmentClass) {
+        for (int index = 0; index < wrappers.length; index++) {
+            SheetWrapper wrapper = wrappers[index];
+
+            if (wrapper != null && wrapper.dialogFragment != null &&
+                    wrapper.dialogFragment.getClass().equals(dialogFragmentClass)) {
+                if (wrapper.dialogFragment.isAdded()) {
+                    wrapper.dialogFragment.dismissAllowingStateLoss();
+                }
+
+                wrappers[index] = null;
+
+                break;
+            }
+        }
+    }
+
+    public void moveSheetDialog(
+            @NonNull Launcher launcher,
+            @NonNull Class<? extends SheetDialogFragment> dialogFragmentClass,
+            SheetDialog.OnSlideListener slideListener) {
+        removeSheetDialog(dialogFragmentClass);
+        wrapInSheetDialog(launcher, dialogFragmentClass, slideListener);
+    }
+
+    public void wrapInSheetDialog(
+            @NonNull Launcher launcher,
+            @NonNull Class<? extends SheetDialogFragment> dialogFragmentClass,
+            SheetDialog.OnSlideListener slideListener) {
+        SheetType type = SheetType.getSheetTypeForSheetDialogFragment(dialogFragmentClass,
+                launcher.getSharedPreferences(Entry.SHEET));
+
+        if (type == null || wrappers[type.ordinal()] != null) {
+            return;
+        }
+
+        try {
+            Constructor<? extends SheetDialogFragment> constructor =
+                    dialogFragmentClass.getConstructor(SheetType.class);
+
+            wrappers[type.ordinal()] =
+                    new SheetWrapper(launcher, type, constructor.newInstance(type), slideListener);
+        } catch (Exception exception) {
+            throw new RuntimeException(dialogFragmentClass.getName() +
+                    "(" + SheetType.class.getName() + ")" +
+                    "has to be visible to public scope.");
+        }
     }
 
     private void dispatchSheetMotionEvent(MotionEvent event) {
@@ -370,9 +416,9 @@ public class SheetsFocusController extends ConstraintLayout {
         private SheetWrapper.OnShowRequest showRequest;
 
         private SheetWrapper(Launcher launcher, SheetType type,
-                             @NonNull SheetDialog.OnSlideListener listener) {
-            this.dialogFragment = SheetDialogFactory.forType(type,
-                    launcher.getSharedPreferences(Entry.STARIO));
+                             @NonNull SheetDialogFragment fragment,
+                             SheetDialog.OnSlideListener listener) {
+            this.dialogFragment = fragment;
 
             dialogFragment.setCancelable(false);
             dialogFragment.setOnSlideListener(listener);

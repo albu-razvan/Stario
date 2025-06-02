@@ -76,6 +76,10 @@ public class BriefingDialog extends SheetDialogFragment {
         init();
     }
 
+    public static String getName() {
+        return "Briefing";
+    }
+
     private void init() {
         this.recyclerToBeObserved = null;
         this.scrollListener = new RecyclerView.OnScrollListener() {

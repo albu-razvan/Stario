@@ -43,6 +43,7 @@ android {
                            'src/main/res/launcher',
                            'src/main/res/drawer',
                            'src/main/res/drawer_interactions',
+                           'src/main/res/page_manager',
                            'src/main/res/briefing',
                            'src/main/res/briefing_configurator',
                            'src/main/res/settings',
