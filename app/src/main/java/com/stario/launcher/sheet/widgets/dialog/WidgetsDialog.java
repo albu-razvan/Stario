@@ -170,7 +170,7 @@ public class WidgetsDialog extends SheetDialogFragment {
             if (scroller.canScrollVertically(1)) {
                 scroller.smoothScrollTo(0, 0);
             } else {
-                getBehavior().setState(SheetBehavior.STATE_COLLAPSED);
+                hide(true);
             }
 
             return false;

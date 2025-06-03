@@ -21,6 +21,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EdgeEffect;
 
@@ -35,6 +36,7 @@ import com.stario.launcher.utils.objects.ObjectDelegate;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 
 public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
     public static final int PULL_EDGE_TOP = 0b01;
@@ -48,8 +50,6 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
     private static final byte PIVOT_UNSPECIFIED = 0b00;
     private static final byte PIVOT_TOP = 0b01;
     private static final byte PIVOT_BOTTOM = 0b10;
-    private static final byte STATE_IDLE = 0b0;
-    private static final byte STATE_ACTIVE = 0b1;
 
     @IntDef(flag = true, value = {
             PULL_EDGE_TOP,
@@ -60,12 +60,16 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
     public @interface Edge {
     }
 
+    private final ArrayList<OnOverScrollListener> overScrollListeners;
     private final ObjectDelegate<Float> factor;
     private final SpringAnimation animation;
     private final Rect bounds;
+    private final V view;
 
     private boolean isCanvasCaptured;
-    private byte state;
+    private OverScrollState oldState;
+    private OverScrollState state;
+    private float initialTouchY;
     @Edge
     private int edges;
     private int pivot;
@@ -73,9 +77,16 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
     public OverScrollEffect(@NonNull V view, int edges) {
         super(view.getContext());
 
-        this.factor = new ObjectDelegate<>(0f, (o) -> view.invalidate());
+        this.view = view;
+        this.initialTouchY = -1;
+        this.overScrollListeners = new ArrayList<>();
+        this.factor = new ObjectDelegate<>(0f, (value) -> {
+            notifyOverScrolled(value);
+            view.invalidate();
+        });
         this.bounds = new Rect();
-        this.state = STATE_IDLE;
+        this.oldState = null;
+        this.state = OverScrollState.IDLE;
         this.pivot = PIVOT_UNSPECIFIED;
         this.edges = edges;
         this.isCanvasCaptured = false;
@@ -104,7 +115,7 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
         });
 
         view.addOverScrollContract(canvas -> {
-            if (state == STATE_IDLE) {
+            if (state == OverScrollState.IDLE) {
                 isCanvasCaptured = false;
                 return false;
             }
@@ -147,12 +158,16 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
 
     @Override
     public void setSize(int width, int height) {
+        super.setSize(width, height);
         bounds.set(0, 0, width, height);
+
+        pivot = PIVOT_UNSPECIFIED;
+        factor.setValue(0f);
     }
 
     @Override
     public boolean isFinished() {
-        return state == STATE_IDLE;
+        return state == OverScrollState.IDLE;
     }
 
     @Override
@@ -161,7 +176,10 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
             animation.cancel();
         }
 
-        state = STATE_IDLE;
+        state = OverScrollState.IDLE;
+        notifyStateChange(state);
+
+        super.finish();
     }
 
     @Override
@@ -185,7 +203,8 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
 
     @Override
     public void onPull(float deltaDistance) {
-        state = STATE_ACTIVE;
+        state = OverScrollState.OVER_SCROLLING;
+        notifyStateChange(state);
 
         if (animation.isRunning()) {
             animation.cancel();
@@ -200,7 +219,8 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
             if (factor.getValue() == 0) {
                 finish();
             } else {
-                state = STATE_ACTIVE;
+                state = OverScrollState.SETTLING;
+                notifyStateChange(state);
                 animation.setStartVelocity(0)
                         .setStartValue(factor.getValue() * SPRING_FACTOR_MULTIPLIER)
                         .start();
@@ -210,7 +230,8 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
 
     @Override
     public void onAbsorb(int velocity) {
-        state = STATE_ACTIVE;
+        state = OverScrollState.SETTLING;
+        notifyStateChange(state);
 
         if (animation.isRunning()) {
             animation.cancel();
@@ -232,5 +253,95 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
         }
 
         return isCanvasCaptured && !isFinished();
+    }
+
+    private void notifyStateChange(OverScrollState state) {
+        if (oldState == state || pivot == PIVOT_UNSPECIFIED) {
+            return;
+        }
+
+        if (pivot == PIVOT_TOP && (edges & PULL_EDGE_TOP) == PULL_EDGE_TOP) {
+            for (OnOverScrollListener listener : overScrollListeners) {
+                listener.onOverScrollStateChanged(PULL_EDGE_TOP, state);
+            }
+        } else if (pivot == PIVOT_BOTTOM && (edges & PULL_EDGE_BOTTOM) == PULL_EDGE_BOTTOM) {
+            for (OnOverScrollListener listener : overScrollListeners) {
+                listener.onOverScrollStateChanged(PULL_EDGE_BOTTOM, state);
+            }
+        }
+
+        oldState = state;
+    }
+
+    private void notifyOverScrolled(float factor) {
+        if (pivot == PIVOT_UNSPECIFIED) {
+            return;
+        }
+
+        int edge = (pivot == PIVOT_TOP) ? PULL_EDGE_TOP : PULL_EDGE_BOTTOM;
+
+        for (OnOverScrollListener listener : overScrollListeners) {
+            listener.onOverScrolled(edge, factor);
+        }
+    }
+
+    public void addOnOverScrollListener(OnOverScrollListener listener) {
+        if (listener != null) {
+            overScrollListeners.add(listener);
+        }
+    }
+
+    public void removeOnOverScrollListener(OnOverScrollListener listener) {
+        if (listener != null) {
+            overScrollListeners.remove(listener);
+        }
+    }
+
+    void onTouchEvent(MotionEvent event) {
+        if (pivot != PIVOT_UNSPECIFIED) {
+            return;
+        }
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                initialTouchY = event.getY();
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                if (initialTouchY == -1) {
+                    initialTouchY = event.getY();
+
+                    break;
+                }
+
+                float dy = event.getY() - initialTouchY;
+                if (dy != 0 && !view.canScrollVertically(dy > 0 ? 1 : -1)) {
+                    if (dy > 0) {
+                        pivot = PIVOT_TOP;
+                    } else {
+                        pivot = PIVOT_BOTTOM;
+                    }
+                }
+
+                break;
+
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                initialTouchY = -1;
+                break;
+        }
+    }
+
+    public enum OverScrollState {
+        IDLE,
+        OVER_SCROLLING,
+        SETTLING
+    }
+
+    public interface OnOverScrollListener {
+        void onOverScrollStateChanged(@OverScrollEffect.Edge int edge,
+                                      @NonNull OverScrollState state);
+
+        void onOverScrolled(@OverScrollEffect.Edge int edge, float factor);
     }
 }

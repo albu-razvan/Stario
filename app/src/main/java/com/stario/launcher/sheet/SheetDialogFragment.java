@@ -73,13 +73,7 @@ public abstract class SheetDialogFragment extends DialogFragment {
         activity = (ThemedActivity) context;
 
         homeWatcher = new HomeWatcher(context);
-        homeWatcher.setOnHomePressedListener(() -> {
-            SheetBehavior<?> behavior = getBehavior();
-
-            if (behavior != null) {
-                behavior.setState(SheetBehavior.STATE_COLLAPSED);
-            }
-        });
+        homeWatcher.setOnHomePressedListener(() -> hide(true));
         homeWatcher.startWatch();
 
         super.onAttach(context);
@@ -108,15 +102,21 @@ public abstract class SheetDialogFragment extends DialogFragment {
 
     @Override
     public void onStop() {
+        hide(false);
+
+        super.onStop();
+    }
+
+    public void hide(boolean animate) {
         SheetBehavior<?> behavior = getBehavior();
 
         if (behavior != null) {
-            behavior.setState(SheetBehavior.STATE_COLLAPSED, false);
+            behavior.setState(SheetBehavior.STATE_COLLAPSED, animate);
         }
 
-        dialog.hide();
-
-        super.onStop();
+        if (!animate) {
+            dialog.hide();
+        }
     }
 
     @Override

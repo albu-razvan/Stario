@@ -24,9 +24,11 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 
+import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.sheet.briefing.dialog.BriefingDialog;
 import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
 import com.stario.launcher.sheet.widgets.dialog.WidgetsDialog;
+import com.stario.launcher.themes.ThemedActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,8 +75,9 @@ public enum SheetType {
     }
 
     public static List<Pair<SheetType, Class<? extends SheetDialogFragment>>> getActiveSheets(
-            @NonNull SharedPreferences preferences) {
+            @NonNull ThemedActivity activity) {
         List<Pair<SheetType, Class<? extends SheetDialogFragment>>> list = new ArrayList<>();
+        SharedPreferences preferences = activity.getSharedPreferences(Entry.SHEET);
         preferences.getAll().forEach((string, object) -> {
             try {
                 Class<?> clazz = Class.forName(string);
@@ -108,9 +111,10 @@ public enum SheetType {
     }
 
     public static SheetType getSheetTypeForSheetDialogFragment(
-            @NonNull Class<? extends SheetDialogFragment> clazz, @NonNull SharedPreferences preferences) {
+            @NonNull ThemedActivity activity, @NonNull Class<? extends SheetDialogFragment> clazz) {
         SheetType type = null;
-        String typeString = preferences.getString(clazz.getName(), null);
+        String typeString = activity.getSharedPreferences(Entry.SHEET)
+                .getString(clazz.getName(), null);
 
         if (typeString != null) {
             type = SheetType.deserialize(typeString);
@@ -120,12 +124,13 @@ public enum SheetType {
             return type;
         }
 
-        return getDefaultSheetTypeForSheetDialogFragment(clazz, preferences);
+        return getDefaultSheetTypeForSheetDialogFragment(activity, clazz);
     }
 
     private static SheetType getDefaultSheetTypeForSheetDialogFragment(
-            Class<? extends SheetDialogFragment> clazz, SharedPreferences preferences) {
+            ThemedActivity activity, Class<? extends SheetDialogFragment> clazz) {
         SheetType type = null;
+        SharedPreferences preferences = activity.getSharedPreferences(Entry.SHEET);
 
         if (clazz == ApplicationsDialog.class) {
             preferences.edit()

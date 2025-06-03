@@ -30,7 +30,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentManager;
 
 import com.stario.launcher.activities.Launcher;
-import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 
 import java.lang.reflect.Constructor;
@@ -321,8 +320,7 @@ public class SheetsFocusController extends ConstraintLayout {
             @NonNull Launcher launcher,
             @NonNull Class<? extends SheetDialogFragment>... dialogFragmentClass) {
         for (Class<? extends SheetDialogFragment> clazz : dialogFragmentClass) {
-            SheetType type = SheetType.getSheetTypeForSheetDialogFragment(clazz,
-                    launcher.getSharedPreferences(Entry.SHEET));
+            SheetType type = SheetType.getSheetTypeForSheetDialogFragment(launcher, clazz);
 
             if (type == null || wrappers[type.ordinal()] != null) {
                 return;
@@ -407,13 +405,7 @@ public class SheetsFocusController extends ConstraintLayout {
                 SheetWrapper instance = wrappers[index];
 
                 if (instance != null && instance.dialogFragment.getSheetDialog() != null) {
-                    SheetBehavior<?> behavior = instance.dialogFragment.getBehavior();
-
-                    if (behavior != null) {
-                        behavior.setState(SheetBehavior.STATE_COLLAPSED, false);
-                    }
-
-                    instance.dialogFragment.getSheetDialog().hide();
+                    instance.dialogFragment.hide(false);
                 }
             }
         }

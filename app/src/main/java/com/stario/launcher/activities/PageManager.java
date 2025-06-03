@@ -179,7 +179,7 @@ public class PageManager extends ThemedActivity {
 
     private void loadPages(Map<View, Class<? extends SheetDialogFragment>> pages) {
         List<Pair<SheetType, Class<? extends SheetDialogFragment>>> list =
-                SheetType.getActiveSheets(getSharedPreferences(Entry.SHEET));
+                SheetType.getActiveSheets(this);
 
         for (Pair<SheetType, Class<? extends SheetDialogFragment>> pair : list) {
             pages.put(inflatePage(pair.first, pair.second), pair.second);
@@ -325,7 +325,7 @@ public class PageManager extends ThemedActivity {
                 intent.putExtra(Launcher.INTENT_SHEET_CLASS_EXTRA,
                         new Class[]{pages.get(draggedPage), pages.get(pageInDropTarget)});
                 broadcastManager.sendBroadcastSync(intent);
-                
+
                 dragging = false;
                 draggedPage.setVisibility(View.VISIBLE);
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
