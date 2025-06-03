@@ -567,7 +567,7 @@ public class SearchFragment extends Fragment {
     }
 
     /**
-     * @return true if this instance wants to prevent the back event
+     * @return {@code true} if this instance wants to prevent the back event
      */
     public boolean onBackPressed() {
         if (!UiUtils.isKeyboardVisible(getView())) {

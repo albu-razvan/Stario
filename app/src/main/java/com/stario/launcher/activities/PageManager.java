@@ -61,16 +61,15 @@ import java.util.Map;
 public class PageManager extends ThemedActivity {
     private static final String TAG = "PageManager";
 
+    private final Hashtable<View, Class<? extends SheetDialogFragment>> pages;
     private final List<Pair<ConstraintLayout, SheetType>> placeholders;
-    private final Map<View, Class<? extends SheetDialogFragment>> pages;
+    private final LocalBroadcastManager broadcastManager;
 
-    private LocalBroadcastManager broadcastManager;
     private ConstraintLayout pageContainer;
     private SharedPreferences preferences;
     private LayoutInflater inflater;
     private boolean dragging;
     private View homePage;
-    private View title;
 
     public PageManager() {
         this.broadcastManager = LocalBroadcastManager.getInstance(this);
@@ -91,7 +90,6 @@ public class PageManager extends ThemedActivity {
 
         pageContainer = findViewById(R.id.page_container);
         homePage = findViewById(R.id.home);
-        title = findViewById(R.id.title);
 
         invalidateViews();
 
@@ -117,6 +115,7 @@ public class PageManager extends ThemedActivity {
 
         for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
             ConstraintLayout view = pair.first;
+            SheetType type = pair.second;
 
             view.setClipChildren(false);
             view.setClipToOutline(false);
@@ -126,13 +125,15 @@ public class PageManager extends ThemedActivity {
                 @Override
                 public boolean onDrag(View v, DragEvent event) {
                     int action = event.getAction();
+                    View draggedView = (View) event.getLocalState();
 
                     if (action == DragEvent.ACTION_DRAG_STARTED) {
                         dragging = true;
 
                         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+
+                        return true;
                     } else if (action == DragEvent.ACTION_DROP) {
-                        View draggedView = (View) event.getLocalState();
                         ViewParent parent = draggedView.getParent();
 
                         if (parent instanceof ViewGroup && !parent.equals(view)) {
@@ -141,32 +142,29 @@ public class PageManager extends ThemedActivity {
                             group.removeView(draggedView);
                             view.addView(draggedView);
 
-                            for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
-                                if (pair.first.equals(view)) {
-                                    Class<? extends SheetDialogFragment> clazz = pages.get(draggedView);
+                            Class<? extends SheetDialogFragment> clazz = pages.get(draggedView);
 
-                                    if (clazz != null) {
-                                        preferences.edit()
-                                                .putString(clazz.getName(),
-                                                        pair.second.toString())
-                                                .apply();
+                            if (clazz != null) {
+                                preferences.edit()
+                                        .putString(clazz.getName(), type.toString())
+                                        .apply();
 
-                                        Intent intent = new Intent(Launcher.ACTION_MOVE_SHEET);
-                                        intent.putExtra(Launcher.INTENT_SHEET_CLASS_EXTRA, clazz);
-                                        broadcastManager.sendBroadcastSync(intent);
-                                    }
-
-                                    break;
-                                }
+                                Intent intent = new Intent(Launcher.ACTION_MOVE_SHEET);
+                                intent.putExtra(Launcher.INTENT_SHEET_CLASS_EXTRA, clazz);
+                                broadcastManager.sendBroadcastSync(intent);
                             }
                         }
 
                         reset(draggedView);
+
+                        return true;
                     } else if (action == DragEvent.ACTION_DRAG_ENDED) {
-                        reset(((View) event.getLocalState()));
+                        reset(draggedView);
+
+                        return true;
                     }
 
-                    return true;
+                    return false;
                 }
 
                 private void reset(View view) {
@@ -222,7 +220,121 @@ public class PageManager extends ThemedActivity {
         }
 
         View gradient = page.findViewById(R.id.gradient_background);
+        gradient.setOnDragListener((v, event) -> {
+            if (event.getAction() == DragEvent.ACTION_DROP) {
+                ViewParent pageParent = page.getParent();
+                if (!(pageParent instanceof ViewGroup)) {
+                    return false;
+                }
 
+                View draggedPage = (View) event.getLocalState();
+                ViewParent parent = draggedPage.getParent();
+                ViewGroup view = (ViewGroup) pageParent;
+
+                if (parent instanceof ViewGroup && !parent.equals(view)) {
+                    ViewGroup group = (ViewGroup) parent;
+
+                    View otherPage = view.getChildAt(0);
+                    view.removeView(otherPage);
+                    group.addView(otherPage);
+
+                    for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
+                        if (pair.first.equals(group)) {
+                            preferences.edit()
+                                    .putString(pages.get(otherPage).getName(), pair.second.toString())
+                                    .apply();
+
+                            break;
+                        }
+                    }
+
+                    group.removeView(draggedPage);
+                    view.addView(draggedPage);
+
+                    for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
+                        if (pair.first.equals(view)) {
+                            preferences.edit()
+                                    .putString(pages.get(draggedPage).getName(), pair.second.toString())
+                                    .apply();
+
+                            break;
+                        }
+                    }
+
+                    Intent intent = new Intent(Launcher.ACTION_MOVE_SHEET);
+                    intent.putExtra(Launcher.INTENT_SHEET_CLASS_EXTRA,
+                            new Class[]{pages.get(draggedPage), pages.get(otherPage)});
+                    broadcastManager.sendBroadcastSync(intent);
+                }
+
+                draggedPage.setVisibility(View.VISIBLE);
+
+                dragging = false;
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+
+                return true;
+            }
+
+            if (event.getAction() == DragEvent.ACTION_DROP) {
+                ViewParent pageParent = page.getParent();
+                if (!(pageParent instanceof ViewGroup)) {
+                    return false;
+                }
+
+                ViewGroup dropTargetContainer = (ViewGroup) pageParent;
+                View draggedPage = (View) event.getLocalState();
+                ViewParent parent = draggedPage.getParent();
+
+                if (!(parent instanceof ViewGroup) ||
+                        parent.equals(dropTargetContainer)) {
+                    return false;
+                }
+
+                ViewGroup originalContainer = (ViewGroup) parent;
+                View pageInDropTarget = dropTargetContainer.getChildAt(0);
+
+                dropTargetContainer.removeView(pageInDropTarget);
+                originalContainer.addView(pageInDropTarget);
+
+                for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
+                    if (pair.first.equals(originalContainer)) {
+                        //noinspection DataFlowIssue
+                        preferences.edit()
+                                .putString(pages.get(pageInDropTarget)
+                                        .getName(), pair.second.toString())
+                                .apply();
+                        break;
+                    }
+                }
+
+                originalContainer.removeView(draggedPage);
+                dropTargetContainer.addView(draggedPage);
+
+                for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
+                    if (pair.first.equals(dropTargetContainer)) {
+                        //noinspection DataFlowIssue
+                        preferences.edit()
+                                .putString(pages.get(draggedPage)
+                                        .getName(), pair.second.toString())
+                                .apply();
+                        break;
+                    }
+                }
+
+                Intent intent = new Intent(Launcher.ACTION_MOVE_SHEET);
+                intent.putExtra(Launcher.INTENT_SHEET_CLASS_EXTRA,
+                        new Class[]{pages.get(draggedPage), pages.get(pageInDropTarget)});
+                broadcastManager.sendBroadcastSync(intent);
+                
+                dragging = false;
+                draggedPage.setVisibility(View.VISIBLE);
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+
+                return true;
+            }
+
+            return false;
+        });
         gradient.setOnTouchListener(new View.OnTouchListener() {
             private final Point touchPoint;
 
@@ -286,12 +398,10 @@ public class PageManager extends ThemedActivity {
             params.height = ConstraintLayout.LayoutParams.MATCH_PARENT;
             params.width = 0;
             params.dimensionRatio = "H,9:16";
-            title.setVisibility(View.GONE);
         } else {
             params.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
             params.height = 0;
             params.dimensionRatio = "W,16:9";
-            title.setVisibility(View.VISIBLE);
         }
 
         pageContainer.setLayoutParams(params);

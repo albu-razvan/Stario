@@ -23,18 +23,6 @@
     android:forceDarkAllowed="false"
     android:orientation="vertical">
 
-    <carbon.widget.TextView
-        android:id="@+id/title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/dm_sans_medium"
-        android:gravity="center_horizontal"
-        android:letterSpacing="-0.03"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp"
-        android:text="@string/pages"
-        android:textSize="30sp" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -63,6 +63,8 @@ import com.stario.launcher.ui.utils.animation.WallpaperAnimator;
 import com.stario.launcher.utils.Utils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Launcher extends ThemedActivity {
     public static final int MAX_BACKGROUND_ALPHA = 230;
@@ -199,61 +201,85 @@ public class Launcher extends ThemedActivity {
     }
 
     private void attachSheets(SheetsFocusController controller) {
-        controller.wrapInSheetDialog(this, ApplicationsDialog.class, this::animateSheet);
-        controller.wrapInSheetDialog(this, WidgetsDialog.class, this::animateSheet);
-        controller.wrapInSheetDialog(this, BriefingDialog.class, this::animateSheet);
+        controller.setSlideListener(Launcher.this::animateSheet);
+        controller.addSheetDialog(this, ApplicationsDialog.class,
+                WidgetsDialog.class, BriefingDialog.class);
 
         class Local {
-            Class<? extends SheetDialogFragment> getClass(Intent intent) {
+            Class<? extends SheetDialogFragment>[] getClasses(Intent intent) {
                 if (intent == null) {
                     return null;
                 }
 
-                Serializable clazz = intent.getSerializableExtra(INTENT_SHEET_CLASS_EXTRA);
+                Serializable extra = intent.getSerializableExtra(INTENT_SHEET_CLASS_EXTRA);
 
-                if (clazz instanceof Class<?> &&
-                        SheetDialogFragment.class.isAssignableFrom((Class<?>) clazz)) {
-                    // noinspection unchecked
-                    return (Class<? extends SheetDialogFragment>) clazz;
+                if (extra == null) {
+                    return null;
                 }
-                return null;
+
+                List<Class<? extends SheetDialogFragment>> classes = new ArrayList<>();
+
+                if (extra instanceof Class<?> &&
+                        SheetDialogFragment.class.isAssignableFrom((Class<?>) extra)) {
+                    // noinspection unchecked
+                    classes.add((Class<? extends SheetDialogFragment>) extra);
+                } else if (extra.getClass().isArray()) {
+                    // noinspection DataFlowIssue
+                    Object[] array = (Object[]) extra;
+
+                    for (Object element : array) {
+                        if (element instanceof Class<?> &&
+                                SheetDialogFragment.class.isAssignableFrom((Class<?>) element)) {
+                            // noinspection unchecked
+                            classes.add((Class<? extends SheetDialogFragment>) element);
+                        }
+                    }
+                }
+
+                if (classes.isEmpty()) {
+                    return null;
+                }
+
+                // noinspection ToArrayCallWithZeroLengthArrayArgument, unchecked
+                return classes.toArray(new Class[classes.size()]);
             }
         }
         Local local = new Local();
 
-        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
-        manager.registerReceiver(new BroadcastReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_ADD_SHEET);
+        filter.addAction(ACTION_MOVE_SHEET);
+        filter.addAction(ACTION_REMOVE_SHEET);
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Class<? extends SheetDialogFragment> clazz = local.getClass(intent);
+                Class<? extends SheetDialogFragment>[] classes = local.getClasses(intent);
+                if (classes == null) {
+                    return;
+                }
 
-                if (clazz != null) {
-                    controller.removeSheetDialog(clazz);
+                String action = intent.getAction();
+                if (action == null) {
+                    return;
+                }
+
+                switch (action) {
+                    case ACTION_ADD_SHEET: {
+                        controller.addSheetDialog(Launcher.this, classes);
+                        break;
+                    }
+                    case ACTION_MOVE_SHEET: {
+                        controller.moveSheetDialog(Launcher.this, classes);
+                        break;
+                    }
+                    case ACTION_REMOVE_SHEET: {
+                        controller.removeSheetDialog(classes);
+                        break;
+                    }
                 }
             }
-        }, new IntentFilter(ACTION_REMOVE_SHEET));
-        manager.registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Class<? extends SheetDialogFragment> clazz = local.getClass(intent);
-
-                if (clazz != null) {
-                    controller.moveSheetDialog(Launcher.this,
-                            clazz, Launcher.this::animateSheet);
-                }
-            }
-        }, new IntentFilter(ACTION_MOVE_SHEET));
-        manager.registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Class<? extends SheetDialogFragment> clazz = local.getClass(intent);
-
-                if (clazz != null) {
-                    controller.wrapInSheetDialog(Launcher.this,
-                            clazz, Launcher.this::animateSheet);
-                }
-            }
-        }, new IntentFilter(ACTION_ADD_SHEET));
+        }, filter);
     }
 
     public void displayLauncherOptions(Launcher activity, SheetsFocusController controller) {

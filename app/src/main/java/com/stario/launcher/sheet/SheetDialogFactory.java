@@ -26,35 +26,22 @@ import com.stario.launcher.sheet.behavior.top.TopSheetDialog;
 import com.stario.launcher.themes.ThemedActivity;
 
 public class SheetDialogFactory {
-    private static final SheetDialog[] dialogs = new SheetDialog[SheetType.values().length];
-
     public static SheetDialog forType(@NonNull SheetType type, ThemedActivity activity, int theme) {
-        if (dialogs[type.ordinal()] == null ||
-                !activity.equals(dialogs[type.ordinal()].getOwnerActivity())) {
-            switch (type) {
-                case TOP_SHEET: {
-                    dialogs[type.ordinal()] = new TopSheetDialog(activity, theme);
-
-                    break;
-                }
-                case RIGHT_SHEET: {
-                    dialogs[type.ordinal()] = new RightSheetDialog(activity, theme);
-
-                    break;
-                }
-                case BOTTOM_SHEET: {
-                    dialogs[type.ordinal()] = new BottomSheetDialog(activity, theme);
-
-                    break;
-                }
-                case LEFT_SHEET: {
-                    dialogs[type.ordinal()] = new LeftSheetDialog(activity, theme);
-
-                    break;
-                }
+        switch (type) {
+            case TOP_SHEET: {
+                return new TopSheetDialog(activity, theme);
+            }
+            case RIGHT_SHEET: {
+                return new RightSheetDialog(activity, theme);
+            }
+            case BOTTOM_SHEET: {
+                return new BottomSheetDialog(activity, theme);
+            }
+            case LEFT_SHEET: {
+                return new LeftSheetDialog(activity, theme);
             }
         }
 
-        return dialogs[type.ordinal()];
+        return null;
     }
 }

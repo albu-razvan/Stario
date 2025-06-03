@@ -40,6 +40,7 @@ import java.util.List;
 public class SheetsFocusController extends ConstraintLayout {
     private CheckForLongPress pendingCheckForLongPress;
     private View.OnLongClickListener longClickListener;
+    private SheetDialog.OnSlideListener slideListener;
     private boolean hasPerformedLongPress;
     private List<Integer> targetPointers;
     private boolean dispatchedMoveEvent;
@@ -68,6 +69,7 @@ public class SheetsFocusController extends ConstraintLayout {
     }
 
     private void init(Context context) {
+        this.slideListener = null;
         this.moveSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         this.wrappers = new SheetWrapper[SheetType.values().length];
         this.targetPointers = new ArrayList<>();
@@ -281,53 +283,62 @@ public class SheetsFocusController extends ConstraintLayout {
         }
     }
 
-    public void removeSheetDialog(
-            @NonNull Class<? extends SheetDialogFragment> dialogFragmentClass) {
-        for (int index = 0; index < wrappers.length; index++) {
-            SheetWrapper wrapper = wrappers[index];
+    public void setSlideListener(SheetDialog.OnSlideListener slideListener) {
+        this.slideListener = slideListener;
+    }
 
-            if (wrapper != null && wrapper.dialogFragment != null &&
-                    wrapper.dialogFragment.getClass().equals(dialogFragmentClass)) {
-                if (wrapper.dialogFragment.isAdded()) {
-                    wrapper.dialogFragment.dismissAllowingStateLoss();
+    @SafeVarargs
+    public final void removeSheetDialog(
+            @NonNull Class<? extends SheetDialogFragment>... dialogFragmentClass) {
+        for (Class<? extends SheetDialogFragment> clazz : dialogFragmentClass) {
+            for (int index = 0; index < wrappers.length; index++) {
+                SheetWrapper wrapper = wrappers[index];
+
+                if (wrapper != null && wrapper.dialogFragment != null &&
+                        wrapper.dialogFragment.getClass().equals(clazz)) {
+                    if (wrapper.dialogFragment.isAdded()) {
+                        wrapper.dialogFragment.dismissAllowingStateLoss();
+                    }
+
+                    wrappers[index] = null;
+
+                    break;
                 }
-
-                wrappers[index] = null;
-
-                break;
             }
         }
     }
 
-    public void moveSheetDialog(
+    @SafeVarargs
+    public final void moveSheetDialog(
             @NonNull Launcher launcher,
-            @NonNull Class<? extends SheetDialogFragment> dialogFragmentClass,
-            SheetDialog.OnSlideListener slideListener) {
+            @NonNull Class<? extends SheetDialogFragment>... dialogFragmentClass) {
         removeSheetDialog(dialogFragmentClass);
-        wrapInSheetDialog(launcher, dialogFragmentClass, slideListener);
+        addSheetDialog(launcher, dialogFragmentClass);
     }
 
-    public void wrapInSheetDialog(
+    @SafeVarargs
+    public final void addSheetDialog(
             @NonNull Launcher launcher,
-            @NonNull Class<? extends SheetDialogFragment> dialogFragmentClass,
-            SheetDialog.OnSlideListener slideListener) {
-        SheetType type = SheetType.getSheetTypeForSheetDialogFragment(dialogFragmentClass,
-                launcher.getSharedPreferences(Entry.SHEET));
+            @NonNull Class<? extends SheetDialogFragment>... dialogFragmentClass) {
+        for (Class<? extends SheetDialogFragment> clazz : dialogFragmentClass) {
+            SheetType type = SheetType.getSheetTypeForSheetDialogFragment(clazz,
+                    launcher.getSharedPreferences(Entry.SHEET));
 
-        if (type == null || wrappers[type.ordinal()] != null) {
-            return;
-        }
+            if (type == null || wrappers[type.ordinal()] != null) {
+                return;
+            }
 
-        try {
-            Constructor<? extends SheetDialogFragment> constructor =
-                    dialogFragmentClass.getConstructor(SheetType.class);
+            try {
+                Constructor<? extends SheetDialogFragment> constructor =
+                        clazz.getConstructor(SheetType.class);
 
-            wrappers[type.ordinal()] =
-                    new SheetWrapper(launcher, type, constructor.newInstance(type), slideListener);
-        } catch (Exception exception) {
-            throw new RuntimeException(dialogFragmentClass.getName() +
-                    "(" + SheetType.class.getName() + ")" +
-                    "has to be visible to public scope.");
+                wrappers[type.ordinal()] =
+                        new SheetWrapper(launcher, type, constructor.newInstance(type));
+            } catch (Exception exception) {
+                throw new RuntimeException(clazz.getName() +
+                        "(" + SheetType.class.getName() + ")" +
+                        "has to be visible to public scope.");
+            }
         }
     }
 
@@ -374,8 +385,8 @@ public class SheetsFocusController extends ConstraintLayout {
                         event.getAction() == MotionEvent.ACTION_MOVE) {
                     dispatchedMoveEvent = true;
                 }
-            } else if (wrapper.showRequest != null) {
-                wrapper.showRequest.show();
+            } else {
+                wrapper.show();
             }
         }
     }
@@ -408,34 +419,38 @@ public class SheetsFocusController extends ConstraintLayout {
         }
     }
 
-    public static class SheetWrapper {
+    public class SheetWrapper {
         private static final String TAG = "SheetWrapper";
 
         private final SheetDialogFragment dialogFragment;
-
-        private SheetWrapper.OnShowRequest showRequest;
+        private Runnable showRunnable;
 
         private SheetWrapper(Launcher launcher, SheetType type,
-                             @NonNull SheetDialogFragment fragment,
-                             SheetDialog.OnSlideListener listener) {
-            this.dialogFragment = fragment;
+                             @NonNull SheetDialogFragment fragment) {
+            dialogFragment = fragment;
 
             dialogFragment.setCancelable(false);
-            dialogFragment.setOnSlideListener(listener);
+            dialogFragment.setOnSlideListener(slideOffset -> {
+                if (slideListener != null) {
+                    slideListener.onSlide(slideOffset);
+                }
+            });
 
-            showRequest = () -> {
+            showRunnable = () -> {
                 FragmentManager manager = launcher.getSupportFragmentManager();
 
                 if (!manager.isDestroyed() && manager.findFragmentByTag(type.toString()) == null) {
                     dialogFragment.show(manager, type.toString());
                 }
 
-                showRequest = null;
+                showRunnable = null;
             };
         }
 
-        private interface OnShowRequest {
-            void show();
+        public void show() {
+            if (showRunnable != null) {
+                showRunnable.run();
+            }
         }
     }
 }
