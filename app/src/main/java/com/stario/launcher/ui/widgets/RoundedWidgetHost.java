@@ -19,7 +19,6 @@ package com.stario.launcher.ui.widgets;
 
 import android.appwidget.AppWidgetHostView;
 import android.content.Context;
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.stario.launcher.ui.utils.UiUtils;
@@ -49,17 +48,6 @@ public class RoundedWidgetHost extends AppWidgetHostView {
     @Override
     public void setPaddingRelative(int start, int top, int end, int bottom) {
         super.setPaddingRelative(0, 0, 0, 0);
-    }
-
-    @Override
-    public void addView(View child, int index, ViewGroup.LayoutParams params) {
-        if (child instanceof ViewGroup) {
-            child.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-                UiUtils.roundViewGroup((ViewGroup) child, RADIUS_DP);
-            });
-        }
-
-        super.addView(child, index, params);
     }
 
     @Override

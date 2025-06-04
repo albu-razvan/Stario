@@ -47,18 +47,16 @@ import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.SheetDialogFragment;
 import com.stario.launcher.sheet.SheetType;
-import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.sheet.widgets.Widget;
 import com.stario.launcher.sheet.widgets.WidgetSize;
 import com.stario.launcher.sheet.widgets.configurator.WidgetConfigurator;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.popup.PopupMenu;
+import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.ui.widgets.WidgetGrid;
 import com.stario.launcher.ui.widgets.WidgetHost;
 import com.stario.launcher.ui.widgets.WidgetScroller;
-import com.stario.launcher.ui.utils.UiUtils;
-import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.util.PriorityQueue;
 
@@ -73,6 +71,7 @@ public class WidgetsDialog extends SheetDialogFragment {
     private SharedPreferences widgetStore;
     private WidgetSize pendingWidgetSize;
     private AppWidgetManager manager;
+    private WidgetScroller scroller;
     private ThemedActivity activity;
     private ViewGroup placeholder;
     private LinearLayout content;
@@ -127,7 +126,7 @@ public class WidgetsDialog extends SheetDialogFragment {
         content = view.findViewById(R.id.content);
         placeholder = view.findViewById(R.id.placeholder);
         grid = view.findViewById(R.id.grid);
-        WidgetScroller scroller = view.findViewById(R.id.scroller);
+        scroller = view.findViewById(R.id.scroller);
         FadingEdgeLayout fader = view.findViewById(R.id.fader);
 
         View.OnClickListener showConfiguratorListener = (v) -> showConfigurator();
@@ -167,11 +166,7 @@ public class WidgetsDialog extends SheetDialogFragment {
         });
 
         setOnBackPressed(() -> {
-            if (scroller.canScrollVertically(1)) {
-                scroller.smoothScrollTo(0, 0);
-            } else {
-                hide(true);
-            }
+            hide(true);
 
             return false;
         });
@@ -199,7 +194,17 @@ public class WidgetsDialog extends SheetDialogFragment {
             }
         }
 
-        UiUtils.runOnUIThread(new AttachRunnable(widgets));
+        while (!widgets.isEmpty()) {
+            AppWidgetManager manager = AppWidgetManager.getInstance(activity);
+            Widget widget = widgets.poll();
+
+            if (widget != null) {
+                AppWidgetHostView host = createWidget(manager, widget);
+                grid.attach(host, widget);
+
+                placeholder.setVisibility(View.GONE);
+            }
+        }
 
         grid.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
                 columnSize = grid.computeCellSize());
@@ -324,7 +329,7 @@ public class WidgetsDialog extends SheetDialogFragment {
                     .alpha(1)
                     .setDuration(Animation.SHORT.getDuration()));
 
-            menu.show(activity, host, PopupMenu.PIVOT_DEFAULT);
+            menu.show(activity, host, PopupMenu.PIVOT_CENTER_HORIZONTAL, true);
 
             return true;
         });
@@ -374,6 +379,8 @@ public class WidgetsDialog extends SheetDialogFragment {
 
     @Override
     public void onStop() {
+        scroller.scrollTo(0, 0);
+
         if (host != null) {
             try {
                 host.stopListening();
@@ -383,28 +390,5 @@ public class WidgetsDialog extends SheetDialogFragment {
         }
 
         super.onStop();
-    }
-
-    private class AttachRunnable implements Runnable {
-        private final PriorityQueue<Widget> widgets;
-
-        public AttachRunnable(@NonNull PriorityQueue<Widget> widgets) {
-            this.widgets = widgets;
-        }
-
-        @Override
-        public void run() {
-            AppWidgetManager manager = AppWidgetManager.getInstance(activity);
-            Widget widget = widgets.poll();
-
-            if (widget != null) {
-                AppWidgetHostView host = createWidget(manager, widget);
-                grid.attach(host, widget);
-
-                placeholder.setVisibility(View.GONE);
-
-                UiUtils.runOnUIThreadDelayed(this, Animation.SHORT.getDuration());
-            }
-        }
     }
 }

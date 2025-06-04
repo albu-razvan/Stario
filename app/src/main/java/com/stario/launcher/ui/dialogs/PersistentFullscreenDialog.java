@@ -21,6 +21,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -137,6 +138,11 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(@NonNull MotionEvent ev) {
+        return activity.isTouchEnabled() && super.dispatchTouchEvent(ev);
     }
 
     public void setOnBackPressed(PersistentFullscreenDialog.OnBackPressed listener) {

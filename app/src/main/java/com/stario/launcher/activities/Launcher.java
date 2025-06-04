@@ -317,7 +317,7 @@ public class Launcher extends ThemedActivity {
                 }));
 
         menu.showAtLocation(activity, controller, controller.getLastX(),
-                controller.getLastY(), PopupMenu.PIVOT_CENTER_HORIZONTAL);
+                controller.getLastY(), PopupMenu.PIVOT_CENTER_HORIZONTAL, false);
     }
 
     private void animateSheet(float slideOffset) {
