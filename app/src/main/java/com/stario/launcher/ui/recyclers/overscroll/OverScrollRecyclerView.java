@@ -18,6 +18,7 @@
 package com.stario.launcher.ui.recyclers.overscroll;
 
 import android.graphics.Canvas;
+import android.view.MotionEvent;
 import android.widget.EdgeEffect;
 
 import androidx.annotation.NonNull;
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 public class OverScrollRecyclerView extends RecyclerView implements OverScroll {
+    private ArrayList<OverScrollEffect.OnOverScrollListener> overScrollListeners;
     private ArrayList<OverScrollEffect<OverScrollRecyclerView>> edgeEffects;
     private ArrayList<OnScrollListener> onScrollListeners;
     private ArrayList<OverScrollContract> contracts;
@@ -52,6 +54,7 @@ public class OverScrollRecyclerView extends RecyclerView implements OverScroll {
 
     private void init() {
         this.contracts = new ArrayList<>();
+        this.overScrollListeners = new ArrayList<>();
         this.onScrollListeners = new ArrayList<>();
         this.edgeEffects = new ArrayList<>();
         this.pullEdges = OverScrollEffect.PULL_EDGE_BOTTOM | OverScrollEffect.PULL_EDGE_TOP;
@@ -64,6 +67,10 @@ public class OverScrollRecyclerView extends RecyclerView implements OverScroll {
                     OverScrollEffect<OverScrollRecyclerView> effect =
                             new OverScrollEffect<>(OverScrollRecyclerView.this, pullEdges);
 
+                    for (OverScrollEffect.OnOverScrollListener listener : overScrollListeners) {
+                        effect.addOnOverScrollListener(listener);
+                    }
+
                     edgeEffects.add(effect);
 
                     return effect;
@@ -74,12 +81,36 @@ public class OverScrollRecyclerView extends RecyclerView implements OverScroll {
         });
     }
 
+    public void addOnOverScrollListener(OverScrollEffect.OnOverScrollListener listener) {
+        if (listener != null) {
+            overScrollListeners.add(listener);
+
+            for (OverScrollEffect<OverScrollRecyclerView> effect : edgeEffects) {
+                effect.addOnOverScrollListener(listener);
+            }
+        }
+    }
+
+    public void removeOnOverScrollListener(OverScrollEffect.OnOverScrollListener listener) {
+        if (listener != null) {
+            overScrollListeners.remove(listener);
+
+            for (OverScrollEffect<OverScrollRecyclerView> effect : edgeEffects) {
+                effect.removeOnOverScrollListener(listener);
+            }
+        }
+    }
+
     public void setOverscrollPullEdges(@OverScrollEffect.Edge int edges) {
         this.pullEdges = edges;
 
         for (OverScrollEffect<OverScrollRecyclerView> effect : edgeEffects) {
             effect.setPullEdges(edges);
         }
+    }
+
+    public int getOverscrollPullEdges() {
+        return pullEdges;
     }
 
     @Override
@@ -118,6 +149,15 @@ public class OverScrollRecyclerView extends RecyclerView implements OverScroll {
     @Override
     public void setEdgeEffectFactory(@NonNull EdgeEffectFactory edgeEffectFactory) {
         // override to disable external custom edge effects
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        for (OverScrollEffect<OverScrollRecyclerView> effect : edgeEffects) {
+            effect.onTouchEvent(event);
+        }
+
+        return super.dispatchTouchEvent(event);
     }
 
     @Override

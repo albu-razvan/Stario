@@ -35,6 +35,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.core.content.res.ResourcesCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.stario.launcher.R;
 import com.stario.launcher.activities.settings.Settings;
@@ -45,8 +46,11 @@ import com.stario.launcher.glance.extensions.calendar.Calendar;
 import com.stario.launcher.glance.extensions.media.Media;
 import com.stario.launcher.glance.extensions.weather.Weather;
 import com.stario.launcher.preferences.Vibrations;
-import com.stario.launcher.sheet.SheetType;
+import com.stario.launcher.sheet.SheetDialogFragment;
 import com.stario.launcher.sheet.SheetsFocusController;
+import com.stario.launcher.sheet.briefing.dialog.BriefingDialog;
+import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
+import com.stario.launcher.sheet.widgets.dialog.WidgetsDialog;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.lock.ClosingAnimationView;
@@ -58,10 +62,18 @@ import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.ui.utils.animation.WallpaperAnimator;
 import com.stario.launcher.utils.Utils;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Launcher extends ThemedActivity {
     public static final int MAX_BACKGROUND_ALPHA = 230;
-    public static final String ACTION_KILL_TASK = "com.stario.launcher.ACTION_KILL_TASK";
     public static final String INTENT_KILL_TASK_ID_EXTRA = "com.stario.launcher.INTENT_KILL_TASK_ID_EXTRA";
+    public static final String INTENT_SHEET_CLASS_EXTRA = "com.stario.launcher.INTENT_SHEET_CLASS_EXTRA";
+    public static final String ACTION_REMOVE_SHEET = "com.stario.launcher.ACTION_REMOVE_SHEET";
+    public static final String ACTION_MOVE_SHEET = "com.stario.launcher.ACTION_MOVE_SHEET";
+    public static final String ACTION_ADD_SHEET = "com.stario.launcher.ACTION_ADD_SHEET";
+    public static final String ACTION_KILL_TASK = "com.stario.launcher.ACTION_KILL_TASK";
 
     private BroadcastReceiver screenOnReceiver;
     private SheetsFocusController controller;
@@ -189,9 +201,85 @@ public class Launcher extends ThemedActivity {
     }
 
     private void attachSheets(SheetsFocusController controller) {
-        controller.wrapInDialog(this, SheetType.BOTTOM_SHEET, this::animateSheet);
-        controller.wrapInDialog(this, SheetType.TOP_SHEET, this::animateSheet);
-        controller.wrapInDialog(this, SheetType.LEFT_SHEET, this::animateSheet);
+        controller.setSlideListener(Launcher.this::animateSheet);
+        controller.addSheetDialog(this, ApplicationsDialog.class,
+                WidgetsDialog.class, BriefingDialog.class);
+
+        class Local {
+            Class<? extends SheetDialogFragment>[] getClasses(Intent intent) {
+                if (intent == null) {
+                    return null;
+                }
+
+                Serializable extra = intent.getSerializableExtra(INTENT_SHEET_CLASS_EXTRA);
+
+                if (extra == null) {
+                    return null;
+                }
+
+                List<Class<? extends SheetDialogFragment>> classes = new ArrayList<>();
+
+                if (extra instanceof Class<?> &&
+                        SheetDialogFragment.class.isAssignableFrom((Class<?>) extra)) {
+                    // noinspection unchecked
+                    classes.add((Class<? extends SheetDialogFragment>) extra);
+                } else if (extra.getClass().isArray()) {
+                    // noinspection DataFlowIssue
+                    Object[] array = (Object[]) extra;
+
+                    for (Object element : array) {
+                        if (element instanceof Class<?> &&
+                                SheetDialogFragment.class.isAssignableFrom((Class<?>) element)) {
+                            // noinspection unchecked
+                            classes.add((Class<? extends SheetDialogFragment>) element);
+                        }
+                    }
+                }
+
+                if (classes.isEmpty()) {
+                    return null;
+                }
+
+                // noinspection ToArrayCallWithZeroLengthArrayArgument, unchecked
+                return classes.toArray(new Class[classes.size()]);
+            }
+        }
+        Local local = new Local();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_ADD_SHEET);
+        filter.addAction(ACTION_MOVE_SHEET);
+        filter.addAction(ACTION_REMOVE_SHEET);
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Class<? extends SheetDialogFragment>[] classes = local.getClasses(intent);
+                if (classes == null) {
+                    return;
+                }
+
+                String action = intent.getAction();
+                if (action == null) {
+                    return;
+                }
+
+                switch (action) {
+                    case ACTION_ADD_SHEET: {
+                        controller.addSheetDialog(Launcher.this, classes);
+                        break;
+                    }
+                    case ACTION_MOVE_SHEET: {
+                        controller.moveSheetDialog(Launcher.this, classes);
+                        break;
+                    }
+                    case ACTION_REMOVE_SHEET: {
+                        controller.removeSheetDialog(classes);
+                        break;
+                    }
+                }
+            }
+        }, filter);
     }
 
     public void displayLauncherOptions(Launcher activity, SheetsFocusController controller) {
@@ -229,7 +317,7 @@ public class Launcher extends ThemedActivity {
                 }));
 
         menu.showAtLocation(activity, controller, controller.getLastX(),
-                controller.getLastY(), PopupMenu.PIVOT_CENTER_HORIZONTAL);
+                controller.getLastY(), PopupMenu.PIVOT_CENTER_HORIZONTAL, false);
     }
 
     private void animateSheet(float slideOffset) {

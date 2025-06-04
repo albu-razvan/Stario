@@ -43,6 +43,7 @@ android {
                            'src/main/res/launcher',
                            'src/main/res/drawer',
                            'src/main/res/drawer_interactions',
+                           'src/main/res/page_manager',
                            'src/main/res/briefing',
                            'src/main/res/briefing_configurator',
                            'src/main/res/settings',
@@ -109,7 +110,7 @@ dependencies {
     implementation 'androidx.viewpager:viewpager:1.1.0'
 
     implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.compose.material3:material3-android:1.3.1'
+    implementation 'androidx.compose.material3:material3-android:1.3.2'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'tk.zielony:carbon:0.17.0'
 

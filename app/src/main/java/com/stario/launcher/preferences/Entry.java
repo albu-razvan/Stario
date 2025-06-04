@@ -32,6 +32,7 @@ public enum Entry {
     SEARCH("SEARCH"),
     STARIO("STARIO"),
     DRAWER("DRAWER"),
+    SHEET("SHEET"),
     THEME("THEME"),
     ICONS("ICONS");
 
@@ -42,7 +43,7 @@ public enum Entry {
     }
 
     public static boolean isValid(String serialized) {
-        if(serialized != null && !serialized.isEmpty()) {
+        if (serialized != null && !serialized.isEmpty()) {
             for (Entry entry : Entry.values()) {
                 if (serialized.startsWith(entry.serialized)) {
                     return true;

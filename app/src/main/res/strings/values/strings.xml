@@ -49,6 +49,8 @@
     <string name="imperial_units">Imperial units</string>
     <string name="vibrations">Vibrations</string>
     <string name="change_color">Change accent color</string>
+    <string name="pages">Page manager</string>
+    <string name="home_page">Home</string>
     <string name="search_engine">Search engine</string>
     <string name="search_results">Search results</string>
     <string name="kagi_integration">Powered by Kagi</string>
@@ -132,7 +134,7 @@
     <string name="category_warning">This will create a new category with the provided name.</string>
 
     <!-- Briefing -->
-    <string name="briefing">Your briefing ↗</string>
+    <string name="briefing">Your briefing</string>
     <string name="briefing_configurator">Briefing</string>
     <string name="import_feed">Import a feed</string>
     <string name="link_feed">Import</string>

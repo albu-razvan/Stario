@@ -75,12 +75,15 @@ public class PopupMenu {
     private static final int ICON_SIZE = 64;
     private static final int PADDING = 10;
     private static final int WIDTH = 200;
+
+    private final PopupWindow.OnDismissListener dismissListener;
     private final HashMap<Integer,
             Map.Entry<RecyclerView, RecyclerAdapter>> recyclers;
+    private final LifecycleObserver observer;
+    private final PopupWindow popupWindow;
     private final ThemedActivity activity;
     private final LinearLayout root;
-    private final PopupWindow popupWindow;
-    private final LifecycleObserver observer;
+
     private int oldOrientationFlags;
     private int shortcutCount;
 
@@ -110,7 +113,15 @@ public class PopupMenu {
 
         popupWindow.setExitTransition(exit);
 
-        setOnDismissListener(null);
+        this.dismissListener = new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                activity.setTouchEnabled(true);
+                activity.setRequestedOrientation(oldOrientationFlags);
+                activity.getLifecycle().removeObserver(observer);
+            }
+        };
+        setOnDismissListener(dismissListener);
 
         this.observer = new DefaultLifecycleObserver() {
             @Override
@@ -260,8 +271,7 @@ public class PopupMenu {
 
     public void setOnDismissListener(PopupWindow.OnDismissListener listener) {
         popupWindow.setOnDismissListener(() -> {
-            activity.setRequestedOrientation(oldOrientationFlags);
-            activity.getLifecycle().removeObserver(observer);
+            dismissListener.onDismiss();
 
             if (listener != null) {
                 listener.onDismiss();
@@ -352,7 +362,13 @@ public class PopupMenu {
         return showAtLocation(parent, location, 0, gravity, pivotAxis, interceptTouches);
     }
 
-    public PopupWindow showAtLocation(Activity activity, View parent, float x, float y, short pivotAxis) {
+    public PopupWindow showAtLocation(Activity activity, View parent,
+                                      float x, float y, short pivotAxis) {
+        return showAtLocation(activity, parent, x, y, pivotAxis, true);
+    }
+
+    public PopupWindow showAtLocation(Activity activity, View parent,
+                                      float x, float y, short pivotAxis, boolean interceptTouches) {
         Window window = activity.getWindow();
 
         if (window == null) {
@@ -391,7 +407,7 @@ public class PopupMenu {
         }
 
         return showAtLocation(parent, location, Measurements.dpToPx(PADDING * 2),
-                gravity, pivotAxis, true);
+                gravity, pivotAxis, interceptTouches);
     }
 
     private PopupWindow showAtLocation(View parent, @Size(2) int[] location, int padding,
@@ -406,7 +422,9 @@ public class PopupMenu {
 
         if (popupWindow != null && !popupWindow.isShowing()) {
             root.post(() -> {
-                if ((pivotAxis & PIVOT_CENTER_HORIZONTAL) == PIVOT_DEFAULT) {
+                if ((pivotAxis & PIVOT_CENTER_HORIZONTAL) == PIVOT_CENTER_HORIZONTAL) {
+                    root.setPivotX(root.getMeasuredWidth() / 2f);
+                } else {
                     if ((gravity & Gravity.LEFT) == Gravity.LEFT) {
                         root.setPivotX(0);
                     } else if ((gravity & Gravity.RIGHT) == Gravity.RIGHT) {
@@ -414,7 +432,9 @@ public class PopupMenu {
                     }
                 }
 
-                if ((pivotAxis & PIVOT_CENTER_VERTICAL) == PIVOT_DEFAULT) {
+                if ((pivotAxis & PIVOT_CENTER_VERTICAL) == PIVOT_CENTER_VERTICAL) {
+                    root.setPivotY(root.getMeasuredHeight() / 2f);
+                } else {
                     if ((gravity & Gravity.TOP) == Gravity.TOP) {
                         root.setPivotY(0);
                     } else if ((gravity & Gravity.BOTTOM) == Gravity.BOTTOM) {
@@ -429,6 +449,7 @@ public class PopupMenu {
 
             oldOrientationFlags = activity.getRequestedOrientation();
 
+            activity.setTouchEnabled(!interceptTouches);
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
             activity.getLifecycle().addObserver(observer);
 
@@ -439,7 +460,7 @@ public class PopupMenu {
     }
 
     public void dismiss() {
-        if(popupWindow != null) {
+        if (popupWindow != null) {
             popupWindow.dismiss();
         }
     }

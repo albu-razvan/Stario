@@ -16,6 +16,8 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/folder"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -37,7 +39,7 @@
         android:layout_height="wrap_content"
         android:gravity="center">
 
-        <TextView
+        <com.stario.launcher.ui.common.text.WaveUnderlineTextView
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,8 +48,11 @@
             android:gravity="center"
             android:letterSpacing="-0.03"
             android:lines="1"
+            android:padding="22px"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="30sp" />
+            android:textSize="30sp"
+            app:waveColor="?attr/colorPrimaryVariant"
+            tools:ignore="PxUsage" />
 
     </RelativeLayout>
 

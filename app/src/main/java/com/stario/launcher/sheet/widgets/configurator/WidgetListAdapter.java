@@ -241,7 +241,7 @@ public class WidgetListAdapter extends RecyclerView.Adapter<WidgetListAdapter.Vi
         }
     }
 
-    static class WidgetGroupEntry implements Comparable<WidgetGroupEntry> {
+    public static class WidgetGroupEntry implements Comparable<WidgetGroupEntry> {
         final String packageName;
         final Drawable icon;
         final String label;

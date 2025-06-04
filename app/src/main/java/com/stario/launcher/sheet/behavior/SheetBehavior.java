@@ -33,6 +33,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams;
 import androidx.core.view.ViewCompat;
 import androidx.customview.widget.ViewDragHelper;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import java.lang.annotation.Retention;
@@ -543,6 +544,7 @@ public abstract class SheetBehavior<V extends View> extends CoordinatorLayout.Be
     @Nullable
     private View findNestedScrollingChild(View view) {
         if (ViewCompat.isNestedScrollingEnabled(view) &&
+                !(view instanceof SwipeRefreshLayout) &&
                 view.isAttachedToWindow() &&
                 view.isShown()) {
             Rect testRect = new Rect(0, 0, 0, 0);

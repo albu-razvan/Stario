@@ -33,6 +33,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
+import com.stario.launcher.sheet.SheetDialogFragment;
+import com.stario.launcher.sheet.SheetType;
+import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
@@ -77,6 +80,7 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
 
         assert container != null;
         search = container.getRootView().findViewById(R.id.search);
+        drawer.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
         drawer.addOnLayoutChangeListener((v, left, top, right, bottom,
                                           oldLeft, oldTop, oldRight, oldBottom) -> updateTitleTransforms(drawer));
         drawer.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -85,7 +89,58 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
                 updateTitleTransforms(drawer);
             }
         });
-        drawer.setOverscrollPullEdges(OverScrollEffect.PULL_EDGE_BOTTOM);
+
+        SheetType type = SheetType.getSheetTypeForSheetDialogFragment(activity, ApplicationsDialog.class);
+        if (type == SheetType.BOTTOM_SHEET) {
+            drawer.setOverscrollPullEdges(OverScrollEffect.PULL_EDGE_BOTTOM);
+        }
+
+        drawer.addOnOverScrollListener(new OverScrollEffect.OnOverScrollListener() {
+            private static final float HIDE_THRESHOLD_DP = 100;
+
+            private boolean receivedBottomOverscrollEvent;
+            private boolean receivedTopOverscrollEvent;
+            private float factor;
+
+            {
+                this.receivedTopOverscrollEvent = false;
+                this.receivedBottomOverscrollEvent = false;
+                this.factor = 0;
+            }
+
+            @Override
+            public void onOverScrollStateChanged(int edge, @NonNull OverScrollEffect.OverScrollState state) {
+                if (state == OverScrollEffect.OverScrollState.SETTLING) {
+                    if ((receivedTopOverscrollEvent && edge == OverScrollEffect.PULL_EDGE_TOP) ||
+                            (receivedBottomOverscrollEvent && edge == OverScrollEffect.PULL_EDGE_BOTTOM)) {
+                        if (factor * drawer.getMeasuredHeight() >
+                                Measurements.dpToPx(HIDE_THRESHOLD_DP)) {
+                            Fragment fragment = getParentFragment();
+                            if (fragment instanceof SheetDialogFragment) {
+                                ((SheetDialogFragment) fragment).hide(true);
+                            }
+                        }
+                    }
+
+                    receivedBottomOverscrollEvent = false;
+                    receivedTopOverscrollEvent = false;
+                } else if (state == OverScrollEffect.OverScrollState.IDLE) {
+                    receivedBottomOverscrollEvent = false;
+                    receivedTopOverscrollEvent = false;
+                } else if (state == OverScrollEffect.OverScrollState.OVER_SCROLLING) {
+                    if (edge == OverScrollEffect.PULL_EDGE_TOP) {
+                        receivedTopOverscrollEvent = true;
+                    } else if (edge == OverScrollEffect.PULL_EDGE_BOTTOM) {
+                        receivedBottomOverscrollEvent = true;
+                    }
+                }
+            }
+
+            @Override
+            public void onOverScrolled(int edge, float factor) {
+                this.factor = factor;
+            }
+        });
 
         titleContainer.getLayoutParams().height =
                 Measurements.dpToPx(Measurements.HEADER_SIZE_DP) + Measurements.spToPx(8);

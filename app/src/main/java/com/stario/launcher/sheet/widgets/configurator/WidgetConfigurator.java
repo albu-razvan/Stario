@@ -71,7 +71,7 @@ public class WidgetConfigurator extends ActionDialog {
 
     @Override
     protected boolean blurBehind() {
-        return false;
+        return true;
     }
 
     @Override

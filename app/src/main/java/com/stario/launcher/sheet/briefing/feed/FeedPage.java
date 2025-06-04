@@ -20,30 +20,28 @@ package com.stario.launcher.sheet.briefing.feed;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.apptasticsoftware.rssreader.Item;
 import com.stario.launcher.R;
 import com.stario.launcher.activities.Launcher;
+import com.stario.launcher.sheet.SheetType;
 import com.stario.launcher.sheet.briefing.BriefingFeedList;
+import com.stario.launcher.sheet.briefing.dialog.BriefingDialog;
 import com.stario.launcher.sheet.briefing.rss.RssParser;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.scrollers.CustomSwipeRefreshLayout;
+import com.stario.launcher.ui.recyclers.CustomStaggeredGridLayoutManager;
 import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
-import com.stario.launcher.ui.recyclers.managers.AccurateScrollComputeLinearLayoutManager;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
 import com.stario.launcher.ui.utils.UiUtils;
@@ -59,8 +57,8 @@ public class FeedPage extends Fragment {
 
     private static final float UPDATE_SCALE = 0.9f;
 
-    private AccurateScrollComputeLinearLayoutManager manager;
     private CustomSwipeRefreshLayout swipeRefreshLayout;
+    private CustomStaggeredGridLayoutManager manager;
     private OverScrollRecyclerView recyclerView;
     private ThemedActivity activity;
     private FeedPageAdapter adapter;
@@ -117,19 +115,36 @@ public class FeedPage extends Fragment {
 
         recyclerView.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE |
                 RecyclerItemAnimator.CHANGING, Animation.EXTENDED));
-        recyclerView.setOverscrollPullEdges(OverScrollEffect.PULL_EDGE_BOTTOM);
+
+        SheetType type = SheetType.getSheetTypeForSheetDialogFragment(activity, BriefingDialog.class);
+        if (type.getAxes() == View.SCROLL_AXIS_HORIZONTAL) {
+            recyclerView.setOverscrollPullEdges(OverScrollEffect.PULL_EDGE_BOTTOM);
+        } else {
+            recyclerView.addOnOverScrollListener(new OverScrollEffect.OnOverScrollListener() {
+                @Override
+                public void onOverScrollStateChanged(int edge, @NonNull OverScrollEffect.OverScrollState state) {
+
+                }
+
+                @Override
+                public void onOverScrolled(int edge, float factor) {
+
+                }
+            });
+        }
 
         invalidateLayoutPadding();
         Measurements.addNavListener(value ->
-                recyclerView.setPadding(0, recyclerView.getPaddingTop(), 0, value));
+                recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerView.getPaddingTop(),
+                        recyclerView.getPaddingRight(), value));
         title.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop,
                                          oldRight, oldBottom) -> invalidateLayoutPadding());
         tabs.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop,
                                         oldRight, oldBottom) -> invalidateLayoutPadding());
 
         Measurements.addStatusBarListener(object ->
-                recyclerView.setPadding(0, recyclerView.getPaddingTop(),
-                        0, Measurements.getNavHeight()));
+                recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerView.getPaddingTop(),
+                        recyclerView.getPaddingRight(), Measurements.getNavHeight()));
 
         if (adapter == null) {
             adapter = new FeedPageAdapter((Launcher) recyclerView.getContext(), recyclerView);
@@ -137,9 +152,9 @@ public class FeedPage extends Fragment {
             adapter.updateAttributes(recyclerView);
         }
 
-        manager = new AccurateScrollComputeLinearLayoutManager(activity);
+        manager = new CustomStaggeredGridLayoutManager(Measurements.getBriefingColumnCount());
+        Measurements.addBriefingColumnCountChangeListener(value -> manager.setSpanCount(value));
         manager.setItemPrefetchEnabled(true);
-        manager.setInitialPrefetchItemCount(4);
 
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(adapter);
@@ -168,7 +183,8 @@ public class FeedPage extends Fragment {
                 );
 
         Measurements.addNavListener(bottomInset ->
-                recyclerView.setPadding(0, recyclerView.getPaddingTop(), 0, bottomInset));
+                recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerView.getPaddingTop(),
+                        recyclerView.getPaddingRight(), bottomInset));
 
         return root;
     }
@@ -177,8 +193,8 @@ public class FeedPage extends Fragment {
         int titleHeight = title.getMeasuredHeight();
         int tabsHeight = tabs.getMeasuredHeight();
 
-        recyclerView.setPadding(0, Measurements.dpToPx(15) +
-                titleHeight + tabsHeight, 0, Measurements.getNavHeight());
+        recyclerView.setPadding(recyclerView.getPaddingLeft(), Measurements.dpToPx(15) +
+                titleHeight + tabsHeight, recyclerView.getPaddingRight(), Measurements.getNavHeight());
         exception.setPadding(0, (titleHeight + tabsHeight) / 2, 0, 0);
         swipeRefreshLayout.setProgressViewOffset(true,
                 titleHeight + tabsHeight, (int) ((titleHeight + tabsHeight) * 1.5f));

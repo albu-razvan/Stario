@@ -250,7 +250,8 @@ public class TopSheetBehavior<V extends View> extends SheetBehavior<V> {
                 if (state == STATE_EXPANDED && activePointerId == pointerId) {
                     View scroll = nestedScrollingChildRef != null ? nestedScrollingChildRef.get() : null;
 
-                    if (scroll != null && scroll.canScrollVertically(1)) {
+                    if (scroll != null && scroll.getVisibility() == View.VISIBLE
+                            && scroll.canScrollVertically(1)) {
                         return false;
                     }
                 }

@@ -20,15 +20,18 @@ package com.stario.launcher.ui.dialogs;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.OverScroller;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.WindowCompat;
+import androidx.customview.widget.ViewDragHelper;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -44,13 +47,15 @@ import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.ui.utils.animation.KeyboardAnimationHelper;
 import com.stario.launcher.utils.Utils;
 
+import java.lang.reflect.Field;
 import java.util.Objects;
 
 public abstract class ActionDialog extends BottomSheetDialog {
     protected final ThemedActivity activity;
 
+    private final HomeWatcher homeWatcher;
+
     private KeyboardHeightProvider heightProvider;
-    private HomeWatcher homeWatcher;
     private boolean canCollapse;
     private View root;
 
@@ -71,11 +76,11 @@ public abstract class ActionDialog extends BottomSheetDialog {
 
         activity.addOnConfigurationChangedListener(
                 configuration -> {
-                    ActionDialog.super.dismiss();
-
                     if (heightProvider != null) {
                         heightProvider.dismiss();
                     }
+
+                    dismissWithoutSheetAnimation();
                 });
 
         Lifecycle lifecycle = activity.getLifecycle();
@@ -87,11 +92,11 @@ public abstract class ActionDialog extends BottomSheetDialog {
 
             @Override
             public void onPause(@NonNull LifecycleOwner owner) {
-                ActionDialog.super.dismiss();
-
                 if (heightProvider != null) {
                     heightProvider.dismiss();
                 }
+
+                dismissWithoutSheetAnimation();
             }
         });
     }
@@ -205,9 +210,10 @@ public abstract class ActionDialog extends BottomSheetDialog {
             }
 
             window.setWindowAnimations(R.style.ActionDialogAnimations);
-
             window.getDecorView().setVisibility(View.INVISIBLE);
-            getBehavior().setState(BottomSheetBehavior.STATE_HIDDEN);
+
+            BottomSheetBehavior<?> behavior = getBehavior();
+            behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         }
 
         homeWatcher.startWatch();
@@ -290,6 +296,27 @@ public abstract class ActionDialog extends BottomSheetDialog {
         dismiss();
     }
 
+    private void dismissWithoutSheetAnimation() {
+        BottomSheetBehavior<?> behavior = getBehavior();
+        behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+        // skip framework animation
+        try {
+            ViewDragHelper helper = getViewDragHelper(behavior);
+            if(helper != null) {
+                OverScroller scroller = getScroller(helper);
+
+                if(scroller != null) {
+                    scroller.abortAnimation();
+                }
+            }
+        } catch (Exception exception) {
+            Log.e("ActionDialog", "onAttachedToWindow: ", exception);
+        }
+
+        // will dismiss since onSlide with slideoffset 0 will be called
+    }
+
     @Override
     public void dismiss() {
         BottomSheetBehavior<?> behavior = getBehavior();
@@ -308,6 +335,28 @@ public abstract class ActionDialog extends BottomSheetDialog {
         dismiss();
 
         super.onStop();
+    }
+
+    private static ViewDragHelper getViewDragHelper(BottomSheetBehavior<?> behavior) {
+        try {
+            Field field = BottomSheetBehavior.class.getDeclaredField("viewDragHelper");
+            field.setAccessible(true);
+
+            return (ViewDragHelper) field.get(behavior);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
+    private static OverScroller getScroller(ViewDragHelper viewDragHelper) {
+        try {
+            Field field = ViewDragHelper.class.getDeclaredField("mScroller");
+            field.setAccessible(true);
+
+            return (OverScroller) field.get(viewDragHelper);
+        } catch (Exception exception) {
+            return null;
+        }
     }
 
     protected abstract @NonNull View inflateContent(LayoutInflater inflater);

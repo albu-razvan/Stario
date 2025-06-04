@@ -31,6 +31,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -57,9 +58,11 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
     private final HashMap<Integer, OnActivityResult> activityResultListeners;
 
+    private boolean allowTouches;
     private Theme theme;
 
     public ThemedActivity() {
+        this.allowTouches = true;
         this.activityResultListeners = new HashMap<>();
     }
 
@@ -154,7 +157,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
                                     root.setScaleX(1f - progress * 0.15f);
                                     root.setScaleY(1f - progress * 0.15f);
 
-                                    if(progressRootBackground != null) {
+                                    if (progressRootBackground != null) {
                                         progressRootBackground.setCornerRadius(Measurements.dpToPx(10) +
                                                 progress * Measurements.dpToPx(20));
                                     }
@@ -233,6 +236,19 @@ abstract public class ThemedActivity extends AppCompatActivity {
             throw new IllegalArgumentException("Name must be declared in " +
                     Entry.class.getCanonicalName());
         }
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        return allowTouches && super.dispatchTouchEvent(ev);
+    }
+
+    public void setTouchEnabled(boolean enabled) {
+        this.allowTouches = enabled;
+    }
+
+    public boolean isTouchEnabled() {
+        return allowTouches;
     }
 
     public SharedPreferences getSharedPreferences(Entry entry) {

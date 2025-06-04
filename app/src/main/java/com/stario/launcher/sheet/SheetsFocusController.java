@@ -30,15 +30,17 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentManager;
 
 import com.stario.launcher.activities.Launcher;
-import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
+import com.stario.launcher.ui.utils.UiUtils;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SheetsFocusController extends ConstraintLayout {
     private CheckForLongPress pendingCheckForLongPress;
     private View.OnLongClickListener longClickListener;
+    private SheetDialog.OnSlideListener slideListener;
     private boolean hasPerformedLongPress;
     private List<Integer> targetPointers;
     private boolean dispatchedMoveEvent;
@@ -67,6 +69,7 @@ public class SheetsFocusController extends ConstraintLayout {
     }
 
     private void init(Context context) {
+        this.slideListener = null;
         this.moveSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         this.wrappers = new SheetWrapper[SheetType.values().length];
         this.targetPointers = new ArrayList<>();
@@ -280,9 +283,62 @@ public class SheetsFocusController extends ConstraintLayout {
         }
     }
 
-    public void wrapInDialog(Launcher launcher, SheetType type,
-                             @NonNull SheetDialog.OnSlideListener slideListener) {
-        wrappers[type.ordinal()] = new SheetWrapper(launcher, type, slideListener);
+    public void setSlideListener(SheetDialog.OnSlideListener slideListener) {
+        this.slideListener = slideListener;
+    }
+
+    @SafeVarargs
+    public final void removeSheetDialog(
+            @NonNull Class<? extends SheetDialogFragment>... dialogFragmentClass) {
+        for (Class<? extends SheetDialogFragment> clazz : dialogFragmentClass) {
+            for (int index = 0; index < wrappers.length; index++) {
+                SheetWrapper wrapper = wrappers[index];
+
+                if (wrapper != null && wrapper.dialogFragment != null &&
+                        wrapper.dialogFragment.getClass().equals(clazz)) {
+                    if (wrapper.dialogFragment.isAdded()) {
+                        wrapper.dialogFragment.dismissAllowingStateLoss();
+                    }
+
+                    wrappers[index] = null;
+
+                    break;
+                }
+            }
+        }
+    }
+
+    @SafeVarargs
+    public final void moveSheetDialog(
+            @NonNull Launcher launcher,
+            @NonNull Class<? extends SheetDialogFragment>... dialogFragmentClass) {
+        removeSheetDialog(dialogFragmentClass);
+        addSheetDialog(launcher, dialogFragmentClass);
+    }
+
+    @SafeVarargs
+    public final void addSheetDialog(
+            @NonNull Launcher launcher,
+            @NonNull Class<? extends SheetDialogFragment>... dialogFragmentClass) {
+        for (Class<? extends SheetDialogFragment> clazz : dialogFragmentClass) {
+            SheetType type = SheetType.getSheetTypeForSheetDialogFragment(launcher, clazz);
+
+            if (type == null || wrappers[type.ordinal()] != null) {
+                return;
+            }
+
+            try {
+                Constructor<? extends SheetDialogFragment> constructor =
+                        clazz.getConstructor(SheetType.class);
+
+                wrappers[type.ordinal()] =
+                        new SheetWrapper(launcher, type, constructor.newInstance(type));
+            } catch (Exception exception) {
+                throw new RuntimeException(clazz.getName() +
+                        "(" + SheetType.class.getName() + ")" +
+                        "has to be visible to public scope.");
+            }
+        }
     }
 
     private void dispatchSheetMotionEvent(MotionEvent event) {
@@ -328,9 +384,11 @@ public class SheetsFocusController extends ConstraintLayout {
                         event.getAction() == MotionEvent.ACTION_MOVE) {
                     dispatchedMoveEvent = true;
                 }
-            } else if (wrapper.showRequest != null) {
-                wrapper.showRequest.show();
+            } else {
+                wrapper.show();
             }
+        } else if (type == SheetType.TOP_SHEET) {
+            UiUtils.expandStatusBar(getContext());
         }
     }
 
@@ -350,46 +408,44 @@ public class SheetsFocusController extends ConstraintLayout {
                 SheetWrapper instance = wrappers[index];
 
                 if (instance != null && instance.dialogFragment.getSheetDialog() != null) {
-                    SheetBehavior<?> behavior = instance.dialogFragment.getBehavior();
-
-                    if (behavior != null) {
-                        behavior.setState(SheetBehavior.STATE_COLLAPSED, false);
-                    }
-
-                    instance.dialogFragment.getSheetDialog().hide();
+                    instance.dialogFragment.hide(false);
                 }
             }
         }
     }
 
-    public static class SheetWrapper {
+    public class SheetWrapper {
         private static final String TAG = "SheetWrapper";
 
         private final SheetDialogFragment dialogFragment;
-
-        private SheetWrapper.OnShowRequest showRequest;
+        private Runnable showRunnable;
 
         private SheetWrapper(Launcher launcher, SheetType type,
-                             @NonNull SheetDialog.OnSlideListener listener) {
-            this.dialogFragment = SheetDialogFactory.forType(type,
-                    launcher.getSharedPreferences(Entry.STARIO));
+                             @NonNull SheetDialogFragment fragment) {
+            dialogFragment = fragment;
 
             dialogFragment.setCancelable(false);
-            dialogFragment.setOnSlideListener(listener);
+            dialogFragment.setOnSlideListener(slideOffset -> {
+                if (slideListener != null) {
+                    slideListener.onSlide(slideOffset);
+                }
+            });
 
-            showRequest = () -> {
+            showRunnable = () -> {
                 FragmentManager manager = launcher.getSupportFragmentManager();
 
                 if (!manager.isDestroyed() && manager.findFragmentByTag(type.toString()) == null) {
                     dialogFragment.show(manager, type.toString());
                 }
 
-                showRequest = null;
+                showRunnable = null;
             };
         }
 
-        private interface OnShowRequest {
-            void show();
+        public void show() {
+            if (showRunnable != null) {
+                showRunnable.run();
+            }
         }
     }
 }

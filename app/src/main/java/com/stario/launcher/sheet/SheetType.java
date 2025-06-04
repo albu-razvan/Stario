@@ -17,15 +17,30 @@
 
 package com.stario.launcher.sheet;
 
+import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
+
+import com.stario.launcher.preferences.Entry;
+import com.stario.launcher.sheet.briefing.dialog.BriefingDialog;
+import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
+import com.stario.launcher.sheet.widgets.dialog.WidgetsDialog;
+import com.stario.launcher.themes.ThemedActivity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public enum SheetType {
     TOP_SHEET("com.stario.launcher.TOP_SHEET", View.SCROLL_AXIS_VERTICAL),
     BOTTOM_SHEET("com.stario.launcher.BOTTOM_SHEET", View.SCROLL_AXIS_VERTICAL),
     LEFT_SHEET("com.stario.launcher.LEFT_SHEET", View.SCROLL_AXIS_HORIZONTAL),
-    RIGHT_SHEET("com.stario.launcher.RIGHT_SHEET", View.SCROLL_AXIS_HORIZONTAL);
+    RIGHT_SHEET("com.stario.launcher.RIGHT_SHEET", View.SCROLL_AXIS_HORIZONTAL),
+    UNDEFINED("com.stario.launcher.UNDEFINED", View.SCROLL_AXIS_NONE);
+
+    private static final String TAG = "SheetType";
 
     private final String stringType;
     private final int axes;
@@ -37,6 +52,110 @@ public enum SheetType {
 
     public int getAxes() {
         return axes;
+    }
+
+    public static SheetType deserialize(String serial) {
+        if (serial == null) {
+            return null;
+        }
+
+        if (serial.equals(TOP_SHEET.stringType)) {
+            return TOP_SHEET;
+        } else if (serial.equals(RIGHT_SHEET.stringType)) {
+            return RIGHT_SHEET;
+        } else if (serial.equals(BOTTOM_SHEET.stringType)) {
+            return BOTTOM_SHEET;
+        } else if (serial.equals(LEFT_SHEET.stringType)) {
+            return LEFT_SHEET;
+        } else if (serial.equals(UNDEFINED.stringType)) {
+            return UNDEFINED;
+        }
+
+        return null;
+    }
+
+    public static List<Pair<SheetType, Class<? extends SheetDialogFragment>>> getActiveSheets(
+            @NonNull ThemedActivity activity) {
+        List<Pair<SheetType, Class<? extends SheetDialogFragment>>> list = new ArrayList<>();
+        SharedPreferences preferences = activity.getSharedPreferences(Entry.SHEET);
+        preferences.getAll().forEach((string, object) -> {
+            try {
+                Class<?> clazz = Class.forName(string);
+
+                if (SheetDialogFragment.class.isAssignableFrom(clazz)) {
+                    if (object instanceof String) {
+                        SheetType type = deserialize((String) object);
+
+                        if (type != null) {
+                            // noinspection unchecked
+                            list.add(new Pair<>(type, (Class<? extends SheetDialogFragment>) clazz));
+                        } else {
+                            Log.e(TAG, "getSheets: " + object + " does not map to a valid " + SheetType.class.getName() + " serial String.");
+                            preferences.edit().remove(string).apply();
+                        }
+                    } else {
+                        Log.e(TAG, "getSheets: " + string + " can only map to a " + SheetType.class.getName() + " serial String.");
+                        preferences.edit().remove(string).apply();
+                    }
+                } else {
+                    Log.e(TAG, "getSheets: " + string + " does not extend " + SheetDialogFragment.class.getName());
+                    preferences.edit().remove(string).apply();
+                }
+            } catch (ClassNotFoundException exception) {
+                Log.e(TAG, "getSheets: Could not get class " + string);
+                preferences.edit().remove(string).apply();
+            }
+        });
+
+        return list;
+    }
+
+    public static SheetType getSheetTypeForSheetDialogFragment(
+            @NonNull ThemedActivity activity, @NonNull Class<? extends SheetDialogFragment> clazz) {
+        SheetType type = null;
+        String typeString = activity.getSharedPreferences(Entry.SHEET)
+                .getString(clazz.getName(), null);
+
+        if (typeString != null) {
+            type = SheetType.deserialize(typeString);
+        }
+
+        if (type != null) {
+            return type;
+        }
+
+        return getDefaultSheetTypeForSheetDialogFragment(activity, clazz);
+    }
+
+    private static SheetType getDefaultSheetTypeForSheetDialogFragment(
+            ThemedActivity activity, Class<? extends SheetDialogFragment> clazz) {
+        SheetType type = null;
+        SharedPreferences preferences = activity.getSharedPreferences(Entry.SHEET);
+
+        if (clazz == ApplicationsDialog.class) {
+            preferences.edit()
+                    .putString(ApplicationsDialog.class.getName(),
+                            SheetType.BOTTOM_SHEET.toString())
+                    .apply();
+
+            type = SheetType.BOTTOM_SHEET;
+        } else if (clazz == BriefingDialog.class) {
+            preferences.edit()
+                    .putString(BriefingDialog.class.getName(),
+                            SheetType.LEFT_SHEET.toString())
+                    .apply();
+
+            type = SheetType.LEFT_SHEET;
+        } else if (clazz == WidgetsDialog.class) {
+            preferences.edit()
+                    .putString(WidgetsDialog.class.getName(),
+                            SheetType.RIGHT_SHEET.toString())
+                    .apply();
+
+            type = SheetType.RIGHT_SHEET;
+        }
+
+        return type;
     }
 
     @NonNull

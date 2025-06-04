@@ -38,7 +38,6 @@ import com.stario.launcher.R;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.SheetDialogFragment;
 import com.stario.launcher.sheet.SheetType;
-import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.sheet.briefing.BriefingFeedList;
 import com.stario.launcher.sheet.briefing.configurator.BriefingConfigurator;
 import com.stario.launcher.sheet.briefing.feed.BriefingAdapter;
@@ -74,6 +73,10 @@ public class BriefingDialog extends SheetDialogFragment {
         super(type);
 
         init();
+    }
+
+    public static String getName() {
+        return "Briefing";
     }
 
     private void init() {
@@ -199,11 +202,7 @@ public class BriefingDialog extends SheetDialogFragment {
         tabsContainer = (View) tabs.getParent();
 
         setOnBackPressed(() -> {
-            SheetBehavior<?> behavior = getBehavior();
-
-            if (behavior != null) {
-                getBehavior().setState(SheetBehavior.STATE_COLLAPSED);
-            }
+            hide(true);
 
             return true;
         });
@@ -220,7 +219,7 @@ public class BriefingDialog extends SheetDialogFragment {
 
             @Override
             public void onClick(View view) {
-                if (configurator == null || !activity.equals(configurator.getContext())) {
+                if (configurator == null) {
                     configurator = new BriefingConfigurator(activity);
                 }
 

@@ -15,12 +15,19 @@
   ~ along with this program. If not, see <http://www.gnu.org/licenses/>
   -->
 
-<resources>
-    <declare-styleable name="AdaptiveIconView">
-        <attr name="sizeRestricted" format="boolean" />
-        <attr name="looseClipping" format="boolean" />
-    </declare-styleable>
-    <declare-styleable name="WaveUnderlineTextView">
-        <attr name="waveColor" format="color" />
-    </declare-styleable>
-</resources>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:bottom="5dp"
+        android:left="5dp"
+        android:right="5dp"
+        android:top="5dp">
+        <shape>
+            <stroke
+                android:width="2dp"
+                android:color="?attr/colorPrimary"
+                android:dashWidth="4dp"
+                android:dashGap="2dp" />
+            <corners android:radius="15dp" />
+        </shape>
+    </item>
+</layer-list>

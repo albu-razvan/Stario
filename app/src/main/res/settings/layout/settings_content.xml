@@ -41,6 +41,7 @@
         android:divider="@drawable/transparent_divider_small"
         android:orientation="vertical"
         android:showDividers="middle"
+        android:transitionGroup="true"
         app:carbon_cornerRadius="20dp">
 
         <carbon.widget.RelativeLayout
@@ -143,6 +144,21 @@
 
         </carbon.widget.RelativeLayout>
 
+        <carbon.widget.TextView
+            android:id="@+id/pages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:drawableStart="@drawable/ic_pages"
+            android:drawablePadding="10dp"
+            android:fontFamily="@font/dm_sans_medium"
+            android:letterSpacing="-0.03"
+            android:padding="15dp"
+            android:text="@string/pages"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="20sp"
+            app:carbon_cornerRadius="5dp" />
+
     </carbon.widget.LinearLayout>
 
     <TextView
@@ -162,6 +178,7 @@
         android:divider="@drawable/transparent_divider_small"
         android:orientation="vertical"
         android:showDividers="middle"
+        android:transitionGroup="true"
         app:carbon_cornerRadius="20dp">
 
         <carbon.widget.LinearLayout
@@ -283,6 +300,7 @@
         android:divider="@drawable/transparent_divider_small"
         android:orientation="vertical"
         android:showDividers="middle"
+        android:transitionGroup="true"
         app:carbon_cornerRadius="20dp">
 
         <carbon.widget.LinearLayout
@@ -415,6 +433,7 @@
         android:paddingTop="7dp"
         android:paddingEnd="15dp"
         android:paddingBottom="7dp"
+        android:transitionGroup="true"
         app:carbon_cornerRadius="20dp">
 
         <ImageView
@@ -472,6 +491,7 @@
         android:divider="@drawable/transparent_divider_small"
         android:orientation="vertical"
         android:showDividers="middle"
+        android:transitionGroup="true"
         app:carbon_cornerRadius="20dp">
 
         <carbon.widget.RelativeLayout
@@ -518,6 +538,7 @@
         android:divider="@drawable/transparent_divider_small"
         android:orientation="vertical"
         android:showDividers="middle"
+        android:transitionGroup="true"
         app:carbon_cornerRadius="20dp">
 
         <carbon.widget.TextView
@@ -569,6 +590,7 @@
         android:divider="@drawable/transparent_divider_small"
         android:orientation="vertical"
         android:showDividers="middle"
+        android:transitionGroup="true"
         app:carbon_cornerRadius="20dp">
 
         <carbon.widget.ConstraintLayout
@@ -578,7 +600,6 @@
             app:carbon_cornerRadius="5dp">
 
             <com.stario.launcher.ui.common.GradientView
-                android:id="@+id/gradient_background"
                 android:layout_width="match_parent"
                 android:layout_height="0px"
                 app:layout_constraintBottom_toBottomOf="parent"

@@ -40,9 +40,7 @@ public class WidgetScroller extends BottomNestedScrollView {
     }
 
     @Override
-    public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed, int type) {
-        if (!target.canScrollVertically(1)) {
-            super.onNestedPreScroll(target, dx, dy, consumed, type);
-        }
+    public boolean onNestedFling(@NonNull View target, float velocityX, float velocityY, boolean consumed) {
+        return super.onNestedFling(target, velocityX, -velocityY, consumed);
     }
 }

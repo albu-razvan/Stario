@@ -19,6 +19,7 @@ package com.stario.launcher.activities.settings;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.role.RoleManager;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -40,6 +41,7 @@ import androidx.core.app.ActivityOptionsCompat;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.stario.launcher.BuildConfig;
 import com.stario.launcher.R;
+import com.stario.launcher.activities.PageManager;
 import com.stario.launcher.activities.settings.dialogs.AccessibilityConfigurator;
 import com.stario.launcher.activities.settings.dialogs.NotificationConfigurator;
 import com.stario.launcher.activities.settings.dialogs.hide.HideApplicationsDialog;
@@ -62,6 +64,7 @@ import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.CollapsibleTitleBar;
 import com.stario.launcher.ui.common.lock.LockDetector;
 import com.stario.launcher.ui.utils.HomeWatcher;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 public class Settings extends ThemedActivity {
@@ -90,11 +93,13 @@ public class Settings extends ThemedActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
 
+        UiUtils.Notch.applyNotchMargin(getRoot(), UiUtils.Notch.INVERSE);
+
         postponeEnterTransition();
 
         homeWatcher = new HomeWatcher(this);
         homeWatcher.setOnHomePressedListener(() -> {
-            if(!isActivityTransitionRunning() && !isFinishing()) {
+            if (!isActivityTransitionRunning() && !isFinishing()) {
                 finishAfterTransition();
             }
         });
@@ -325,10 +330,14 @@ public class Settings extends ThemedActivity {
             }
         });
 
+        findViewById(R.id.pages).setOnClickListener(view ->
+                startActivity(new Intent(this, PageManager.class),
+                        ActivityOptions.makeSceneTransitionAnimation(this).toBundle()));
+
         findViewById(R.id.restart).setOnClickListener(view -> {
             shouldRebirth = true;
 
-            if(!isActivityTransitionRunning() && !isFinishing()) {
+            if (!isActivityTransitionRunning() && !isFinishing()) {
                 finishAfterTransition();
             }
         });

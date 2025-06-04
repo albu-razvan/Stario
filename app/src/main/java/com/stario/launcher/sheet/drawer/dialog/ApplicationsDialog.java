@@ -54,6 +54,8 @@ import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.ui.utils.animation.FragmentTransition;
 import com.stario.launcher.utils.Utils;
 
+import java.util.Objects;
+
 public class ApplicationsDialog extends SheetDialogFragment {
     private static final String APPLICATIONS_PAGE = "com.stario.APPLICATIONS_PAGE";
 
@@ -71,13 +73,16 @@ public class ApplicationsDialog extends SheetDialogFragment {
         super(type);
     }
 
+    public static String getName() {
+        return "Application Drawer";
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
         activity = (ThemedActivity) context;
     }
-
 
     @Nullable
     @Override
@@ -88,6 +93,7 @@ public class ApplicationsDialog extends SheetDialogFragment {
 
         pager = root.findViewById(R.id.pager);
         search = root.findViewById(R.id.search);
+        ViewGroup searchContainer = (ViewGroup) search.getParent();
         FadingEdgeLayout fader = root.findViewById(R.id.fader);
 
         setOnBackPressed(() -> {
@@ -100,7 +106,7 @@ public class ApplicationsDialog extends SheetDialogFragment {
                     SheetBehavior<?> behavior = getBehavior();
 
                     if (behavior != null) {
-                        behavior.setState(SheetBehavior.STATE_COLLAPSED);
+                        hide(true);
                         behavior.setDraggable(true);
                     }
 
@@ -120,9 +126,21 @@ public class ApplicationsDialog extends SheetDialogFragment {
 
                     @Override
                     public void onSlide(@NonNull View sheet, float slideOffset) {
-                        search.setTranslationY((1f - slideOffset) *
-                                -(Measurements.dpToPx(SheetBehavior.COLLAPSED_DELTA_DP)
-                                        - search.getMeasuredHeight() * 2));
+                        if (getType() == SheetType.BOTTOM_SHEET) {
+                            searchContainer.setTranslationY((1f - slideOffset) *
+                                    -(Measurements.dpToPx(SheetBehavior.COLLAPSED_DELTA_DP)
+                                            - search.getMeasuredHeight() * 2));
+                            searchContainer.setTranslationX(0);
+                        } else if (getType() == SheetType.LEFT_SHEET) {
+                            searchContainer.setTranslationY(0);
+                            searchContainer.setTranslationX((1f - slideOffset) *
+                                    search.getMeasuredWidth() / 4);
+                        } else if (getType() == SheetType.RIGHT_SHEET) {
+                            searchContainer.setTranslationY(0);
+                            searchContainer.setTranslationX((slideOffset - 1f) *
+                                    -(Measurements.dpToPx(SheetBehavior.COLLAPSED_DELTA_DP)
+                                            - search.getMeasuredHeight() * 2));
+                        }
                     }
 
                     @Override
@@ -133,7 +151,7 @@ public class ApplicationsDialog extends SheetDialogFragment {
                                     getChildFragmentManager()
                                             .popBackStackImmediate(SearchFragment.TAG,
                                                     FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                                    getBehavior().setDraggable(true);
+                                    Objects.requireNonNull(getBehavior()).setDraggable(true);
                                 } catch (Exception exception) {
                                     Log.e("ApplicationsDialog",
                                             "onStateChanged: " + exception.getMessage());
@@ -150,7 +168,8 @@ public class ApplicationsDialog extends SheetDialogFragment {
                                 });
                             }
                         } else if (newState == SheetBehavior.STATE_EXPANDED) {
-                            search.setTranslationY(0);
+                            searchContainer.setTranslationY(0);
+                            searchContainer.setTranslationX(0);
                         }
                     }
 
@@ -172,8 +191,6 @@ public class ApplicationsDialog extends SheetDialogFragment {
         });
 
         Measurements.addNavListener(value -> {
-            View searchContainer = (View) search.getParent();
-
             searchContainer.setPadding(searchContainer.getPaddingLeft(), searchContainer.getPaddingTop(),
                     searchContainer.getPaddingRight(), value + Measurements.dpToPx(20));
 

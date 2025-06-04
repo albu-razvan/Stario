@@ -112,7 +112,7 @@
                             android:visibility="gone"
                             app:layout_constraintBottom_toBottomOf="parent" />
 
-                        <com.stario.launcher.ui.common.PulsingTextView
+                        <com.stario.launcher.ui.common.text.PulsingTextView
                             android:id="@+id/searching"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"

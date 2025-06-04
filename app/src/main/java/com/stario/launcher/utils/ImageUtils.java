@@ -19,14 +19,19 @@ package com.stario.launcher.utils;
 
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
+import android.view.View;
 
-import com.stario.launcher.apps.ProfileManager;
+import androidx.annotation.NonNull;
+
 import com.stario.launcher.apps.ProfileApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.ui.Measurements;
 
 import java.util.List;
@@ -40,7 +45,7 @@ public class ImageUtils {
         for (ProfileApplicationManager profile : profiles) {
             LauncherActivityInfo main = Utils.getMainActivity(service, packageName, profile.handle);
 
-            if(main != null) {
+            if (main != null) {
                 drawable = main.getIcon(Measurements.getDotsPerInch());
 
                 if (drawable instanceof AdaptiveIconDrawable) {
@@ -49,11 +54,21 @@ public class ImageUtils {
             }
         }
 
-        if(drawable != null) {
+        if (drawable != null) {
             return new AdaptiveIconDrawable(new ColorDrawable(Color.WHITE),
                     new InsetDrawable(drawable, AdaptiveIconDrawable.getExtraInsetFraction()));
         }
 
         return null;
+    }
+
+    public static Bitmap toBitmap(@NonNull View view) {
+        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+
+        view.layout(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
+        view.draw(canvas);
+
+        return bitmap;
     }
 }

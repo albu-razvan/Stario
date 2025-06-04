@@ -68,6 +68,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             android:visibility="invisible" />
 
     </com.stario.launcher.ui.common.scrollers.CustomSwipeRefreshLayout>
