@@ -17,6 +17,7 @@
 
 package com.stario.launcher.ui.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Outline;
@@ -27,6 +28,7 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.transition.Fade;
 import android.transition.TransitionSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
@@ -107,6 +109,24 @@ public class UiUtils {
         }
 
         WindowCompat.setDecorFitsSystemWindows(window, false);
+    }
+
+    // https://stackoverflow.com/a/54198408
+    public static void expandStatusBar(Context context) {
+        if (context == null) {
+            return;
+        }
+
+        try {
+            @SuppressLint("WrongConstant") Object service =
+                    context.getSystemService("statusbar");
+            Class<?> statusBarManager = Class.forName("android.app.StatusBarManager");
+
+            //noinspection JavaReflectionMemberAccess
+            statusBarManager.getMethod("expandNotificationsPanel").invoke(service);
+        } catch (Exception exception) {
+            Log.e("UiUtils", "expandStatusBar: Could not expand the status bar.", exception);
+        }
     }
 
     public static boolean areTransitionsOn(Context context) {

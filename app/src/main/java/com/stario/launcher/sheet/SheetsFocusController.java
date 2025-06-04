@@ -31,6 +31,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.stario.launcher.activities.Launcher;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
+import com.stario.launcher.ui.utils.UiUtils;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -386,6 +387,8 @@ public class SheetsFocusController extends ConstraintLayout {
             } else {
                 wrapper.show();
             }
+        } else if (type == SheetType.TOP_SHEET) {
+            UiUtils.expandStatusBar(getContext());
         }
     }
 
