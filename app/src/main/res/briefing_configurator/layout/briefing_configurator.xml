@@ -78,7 +78,7 @@
 
         </LinearLayout>
 
-        <com.stario.launcher.ui.common.PulsingTextView
+        <com.stario.launcher.ui.common.text.PulsingTextView
             android:id="@+id/limit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

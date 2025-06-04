@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.ui.common;
+package com.stario.launcher.ui.common.text;
 
 import android.animation.ValueAnimator;
 import android.content.Context;

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -20,5 +19,8 @@
     <declare-styleable name="AdaptiveIconView">
         <attr name="sizeRestricted" format="boolean" />
         <attr name="looseClipping" format="boolean" />
+    </declare-styleable>
+    <declare-styleable name="WaveUnderlineTextView">
+        <attr name="waveColor" format="color" />
     </declare-styleable>
 </resources>

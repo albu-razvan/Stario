@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -37,7 +36,7 @@
             android:layout_height="match_parent"
             android:translationZ="-1px" />
 
-        <TextView
+        <com.stario.launcher.ui.common.text.WaveUnderlineTextView
             android:id="@+id/title_feeds"
             android:layout_width="match_parent"
             android:layout_height="250dp"
@@ -49,11 +48,12 @@
             android:paddingStart="30dp"
             android:paddingTop="20dp"
             android:paddingEnd="30dp"
-            android:paddingBottom="20dp"
+            android:paddingBottom="30dp"
             android:text="@string/briefing"
             android:textColor="?attr/colorOnSurface"
             android:textSize="30sp"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:waveColor="?attr/colorSecondary" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

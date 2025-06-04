@@ -47,7 +47,7 @@ import com.stario.launcher.sheet.briefing.feed.Feed;
 import com.stario.launcher.sheet.briefing.rss.RssParser;
 import com.stario.launcher.sheet.briefing.rss.WoodstoxAbstractRssReader;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.common.PulsingTextView;
+import com.stario.launcher.ui.common.text.PulsingTextView;
 import com.stario.launcher.ui.dialogs.ActionDialog;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
