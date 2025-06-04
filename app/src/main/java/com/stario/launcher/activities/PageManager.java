@@ -169,6 +169,10 @@ public class PageManager extends ThemedActivity {
 
                 private void reset(View view) {
                     view.setVisibility(View.VISIBLE);
+                    View removeButton = view.findViewById(R.id.remove);
+                    if (removeButton != null) {
+                        removeButton.setVisibility(View.VISIBLE);
+                    }
 
                     dragging = false;
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -190,13 +194,38 @@ public class PageManager extends ThemedActivity {
     public void onConfigurationChanged(@NonNull Configuration configuration) {
         super.onConfigurationChanged(configuration);
 
-        invalidateViews();
+        homePage.post(() -> homePage.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                homePage.removeOnLayoutChangeListener(this);
+                invalidateViews();
+            }
+        }));
     }
 
     private View inflatePage(SheetType type, Class<? extends SheetDialogFragment> clazz) {
-        View page = inflater.inflate(R.layout.system_page, pageContainer, false);
-        page.setClipToOutline(true);
+        ViewGroup page = (ViewGroup) inflater.inflate(R.layout.system_page, pageContainer, false);
+        page.setClipToOutline(false);
+        page.setClipChildren(false);
         measure(page);
+
+        View remove = page.findViewById(R.id.remove);
+        remove.setOnClickListener(v -> {
+            ViewParent parent = page.getParent();
+
+            if (parent != null) {
+                ((ViewGroup) parent).removeView(page);
+
+                preferences.edit()
+                        .putString(clazz.getName(), SheetType.UNDEFINED.toString())
+                        .apply();
+
+                Intent intent = new Intent(Launcher.ACTION_REMOVE_SHEET);
+                intent.putExtra(Launcher.INTENT_SHEET_CLASS_EXTRA, clazz);
+                broadcastManager.sendBroadcastSync(intent);
+            }
+        });
 
         String name = null;
         try {
@@ -216,124 +245,134 @@ public class PageManager extends ThemedActivity {
                 name = clazz.getSimpleName();
             }
 
-            ((TextView) page.findViewById(R.id.name)).setText(name);
+            ((TextView) page.findViewById(R.id.name))
+                    .setText(name.replace(" ", System.lineSeparator()));
         }
 
         View gradient = page.findViewById(R.id.gradient_background);
-        gradient.setOnDragListener((v, event) -> {
-            if (event.getAction() == DragEvent.ACTION_DROP) {
-                ViewParent pageParent = page.getParent();
-                if (!(pageParent instanceof ViewGroup)) {
-                    return false;
+        gradient.setOnDragListener(new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                if (event.getAction() == DragEvent.ACTION_DROP) {
+                    ViewParent pageParent = page.getParent();
+                    if (!(pageParent instanceof ViewGroup)) {
+                        return false;
+                    }
+
+                    View draggedPage = (View) event.getLocalState();
+                    ViewParent parent = draggedPage.getParent();
+                    ViewGroup view = (ViewGroup) pageParent;
+
+                    if (parent instanceof ViewGroup && !parent.equals(view)) {
+                        ViewGroup group = (ViewGroup) parent;
+
+                        View otherPage = view.getChildAt(0);
+                        view.removeView(otherPage);
+                        group.addView(otherPage);
+
+                        for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
+                            if (pair.first.equals(group)) {
+                                preferences.edit()
+                                        .putString(pages.get(otherPage).getName(), pair.second.toString())
+                                        .apply();
+
+                                break;
+                            }
+                        }
+
+                        group.removeView(draggedPage);
+                        view.addView(draggedPage);
+
+                        for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
+                            if (pair.first.equals(view)) {
+                                preferences.edit()
+                                        .putString(pages.get(draggedPage).getName(), pair.second.toString())
+                                        .apply();
+
+                                break;
+                            }
+                        }
+
+                        Intent intent = new Intent(Launcher.ACTION_MOVE_SHEET);
+                        intent.putExtra(Launcher.INTENT_SHEET_CLASS_EXTRA,
+                                new Class[]{pages.get(draggedPage), pages.get(otherPage)});
+                        broadcastManager.sendBroadcastSync(intent);
+                    }
+
+                    reset(draggedPage);
+
+                    return true;
                 }
 
-                View draggedPage = (View) event.getLocalState();
-                ViewParent parent = draggedPage.getParent();
-                ViewGroup view = (ViewGroup) pageParent;
+                if (event.getAction() == DragEvent.ACTION_DROP) {
+                    ViewParent pageParent = page.getParent();
+                    if (!(pageParent instanceof ViewGroup)) {
+                        return false;
+                    }
 
-                if (parent instanceof ViewGroup && !parent.equals(view)) {
-                    ViewGroup group = (ViewGroup) parent;
+                    ViewGroup dropTargetContainer = (ViewGroup) pageParent;
+                    View draggedPage = (View) event.getLocalState();
+                    ViewParent parent = draggedPage.getParent();
 
-                    View otherPage = view.getChildAt(0);
-                    view.removeView(otherPage);
-                    group.addView(otherPage);
+                    if (!(parent instanceof ViewGroup) ||
+                            parent.equals(dropTargetContainer)) {
+                        return false;
+                    }
+
+                    ViewGroup originalContainer = (ViewGroup) parent;
+                    View pageInDropTarget = dropTargetContainer.getChildAt(0);
+
+                    dropTargetContainer.removeView(pageInDropTarget);
+                    originalContainer.addView(pageInDropTarget);
 
                     for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
-                        if (pair.first.equals(group)) {
+                        if (pair.first.equals(originalContainer)) {
+                            //noinspection DataFlowIssue
                             preferences.edit()
-                                    .putString(pages.get(otherPage).getName(), pair.second.toString())
+                                    .putString(pages.get(pageInDropTarget)
+                                            .getName(), pair.second.toString())
                                     .apply();
-
                             break;
                         }
                     }
 
-                    group.removeView(draggedPage);
-                    view.addView(draggedPage);
+                    originalContainer.removeView(draggedPage);
+                    dropTargetContainer.addView(draggedPage);
 
                     for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
-                        if (pair.first.equals(view)) {
+                        if (pair.first.equals(dropTargetContainer)) {
+                            //noinspection DataFlowIssue
                             preferences.edit()
-                                    .putString(pages.get(draggedPage).getName(), pair.second.toString())
+                                    .putString(pages.get(draggedPage)
+                                            .getName(), pair.second.toString())
                                     .apply();
-
                             break;
                         }
                     }
 
                     Intent intent = new Intent(Launcher.ACTION_MOVE_SHEET);
                     intent.putExtra(Launcher.INTENT_SHEET_CLASS_EXTRA,
-                            new Class[]{pages.get(draggedPage), pages.get(otherPage)});
+                            new Class[]{pages.get(draggedPage), pages.get(pageInDropTarget)});
                     broadcastManager.sendBroadcastSync(intent);
+
+                    reset(draggedPage);
+
+                    return true;
                 }
 
-                draggedPage.setVisibility(View.VISIBLE);
+                return false;
+            }
+
+            private void reset(View view) {
+                view.setVisibility(View.VISIBLE);
+                View removeButton = view.findViewById(R.id.remove);
+                if (removeButton != null) {
+                    removeButton.setVisibility(View.VISIBLE);
+                }
 
                 dragging = false;
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-
-                return true;
             }
-
-            if (event.getAction() == DragEvent.ACTION_DROP) {
-                ViewParent pageParent = page.getParent();
-                if (!(pageParent instanceof ViewGroup)) {
-                    return false;
-                }
-
-                ViewGroup dropTargetContainer = (ViewGroup) pageParent;
-                View draggedPage = (View) event.getLocalState();
-                ViewParent parent = draggedPage.getParent();
-
-                if (!(parent instanceof ViewGroup) ||
-                        parent.equals(dropTargetContainer)) {
-                    return false;
-                }
-
-                ViewGroup originalContainer = (ViewGroup) parent;
-                View pageInDropTarget = dropTargetContainer.getChildAt(0);
-
-                dropTargetContainer.removeView(pageInDropTarget);
-                originalContainer.addView(pageInDropTarget);
-
-                for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
-                    if (pair.first.equals(originalContainer)) {
-                        //noinspection DataFlowIssue
-                        preferences.edit()
-                                .putString(pages.get(pageInDropTarget)
-                                        .getName(), pair.second.toString())
-                                .apply();
-                        break;
-                    }
-                }
-
-                originalContainer.removeView(draggedPage);
-                dropTargetContainer.addView(draggedPage);
-
-                for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
-                    if (pair.first.equals(dropTargetContainer)) {
-                        //noinspection DataFlowIssue
-                        preferences.edit()
-                                .putString(pages.get(draggedPage)
-                                        .getName(), pair.second.toString())
-                                .apply();
-                        break;
-                    }
-                }
-
-                Intent intent = new Intent(Launcher.ACTION_MOVE_SHEET);
-                intent.putExtra(Launcher.INTENT_SHEET_CLASS_EXTRA,
-                        new Class[]{pages.get(draggedPage), pages.get(pageInDropTarget)});
-                broadcastManager.sendBroadcastSync(intent);
-
-                dragging = false;
-                draggedPage.setVisibility(View.VISIBLE);
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-
-                return true;
-            }
-
-            return false;
         });
         gradient.setOnTouchListener(new View.OnTouchListener() {
             private final Point touchPoint;
@@ -348,6 +387,7 @@ public class PageManager extends ThemedActivity {
                             new ClipData.Item((CharSequence) page.getTag())
                     );
 
+                    remove.setVisibility(View.INVISIBLE);
                     View.DragShadowBuilder shadowBuilder = new DragShadowBuilder(page, touchPoint);
                     page.startDragAndDrop(dragData, shadowBuilder, page, 0);
                     page.setVisibility(View.INVISIBLE);
