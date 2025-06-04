@@ -41,6 +41,7 @@ public class Measurements {
     private static final ObservableObject<Integer> SYS_UI_HEIGHT = new ObservableObject<>(0);
     private static final ObservableObject<Integer> LIST_COLUMNS = new ObservableObject<>(0);
     private static final ObservableObject<Integer> FOLDER_COLUMNS = new ObservableObject<>(0);
+    private static final ObservableObject<Integer> BRIEFING_COLUMNS = new ObservableObject<>(0);
     private static final ObservableObject<Integer> WIDGET_COLUMNS = new ObservableObject<>(0);
     private static final ObservableObject<Float> WINDOW_ANIMATION_SCALE = new ObservableObject<>(1f);
     private static final ObservableObject<Float> ANIMATOR_DURATION_SCALE = new ObservableObject<>(1f);
@@ -87,6 +88,8 @@ public class Measurements {
 
         LIST_COLUMNS.updateObject(Math.min(6, width / dpToPx(90)));
         FOLDER_COLUMNS.updateObject(Math.max(1, width / dpToPx(190)));
+
+        BRIEFING_COLUMNS.updateObject(Math.max(1, width / dpToPx(400)));
 
         //ensure that the number of columns is a multiple of 2
         WIDGET_COLUMNS.updateObject(Math.max(2, (width / dpToPx(200) / 2) * 2));
@@ -231,6 +234,10 @@ public class Measurements {
         return WIDGET_COLUMNS.getObject();
     }
 
+    public static int getBriefingColumnCount() {
+        return BRIEFING_COLUMNS.getObject();
+    }
+
     public static float getWindowAnimationScale() {
         return WINDOW_ANIMATION_SCALE.getObject();
     }
@@ -264,6 +271,14 @@ public class Measurements {
             WIDGET_COLUMNS.addListener(listener);
 
             listener.onSet(WIDGET_COLUMNS.getObject());
+        }
+    }
+
+    public static void addBriefingColumnCountChangeListener(ObservableObject.OnSet<Integer> listener) {
+        if (listener != null) {
+            BRIEFING_COLUMNS.addListener(listener);
+
+            listener.onSet(BRIEFING_COLUMNS.getObject());
         }
     }
 

@@ -24,7 +24,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
-        android:layout_width="500dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <include
@@ -59,7 +59,7 @@
 
     <LinearLayout
         android:id="@+id/placeholder"
-        android:layout_width="500dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="20dp"
         android:gravity="center"

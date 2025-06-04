@@ -262,7 +262,8 @@ public class RightSheetBehavior<V extends View> extends SheetBehavior<V> {
 
                     View scroll = nestedScrollingChildRef != null ? nestedScrollingChildRef.get() : null;
 
-                    if (scroll != null && scroll.canScrollHorizontally(-1)) {
+                    if (scroll != null && scroll.getVisibility() == View.VISIBLE
+                            && scroll.canScrollHorizontally(-1)) {
                         return false;
                     }
                 }

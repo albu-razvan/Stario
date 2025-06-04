@@ -109,6 +109,10 @@ public class OverScrollRecyclerView extends RecyclerView implements OverScroll {
         }
     }
 
+    public int getOverscrollPullEdges() {
+        return pullEdges;
+    }
+
     @Override
     public boolean canScrollHorizontally(int direction) {
         return false;

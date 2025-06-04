@@ -34,12 +34,9 @@ import androidx.recyclerview.widget.RecyclerView;
  * @see GridLayoutManager
  */
 public class AccurateScrollComputeLinearLayoutManager extends LinearLayoutManager {
-    private boolean canScroll;
 
     public AccurateScrollComputeLinearLayoutManager(Context context) {
         super(context, RecyclerView.VERTICAL, false);
-
-        this.canScroll = true;
     }
 
     @Override
@@ -104,14 +101,5 @@ public class AccurateScrollComputeLinearLayoutManager extends LinearLayoutManage
     @Override
     public boolean canScrollHorizontally() {
         return false;
-    }
-
-    @Override
-    public boolean canScrollVertically() {
-        return canScroll && super.canScrollVertically();
-    }
-
-    public void setScrollEnabled(boolean enabled) {
-        this.canScroll = enabled;
     }
 }

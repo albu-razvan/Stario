@@ -33,6 +33,8 @@ import androidx.customview.widget.ViewDragHelper;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.sheet.behavior.SheetDragHelper;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
+import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
 
 public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
     private Boolean rememberInterceptResult = null;
@@ -246,7 +248,16 @@ public class BottomSheetBehavior<V extends View> extends SheetBehavior<V> {
                 if (state == STATE_EXPANDED && activePointerId == pointerId) {
                     View scroll = nestedScrollingChildRef != null ? nestedScrollingChildRef.get() : null;
 
-                    if (scroll != null && scroll.canScrollVertically(-1)) {
+                    if (scroll instanceof OverScrollRecyclerView) {
+                        int pullEdges = ((OverScrollRecyclerView) scroll).getOverscrollPullEdges();
+
+                        if ((pullEdges & OverScrollEffect.PULL_EDGE_TOP) == OverScrollEffect.PULL_EDGE_TOP) {
+                            return false;
+                        }
+                    }
+
+                    if (scroll != null && scroll.getVisibility() == View.VISIBLE
+                            && scroll.canScrollVertically(-1)) {
                         return false;
                     }
                 }
