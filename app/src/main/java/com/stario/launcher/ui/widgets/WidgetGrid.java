@@ -22,10 +22,13 @@ import android.animation.LayoutTransition;
 import android.animation.ObjectAnimator;
 import android.appwidget.AppWidgetHostView;
 import android.content.Context;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
+
+import androidx.annotation.NonNull;
 
 import com.stario.launcher.sheet.widgets.Widget;
 import com.stario.launcher.ui.Measurements;
@@ -35,6 +38,7 @@ import java.util.PriorityQueue;
 
 public class WidgetGrid extends GridLayout {
     private static final String TAG = "com.stario.WidgetGrid";
+    private Runnable onDispatchDrawReorderRunnable;
     private WidgetMap map;
 
     public WidgetGrid(Context context) {
@@ -57,6 +61,7 @@ public class WidgetGrid extends GridLayout {
 
     private void init() {
         this.map = new WidgetMap();
+        this.onDispatchDrawReorderRunnable = null;
 
         setRotation(180);
 
@@ -89,7 +94,7 @@ public class WidgetGrid extends GridLayout {
             LayoutTransition transition = getLayoutTransition();
             setLayoutTransition(null);
 
-            post(this::reorder);
+            scheduleReorder();
 
             if (parent != null && originalAlpha > 0) {
                 post(() -> parent.animate().alpha(originalAlpha)
@@ -113,7 +118,29 @@ public class WidgetGrid extends GridLayout {
     public void removeView(View view) {
         super.removeView(view);
 
-        post(this::reorder);
+        scheduleReorder();
+    }
+
+    private void scheduleReorder() {
+        if (onDispatchDrawReorderRunnable != null) {
+            return;
+        }
+
+        onDispatchDrawReorderRunnable = () -> {
+            onDispatchDrawReorderRunnable = null;
+            reorder();
+        };
+    }
+
+    @Override
+    protected void dispatchDraw(@NonNull Canvas canvas) {
+        if (onDispatchDrawReorderRunnable != null) {
+            onDispatchDrawReorderRunnable.run();
+
+            invalidate();
+        } else {
+            super.dispatchDraw(canvas);
+        }
     }
 
     int getCellSize() {
@@ -136,7 +163,7 @@ public class WidgetGrid extends GridLayout {
             containers.add((WidgetContainer) getChildAt(index));
         }
 
-        while (containers.size() > 0) {
+        while (!containers.isEmpty()) {
             WidgetContainer container = containers.poll();
 
             if (container != null) {

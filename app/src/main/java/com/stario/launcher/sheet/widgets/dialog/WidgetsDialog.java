@@ -17,7 +17,6 @@
 
 package com.stario.launcher.sheet.widgets.dialog;
 
-import android.animation.LayoutTransition;
 import android.app.Activity;
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
@@ -26,6 +25,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,7 +39,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
 import com.bosphere.fadingedgelayout.FadingEdgeLayout;
 import com.stario.launcher.R;
@@ -72,6 +71,7 @@ public class WidgetsDialog extends SheetDialogFragment {
     private WidgetSize pendingWidgetSize;
     private AppWidgetManager manager;
     private WidgetScroller scroller;
+    private View addWidgetContainer;
     private ThemedActivity activity;
     private ViewGroup placeholder;
     private LinearLayout content;
@@ -127,12 +127,15 @@ public class WidgetsDialog extends SheetDialogFragment {
         placeholder = view.findViewById(R.id.placeholder);
         grid = view.findViewById(R.id.grid);
         scroller = view.findViewById(R.id.scroller);
+        addWidgetContainer = view.findViewById(R.id.add_widget_container);
         FadingEdgeLayout fader = view.findViewById(R.id.fader);
 
         View.OnClickListener showConfiguratorListener = (v) -> showConfigurator();
 
         placeholder.setOnClickListener(showConfiguratorListener);
-        placeholder.findViewById(R.id.add_button)
+        placeholder.findViewById(R.id.add_widget_placeholder)
+                .setOnClickListener(showConfiguratorListener);
+        addWidgetContainer.findViewById(R.id.add_widget)
                 .setOnClickListener(showConfiguratorListener);
 
         content.setOnLongClickListener(v -> {
@@ -140,12 +143,6 @@ public class WidgetsDialog extends SheetDialogFragment {
 
             return true;
         });
-
-        LayoutTransition transition = new LayoutTransition();
-
-        transition.disableTransitionType(LayoutTransition.CHANGING);
-
-        content.setLayoutTransition(transition);
 
         Measurements.addNavListener(value -> {
             fader.setFadeSizes(Measurements.getSysUIHeight() +
@@ -202,7 +199,7 @@ public class WidgetsDialog extends SheetDialogFragment {
                 AppWidgetHostView host = createWidget(manager, widget);
                 grid.attach(host, widget);
 
-                placeholder.setVisibility(View.GONE);
+                updatePlaceholderVisibility(View.GONE);
             }
         }
 
@@ -212,23 +209,23 @@ public class WidgetsDialog extends SheetDialogFragment {
         return view;
     }
 
+    private void updatePlaceholderVisibility(int visibility) {
+        placeholder.setVisibility(visibility);
+
+        if (visibility == View.VISIBLE || Measurements.isLandscape()) {
+            addWidgetContainer.setVisibility(View.GONE);
+        } else {
+            addWidgetContainer.setVisibility(View.VISIBLE);
+        }
+    }
+
     public static int getWidgetCellSize() {
         return columnSize;
     }
 
     private void showConfigurator() {
-        if (configurator == null || !activity.equals(configurator.getContext())) {
+        if (configurator == null) {
             configurator = new WidgetConfigurator(activity, this::addWidget);
-
-            configurator.setOnShowListener(dialog -> content.animate()
-                    .alpha(0)
-                    .setInterpolator(new FastOutSlowInInterpolator())
-                    .setDuration(Animation.MEDIUM.getDuration()));
-
-            configurator.setOnDismissListener(dialog -> content.animate()
-                    .alpha(1)
-                    .setInterpolator(new FastOutSlowInInterpolator())
-                    .setDuration(Animation.MEDIUM.getDuration()));
         }
 
         configurator.show();
@@ -271,7 +268,7 @@ public class WidgetsDialog extends SheetDialogFragment {
                             .apply();
 
                     grid.attach(host, widget);
-                    placeholder.setVisibility(View.GONE);
+                    updatePlaceholderVisibility(View.GONE);
                 } else {
                     getWidgetHost().deleteAppWidgetId(host.getAppWidgetId());
                 }
@@ -297,7 +294,7 @@ public class WidgetsDialog extends SheetDialogFragment {
                     .apply();
 
             grid.attach(host, widget);
-            placeholder.setVisibility(View.GONE);
+            updatePlaceholderVisibility(View.GONE);
 
             Log.w(TAG, "No configure activity found for identifier " + identifier);
         }
@@ -355,7 +352,7 @@ public class WidgetsDialog extends SheetDialogFragment {
         getWidgetHost().deleteAppWidgetId(host.getAppWidgetId());
         grid.removeView((View) (host.getParent()));
 
-        placeholder.setVisibility(grid.getChildCount() == 0 ? View.VISIBLE : View.GONE);
+        updatePlaceholderVisibility(grid.getChildCount() == 0 ? View.VISIBLE : View.GONE);
     }
 
     public @NonNull WidgetHost getWidgetHost() {
@@ -366,6 +363,13 @@ public class WidgetsDialog extends SheetDialogFragment {
         }
 
         return host;
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        updatePlaceholderVisibility(placeholder.getVisibility());
     }
 
     @Override

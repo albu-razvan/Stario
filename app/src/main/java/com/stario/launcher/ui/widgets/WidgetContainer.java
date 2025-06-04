@@ -94,9 +94,11 @@ class WidgetContainer extends RelativeLayout implements Comparable<WidgetContain
     }
 
     void updateOrigin(WidgetMap.Cell origin) {
-        this.origin = origin;
+        if (origin != null && !origin.equals(this.origin)) {
+            this.origin = origin;
 
-        requestLayout();
+            requestLayout();
+        }
     }
 
     @Override

@@ -66,7 +66,7 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
         }
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         private final ConstraintLayout preview;
         private final TextView label;
         private final View options;

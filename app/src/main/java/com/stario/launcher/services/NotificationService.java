@@ -43,7 +43,7 @@ public class NotificationService extends NotificationListenerService {
         try {
             sendBroadcastForNotification(notification);
         } catch (Exception exception) {
-            Log.e(TAG, exception.getMessage());
+            Log.e(TAG, "onNotificationPosted: " + exception);
         }
 
         super.onNotificationPosted(notification);
@@ -54,7 +54,7 @@ public class NotificationService extends NotificationListenerService {
         try {
             sendBroadcastForNotification(notification);
         } catch (Exception exception) {
-            Log.e(TAG, exception.getMessage());
+            Log.e(TAG, "onNotificationRemoved: " + exception);
         }
 
         super.onNotificationRemoved(notification);
@@ -72,7 +72,7 @@ public class NotificationService extends NotificationListenerService {
                     convertToNotificationMap(getActiveNotifications()));
             sendBroadcast(intent);
         } catch (Exception exception) {
-            Log.e(TAG, exception.getMessage());
+            Log.e(TAG, "onListenerConnected: " + exception.getMessage());
         }
 
         super.onListenerConnected();

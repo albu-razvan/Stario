@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -52,7 +51,7 @@
 
                 <LinearLayout
                     android:id="@+id/placeholder"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:layout_margin="20dp"
@@ -69,20 +68,44 @@
                         android:textSize="20sp" />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/add_button"
+                        android:id="@+id/add_widget_placeholder"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:backgroundTint="?attr/colorTertiaryContainer"
                         android:fontFamily="@font/dm_sans_regular"
                         android:paddingLeft="15dp"
-                        android:paddingRight="15dp"
                         android:paddingTop="5dp"
+                        android:paddingRight="15dp"
                         android:paddingBottom="5dp"
                         android:text="@string/create_a_widget"
                         android:textColor="?attr/colorOnTertiaryContainer"
                         android:textSize="16sp" />
 
                 </LinearLayout>
+
+                <RelativeLayout
+                    android:id="@+id/add_widget_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:padding="10dp"
+                    android:visibility="gone">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/add_widget"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="?attr/colorTertiaryContainer"
+                        android:fontFamily="@font/dm_sans_regular"
+                        android:paddingLeft="15dp"
+                        android:paddingTop="5dp"
+                        android:paddingRight="15dp"
+                        android:paddingBottom="5dp"
+                        android:text="@string/create_a_widget"
+                        android:textColor="?attr/colorOnTertiaryContainer"
+                        android:textSize="16sp" />
+
+                </RelativeLayout>
 
                 <com.stario.launcher.ui.widgets.WidgetGrid
                     android:id="@+id/grid"
