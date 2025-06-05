@@ -15,8 +15,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.activities;
+package com.stario.launcher.activities.pages;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -39,17 +41,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.bosphere.fadingedgelayout.FadingEdgeLayout;
 import com.stario.launcher.R;
+import com.stario.launcher.activities.Launcher;
+import com.stario.launcher.activities.pages.insert.InsertPageDialog;
 import com.stario.launcher.preferences.Entry;
+import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.SheetDialogFragment;
 import com.stario.launcher.sheet.SheetType;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.DragShadowBuilder;
 import com.stario.launcher.ui.utils.UiUtils;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -60,19 +66,22 @@ import java.util.Map;
 
 public class PageManager extends ThemedActivity {
     private static final String TAG = "PageManager";
+    private static final float ADD_BUTTON_ANIMATION_SCALE_FACTOR = 0.5f;
 
     private final Hashtable<View, Class<? extends SheetDialogFragment>> pages;
     private final List<Pair<ConstraintLayout, SheetType>> placeholders;
-    private final LocalBroadcastManager broadcastManager;
 
+    private LocalBroadcastManager broadcastManager;
     private ConstraintLayout pageContainer;
     private SharedPreferences preferences;
     private LayoutInflater inflater;
     private boolean dragging;
+    private View addLabel;
     private View homePage;
+    private ViewGroup add;
 
     public PageManager() {
-        this.broadcastManager = LocalBroadcastManager.getInstance(this);
+        this.broadcastManager = null;
         this.placeholders = new ArrayList<>();
         this.pages = new Hashtable<>();
         this.dragging = false;
@@ -83,27 +92,111 @@ public class PageManager extends ThemedActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.page_manager);
 
+        UiUtils.Notch.applyNotchMargin(getRoot(), UiUtils.Notch.INVERSE);
+
+        broadcastManager = LocalBroadcastManager.getInstance(this);
         preferences = getSharedPreferences(Entry.SHEET);
 
         inflater = LayoutInflater.from(this);
-        UiUtils.Notch.applyNotchMargin(getRoot(), UiUtils.Notch.INVERSE);
 
         pageContainer = findViewById(R.id.page_container);
+        add = findViewById(R.id.add);
+        addLabel = add.findViewById(R.id.add_label);
         homePage = findViewById(R.id.home);
+
+        add.setOnClickListener(new View.OnClickListener() {
+            private InsertPageDialog dialog;
+            private boolean showing = false;
+
+            @Override
+            public void onClick(View view) {
+                if (dialog == null) {
+                    dialog = new InsertPageDialog(PageManager.this, item -> {
+                        SheetType type = getAvailableSpace(item.first);
+
+                        preferences.edit()
+                                .putString(item.second.getName(), type.toString())
+                                .apply();
+
+                        pages.put(inflatePage(type, item.second), item.second);
+
+                        if (pages.size() == SheetDialogFragment.IMPLEMENTATIONS.size() ||
+                                pages.size() == placeholders.size()) {
+                            hideAddButton();
+                        }
+
+                        Intent intent = new Intent(Launcher.ACTION_ADD_SHEET);
+                        intent.putExtra(Launcher.INTENT_SHEET_CLASS_EXTRA, item.second);
+                        broadcastManager.sendBroadcastSync(intent);
+                    });
+
+                    dialog.setOnDismissListener(dialog -> showing = false);
+                }
+
+                if (!showing) {
+                    dialog.setItems(getItems());
+                    dialog.show();
+
+                    showing = true;
+                }
+            }
+
+            private SheetType getAvailableSpace(SheetType desiredLocation) {
+                SheetType firstFreeSpace = SheetType.UNDEFINED;
+
+                for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
+                    if (pair.first.getChildCount() == 0) {
+                        if (desiredLocation == pair.second) {
+                            firstFreeSpace = pair.second;
+                            break;
+                        } else if (firstFreeSpace == SheetType.UNDEFINED) {
+                            firstFreeSpace = pair.second;
+                        }
+                    }
+                }
+
+                return firstFreeSpace;
+            }
+
+            private List<Pair<SheetType, Class<? extends SheetDialogFragment>>> getItems() {
+                List<Pair<SheetType, Class<? extends SheetDialogFragment>>> items = new ArrayList<>();
+
+                for (Class<? extends SheetDialogFragment> clazz : SheetDialogFragment.IMPLEMENTATIONS) {
+                    boolean isActive = false;
+
+                    for (Class<? extends SheetDialogFragment> tester : pages.values()) {
+                        if (clazz.equals(tester)) {
+                            isActive = true;
+                            break;
+                        }
+                    }
+
+                    if (!isActive) {
+                        items.add(new Pair<>(SheetType.getDefaultSheetTypeForSheetDialogFragment(
+                                PageManager.this, clazz), clazz));
+                    }
+                }
+
+                return items;
+            }
+        });
 
         invalidateViews();
 
         homePage.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft,
-                                            oldTop, oldRight, oldBottom) -> {
-            homePage.post(() -> {
-                for (View page : pages.keySet()) {
-                    measure(page);
-                }
-            });
-        });
+                                            oldTop, oldRight, oldBottom) -> homePage.post(() -> {
+            for (View page : pages.keySet()) {
+                measure(page);
+            }
+        }));
 
         loadPlaceholders();
         loadPages(pages);
+
+        if (pages.size() == SheetDialogFragment.IMPLEMENTATIONS.size() ||
+                pages.size() == placeholders.size()) {
+            add.setVisibility(View.GONE);
+        }
     }
 
     @SuppressLint("FindViewByIdCast")
@@ -183,16 +276,66 @@ public class PageManager extends ThemedActivity {
 
     private void loadPages(Map<View, Class<? extends SheetDialogFragment>> pages) {
         List<Pair<SheetType, Class<? extends SheetDialogFragment>>> list =
-                SheetType.getActiveSheets(this);
+                SheetType.getStoredSheets(this);
 
         for (Pair<SheetType, Class<? extends SheetDialogFragment>> pair : list) {
-            pages.put(inflatePage(pair.first, pair.second), pair.second);
+            if (pair.first != SheetType.UNDEFINED) {
+                pages.put(inflatePage(pair.first, pair.second), pair.second);
+            }
         }
+    }
+
+    private void showAddButton() {
+        if (add.getVisibility() == View.VISIBLE) {
+            return;
+        }
+
+        add.setOnTouchListener(null);
+        add.animate().cancel();
+
+        add.setAlpha(0f);
+        add.setScaleX(ADD_BUTTON_ANIMATION_SCALE_FACTOR);
+        add.setScaleY(ADD_BUTTON_ANIMATION_SCALE_FACTOR);
+
+        add.setVisibility(View.VISIBLE);
+
+        add.animate()
+                .alpha(1f)
+                .scaleY(1f)
+                .scaleX(1f)
+                .setDuration(Animation.MEDIUM.getDuration())
+                .setInterpolator(new FastOutSlowInInterpolator())
+                .setListener(null)
+                .start();
+    }
+
+    private void hideAddButton() {
+        if (add.getVisibility() == View.GONE) {
+            return;
+        }
+
+        // noinspection ClickableViewAccessibility
+        add.setOnTouchListener((v, ev) -> false);
+        add.animate()
+                .alpha(0f)
+                .scaleY(ADD_BUTTON_ANIMATION_SCALE_FACTOR)
+                .scaleX(ADD_BUTTON_ANIMATION_SCALE_FACTOR)
+                .setDuration(Animation.MEDIUM.getDuration())
+                .setInterpolator(new FastOutSlowInInterpolator())
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        add.setVisibility(View.GONE);
+                    }
+                })
+                .start();
     }
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration configuration) {
         super.onConfigurationChanged(configuration);
+
+        UiUtils.Notch.applyNotchMargin(getRoot(), UiUtils.Notch.INVERSE);
 
         homePage.post(() -> homePage.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
@@ -216,6 +359,9 @@ public class PageManager extends ThemedActivity {
 
             if (parent != null) {
                 ((ViewGroup) parent).removeView(page);
+                pages.remove(page);
+
+                showAddButton();
 
                 preferences.edit()
                         .putString(clazz.getName(), SheetType.UNDEFINED.toString())
@@ -304,62 +450,6 @@ public class PageManager extends ThemedActivity {
                     return true;
                 }
 
-                if (event.getAction() == DragEvent.ACTION_DROP) {
-                    ViewParent pageParent = page.getParent();
-                    if (!(pageParent instanceof ViewGroup)) {
-                        return false;
-                    }
-
-                    ViewGroup dropTargetContainer = (ViewGroup) pageParent;
-                    View draggedPage = (View) event.getLocalState();
-                    ViewParent parent = draggedPage.getParent();
-
-                    if (!(parent instanceof ViewGroup) ||
-                            parent.equals(dropTargetContainer)) {
-                        return false;
-                    }
-
-                    ViewGroup originalContainer = (ViewGroup) parent;
-                    View pageInDropTarget = dropTargetContainer.getChildAt(0);
-
-                    dropTargetContainer.removeView(pageInDropTarget);
-                    originalContainer.addView(pageInDropTarget);
-
-                    for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
-                        if (pair.first.equals(originalContainer)) {
-                            //noinspection DataFlowIssue
-                            preferences.edit()
-                                    .putString(pages.get(pageInDropTarget)
-                                            .getName(), pair.second.toString())
-                                    .apply();
-                            break;
-                        }
-                    }
-
-                    originalContainer.removeView(draggedPage);
-                    dropTargetContainer.addView(draggedPage);
-
-                    for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
-                        if (pair.first.equals(dropTargetContainer)) {
-                            //noinspection DataFlowIssue
-                            preferences.edit()
-                                    .putString(pages.get(draggedPage)
-                                            .getName(), pair.second.toString())
-                                    .apply();
-                            break;
-                        }
-                    }
-
-                    Intent intent = new Intent(Launcher.ACTION_MOVE_SHEET);
-                    intent.putExtra(Launcher.INTENT_SHEET_CLASS_EXTRA,
-                            new Class[]{pages.get(draggedPage), pages.get(pageInDropTarget)});
-                    broadcastManager.sendBroadcastSync(intent);
-
-                    reset(draggedPage);
-
-                    return true;
-                }
-
                 return false;
             }
 
@@ -380,7 +470,10 @@ public class PageManager extends ThemedActivity {
             {
                 this.touchPoint = new Point();
 
+                gradient.setHapticFeedbackEnabled(false);
                 gradient.setOnLongClickListener(view -> {
+                    Vibrations.getInstance().vibrate();
+
                     ClipData dragData = new ClipData(
                             clazz.getName(),
                             new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN},
@@ -391,6 +484,7 @@ public class PageManager extends ThemedActivity {
                     View.DragShadowBuilder shadowBuilder = new DragShadowBuilder(page, touchPoint);
                     page.startDragAndDrop(dragData, shadowBuilder, page, 0);
                     page.setVisibility(View.INVISIBLE);
+
 
                     return true;
                 });
@@ -424,8 +518,8 @@ public class PageManager extends ThemedActivity {
         params.width = homePage.getMeasuredWidth();
 
         int edgeLength = Math.min(params.height, params.width) / 3;
-        ((FadingEdgeLayout) page.findViewById(R.id.fader))
-                .setFadeSizes(edgeLength, edgeLength, edgeLength, edgeLength);
+//        ((FadingEdgeLayout) page.findViewById(R.id.fader))
+//                .setFadeSizes(edgeLength, edgeLength, edgeLength, edgeLength);
 
         page.setLayoutParams(params);
     }
@@ -444,7 +538,16 @@ public class PageManager extends ThemedActivity {
             params.dimensionRatio = "W,16:9";
         }
 
+        if (Measurements.isLandscape()) {
+            addLabel.setVisibility(View.VISIBLE);
+        } else {
+            addLabel.setVisibility(View.GONE);
+        }
+
         pageContainer.setLayoutParams(params);
+
+        pageContainer.post(pageContainer::requestLayout);
+        add.post(add::requestLayout);
     }
 
     @Override

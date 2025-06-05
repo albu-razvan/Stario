@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -15,12 +15,16 @@
   ~ along with this program. If not, see <http://www.gnu.org/licenses/>
   -->
 
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="32dp"
-    android:height="32dp"
-    android:viewportWidth="960"
-    android:viewportHeight="960">
-    <path
-        android:fillColor="?attr/colorSecondary"
-        android:pathData="M440,520L200,520v-80h240v-240h80v240h240v80L520,520v240h-80v-240Z" />
-</vector>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorSecondary">
+
+    <item>
+        <color android:color="?attr/colorTertiaryContainer" />
+    </item>
+
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <solid android:color="#ffffff" />
+        </shape>
+    </item>
+</ripple>

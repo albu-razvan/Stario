@@ -27,7 +27,7 @@
         android:layout_height="match_parent"
         android:clipChildren="false">
 
-        <com.bosphere.fadingedgelayout.FadingEdgeLayout
+        <com.stario.launcher.ui.common.FadingEdgeLayout
             android:id="@+id/fader"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -153,7 +153,7 @@
 
             </com.stario.launcher.ui.common.scrollers.BottomNestedScrollView>
 
-        </com.bosphere.fadingedgelayout.FadingEdgeLayout>
+        </com.stario.launcher.ui.common.FadingEdgeLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/search_container"

@@ -44,6 +44,7 @@ android {
                            'src/main/res/drawer',
                            'src/main/res/drawer_interactions',
                            'src/main/res/page_manager',
+                           'src/main/res/page_manager_dialogs',
                            'src/main/res/briefing',
                            'src/main/res/briefing_configurator',
                            'src/main/res/settings',
@@ -116,7 +117,6 @@ dependencies {
 
     implementation 'me.saket.squigglyslider:squigglyslider:1.0.0'
     implementation 'com.ogaclejapan.smarttablayout:library:2.0.0@aar'
-    implementation 'com.github.bosphere.android-fadingedgelayout:fadingedgelayout:1.0.0'
 
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'org.jsoup:jsoup:1.17.2'

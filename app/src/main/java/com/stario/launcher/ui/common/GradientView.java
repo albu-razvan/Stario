@@ -30,6 +30,8 @@ import androidx.annotation.Nullable;
 import com.stario.launcher.themes.ThemedActivity;
 
 public class GradientView extends WebView {
+    private boolean loaded;
+
     public GradientView(@NonNull Context context) {
         super(context);
 
@@ -54,6 +56,7 @@ public class GradientView extends WebView {
             throw new RuntimeException("GradientView can only be instantiated from a ThemedActivity context.");
         }
 
+        loaded = false;
         ThemedActivity activity = (ThemedActivity) context;
 
         setClickable(false);
@@ -93,7 +96,31 @@ public class GradientView extends WebView {
                 super.onPageFinished(view, url);
             }
         });
+    }
 
-        loadUrl("file:///android_res/raw/gradient.html");
+    @Override
+    protected void onAttachedToWindow() {
+        if (!loaded) {
+            loadUrl("file:///android_res/raw/gradient.html");
+            loaded = true;
+        }
+
+        super.onAttachedToWindow();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        // in case the view just changes parent
+        post(() -> {
+            if (!isAttachedToWindow()) {
+                clearHistory();
+                removeAllViews();
+                destroy();
+
+                loaded = false;
+            }
+        });
     }
 }

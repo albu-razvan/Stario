@@ -290,6 +290,11 @@ public class SheetsFocusController extends ConstraintLayout {
     @SafeVarargs
     public final void removeSheetDialog(
             @NonNull Class<? extends SheetDialogFragment>... dialogFragmentClass) {
+        removeSheetDialog(List.of(dialogFragmentClass));
+    }
+
+    public final void removeSheetDialog(
+            @NonNull List<Class<? extends SheetDialogFragment>> dialogFragmentClass) {
         for (Class<? extends SheetDialogFragment> clazz : dialogFragmentClass) {
             for (int index = 0; index < wrappers.length; index++) {
                 SheetWrapper wrapper = wrappers[index];
@@ -308,22 +313,27 @@ public class SheetsFocusController extends ConstraintLayout {
         }
     }
 
-    @SafeVarargs
     public final void moveSheetDialog(
             @NonNull Launcher launcher,
-            @NonNull Class<? extends SheetDialogFragment>... dialogFragmentClass) {
+            @NonNull List<Class<? extends SheetDialogFragment>> dialogFragmentClass) {
         removeSheetDialog(dialogFragmentClass);
         addSheetDialog(launcher, dialogFragmentClass);
     }
 
     @SafeVarargs
-    public final void addSheetDialog(
+    public final void moveSheetDialog(
             @NonNull Launcher launcher,
             @NonNull Class<? extends SheetDialogFragment>... dialogFragmentClass) {
+        moveSheetDialog(launcher, List.of(dialogFragmentClass));
+    }
+
+    public final void addSheetDialog(
+            @NonNull Launcher launcher,
+            @NonNull List<Class<? extends SheetDialogFragment>> dialogFragmentClass) {
         for (Class<? extends SheetDialogFragment> clazz : dialogFragmentClass) {
             SheetType type = SheetType.getSheetTypeForSheetDialogFragment(launcher, clazz);
 
-            if (type == null || wrappers[type.ordinal()] != null) {
+            if (type == null || type == SheetType.UNDEFINED || wrappers[type.ordinal()] != null) {
                 return;
             }
 
@@ -339,6 +349,13 @@ public class SheetsFocusController extends ConstraintLayout {
                         "has to be visible to public scope.");
             }
         }
+    }
+
+    @SafeVarargs
+    public final void addSheetDialog(
+            @NonNull Launcher launcher,
+            @NonNull Class<? extends SheetDialogFragment>... dialogFragmentClass) {
+        addSheetDialog(launcher, List.of(dialogFragmentClass));
     }
 
     private void dispatchSheetMotionEvent(MotionEvent event) {

@@ -74,7 +74,7 @@ public enum SheetType {
         return null;
     }
 
-    public static List<Pair<SheetType, Class<? extends SheetDialogFragment>>> getActiveSheets(
+    public static List<Pair<SheetType, Class<? extends SheetDialogFragment>>> getStoredSheets(
             @NonNull ThemedActivity activity) {
         List<Pair<SheetType, Class<? extends SheetDialogFragment>>> list = new ArrayList<>();
         SharedPreferences preferences = activity.getSharedPreferences(Entry.SHEET);
@@ -124,33 +124,44 @@ public enum SheetType {
             return type;
         }
 
-        return getDefaultSheetTypeForSheetDialogFragment(activity, clazz);
+        return getDefaultSheetTypeForSheetDialogFragment(activity, clazz, true);
+    }
+
+    public static SheetType getDefaultSheetTypeForSheetDialogFragment(
+            ThemedActivity activity, Class<? extends SheetDialogFragment> clazz) {
+        return getDefaultSheetTypeForSheetDialogFragment(activity, clazz, false);
     }
 
     private static SheetType getDefaultSheetTypeForSheetDialogFragment(
-            ThemedActivity activity, Class<? extends SheetDialogFragment> clazz) {
+            ThemedActivity activity, Class<? extends SheetDialogFragment> clazz, boolean writeToPreferences) {
         SheetType type = null;
         SharedPreferences preferences = activity.getSharedPreferences(Entry.SHEET);
 
         if (clazz == ApplicationsDialog.class) {
-            preferences.edit()
-                    .putString(ApplicationsDialog.class.getName(),
-                            SheetType.BOTTOM_SHEET.toString())
-                    .apply();
+            if (writeToPreferences) {
+                preferences.edit()
+                        .putString(ApplicationsDialog.class.getName(),
+                                SheetType.BOTTOM_SHEET.toString())
+                        .apply();
+            }
 
             type = SheetType.BOTTOM_SHEET;
         } else if (clazz == BriefingDialog.class) {
-            preferences.edit()
-                    .putString(BriefingDialog.class.getName(),
-                            SheetType.LEFT_SHEET.toString())
-                    .apply();
+            if (writeToPreferences) {
+                preferences.edit()
+                        .putString(BriefingDialog.class.getName(),
+                                SheetType.LEFT_SHEET.toString())
+                        .apply();
+            }
 
             type = SheetType.LEFT_SHEET;
         } else if (clazz == WidgetsDialog.class) {
-            preferences.edit()
-                    .putString(WidgetsDialog.class.getName(),
-                            SheetType.RIGHT_SHEET.toString())
-                    .apply();
+            if (writeToPreferences) {
+                preferences.edit()
+                        .putString(WidgetsDialog.class.getName(),
+                                SheetType.RIGHT_SHEET.toString())
+                        .apply();
+            }
 
             type = SheetType.RIGHT_SHEET;
         }

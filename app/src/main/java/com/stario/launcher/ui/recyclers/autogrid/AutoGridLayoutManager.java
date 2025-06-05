@@ -115,8 +115,8 @@ public class AutoGridLayoutManager extends AccurateScrollComputeGridLayoutManage
         }
 
         int itemCount;
-        if(adapter instanceof AsyncRecyclerAdapter) {
-            itemCount = ((AsyncRecyclerAdapter) adapter).getTotalItemCount();
+        if (adapter instanceof AsyncRecyclerAdapter) {
+            itemCount = ((AsyncRecyclerAdapter<?>) adapter).getTotalItemCount();
         } else {
             itemCount = adapter.getItemCount();
         }
@@ -145,6 +145,8 @@ public class AutoGridLayoutManager extends AccurateScrollComputeGridLayoutManage
             marginLayoutParams.rightMargin = 0;
             recyclerView.setLayoutParams(marginLayoutParams);
         }
+
+        recyclerView.post(() -> recyclerView.requestLayout());
     }
 
     private int getBalancedSpanCount(int itemCount, int spanCount) {

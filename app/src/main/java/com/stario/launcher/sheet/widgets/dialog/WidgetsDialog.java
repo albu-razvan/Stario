@@ -40,7 +40,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 
-import com.bosphere.fadingedgelayout.FadingEdgeLayout;
 import com.stario.launcher.R;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.preferences.Vibrations;
@@ -51,6 +50,7 @@ import com.stario.launcher.sheet.widgets.WidgetSize;
 import com.stario.launcher.sheet.widgets.configurator.WidgetConfigurator;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.common.FadingEdgeLayout;
 import com.stario.launcher.ui.popup.PopupMenu;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.ui.widgets.WidgetGrid;
@@ -69,6 +69,7 @@ public class WidgetsDialog extends SheetDialogFragment {
     private WidgetConfigurator configurator;
     private SharedPreferences widgetStore;
     private WidgetSize pendingWidgetSize;
+    private boolean showingConfigurator;
     private AppWidgetManager manager;
     private WidgetScroller scroller;
     private View addWidgetContainer;
@@ -80,10 +81,14 @@ public class WidgetsDialog extends SheetDialogFragment {
 
     public WidgetsDialog() {
         super();
+
+        this.showingConfigurator = false;
     }
 
     public WidgetsDialog(SheetType type) {
         super(type);
+
+        this.showingConfigurator = false;
     }
 
     public static String getName() {
@@ -226,9 +231,14 @@ public class WidgetsDialog extends SheetDialogFragment {
     private void showConfigurator() {
         if (configurator == null) {
             configurator = new WidgetConfigurator(activity, this::addWidget);
+
+            configurator.setOnDismissListener(dialog -> showingConfigurator = false);
         }
 
-        configurator.show();
+        if (!showingConfigurator) {
+            configurator.show();
+            showingConfigurator = true;
+        }
     }
 
     private void addWidget(AppWidgetProviderInfo info, WidgetSize size) {

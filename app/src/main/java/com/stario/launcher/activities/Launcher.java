@@ -48,9 +48,6 @@ import com.stario.launcher.glance.extensions.weather.Weather;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.SheetDialogFragment;
 import com.stario.launcher.sheet.SheetsFocusController;
-import com.stario.launcher.sheet.briefing.dialog.BriefingDialog;
-import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
-import com.stario.launcher.sheet.widgets.dialog.WidgetsDialog;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.lock.ClosingAnimationView;
@@ -202,8 +199,7 @@ public class Launcher extends ThemedActivity {
 
     private void attachSheets(SheetsFocusController controller) {
         controller.setSlideListener(Launcher.this::animateSheet);
-        controller.addSheetDialog(this, ApplicationsDialog.class,
-                WidgetsDialog.class, BriefingDialog.class);
+        controller.addSheetDialog(this, SheetDialogFragment.IMPLEMENTATIONS);
 
         class Local {
             Class<? extends SheetDialogFragment>[] getClasses(Intent intent) {

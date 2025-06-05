@@ -44,7 +44,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bosphere.fadingedgelayout.FadingEdgeLayout;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.stario.launcher.R;
 import com.stario.launcher.preferences.Entry;
@@ -57,6 +56,7 @@ import com.stario.launcher.sheet.drawer.search.recyclers.adapters.suggestions.Au
 import com.stario.launcher.sheet.drawer.search.recyclers.adapters.suggestions.OptionAdapter;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.common.FadingEdgeLayout;
 import com.stario.launcher.ui.keyboard.ImeAnimationController;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;

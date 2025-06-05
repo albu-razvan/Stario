@@ -38,7 +38,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
-import com.bosphere.fadingedgelayout.FadingEdgeLayout;
 import com.stario.launcher.R;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.sheet.SheetDialogFragment;
@@ -50,6 +49,7 @@ import com.stario.launcher.sheet.drawer.search.SearchEngine;
 import com.stario.launcher.sheet.drawer.search.SearchFragment;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.common.FadingEdgeLayout;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.ui.utils.animation.FragmentTransition;
 import com.stario.launcher.utils.Utils;

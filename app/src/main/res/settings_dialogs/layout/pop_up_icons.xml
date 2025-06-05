@@ -16,7 +16,7 @@
   ~ along with this program. If not, see <http://www.gnu.org/licenses/>
   -->
 
-<com.bosphere.fadingedgelayout.FadingEdgeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.stario.launcher.ui.common.FadingEdgeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/content"
     android:layout_width="match_parent"
@@ -148,4 +148,4 @@
 
     </androidx.core.widget.NestedScrollView>
 
-</com.bosphere.fadingedgelayout.FadingEdgeLayout>
+</com.stario.launcher.ui.common.FadingEdgeLayout>
