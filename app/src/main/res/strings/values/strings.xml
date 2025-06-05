@@ -48,7 +48,7 @@
     <string name="lock_gesture">Double tap to lock</string>
     <string name="imperial_units">Imperial units</string>
     <string name="vibrations">Vibrations</string>
-    <string name="change_color">Change accent color</string>
+    <string name="theme">Theme</string>
     <string name="pages">Page manager</string>
     <string name="search_engine">Search engine</string>
     <string name="search_results">Search results</string>
@@ -84,9 +84,19 @@
     <string name="accessibility_notice">Stario needs access to accessibility services for this feature to work.</string>
 
     <!-- Theme pop-up -->
-    <string name="accent_colors">Accent colors</string>
     <string name="dynamic">Dynamic</string>
-    <string name="force_dark">Force dark mode</string>
+    <string name="red">Red</string>
+    <string name="orange">Orange</string>
+    <string name="yellow">Yellow</string>
+    <string name="lime">Lime</string>
+    <string name="green">Green</string>
+    <string name="turquoise">Turquoise</string>
+    <string name="cyan">Cyan</string>
+    <string name="blue">Blue</string>
+    <string name="purple">Purple</string>
+    <string name="pink">Pink</string>
+    <string name="dark">Dark</string>
+    <string name="force_dark">Enforce dark mode</string>
 
     <!-- Icons pop-up -->
     <string name="corner_radius">Corner radius</string>

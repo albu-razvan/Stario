@@ -25,6 +25,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -50,6 +51,7 @@ import com.stario.launcher.activities.settings.dialogs.license.LicensesDialog;
 import com.stario.launcher.activities.settings.dialogs.location.LocationDialog;
 import com.stario.launcher.activities.settings.dialogs.search.engine.SearchEngineDialog;
 import com.stario.launcher.activities.settings.dialogs.search.results.SearchResultsDialog;
+import com.stario.launcher.activities.settings.dialogs.theme.ThemeDialog;
 import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.ProfileManager;
@@ -78,6 +80,7 @@ public class Settings extends ThemedActivity {
     private HomeWatcher homeWatcher;
     private boolean shouldRebirth;
     private TextView iconPackName;
+    private Resources resources;
     private TextView hideCount;
     private View searchEngine;
 
@@ -96,6 +99,8 @@ public class Settings extends ThemedActivity {
         UiUtils.Notch.applyNotchMargin(getRoot(), UiUtils.Notch.INVERSE);
 
         postponeEnterTransition();
+
+        resources = getResources();
 
         homeWatcher = new HomeWatcher(this);
         homeWatcher.setOnHomePressedListener(() -> {
@@ -138,6 +143,7 @@ public class Settings extends ThemedActivity {
         hideCount = findViewById(R.id.hidden_count);
 
         View location = findViewById(R.id.location);
+        TextView themeName = findViewById(R.id.theme_name);
         TextView locationName = findViewById(R.id.location_name);
 
         updateIconPackName();
@@ -246,6 +252,39 @@ public class Settings extends ThemedActivity {
                     .apply();
         });
 
+        themeName.setText(getThemeType().getDisplayName());
+        if (getSharedPreferences(Entry.THEME).getBoolean(FORCE_DARK, false)) {
+            themeName.append(" " + resources.getString(R.string.dark));
+        }
+
+        findViewById(R.id.theme).setOnClickListener(new View.OnClickListener() {
+            private ThemeDialog dialog;
+            private boolean showing = false;
+
+            @Override
+            public void onClick(View view) {
+                if (dialog == null) {
+                    dialog = new ThemeDialog(Settings.this);
+
+                    dialog.setOnDismissListener((ThemeDialog.OnDismissListener) stateChanged -> {
+                        showing = false;
+                        if (stateChanged) {
+                            shouldRebirth = true;
+
+                            if (!isActivityTransitionRunning() && !isFinishing()) {
+                                finishAfterTransition();
+                            }
+                        }
+                    });
+                }
+
+                if (!showing) {
+                    dialog.show();
+                    showing = true;
+                }
+            }
+        });
+
         searchEngine.setOnClickListener(new View.OnClickListener() {
             private SearchEngineDialog dialog;
             private boolean showing = false;
@@ -277,10 +316,8 @@ public class Settings extends ThemedActivity {
                 if (dialog == null) {
                     dialog = new SearchResultsDialog(Settings.this);
 
-                    dialog.setStatusListener(checked -> {
-                        searchResultsSwitch.setChecked(checked);
-                        showing = false;
-                    });
+                    dialog.setStatusListener(searchResultsSwitch::setChecked);
+                    dialog.setOnDismissListener(dialog -> showing = false);
                 }
 
                 if (!showing) {
@@ -337,7 +374,7 @@ public class Settings extends ThemedActivity {
         SharedPreferences weather = getSharedPreferences(Entry.WEATHER);
 
         locationName.setText(weather.getString(Weather.LOCATION_NAME,
-                getResources().getString(R.string.location_ip_based)));
+                resources.getString(R.string.location_ip_based)));
         location.setOnClickListener(new View.OnClickListener() {
             private LocationDialog dialog;
             private boolean showing = false;
@@ -349,7 +386,7 @@ public class Settings extends ThemedActivity {
 
                     dialog.setOnDismissListener(dialog -> {
                         locationName.setText(weather.getString(Weather.LOCATION_NAME,
-                                getResources().getString(R.string.location_ip_based)));
+                                resources.getString(R.string.location_ip_based)));
                         showing = false;
                     });
                 }
@@ -489,7 +526,7 @@ public class Settings extends ThemedActivity {
 
     @SuppressLint("SetTextI18n")
     private void updateHiddenAppsCount() {
-        hideCount.setText(getResources().getString(R.string.hidden_apps) +
+        hideCount.setText(resources.getString(R.string.hidden_apps) +
                 ": " + getSharedPreferences(Entry.HIDDEN_APPS).getAll().size());
     }
 
