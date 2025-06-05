@@ -58,6 +58,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
     private final HashMap<Integer, OnActivityResult> activityResultListeners;
 
+    private SharedPreferences themePreferences;
     private boolean allowTouches;
     private Theme theme;
 
@@ -68,7 +69,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        SharedPreferences themePreferences = getSharedPreferences(Entry.THEME);
+        themePreferences = getSharedPreferences(Entry.THEME);
 
         //default theme if it doesn't exist
         if (!themePreferences.contains(THEME)) {
@@ -259,27 +260,48 @@ abstract public class ThemedActivity extends AppCompatActivity {
         return getSharedPreferences(Entry.STARIO);
     }
 
-    public Resources.Theme getTheme(boolean forceDark) {
-        if (forceDark && theme != null) {
-            ContextThemeWrapper wrapper = new ContextThemeWrapper(getApplicationContext(), theme.getDarkResourceID());
-
-            return wrapper.getTheme();
-        }
-
-        return getTheme();
+    public Theme getThemeType() {
+        return theme;
     }
 
     public int getAttributeData(@AttrRes int attr) {
-        return getAttributeData(attr, false);
+        return getAttributeData(theme, attr);
     }
 
     public int getAttributeData(@AttrRes int attr, boolean forceDark) {
+        return getAttributeData(theme, attr, forceDark);
+    }
+
+    public int getAttributeData(@NonNull Theme theme, @AttrRes int attr) {
+        return getAttributeData(theme, attr, false);
+    }
+
+    public int getAttributeData(@NonNull Theme theme, @AttrRes int attr, boolean forceDark) {
         TypedValue typedValue = new TypedValue();
 
-        Resources.Theme theme = getTheme(forceDark);
-        theme.resolveAttribute(attr, typedValue, true);
+        Resources.Theme wrappedTheme = getThemeFor(theme, forceDark);
+        wrappedTheme.resolveAttribute(attr, typedValue, true);
 
         return typedValue.data;
+    }
+
+    public Resources.Theme getTheme(boolean forceDark) {
+        return getThemeFor(theme, forceDark);
+    }
+
+    private Resources.Theme getThemeFor(@NonNull Theme theme, boolean forceDark) {
+        ContextThemeWrapper wrapper;
+
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        boolean isDarkModeOn = nightModeFlags == Configuration.UI_MODE_NIGHT_YES ||
+                themePreferences.getBoolean(FORCE_DARK, false);
+        if (isDarkModeOn) {
+            wrapper = new ContextThemeWrapper(getApplicationContext(), theme.getDarkResourceID());
+        } else {
+            wrapper = new ContextThemeWrapper(getApplicationContext(), theme.getLightResourceID());
+        }
+
+        return wrapper.getTheme();
     }
 
     protected abstract boolean isOpaque();
