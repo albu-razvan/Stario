@@ -33,7 +33,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.Window;
-import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
@@ -228,65 +227,43 @@ public class UiUtils {
         }
 
         public static void applyNotchMargin(@NonNull View view, @NotchTreatment int treatment) {
-            View.OnApplyWindowInsetsListener listener = new View.OnApplyWindowInsetsListener() {
-                Integer startingMarginLeft = null;
-                Integer startingMarginRight = null;
+            view.setOnApplyWindowInsetsListener((v, insets) -> {
+                WindowInsetsCompat compatInset = WindowInsetsCompat.toWindowInsetsCompat(insets);
+                Insets cutoutInsets = compatInset.getInsets(WindowInsetsCompat.Type.displayCutout());
+                Insets navigationInsets = compatInset.getInsets(WindowInsetsCompat.Type.navigationBars());
 
-                @NonNull
-                @Override
-                public WindowInsets onApplyWindowInsets(@NonNull View v, @NonNull WindowInsets insets) {
-                    WindowInsetsCompat compatInset = WindowInsetsCompat.toWindowInsetsCompat(insets);
-                    Insets cutoutInsets = compatInset.getInsets(WindowInsetsCompat.Type.displayCutout());
-                    Insets navigationInsets = compatInset.getInsets(WindowInsetsCompat.Type.navigationBars());
+                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
 
-                    ViewGroup.LayoutParams params = view.getLayoutParams();
+                switch (treatment) {
+                    case CENTER:
+                        int margin = Math.max(cutoutInsets.left + navigationInsets.left,
+                                cutoutInsets.right + navigationInsets.right);
+                        params.leftMargin = margin;
+                        params.rightMargin = margin;
+                        break;
 
-                    if (params != null) {
-                        ViewGroup.MarginLayoutParams marginParams = (ViewGroup.MarginLayoutParams) params;
+                    case INVERSE:
+                        params.leftMargin = cutoutInsets.right + navigationInsets.right;
+                        params.rightMargin = cutoutInsets.left + navigationInsets.left;
+                        break;
 
-                        if (startingMarginLeft == null ||
-                                startingMarginRight == null) {
-                            startingMarginLeft = marginParams.leftMargin;
-                            startingMarginRight = marginParams.rightMargin;
-                        }
-
-                        if (treatment == CENTER) {
-                            int margin = Math.max(startingMarginLeft + cutoutInsets.left + navigationInsets.left,
-                                    startingMarginRight + cutoutInsets.right + navigationInsets.right);
-
-                            marginParams.leftMargin = margin;
-                            marginParams.rightMargin = margin;
-                        } else if (treatment == INVERSE) {
-                            marginParams.leftMargin = startingMarginLeft + cutoutInsets.right + navigationInsets.right;
-                            marginParams.rightMargin = startingMarginRight + cutoutInsets.left + navigationInsets.left;
-                        } else { // DEFAULT
-                            marginParams.leftMargin = startingMarginLeft + cutoutInsets.left + navigationInsets.left;
-                            marginParams.rightMargin = startingMarginRight + cutoutInsets.right + navigationInsets.right;
-                        }
-
-                        view.requestLayout();
-                    }
-
-                    v.onApplyWindowInsets(insets);
-
-                    return insets;
+                    default: // DEFAULT
+                        params.leftMargin = cutoutInsets.left + navigationInsets.left;
+                        params.rightMargin = cutoutInsets.right + navigationInsets.right;
+                        break;
                 }
-            };
 
-            view.setOnApplyWindowInsetsListener(listener);
+                view.setLayoutParams(params);
+                return view.onApplyWindowInsets(insets);
+            });
 
             if (view.isAttachedToWindow()) {
-                if (view.getRootWindowInsets() != null) {
-                    listener.onApplyWindowInsets(view, view.getRootWindowInsets());
-                }
+                ViewCompat.requestApplyInsets(view);
             } else {
                 view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
                     @Override
                     public void onViewAttachedToWindow(@NonNull View view) {
-                        if (view.getRootWindowInsets() != null) {
-                            listener.onApplyWindowInsets(view, view.getRootWindowInsets());
-                        }
-
+                        ViewCompat.requestApplyInsets(view);
                         view.removeOnAttachStateChangeListener(this);
                     }
 

@@ -34,16 +34,24 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.sheet.behavior.SheetBehavior;
+import com.stario.launcher.sheet.briefing.dialog.BriefingDialog;
+import com.stario.launcher.sheet.drawer.dialog.ApplicationsDialog;
+import com.stario.launcher.sheet.widgets.dialog.WidgetsDialog;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.ui.utils.UiUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class SheetDialogFragment extends DialogFragment {
+    public static final List<Class<? extends SheetDialogFragment>> IMPLEMENTATIONS =
+            List.of(ApplicationsDialog.class, WidgetsDialog.class, BriefingDialog.class);
+
     private final ArrayList<OnDestroyListener> destroyListeners;
     private final ArrayList<OnShowListener> onShowListeners;
+
     private SheetDialog.OnSlideListener slideListener;
     private ThemedActivity activity;
     private HomeWatcher homeWatcher;

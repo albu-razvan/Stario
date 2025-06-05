@@ -64,7 +64,7 @@
         android:textColor="?attr/colorOnPrimary"
         android:textSize="20sp" />
 
-    <com.bosphere.fadingedgelayout.FadingEdgeLayout
+    <com.stario.launcher.ui.common.FadingEdgeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:fel_edge="right|left"
@@ -219,6 +219,6 @@
 
         </HorizontalScrollView>
 
-    </com.bosphere.fadingedgelayout.FadingEdgeLayout>
+    </com.stario.launcher.ui.common.FadingEdgeLayout>
 
 </LinearLayout>

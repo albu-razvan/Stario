@@ -23,8 +23,8 @@
         android:top="5dp">
         <shape>
             <stroke
-                android:width="2dp"
-                android:color="?attr/colorPrimary"
+                android:width="1dp"
+                android:color="?attr/colorOutline"
                 android:dashWidth="4dp"
                 android:dashGap="2dp" />
             <corners android:radius="15dp" />

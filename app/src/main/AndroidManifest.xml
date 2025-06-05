@@ -58,7 +58,7 @@
             android:theme="@style/Theme.Light.Blue.Opaque" />
 
         <activity
-            android:name=".activities.PageManager"
+            android:name=".activities.pages.PageManager"
             android:allowEmbedded="false"
             android:alwaysRetainTaskState="false"
             android:configChanges="orientation|screenSize|layoutDirection"

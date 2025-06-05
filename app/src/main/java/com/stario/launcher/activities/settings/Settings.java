@@ -41,7 +41,7 @@ import androidx.core.app.ActivityOptionsCompat;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.stario.launcher.BuildConfig;
 import com.stario.launcher.R;
-import com.stario.launcher.activities.PageManager;
+import com.stario.launcher.activities.pages.PageManager;
 import com.stario.launcher.activities.settings.dialogs.AccessibilityConfigurator;
 import com.stario.launcher.activities.settings.dialogs.NotificationConfigurator;
 import com.stario.launcher.activities.settings.dialogs.hide.HideApplicationsDialog;
@@ -164,17 +164,24 @@ public class Settings extends ThemedActivity {
 
         mediaSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             private NotificationConfigurator dialog;
+            private boolean showing = false;
 
             @Override
             public void onCheckedChanged(CompoundButton compound, boolean isChecked) {
                 if (isChecked && !Utils.isNotificationServiceEnabled(Settings.this)) {
-                    if (dialog == null || !Settings.this.equals(dialog.getContext())) {
+                    if (dialog == null) {
                         dialog = new NotificationConfigurator(Settings.this);
 
-                        dialog.setOnDismissListener(dialog -> checkNotificationPermission());
+                        dialog.setOnDismissListener(dialog -> {
+                            checkNotificationPermission();
+                            showing = false;
+                        });
                     }
 
-                    dialog.show();
+                    if (!showing) {
+                        dialog.show();
+                        showing = true;
+                    }
                 }
 
                 settings.edit()
@@ -185,17 +192,24 @@ public class Settings extends ThemedActivity {
 
         lockSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             private AccessibilityConfigurator dialog;
+            private boolean showing = false;
 
             @Override
             public void onCheckedChanged(CompoundButton compound, boolean isChecked) {
                 if (isChecked && !Utils.isAccessibilityServiceEnabled(Settings.this)) {
-                    if (dialog == null || !Settings.this.equals(dialog.getContext())) {
+                    if (dialog == null) {
                         dialog = new AccessibilityConfigurator(Settings.this);
 
-                        dialog.setOnDismissListener(dialog -> checkAccessibilityPermission());
+                        dialog.setOnDismissListener(dialog -> {
+                            checkAccessibilityPermission();
+                            showing = false;
+                        });
                     }
 
-                    dialog.show();
+                    if (!showing) {
+                        dialog.show();
+                        showing = true;
+                    }
                 }
 
                 settings.edit()
@@ -234,64 +248,89 @@ public class Settings extends ThemedActivity {
 
         searchEngine.setOnClickListener(new View.OnClickListener() {
             private SearchEngineDialog dialog;
+            private boolean showing = false;
 
             @Override
             public void onClick(View view) {
-                if (dialog == null || !Settings.this.equals(dialog.getContext())) {
+                if (dialog == null) {
                     dialog = new SearchEngineDialog(Settings.this);
 
-                    dialog.setOnDismissListener(dialog ->
-                            updateEngineName());
+                    dialog.setOnDismissListener(dialog -> {
+                        updateEngineName();
+                        showing = false;
+                    });
                 }
 
-                dialog.show();
+                if (!showing) {
+                    dialog.show();
+                    showing = true;
+                }
             }
         });
 
         findViewById(R.id.search_results_container).setOnClickListener(new View.OnClickListener() {
             private SearchResultsDialog dialog;
+            private boolean showing = false;
 
             @Override
             public void onClick(View view) {
-                if (dialog == null || !Settings.this.equals(dialog.getContext())) {
+                if (dialog == null) {
                     dialog = new SearchResultsDialog(Settings.this);
 
-                    dialog.setStatusListener(searchResultsSwitch::setChecked);
+                    dialog.setStatusListener(checked -> {
+                        searchResultsSwitch.setChecked(checked);
+                        showing = false;
+                    });
                 }
 
-                dialog.show();
+                if (!showing) {
+                    dialog.show();
+                    showing = true;
+                }
             }
         });
 
         findViewById(R.id.hidden_apps).setOnClickListener(new View.OnClickListener() {
             private HideApplicationsDialog dialog;
+            private boolean showing = false;
 
             @Override
             public void onClick(View view) {
-                if (dialog == null || !Settings.this.equals(dialog.getContext())) {
+                if (dialog == null) {
                     dialog = new HideApplicationsDialog(Settings.this);
 
-                    dialog.setOnDismissListener(dialog ->
-                            updateHiddenAppsCount());
+                    dialog.setOnDismissListener(dialog -> {
+                        updateHiddenAppsCount();
+                        showing = false;
+                    });
                 }
 
-                dialog.show();
+                if (!showing) {
+                    dialog.show();
+                    showing = true;
+                }
             }
         });
 
         findViewById(R.id.icons).setOnClickListener(new View.OnClickListener() {
             private IconsDialog dialog;
+            private boolean showing = false;
 
             @Override
             public void onClick(View view) {
-                if (dialog == null || !Settings.this.equals(dialog.getContext())) {
+                if (dialog == null) {
                     dialog = new IconsDialog(Settings.this);
 
-                    dialog.setOnDismissListener(dialog ->
-                            updateIconPackName());
+                    dialog.setOnDismissListener(dialog -> {
+                        updateIconPackName();
+                        showing = false;
+                    });
                 }
 
-                dialog.show();
+                if (!showing) {
+                    dialog.show();
+                    showing = true;
+                }
             }
         });
 
@@ -301,32 +340,45 @@ public class Settings extends ThemedActivity {
                 getResources().getString(R.string.location_ip_based)));
         location.setOnClickListener(new View.OnClickListener() {
             private LocationDialog dialog;
+            private boolean showing = false;
 
             @Override
             public void onClick(View view) {
-                if (dialog == null || !Settings.this.equals(dialog.getContext())) {
+                if (dialog == null) {
                     dialog = new LocationDialog(Settings.this);
 
-                    dialog.setOnDismissListener(dialog ->
-                            locationName.setText(weather.getString(Weather.LOCATION_NAME,
-                                    getResources().getString(R.string.location_ip_based)))
-                    );
+                    dialog.setOnDismissListener(dialog -> {
+                        locationName.setText(weather.getString(Weather.LOCATION_NAME,
+                                getResources().getString(R.string.location_ip_based)));
+                        showing = false;
+                    });
                 }
 
-                dialog.show();
+                if (!showing) {
+                    dialog.show();
+                    showing = true;
+                }
             }
         });
 
         findViewById(R.id.licenses).setOnClickListener(new View.OnClickListener() {
             private LicensesDialog dialog;
+            private boolean showing = false;
 
             @Override
             public void onClick(View view) {
-                if (dialog == null || !Settings.this.equals(dialog.getContext())) {
+                if (dialog == null) {
                     dialog = new LicensesDialog(Settings.this);
+
+                    dialog.setOnDismissListener(dialog -> {
+                        showing = false;
+                    });
                 }
 
-                dialog.show();
+                if (!showing) {
+                    dialog.show();
+                    showing = true;
+                }
             }
         });
 

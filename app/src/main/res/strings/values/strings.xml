@@ -50,7 +50,6 @@
     <string name="vibrations">Vibrations</string>
     <string name="change_color">Change accent color</string>
     <string name="pages">Page manager</string>
-    <string name="home_page">Home</string>
     <string name="search_engine">Search engine</string>
     <string name="search_results">Search results</string>
     <string name="kagi_integration">Powered by Kagi</string>
@@ -62,6 +61,15 @@
     <string name="location_ip_based">IP Geolocation (Approximated)</string>
     <string name="system_launcher">Reassign system launcher</string>
     <string name="app_info">App info</string>
+
+    <!-- Page Manager -->
+    <string name="home_page">Home</string>
+    <string name="default_position">Default position</string>
+    <string name="left">Left</string>
+    <string name="top">Top</string>
+    <string name="right">Right</string>
+    <string name="bottom">Bottom</string>
+    <string name="add">Add</string>
 
     <!-- Settings pop-up -->
     <string name="return_button">Return</string>

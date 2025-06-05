@@ -23,7 +23,7 @@
     android:layout_height="wrap_content"
     app:carbon_maxHeight="400dp">
 
-    <com.bosphere.fadingedgelayout.FadingEdgeLayout
+    <com.stario.launcher.ui.common.FadingEdgeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:fel_edge="bottom|top"
@@ -79,6 +79,6 @@
 
         </androidx.core.widget.NestedScrollView>
 
-    </com.bosphere.fadingedgelayout.FadingEdgeLayout>
+    </com.stario.launcher.ui.common.FadingEdgeLayout>
 
 </carbon.widget.RelativeLayout>
