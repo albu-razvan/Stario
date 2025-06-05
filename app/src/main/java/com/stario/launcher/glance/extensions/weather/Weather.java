@@ -86,7 +86,7 @@ public class Weather extends GlanceDialogExtension {
     private static final int SUMMARY = 2;
     private static final String LOCATION_API_IP_WILDCARD = "$";
     private static final IpApiEntry[] LOCATION_APIS = new IpApiEntry[]{
-            new IpApiEntry("http://ip-api.com/json/$", new IpApiEntry.Callback[]{
+            new IpApiEntry("https://ip-api.com/json/$", new IpApiEntry.Callback[]{
                     new IpApiEntry.Callback("lat") {
                         @Override
                         void assign(double value) {

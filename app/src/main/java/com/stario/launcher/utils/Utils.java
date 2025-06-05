@@ -50,15 +50,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class Utils {
-    public static final String USER_AGENT = "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/W.X.Y.Z Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
+    public static final String USER_AGENT = "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/W.X.Y.Z Mobile Safari/537.36 (compatible; Googlebot/2.1; +https://www.google.com/bot.html)";
 
     private static final String TAG = "com.stario.Utils";
     private static final ExecutorService executorPool = Executors.newFixedThreadPool(10);
     private static final String[] IPV4_APIS = {
-            "http://checkip.amazonaws.com/",
-            "http://ipv4.icanhazip.com/",
-            "http://ipv4.seeip.org",
-            "http://api.ipify.org/"
+            "https://checkip.amazonaws.com/",
+            "https://ipv4.icanhazip.com/",
+            "https://ipv4.seeip.org",
+            "https://api.ipify.org/"
     };
     private static Gson gson;
 
