@@ -43,7 +43,6 @@
         android:persistent="true"
         android:rollbackDataPolicy="wipe"
         android:supportsRtl="false"
-        android:usesCleartextTraffic="true"
         tools:targetApi="tiramisu">
 
         <activity
