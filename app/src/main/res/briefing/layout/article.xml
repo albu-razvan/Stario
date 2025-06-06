@@ -39,7 +39,7 @@
         android:clipChildren="false"
         android:visibility="gone">
 
-        <com.bosphere.fadingedgelayout.FadingEdgeLayout
+        <com.stario.launcher.ui.common.FadingEdgeLayout
             android:layout_width="600dp"
             android:layout_height="250dp"
             app:fel_edge="bottom"
@@ -76,7 +76,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintWidth_max="200dp" />
 
-        </com.bosphere.fadingedgelayout.FadingEdgeLayout>
+        </com.stario.launcher.ui.common.FadingEdgeLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
