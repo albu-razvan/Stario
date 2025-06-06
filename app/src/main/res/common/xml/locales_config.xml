@@ -18,4 +18,18 @@
 
 <locale-config xmlns:android="http://schemas.android.com/apk/res/android">
     <locale android:name="en"/>
+    <locale android:name="de"/>
+    <locale android:name="es"/>
+    <locale android:name="fi"/>
+    <locale android:name="fr"/>
+    <locale android:name="hu"/>
+    <locale android:name="it"/>
+    <locale android:name="lv"/>
+    <locale android:name="nl"/>
+    <locale android:name="no"/>
+    <locale android:name="pt"/>
+    <locale android:name="ro"/>
+    <locale android:name="sk"/>
+    <locale android:name="sv"/>
+    <locale android:name="tr"/>
 </locale-config>

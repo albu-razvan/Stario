@@ -1,0 +1,223 @@
+<!--
+  ~ Copyright (C) 2025 Răzvan Albu
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
+  -->
+
+<resources>
+    <!-- Non translatable -->
+    <string name="app_name" translatable="false">Stario</string>
+    <string name="affinity" translatable="false">com.stario</string>
+
+    <!-- General -->
+    <string name="unavailable">Nicht verfügbar</string>
+    <string name="default_text">Standard</string>
+    <string name="about">Info</string>
+    <string name="remove">Entfernen</string>
+    <string name="licenses">Lizenzen</string>
+    <string name="restart">Neustart</string>
+    <string name="animations">Animationen</string>
+    <string name="drawer">Schublade</string>
+    <string name="search">Suchen</string>
+    <string name="miscellaneous">Verschiedenes</string>
+    <string name="apps">Anwendungen</string>
+    <string name="personal">Persönlich</string>
+    <string name="managed">Verwaltet</string>
+    <string name="something_went_wrong">Etwas ist schiefgelaufen!</string>
+    <string name="refresh">Aktualisieren</string>
+
+    <!-- Home pop-up -->
+    <string name="settings">Startbildschirm-Einstellungen</string>
+    <string name="wallpaper">Hintergrund &amp; Stil</string>
+
+    <!-- Settings -->
+    <string name="preferences">Einstellungen</string>
+    <string name="media_player">Medienplayer</string>
+    <string name="notification_dots">Benachrichtigungspunkte</string>
+    <string name="lock_gesture">Doppeltippen zum Sperren</string>
+    <string name="imperial_units">Imperiale Einheiten</string>
+    <string name="vibrations">Vibrationen</string>
+    <string name="theme">Design</string>
+    <string name="pages">Seitenverwaltung</string>
+    <string name="search_engine">Suchmaschine</string>
+    <string name="search_results">Suchergebnisse</string>
+    <string name="kagi_integration">Powered by Kagi</string>
+    <string name="hide_applications">Anwendungen ausblenden</string>
+    <string name="legacy_lock_animation">Legacy-Sperranimation</string>
+    <string name="icons">Symbole</string>
+    <string name="weather">Wetter</string>
+    <string name="weather_location">Wetterstandort</string>
+    <string name="location_ip_based">IP-Geolokalisierung (ungefähr)</string>
+    <string name="system_launcher">System-Launcher neu zuweisen</string>
+    <string name="app_info">App-Info</string>
+
+    <!-- Page Manager -->
+    <string name="home_page">Startseite</string>
+    <string name="default_position">Standardposition</string>
+    <string name="left">Links</string>
+    <string name="top">Oben</string>
+    <string name="right">Rechts</string>
+    <string name="bottom">Unten</string>
+    <string name="add">Hinzufügen</string>
+
+    <!-- Settings pop-up -->
+    <string name="return_button">Zurück</string>
+    <string name="proceed_button">Fortfahren</string>
+
+    <!-- Notifications pop-up -->
+    <string name="read_notifications">Benachrichtigungen lesen</string>
+    <string name="notifications_access">Stario benötigt Zugriff auf Benachrichtigungen, damit diese Funktion funktioniert.</string>
+
+    <!-- Accessibility pop-up -->
+    <string name="use_accessibility">Barrierefreiheit nutzen</string>
+    <string name="accessibility_notice">Stario benötigt Zugriff auf Barrierefreiheitsdienste, damit diese Funktion funktioniert.</string>
+
+    <!-- Theme pop-up -->
+    <string name="dynamic">Dynamisch</string>
+    <string name="red">Rot</string>
+    <string name="orange">Orange</string>
+    <string name="yellow">Gelb</string>
+    <string name="lime">Hellgrün</string>
+    <string name="green">Grün</string>
+    <string name="turquoise">Türkis</string>
+    <string name="cyan">Cyan</string>
+    <string name="blue">Blau</string>
+    <string name="purple">Lila</string>
+    <string name="pink">Pink</string>
+    <string name="dark">Dunkel</string>
+    <string name="force_dark">Dunkelmodus erzwingen</string>
+
+    <!-- Icons pop-up -->
+    <string name="corner_radius">Eckradius</string>
+    <string name="regular">Regulär</string>
+    <string name="squircle">Squircle</string>
+    <string name="components">Komponenten</string>
+    <string name="calculating">Berechne…</string>
+
+    <!-- Hidden apps pop-up -->
+    <string name="hidden_apps">Ausgeblendete Apps</string>
+
+    <!-- License pop-up -->
+    <string name="license">Lizenz</string>
+    <string name="main_dependencies">Hauptabhängigkeiten</string>
+    <string name="all_dependencies">Alle Abhängigkeiten</string>
+
+    <!-- Widgets -->
+    <string name="nothing_here_yet">Noch nichts hier!</string>
+    <string name="create_a_widget">Widget hinzufügen</string>
+    <string name="widgets">Widgets</string>
+    <string name="widget_one">Widget</string>
+    <string name="widget_many">Widgets</string>
+
+    <!-- Media -->
+    <string name="unknown_artist">Unbekannter Künstler</string>
+
+    <!-- Categories -->
+    <string name="categories">Kategorien</string>
+    <string name="unsorted">Unsortiert</string>
+    <string name="games">Spiele</string>
+    <string name="audio">Musik</string>
+    <string name="video">Unterhaltung</string>
+    <string name="images">Fotografie</string>
+    <string name="social">Soziales</string>
+    <string name="news">Nachrichten</string>
+    <string name="maps">Navigation</string>
+    <string name="productivity">Produktivität</string>
+    <string name="accessibility">Barrierefreiheit</string>
+    <string name="finance">Finanzen</string>
+    <string name="health">Gesundheit</string>
+    <string name="personalization">Personalisierung</string>
+    <string name="sports">Sport</string>
+
+    <!-- Applications -->
+    <string name="uninstall">Deinstallieren</string>
+    <string name="customize">Anpassen</string>
+    <string name="category">Kategorie</string>
+    <string name="category_name">Kategoriename</string>
+    <string name="available_icons">Verfügbare Symbole</string>
+    <string name="application_label">Bezeichnung</string>
+    <string name="category_name_warning">Diese Kategorie existiert bereits.</string>
+    <string name="application_label_warning">Die Bezeichnung muss mindestens ein Zeichen lang sein.</string>
+    <string name="category_warning">Dies erstellt eine neue Kategorie mit dem angegebenen Namen.</string>
+
+    <!-- Briefing -->
+    <string name="briefing">Ihr Briefing</string>
+    <string name="briefing_configurator">Briefing</string>
+    <string name="import_feed">Feed importieren</string>
+    <string name="link_feed">Importieren</string>
+    <string name="invalid_url">Ungültige URL</string>
+    <string name="invalid_rss">Kein Feed</string>
+    <string name="link">Feed-Link</string>
+    <string name="no_connection">Keine Internetverbindung</string>
+    <string name="already_subscribed">Sie haben diesen Feed bereits abonniert!</string>
+
+    <!-- Search -->
+    <string name="search_on">Suchen auf</string>
+    <string name="searching">Suche läuft…</string>
+    <string name="unauthorized">Kagi-Server meldeten unautorisierten Zugriff. Ist Ihr API-Schlüssel gültig?</string>
+    <string name="to_search">um mit Kagi zu suchen</string>
+    <string name="kagi_dependency">Stario stützt sich auf von Kagi bereitgestellte Daten, um Suchergebnisse zu liefern.</string>
+    <string name="kagi_api_key">Kagi API-Schlüssel</string>
+    <string name="api_key">API-Schlüssel</string>
+
+    <!-- Keyboard -->
+    <string name="done">Fertig</string>
+
+    <!-- Weather -->
+    <string name="clear_sky">Klarer Himmel</string>
+    <string name="cloudy">Bewölkt</string>
+    <string name="fair">Heiter</string>
+    <string name="fog">Nebel</string>
+    <string name="heavy_rain">Starker Regen</string>
+    <string name="heavy_rain_and_thunder">Starker Regen und Gewitter</string>
+    <string name="heavy_rain_showers">Starke Regenschauer</string>
+    <string name="heavy_rain_showers_and_thunder">Starke Regenschauer und Gewitter</string>
+    <string name="heavy_sleet">Starker Graupel</string>
+    <string name="heavy_sleet_and_thunder">Starker Graupel und Gewitter</string>
+    <string name="heavy_sleet_showers">Starke Graupelschauer</string>
+    <string name="heavy_sleet_showers_and_thunder">Starke Graupelschauer und Gewitter</string>
+    <string name="heavy_snow">Starker Schneefall</string>
+    <string name="heavy_snow_and_thunder">Starker Schneefall und Gewitter</string>
+    <string name="heavy_snow_showers">Starke Schneeschauer</string>
+    <string name="heavy_snow_showers_and_thunder">Starke Schneeschauer und Gewitter</string>
+    <string name="light_rain">Leichter Regen</string>
+    <string name="light_rain_and_thunder">Leichter Regen und Gewitter</string>
+    <string name="light_rain_showers">Leichte Regenschauer</string>
+    <string name="light_rain_showers_and_thunder">Leichte Regenschauer und Gewitter</string>
+    <string name="light_sleet">Leichter Graupel</string>
+    <string name="light_sleet_and_thunder">Leichter Graupel und Gewitter</string>
+    <string name="light_sleet_showers">Leichte Graupelschauer</string>
+    <string name="light_snow">Leichter Schneefall</string>
+    <string name="light_snow_and_thunder">Leichter Schneefall und Gewitter</string>
+    <string name="light_snow_showers">Leichte Schneeschauer</string>
+    <string name="light_sleet_showers_and_thunder">Leichte Graupelschauer und Gewitter</string>
+    <string name="light_snow_showers_and_thunder">Leichte Schneeschauer und Gewitter</string>
+    <string name="partly_cloudy">Teilweise bewölkt</string>
+    <string name="rain">Regen</string>
+    <string name="rain_and_thunder">Regen und Gewitter</string>
+    <string name="rain_showers">Regenschauer</string>
+    <string name="rain_showers_and_thunder">Regenschauer und Gewitter</string>
+    <string name="sleet">Graupel</string>
+    <string name="sleet_and_thunder">Graupel und Gewitter</string>
+    <string name="sleet_showers">Graupelschauer</string>
+    <string name="sleet_showers_and_thunder">Graupelschauer und Gewitter</string>
+    <string name="snow">Schnee</string>
+    <string name="snow_and_thunder">Schnee und Gewitter</string>
+    <string name="snow_showers">Schneeschauer</string>
+    <string name="snow_showers_and_thunder">Schneeschauer und Gewitter</string>
+    <string name="weather_source">Quelle: met.no</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_description">Der Dienst hat den alleinigen Zweck, die Bildschirmsperrgeste auf dem Startbildschirm zu ermöglichen. Er sammelt oder teilt keine Daten mit Dritten.</string>
+</resources>

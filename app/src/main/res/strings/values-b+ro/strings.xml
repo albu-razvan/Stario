@@ -1,0 +1,223 @@
+<!--
+  ~ Copyright (C) 2025 Răzvan Albu
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
+  -->
+
+<resources>
+    <!-- Non translatable -->
+    <string name="app_name" translatable="false">Stario</string>
+    <string name="affinity" translatable="false">com.stario</string>
+
+    <!-- General -->
+    <string name="unavailable">Indisponibil</string>
+    <string name="default_text">Implicit</string>
+    <string name="about">Info</string>
+    <string name="remove">Elimină</string>
+    <string name="licenses">Licențe</string>
+    <string name="restart">Repornește</string>
+    <string name="animations">Animații</string>
+    <string name="drawer">Sertar</string>
+    <string name="search">Căutare</string>
+    <string name="miscellaneous">Diverse</string>
+    <string name="apps">Aplicații</string>
+    <string name="personal">Personal</string>
+    <string name="managed">Gestionat</string>
+    <string name="something_went_wrong">Ceva nu a mers bine!</string>
+    <string name="refresh">Reîmprospătează</string>
+
+    <!-- Home pop-up -->
+    <string name="settings">Setări ecran principal</string>
+    <string name="wallpaper">Imagine de fundal și stil</string>
+
+    <!-- Settings -->
+    <string name="preferences">Preferințe</string>
+    <string name="media_player">Player media</string>
+    <string name="notification_dots">Buline de notificare</string>
+    <string name="lock_gesture">Atinge de două ori pentru a bloca</string>
+    <string name="imperial_units">Unități imperiale</string>
+    <string name="vibrations">Vibrații</string>
+    <string name="theme">Temă</string>
+    <string name="pages">Manager pagini</string>
+    <string name="search_engine">Motor de căutare</string>
+    <string name="search_results">Rezultate căutare</string>
+    <string name="kagi_integration">Susținut de Kagi</string>
+    <string name="hide_applications">Ascunde aplicațiile</string>
+    <string name="legacy_lock_animation">Animație de blocare veche</string>
+    <string name="icons">Icoane</string>
+    <string name="weather">Vremea</string>
+    <string name="weather_location">Locația vremii</string>
+    <string name="location_ip_based">Geolocalizare IP (Aproximată)</string>
+    <string name="system_launcher">Reatribuie lansatorul de sistem</string>
+    <string name="app_info">Informații aplicație</string>
+
+    <!-- Page Manager -->
+    <string name="home_page">Acasă</string>
+    <string name="default_position">Poziție implicită</string>
+    <string name="left">Stânga</string>
+    <string name="top">Sus</string>
+    <string name="right">Dreapta</string>
+    <string name="bottom">Jos</string>
+    <string name="add">Adaugă</string>
+
+    <!-- Settings pop-up -->
+    <string name="return_button">Înapoi</string>
+    <string name="proceed_button">Continuă</string>
+
+    <!-- Notifications pop-up -->
+    <string name="read_notifications">Citește notificările</string>
+    <string name="notifications_access">Stario are nevoie de acces la notificări pentru ca această funcție să funcționeze.</string>
+
+    <!-- Accessibility pop-up -->
+    <string name="use_accessibility">Utilizează accesibilitatea</string>
+    <string name="accessibility_notice">Stario are nevoie de acces la serviciile de accesibilitate pentru ca această funcție să funcționeze.</string>
+
+    <!-- Theme pop-up -->
+    <string name="dynamic">Dinamic</string>
+    <string name="red">Roșu</string>
+    <string name="orange">Portocaliu</string>
+    <string name="yellow">Galben</string>
+    <string name="lime">Verde lime</string>
+    <string name="green">Verde</string>
+    <string name="turquoise">Turcoaz</string>
+    <string name="cyan">Cyan</string>
+    <string name="blue">Albastru</string>
+    <string name="purple">Mov</string>
+    <string name="pink">Roz</string>
+    <string name="dark">Întunecat</string>
+    <string name="force_dark">Forțează modul întunecat</string>
+
+    <!-- Icons pop-up -->
+    <string name="corner_radius">Raza colțului</string>
+    <string name="regular">Normal</string>
+    <string name="squircle">Pătrat rotunjit</string>
+    <string name="components">componente</string>
+    <string name="calculating">Se calculează…</string>
+
+    <!-- Hidden apps pop-up -->
+    <string name="hidden_apps">Aplicații ascunse</string>
+
+    <!-- License pop-up -->
+    <string name="license">Licență</string>
+    <string name="main_dependencies">Dependențe principale</string>
+    <string name="all_dependencies">Toate dependențele</string>
+
+    <!-- Widgets -->
+    <string name="nothing_here_yet">Nimic aici încă!</string>
+    <string name="create_a_widget">Adaugă un widget</string>
+    <string name="widgets">Widget-uri</string>
+    <string name="widget_one">widget</string>
+    <string name="widget_many">widget-uri</string>
+
+    <!-- Media -->
+    <string name="unknown_artist">Artist necunoscut</string>
+
+    <!-- Categories -->
+    <string name="categories">Categorii</string>
+    <string name="unsorted">Nesortate</string>
+    <string name="games">Jocuri</string>
+    <string name="audio">Muzică</string>
+    <string name="video">Divertisment</string>
+    <string name="images">Fotografie</string>
+    <string name="social">Social</string>
+    <string name="news">Știri</string>
+    <string name="maps">Navigație</string>
+    <string name="productivity">Productivitate</string>
+    <string name="accessibility">Accesibilitate</string>
+    <string name="finance">Finanțe</string>
+    <string name="health">Sănătate</string>
+    <string name="personalization">Personalizare</string>
+    <string name="sports">Sport</string>
+
+    <!-- Applications -->
+    <string name="uninstall">Dezinstalează</string>
+    <string name="customize">Personalizează</string>
+    <string name="category">Categorie</string>
+    <string name="category_name">Nume categorie</string>
+    <string name="available_icons">Icoane disponibile</string>
+    <string name="application_label">Etichetă</string>
+    <string name="category_name_warning">Această categorie există deja.</string>
+    <string name="application_label_warning">Eticheta trebuie să aibă cel puțin un caracter.</string>
+    <string name="category_warning">Aceasta va crea o nouă categorie cu numele furnizat.</string>
+
+    <!-- Briefing -->
+    <string name="briefing">Briefingul tău</string>
+    <string name="briefing_configurator">Briefing</string>
+    <string name="import_feed">Importă un feed</string>
+    <string name="link_feed">Importă</string>
+    <string name="invalid_url">URL invalid</string>
+    <string name="invalid_rss">Nu este un feed</string>
+    <string name="link">Link feed</string>
+    <string name="no_connection">Fără conexiune la internet</string>
+    <string name="already_subscribed">Ești deja abonat la acest feed!</string>
+
+    <!-- Search -->
+    <string name="search_on">Caută pe</string>
+    <string name="searching">Se caută…</string>
+    <string name="unauthorized">Serverele Kagi au raportat acces neautorizat. Cheia ta API este validă?</string>
+    <string name="to_search">pentru a căuta cu Kagi</string>
+    <string name="kagi_dependency">Stario se bazează pe datele furnizate de Kagi pentru a oferi rezultate de căutare.</string>
+    <string name="kagi_api_key">Cheie API Kagi</string>
+    <string name="api_key">Cheie API</string>
+
+    <!-- Keyboard -->
+    <string name="done">Gata</string>
+
+    <!-- Weather -->
+    <string name="clear_sky">Cer senin</string>
+    <string name="cloudy">Înnorat</string>
+    <string name="fair">Frumos</string>
+    <string name="fog">Ceață</string>
+    <string name="heavy_rain">Ploaie torențială</string>
+    <string name="heavy_rain_and_thunder">Ploaie torențială și tunete</string>
+    <string name="heavy_rain_showers">Averse puternice de ploaie</string>
+    <string name="heavy_rain_showers_and_thunder">Averse puternice de ploaie și tunete</string>
+    <string name="heavy_sleet">Lapoviță puternică</string>
+    <string name="heavy_sleet_and_thunder">Lapoviță puternică și tunete</string>
+    <string name="heavy_sleet_showers">Averse puternice de lapoviță</string>
+    <string name="heavy_sleet_showers_and_thunder">Averse puternice de lapoviță și tunete</string>
+    <string name="heavy_snow">Ninsoare puternică</string>
+    <string name="heavy_snow_and_thunder">Ninsoare puternică și tunete</string>
+    <string name="heavy_snow_showers">Averse puternice de ninsoare</string>
+    <string name="heavy_snow_showers_and_thunder">Averse puternice de ninsoare și tunete</string>
+    <string name="light_rain">Ploaie ușoară</string>
+    <string name="light_rain_and_thunder">Ploaie ușoară și tunete</string>
+    <string name="light_rain_showers">Averse ușoare de ploaie</string>
+    <string name="light_rain_showers_and_thunder">Averse ușoare de ploaie și tunete</string>
+    <string name="light_sleet">Lapoviță ușoară</string>
+    <string name="light_sleet_and_thunder">Lapoviță ușoară și tunete</string>
+    <string name="light_sleet_showers">Averse ușoare de lapoviță</string>
+    <string name="light_snow">Ninsoare ușoară</string>
+    <string name="light_snow_and_thunder">Ninsoare ușoară și tunete</string>
+    <string name="light_snow_showers">Averse ușoare de ninsoare</string>
+    <string name="light_sleet_showers_and_thunder">Averse ușoare de lapoviță și tunete</string>
+    <string name="light_snow_showers_and_thunder">Averse ușoare de ninsoare și tunete</string>
+    <string name="partly_cloudy">Parțial înnorat</string>
+    <string name="rain">Ploaie</string>
+    <string name="rain_and_thunder">Ploaie și tunete</string>
+    <string name="rain_showers">Averse de ploaie</string>
+    <string name="rain_showers_and_thunder">Averse de ploaie și tunete</string>
+    <string name="sleet">Lapoviță</string>
+    <string name="sleet_and_thunder">Lapoviță și tunete</string>
+    <string name="sleet_showers">Averse de lapoviță</string>
+    <string name="sleet_showers_and_thunder">Averse de lapoviță și tunete</string>
+    <string name="snow">Ninsoare</string>
+    <string name="snow_and_thunder">Ninsoare și tunete</string>
+    <string name="snow_showers">Averse de ninsoare</string>
+    <string name="snow_showers_and_thunder">Averse de ninsoare și tunete</string>
+    <string name="weather_source">Sursa: met.no</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_description">Serviciul are unicul scop de a permite gestul de blocare a ecranului pe ecranul principal. Nu colectează și nu partajează date cu nicio terță parte.</string>
+</resources>

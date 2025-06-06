@@ -1,0 +1,223 @@
+<!--
+  ~ Copyright (C) 2025 Răzvan Albu
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
+  -->
+
+<resources>
+    <!-- Non translatable -->
+    <string name="app_name" translatable="false">Stario</string>
+    <string name="affinity" translatable="false">com.stario</string>
+
+    <!-- General -->
+    <string name="unavailable">Niet beschikbaar</string>
+    <string name="default_text">Standaard</string>
+    <string name="about">Info</string>
+    <string name="remove">Verwijderen</string>
+    <string name="licenses">Licenties</string>
+    <string name="restart">Herstarten</string>
+    <string name="animations">Animaties</string>
+    <string name="drawer">Lade</string>
+    <string name="search">Zoeken</string>
+    <string name="miscellaneous">Overig</string>
+    <string name="apps">Applicaties</string>
+    <string name="personal">Persoonlijk</string>
+    <string name="managed">Beheerd</string>
+    <string name="something_went_wrong">Er is iets misgegaan!</string>
+    <string name="refresh">Vernieuwen</string>
+
+    <!-- Home pop-up -->
+    <string name="settings">Startscherminstellingen</string>
+    <string name="wallpaper">Achtergrond &amp; Stijl</string>
+
+    <!-- Settings -->
+    <string name="preferences">Voorkeuren</string>
+    <string name="media_player">Mediaspeler</string>
+    <string name="notification_dots">Meldingspunten</string>
+    <string name="lock_gesture">Dubbel tikken om te vergrendelen</string>
+    <string name="imperial_units">Imperiale eenheden</string>
+    <string name="vibrations">Trillingen</string>
+    <string name="theme">Thema</string>
+    <string name="pages">Pagina beheer</string>
+    <string name="search_engine">Zoekmachine</string>
+    <string name="search_results">Zoekresultaten</string>
+    <string name="kagi_integration">Aangedreven door Kagi</string>
+    <string name="hide_applications">Applicaties verbergen</string>
+    <string name="legacy_lock_animation">Verouderde vergrendelingsanimatie</string>
+    <string name="icons">Pictogrammen</string>
+    <string name="weather">Weer</string>
+    <string name="weather_location">Weerlocatie</string>
+    <string name="location_ip_based">IP-geolocatie (benaderd)</string>
+    <string name="system_launcher">Systeemstarter opnieuw toewijzen</string>
+    <string name="app_info">App info</string>
+
+    <!-- Page Manager -->
+    <string name="home_page">Startpagina</string>
+    <string name="default_position">Standaard positie</string>
+    <string name="left">Links</string>
+    <string name="top">Boven</string>
+    <string name="right">Rechts</string>
+    <string name="bottom">Onder</string>
+    <string name="add">Toevoegen</string>
+
+    <!-- Settings pop-up -->
+    <string name="return_button">Terug</string>
+    <string name="proceed_button">Doorgaan</string>
+
+    <!-- Notifications pop-up -->
+    <string name="read_notifications">Meldingen lezen</string>
+    <string name="notifications_access">Stario heeft toegang tot meldingen nodig om deze functie te laten werken.</string>
+
+    <!-- Accessibility pop-up -->
+    <string name="use_accessibility">Toegankelijkheid gebruiken</string>
+    <string name="accessibility_notice">Stario heeft toegang tot toegankelijkheidsservices nodig om deze functie te laten werken.</string>
+
+    <!-- Theme pop-up -->
+    <string name="dynamic">Dynamisch</string>
+    <string name="red">Rood</string>
+    <string name="orange">Oranje</string>
+    <string name="yellow">Geel</string>
+    <string name="lime">Limoen</string>
+    <string name="green">Groen</string>
+    <string name="turquoise">Turquoise</string>
+    <string name="cyan">Cyaan</string>
+    <string name="blue">Blauw</string>
+    <string name="purple">Paars</string>
+    <string name="pink">Roze</string>
+    <string name="dark">Donker</string>
+    <string name="force_dark">Donkere modus afdwingen</string>
+
+    <!-- Icons pop-up -->
+    <string name="corner_radius">Hoekradius</string>
+    <string name="regular">Normaal</string>
+    <string name="squircle">Squircle</string>
+    <string name="components">componenten</string>
+    <string name="calculating">Bezig met berekenen…</string>
+
+    <!-- Hidden apps pop-up -->
+    <string name="hidden_apps">Verborgen apps</string>
+
+    <!-- License pop-up -->
+    <string name="license">Licentie</string>
+    <string name="main_dependencies">Belangrijkste afhankelijkheden</string>
+    <string name="all_dependencies">Alle afhankelijkheden</string>
+
+    <!-- Widgets -->
+    <string name="nothing_here_yet">Nog niets hier!</string>
+    <string name="create_a_widget">Een widget toevoegen</string>
+    <string name="widgets">Widgets</string>
+    <string name="widget_one">widget</string>
+    <string name="widget_many">widgets</string>
+
+    <!-- Media -->
+    <string name="unknown_artist">Onbekende artiest</string>
+
+    <!-- Categories -->
+    <string name="categories">Categorieën</string>
+    <string name="unsorted">Ongesorteerd</string>
+    <string name="games">Spellen</string>
+    <string name="audio">Muziek</string>
+    <string name="video">Entertainment</string>
+    <string name="images">Fotografie</string>
+    <string name="social">Sociaal</string>
+    <string name="news">Nieuws</string>
+    <string name="maps">Navigatie</string>
+    <string name="productivity">Productiviteit</string>
+    <string name="accessibility">Toegankelijkheid</string>
+    <string name="finance">Financiën</string>
+    <string name="health">Gezondheid</string>
+    <string name="personalization">Personalisatie</string>
+    <string name="sports">Sport</string>
+
+    <!-- Applications -->
+    <string name="uninstall">Verwijderen</string>
+    <string name="customize">Aanpassen</string>
+    <string name="category">Categorie</string>
+    <string name="category_name">Categorienaam</string>
+    <string name="available_icons">Beschikbare pictogrammen</string>
+    <string name="application_label">Label</string>
+    <string name="category_name_warning">Deze categorie bestaat al.</string>
+    <string name="application_label_warning">Label moet minstens één teken lang zijn.</string>
+    <string name="category_warning">Dit maakt een nieuwe categorie aan met de opgegeven naam.</string>
+
+    <!-- Briefing -->
+    <string name="briefing">Uw briefing</string>
+    <string name="briefing_configurator">Briefing</string>
+    <string name="import_feed">Een feed importeren</string>
+    <string name="link_feed">Importeren</string>
+    <string name="invalid_url">Ongeldige URL</string>
+    <string name="invalid_rss">Geen feed</string>
+    <string name="link">Feedlink</string>
+    <string name="no_connection">Geen internetverbinding</string>
+    <string name="already_subscribed">U bent al geabonneerd op deze feed!</string>
+
+    <!-- Search -->
+    <string name="search_on">Zoeken op</string>
+    <string name="searching">Bezig met zoeken…</string>
+    <string name="unauthorized">Kagi-servers meldden ongeautoriseerde toegang. Is uw API-sleutel geldig?</string>
+    <string name="to_search">om te zoeken met Kagi</string>
+    <string name="kagi_dependency">Stario is afhankelijk van gegevens van Kagi om zoekresultaten te leveren.</string>
+    <string name="kagi_api_key">Kagi API-sleutel</string>
+    <string name="api_key">API-sleutel</string>
+
+    <!-- Keyboard -->
+    <string name="done">Klaar</string>
+
+    <!-- Weather -->
+    <string name="clear_sky">Heldere lucht</string>
+    <string name="cloudy">Bewolkt</string>
+    <string name="fair">Mooi</string>
+    <string name="fog">Mist</string>
+    <string name="heavy_rain">Zware regen</string>
+    <string name="heavy_rain_and_thunder">Zware regen en onweer</string>
+    <string name="heavy_rain_showers">Zware regenbuien</string>
+    <string name="heavy_rain_showers_and_thunder">Zware regenbuien en onweer</string>
+    <string name="heavy_sleet">Zware natte sneeuw</string>
+    <string name="heavy_sleet_and_thunder">Zware natte sneeuw en onweer</string>
+    <string name="heavy_sleet_showers">Zware natte sneeuwbuien</string>
+    <string name="heavy_sleet_showers_and_thunder">Zware natte sneeuwbuien en onweer</string>
+    <string name="heavy_snow">Zware sneeuw</string>
+    <string name="heavy_snow_and_thunder">Zware sneeuw en onweer</string>
+    <string name="heavy_snow_showers">Zware sneeuwbuien</string>
+    <string name="heavy_snow_showers_and_thunder">Zware sneeuwbuien en onweer</string>
+    <string name="light_rain">Lichte regen</string>
+    <string name="light_rain_and_thunder">Lichte regen en onweer</string>
+    <string name="light_rain_showers">Lichte regenbuien</string>
+    <string name="light_rain_showers_and_thunder">Lichte regenbuien en onweer</string>
+    <string name="light_sleet">Lichte natte sneeuw</string>
+    <string name="light_sleet_and_thunder">Lichte natte sneeuw en onweer</string>
+    <string name="light_sleet_showers">Lichte natte sneeuwbuien</string>
+    <string name="light_snow">Lichte sneeuw</string>
+    <string name="light_snow_and_thunder">Lichte sneeuw en onweer</string>
+    <string name="light_snow_showers">Lichte sneeuwbuien</string>
+    <string name="light_sleet_showers_and_thunder">Lichte natte sneeuwbuien en onweer</string>
+    <string name="light_snow_showers_and_thunder">Lichte sneeuwbuien en onweer</string>
+    <string name="partly_cloudy">Gedeeltelijk bewolkt</string>
+    <string name="rain">Regen</string>
+    <string name="rain_and_thunder">Regen en onweer</string>
+    <string name="rain_showers">Regenbuien</string>
+    <string name="rain_showers_and_thunder">Regenbuien en onweer</string>
+    <string name="sleet">Natte sneeuw</string>
+    <string name="sleet_and_thunder">Natte sneeuw en onweer</string>
+    <string name="sleet_showers">Natte sneeuwbuien</string>
+    <string name="sleet_showers_and_thunder">Natte sneeuwbuien en onweer</string>
+    <string name="snow">Sneeuw</string>
+    <string name="snow_and_thunder">Sneeuw en onweer</string>
+    <string name="snow_showers">Sneeuwbuien</string>
+    <string name="snow_showers_and_thunder">Sneeuwbuien en onweer</string>
+    <string name="weather_source">Bron: met.no</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_description">De service heeft als enige doel het inschakelen van het vergrendelschermgebaar op het startscherm. Het verzamelt of deelt geen gegevens met derden.</string>
+</resources>

@@ -1,0 +1,223 @@
+<!--
+  ~ Copyright (C) 2025 Răzvan Albu
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
+  -->
+
+<resources>
+    <!-- Non translatable -->
+    <string name="app_name" translatable="false">Stario</string>
+    <string name="affinity" translatable="false">com.stario</string>
+
+    <!-- General -->
+    <string name="unavailable">Kullanılamıyor</string>
+    <string name="default_text">Varsayılan</string>
+    <string name="about">Hakkında</string>
+    <string name="remove">Kaldır</string>
+    <string name="licenses">Lisanslar</string>
+    <string name="restart">Yeniden Başlat</string>
+    <string name="animations">Animasyonlar</string>
+    <string name="drawer">Çekmece</string>
+    <string name="search">Ara</string>
+    <string name="miscellaneous">Çeşitli</string>
+    <string name="apps">Uygulamalar</string>
+    <string name="personal">Kişisel</string>
+    <string name="managed">Yönetilen</string>
+    <string name="something_went_wrong">Bir şeyler ters gitti!</string>
+    <string name="refresh">Yenile</string>
+
+    <!-- Home pop-up -->
+    <string name="settings">Ana Ekran Ayarları</string>
+    <string name="wallpaper">Duvar Kağıdı ve Stil</string>
+
+    <!-- Settings -->
+    <string name="preferences">Tercihler</string>
+    <string name="media_player">Medya oynatıcı</string>
+    <string name="notification_dots">Bildirim noktaları</string>
+    <string name="lock_gesture">Kilitlemek için iki kez dokun</string>
+    <string name="imperial_units">İmparatorluk birimleri</string>
+    <string name="vibrations">Titreşimler</string>
+    <string name="theme">Tema</string>
+    <string name="pages">Sayfa yöneticisi</string>
+    <string name="search_engine">Arama motoru</string>
+    <string name="search_results">Arama sonuçları</string>
+    <string name="kagi_integration">Kagi tarafından desteklenmektedir</string>
+    <string name="hide_applications">Uygulamaları gizle</string>
+    <string name="legacy_lock_animation">Eski kilit animasyonu</string>
+    <string name="icons">Simgeler</string>
+    <string name="weather">Hava Durumu</string>
+    <string name="weather_location">Hava durumu konumu</string>
+    <string name="location_ip_based">IP Coğrafi Konum (Yaklaşık)</string>
+    <string name="system_launcher">Sistem başlatıcısını yeniden ata</string>
+    <string name="app_info">Uygulama bilgisi</string>
+
+    <!-- Page Manager -->
+    <string name="home_page">Ana Sayfa</string>
+    <string name="default_position">Varsayılan konum</string>
+    <string name="left">Sol</string>
+    <string name="top">Üst</string>
+    <string name="right">Sağ</string>
+    <string name="bottom">Alt</string>
+    <string name="add">Ekle</string>
+
+    <!-- Settings pop-up -->
+    <string name="return_button">Geri Dön</string>
+    <string name="proceed_button">Devam Et</string>
+
+    <!-- Notifications pop-up -->
+    <string name="read_notifications">Bildirimleri oku</string>
+    <string name="notifications_access">Bu özelliğin çalışması için Stario\'nun bildirimlere erişmesi gerekiyor.</string>
+
+    <!-- Accessibility pop-up -->
+    <string name="use_accessibility">Erişilebilirliği kullan</string>
+    <string name="accessibility_notice">Bu özelliğin çalışması için Stario\'nun erişilebilirlik hizmetlerine erişmesi gerekiyor.</string>
+
+    <!-- Theme pop-up -->
+    <string name="dynamic">Dinamik</string>
+    <string name="red">Kırmızı</string>
+    <string name="orange">Turuncu</string>
+    <string name="yellow">Sarı</string>
+    <string name="lime">Limon Yeşili</string>
+    <string name="green">Yeşil</string>
+    <string name="turquoise">Turkuaz</string>
+    <string name="cyan">Camgöbeği</string>
+    <string name="blue">Mavi</string>
+    <string name="purple">Mor</string>
+    <string name="pink">Pembe</string>
+    <string name="dark">Koyu</string>
+    <string name="force_dark">Koyu modu zorla</string>
+
+    <!-- Icons pop-up -->
+    <string name="corner_radius">Köşe yarıçapı</string>
+    <string name="regular">Normal</string>
+    <string name="squircle">Karemsi Yuvarlak</string>
+    <string name="components">bileşenler</string>
+    <string name="calculating">Hesaplanıyor…</string>
+
+    <!-- Hidden apps pop-up -->
+    <string name="hidden_apps">Gizli uygulamalar</string>
+
+    <!-- License pop-up -->
+    <string name="license">Lisans</string>
+    <string name="main_dependencies">Ana bağımlılıklar</string>
+    <string name="all_dependencies">Tüm bağımlılıklar</string>
+
+    <!-- Widgets -->
+    <string name="nothing_here_yet">Henüz burada bir şey yok!</string>
+    <string name="create_a_widget">Bir pencere öğesi ekle</string>
+    <string name="widgets">Pencere öğeleri</string>
+    <string name="widget_one">pencere öğesi</string>
+    <string name="widget_many">pencere öğeleri</string>
+
+    <!-- Media -->
+    <string name="unknown_artist">Bilinmeyen Sanatçı</string>
+
+    <!-- Categories -->
+    <string name="categories">Kategoriler</string>
+    <string name="unsorted">Sıralanmamış</string>
+    <string name="games">Oyunlar</string>
+    <string name="audio">Müzik</string>
+    <string name="video">Eğlence</string>
+    <string name="images">Fotoğrafçılık</string>
+    <string name="social">Sosyal</string>
+    <string name="news">Haberler</string>
+    <string name="maps">Navigasyon</string>
+    <string name="productivity">Üretkenlik</string>
+    <string name="accessibility">Erişilebilirlik</string>
+    <string name="finance">Finans</string>
+    <string name="health">Sağlık</string>
+    <string name="personalization">Kişiselleştirme</string>
+    <string name="sports">Spor</string>
+
+    <!-- Applications -->
+    <string name="uninstall">Kaldır</string>
+    <string name="customize">Özelleştir</string>
+    <string name="category">Kategori</string>
+    <string name="category_name">Kategori adı</string>
+    <string name="available_icons">Mevcut simgeler</string>
+    <string name="application_label">Etiket</string>
+    <string name="category_name_warning">Bu kategori zaten mevcut.</string>
+    <string name="application_label_warning">Etiket en az bir karakter uzunluğunda olmalıdır.</string>
+    <string name="category_warning">Bu, belirtilen adla yeni bir kategori oluşturacaktır.</string>
+
+    <!-- Briefing -->
+    <string name="briefing">Özetiniz</string>
+    <string name="briefing_configurator">Özet</string>
+    <string name="import_feed">Bir besleme içe aktar</string>
+    <string name="link_feed">İçe Aktar</string>
+    <string name="invalid_url">Geçersiz URL</string>
+    <string name="invalid_rss">Besleme değil</string>
+    <string name="link">Besleme bağlantısı</string>
+    <string name="no_connection">İnternet bağlantısı yok</string>
+    <string name="already_subscribed">Bu beslemeye zaten abone oldunuz!</string>
+
+    <!-- Search -->
+    <string name="search_on">Ara</string>
+    <string name="searching">Aranıyor…</string>
+    <string name="unauthorized">Kagi sunucuları yetkisiz erişim bildirdi. API anahtarınız geçerli mi?</string>
+    <string name="to_search">Kagi ile arama yapmak için</string>
+    <string name="kagi_dependency">Stario, arama sonuçları sağlamak için Kagi tarafından sağlanan verilere güvenmektedir.</string>
+    <string name="kagi_api_key">Kagi API anahtarı</string>
+    <string name="api_key">API anahtarı</string>
+
+    <!-- Keyboard -->
+    <string name="done">Bitti</string>
+
+    <!-- Weather -->
+    <string name="clear_sky">Açık</string>
+    <string name="cloudy">Bulutlu</string>
+    <string name="fair">Açık</string>
+    <string name="fog">Sisli</string>
+    <string name="heavy_rain">Şiddetli yağmur</string>
+    <string name="heavy_rain_and_thunder">Şiddetli yağmur ve gök gürültüsü</string>
+    <string name="heavy_rain_showers">Şiddetli sağanak yağışlar</string>
+    <string name="heavy_rain_showers_and_thunder">Şiddetli sağanak yağışlar ve gök gürültüsü</string>
+    <string name="heavy_sleet">Yoğun karla karışık yağmur</string>
+    <string name="heavy_sleet_and_thunder">Yoğun karla karışık yağmur ve gök gürültüsü</string>
+    <string name="heavy_sleet_showers">Yoğun karla karışık sağanak yağışlar</string>
+    <string name="heavy_sleet_showers_and_thunder">Yoğun karla karışık sağanak yağışlar ve gök gürültüsü</string>
+    <string name="heavy_snow">Yoğun kar</string>
+    <string name="heavy_snow_and_thunder">Yoğun kar ve gök gürültüsü</string>
+    <string name="heavy_snow_showers">Yoğun kar sağanakları</string>
+    <string name="heavy_snow_showers_and_thunder">Yoğun kar sağanakları ve gök gürültüsü</string>
+    <string name="light_rain">Hafif yağmur</string>
+    <string name="light_rain_and_thunder">Hafif yağmur ve gök gürültüsü</string>
+    <string name="light_rain_showers">Hafif sağanak yağışlar</string>
+    <string name="light_rain_showers_and_thunder">Hafif sağanak yağışlar ve gök gürültüsü</string>
+    <string name="light_sleet">Hafif karla karışık yağmur</string>
+    <string name="light_sleet_and_thunder">Hafif karla karışık yağmur ve gök gürültüsü</string>
+    <string name="light_sleet_showers">Hafif karla karışık sağanak yağışlar</string>
+    <string name="light_snow">Hafif kar</string>
+    <string name="light_snow_and_thunder">Hafif kar ve gök gürültüsü</string>
+    <string name="light_snow_showers">Hafif kar sağanakları</string>
+    <string name="light_sleet_showers_and_thunder">Hafif karla karışık sağanak yağışlar ve gök gürültüsü</string>
+    <string name="light_snow_showers_and_thunder">Hafif kar sağanakları ve gök gürültüsü</string>
+    <string name="partly_cloudy">Parçalı bulutlu</string>
+    <string name="rain">Yağmur</string>
+    <string name="rain_and_thunder">Yağmur ve gök gürültüsü</string>
+    <string name="rain_showers">Sağanak yağışlar</string>
+    <string name="rain_showers_and_thunder">Sağanak yağışlar ve gök gürültüsü</string>
+    <string name="sleet">Karla karışık yağmur</string>
+    <string name="sleet_and_thunder">Karla karışık yağmur ve gök gürültüsü</string>
+    <string name="sleet_showers">Karla karışık sağanak yağışlar</string>
+    <string name="sleet_showers_and_thunder">Karla karışık sağanak yağışlar ve gök gürültüsü</string>
+    <string name="snow">Kar</string>
+    <string name="snow_and_thunder">Kar ve gök gürültüsü</string>
+    <string name="snow_showers">Kar sağanakları</string>
+    <string name="snow_showers_and_thunder">Kar sağanakları ve gök gürültüsü</string>
+    <string name="weather_source">Kaynak: met.no</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_description">Hizmetin tek amacı ana ekranda kilit ekranı hareketini etkinleştirmektir. Herhangi bir üçüncü tarafla veri toplamaz veya paylaşmaz.</string>
+</resources>

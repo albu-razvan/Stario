@@ -1,0 +1,223 @@
+<!--
+  ~ Copyright (C) 2025 Răzvan Albu
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
+  -->
+
+<resources>
+    <!-- Non translatable -->
+    <string name="app_name" translatable="false">Stario</string>
+    <string name="affinity" translatable="false">com.stario</string>
+
+    <!-- General -->
+    <string name="unavailable">Nav pieejams</string>
+    <string name="default_text">Noklusējums</string>
+    <string name="about">Informācija</string>
+    <string name="remove">Noņemt</string>
+    <string name="licenses">Licences</string>
+    <string name="restart">Restartēt</string>
+    <string name="animations">Animācijas</string>
+    <string name="drawer">Atvilktne</string>
+    <string name="search">Meklēt</string>
+    <string name="miscellaneous">Dažādi</string>
+    <string name="apps">Lietojumprogrammas</string>
+    <string name="personal">Personīgi</string>
+    <string name="managed">Pārvaldīts</string>
+    <string name="something_went_wrong">Kaut kas nogāja greizi!</string>
+    <string name="refresh">Atsvaidzināt</string>
+
+    <!-- Home pop-up -->
+    <string name="settings">Sākuma ekrāna iestatījumi</string>
+    <string name="wallpaper">Fona attēls un stils</string>
+
+    <!-- Settings -->
+    <string name="preferences">Preferences</string>
+    <string name="media_player">Multivides atskaņotājs</string>
+    <string name="notification_dots">Paziņojumu punkti</string>
+    <string name="lock_gesture">Dubultskāriens, lai bloķētu</string>
+    <string name="imperial_units">Imperiālās vienības</string>
+    <string name="vibrations">Vibrācijas</string>
+    <string name="theme">Tēma</string>
+    <string name="pages">Lapas pārvaldnieks</string>
+    <string name="search_engine">Meklētājprogramma</string>
+    <string name="search_results">Meklēšanas rezultāti</string>
+    <string name="kagi_integration">Darbina Kagi</string>
+    <string name="hide_applications">Slēpt lietojumprogrammas</string>
+    <string name="legacy_lock_animation">Mantotā bloķēšanas animācija</string>
+    <string name="icons">Ikonas</string>
+    <string name="weather">Laikapstākļi</string>
+    <string name="weather_location">Laikapstākļu atrašanās vieta</string>
+    <string name="location_ip_based">IP ģeogrāfiskā atrašanās vieta (aptuveni)</string>
+    <string name="system_launcher">Pārslēgt sistēmas palaidēju</string>
+    <string name="app_info">Lietotnes informācija</string>
+
+    <!-- Page Manager -->
+    <string name="home_page">Sākums</string>
+    <string name="default_position">Noklusētā pozīcija</string>
+    <string name="left">Pa kreisi</string>
+    <string name="top">Augšā</string>
+    <string name="right">Pa labi</string>
+    <string name="bottom">Apakšā</string>
+    <string name="add">Pievienot</string>
+
+    <!-- Settings pop-up -->
+    <string name="return_button">Atgriezties</string>
+    <string name="proceed_button">Turpināt</string>
+
+    <!-- Notifications pop-up -->
+    <string name="read_notifications">Lasīt paziņojumus</string>
+    <string name="notifications_access">Lai šī funkcija darbotos, Stario ir nepieciešama piekļuve paziņojumiem.</string>
+
+    <!-- Accessibility pop-up -->
+    <string name="use_accessibility">Izmantot pieejamību</string>
+    <string name="accessibility_notice">Lai šī funkcija darbotos, Stario ir nepieciešama piekļuve pieejamības pakalpojumiem.</string>
+
+    <!-- Theme pop-up -->
+    <string name="dynamic">Dinamiska</string>
+    <string name="red">Sarkana</string>
+    <string name="orange">Oranža</string>
+    <string name="yellow">Dzeltena</string>
+    <string name="lime">Laima</string>
+    <string name="green">Zaļa</string>
+    <string name="turquoise">Tirkīza</string>
+    <string name="cyan">Ciāna</string>
+    <string name="blue">Zila</string>
+    <string name="purple">Purpura</string>
+    <string name="pink">Rozā</string>
+    <string name="dark">Tumša</string>
+    <string name="force_dark">Piespiest tumšo režīmu</string>
+
+    <!-- Icons pop-up -->
+    <string name="corner_radius">Stūra rādiuss</string>
+    <string name="regular">Parasts</string>
+    <string name="squircle">Kvadrāts</string>
+    <string name="components">komponentes</string>
+    <string name="calculating">Aprēķina…</string>
+
+    <!-- Hidden apps pop-up -->
+    <string name="hidden_apps">Slēptās lietotnes</string>
+
+    <!-- License pop-up -->
+    <string name="license">Licence</string>
+    <string name="main_dependencies">Galvenās atkarības</string>
+    <string name="all_dependencies">Visas atkarības</string>
+
+    <!-- Widgets -->
+    <string name="nothing_here_yet">Šeit vēl nekā nav!</string>
+    <string name="create_a_widget">Pievienot logrīku</string>
+    <string name="widgets">Logrīki</string>
+    <string name="widget_one">logrīks</string>
+    <string name="widget_many">logrīki</string>
+
+    <!-- Media -->
+    <string name="unknown_artist">Nezināms mākslinieks</string>
+
+    <!-- Categories -->
+    <string name="categories">Kategorijas</string>
+    <string name="unsorted">Nešķirots</string>
+    <string name="games">Spēles</string>
+    <string name="audio">Mūzika</string>
+    <string name="video">Izklaide</string>
+    <string name="images">Fotogrāfija</string>
+    <string name="social">Sociālie tīkli</string>
+    <string name="news">Ziņas</string>
+    <string name="maps">Navigācija</string>
+    <string name="productivity">Produktivitāte</string>
+    <string name="accessibility">Pieejamība</string>
+    <string name="finance">Finanses</string>
+    <string name="health">Veselība</string>
+    <string name="personalization">Personalizēšana</string>
+    <string name="sports">Sports</string>
+
+    <!-- Applications -->
+    <string name="uninstall">Atinstalēt</string>
+    <string name="customize">Pielāgot</string>
+    <string name="category">Kategorija</string>
+    <string name="category_name">Kategorijas nosaukums</string>
+    <string name="available_icons">Pieejamās ikonas</string>
+    <string name="application_label">Etiķete</string>
+    <string name="category_name_warning">Šī kategorija jau pastāv.</string>
+    <string name="application_label_warning">Etiķetei jābūt vismaz vienu rakstzīmi garai.</string>
+    <string name="category_warning">Tas izveidos jaunu kategoriju ar norādīto nosaukumu.</string>
+
+    <!-- Briefing -->
+    <string name="briefing">Jūsu ziņojums</string>
+    <string name="briefing_configurator">Ziņojums</string>
+    <string name="import_feed">Importēt plūsmu</string>
+    <string name="link_feed">Importēt</string>
+    <string name="invalid_url">Nederīgs URL</string>
+    <string name="invalid_rss">Nav plūsma</string>
+    <string name="link">Plūsmas saite</string>
+    <string name="no_connection">Nav interneta savienojuma</string>
+    <string name="already_subscribed">Jūs jau esat abonējis šo plūsmu!</string>
+
+    <!-- Search -->
+    <string name="search_on">Meklēt vietnē</string>
+    <string name="searching">Meklē…</string>
+    <string name="unauthorized">Kagi serveri ziņoja par neatļautu piekļuvi. Vai jūsu API atslēga ir derīga?</string>
+    <string name="to_search">meklēt ar Kagi</string>
+    <string name="kagi_dependency">Stario paļaujas uz Kagi sniegtajiem datiem, lai nodrošinātu meklēšanas rezultātus.</string>
+    <string name="kagi_api_key">Kagi API atslēga</string>
+    <string name="api_key">API atslēga</string>
+
+    <!-- Keyboard -->
+    <string name="done">Gatavs</string>
+
+    <!-- Weather -->
+    <string name="clear_sky">Skaidras debesis</string>
+    <string name="cloudy">Mākoņains</string>
+    <string name="fair">Skaidrs</string>
+    <string name="fog">Migla</string>
+    <string name="heavy_rain">Spēcīgs lietus</string>
+    <string name="heavy_rain_and_thunder">Spēcīgs lietus un pērkons</string>
+    <string name="heavy_rain_showers">Spēcīgas lietusgāzes</string>
+    <string name="heavy_rain_showers_and_thunder">Spēcīgas lietusgāzes un pērkons</string>
+    <string name="heavy_sleet">Spēcīgs slapjdraņķis</string>
+    <string name="heavy_sleet_and_thunder">Spēcīgs slapjdraņķis un pērkons</string>
+    <string name="heavy_sleet_showers">Spēcīgas slapjdraņķa gāzes</string>
+    <string name="heavy_sleet_showers_and_thunder">Spēcīgas slapjdraņķa gāzes un pērkons</string>
+    <string name="heavy_snow">Spēcīgs sniegs</string>
+    <string name="heavy_snow_and_thunder">Spēcīgs sniegs un pērkons</string>
+    <string name="heavy_snow_showers">Spēcīgas sniega gāzes</string>
+    <string name="heavy_snow_showers_and_thunder">Spēcīgas sniega gāzes un pērkons</string>
+    <string name="light_rain">Vieglais lietus</string>
+    <string name="light_rain_and_thunder">Vieglais lietus un pērkons</string>
+    <string name="light_rain_showers">Vieglas lietusgāzes</string>
+    <string name="light_rain_showers_and_thunder">Vieglas lietusgāzes un pērkons</string>
+    <string name="light_sleet">Vieglais slapjdraņķis</string>
+    <string name="light_sleet_and_thunder">Vieglais slapjdraņķis un pērkons</string>
+    <string name="light_sleet_showers">Vieglas slapjdraņķa gāzes</string>
+    <string name="light_snow">Vieglais sniegs</string>
+    <string name="light_snow_and_thunder">Vieglais sniegs un pērkons</string>
+    <string name="light_snow_showers">Vieglas sniega gāzes</string>
+    <string name="light_sleet_showers_and_thunder">Vieglas slapjdraņķa gāzes un pērkons</string>
+    <string name="light_snow_showers_and_thunder">Vieglas sniega gāzes un pērkons</string>
+    <string name="partly_cloudy">Daļēji mākoņains</string>
+    <string name="rain">Lietus</string>
+    <string name="rain_and_thunder">Lietus un pērkons</string>
+    <string name="rain_showers">Lietusgāzes</string>
+    <string name="rain_showers_and_thunder">Lietusgāzes un pērkons</string>
+    <string name="sleet">Slapjdraņķis</string>
+    <string name="sleet_and_thunder">Slapjdraņķis un pērkons</string>
+    <string name="sleet_showers">Slapjdraņķa gāzes</string>
+    <string name="sleet_showers_and_thunder">Slapjdraņķa gāzes un pērkons</string>
+    <string name="snow">Sniegs</string>
+    <string name="snow_and_thunder">Sniegs un pērkons</string>
+    <string name="snow_showers">Sniega gāzes</string>
+    <string name="snow_showers_and_thunder">Sniega gāzes un pērkons</string>
+    <string name="weather_source">Avots: met.no</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_description">Pakalpojuma vienīgais mērķis ir nodrošināt bloķēšanas ekrāna žestu sākuma ekrānā. Tas neapkopo un nesniedz datus trešajām pusēm.</string>
+</resources>
