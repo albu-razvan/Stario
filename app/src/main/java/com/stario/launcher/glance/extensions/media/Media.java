@@ -514,7 +514,8 @@ public class Media extends GlanceDialogExtension {
     }
 
     public void updateCover(Bitmap bitmap) {
-        if ((bitmap != null && bitmap.sameAs(lastCover)) ||
+        if ((bitmap != null && lastCover != null &&
+                !lastCover.isRecycled() && bitmap.sameAs(lastCover)) ||
                 (bitmap == null && lastCover == null)) {
             return;
         }
