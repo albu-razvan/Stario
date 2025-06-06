@@ -139,12 +139,7 @@ public abstract class ActionDialog extends BottomSheetDialog {
 
         setContentView(root);
 
-        ViewGroup.MarginLayoutParams params = ((ViewGroup.MarginLayoutParams) root.getLayoutParams());
-        params.leftMargin = Measurements.dpToPx(10);
-        params.rightMargin = Measurements.dpToPx(10);
         ((View) root.getParent()).setBackgroundColor(Color.TRANSPARENT);
-
-        UiUtils.Notch.applyNotchMargin(root, UiUtils.Notch.INVERSE);
 
         getBehavior().addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
@@ -286,6 +281,8 @@ public abstract class ActionDialog extends BottomSheetDialog {
         BottomSheetBehavior<?> behavior = getBehavior();
         behavior.setDraggable(heightProvider.getKeyboardHeight() == 0);
 
+        root.post(() -> UiUtils.Notch.applyNotchMargin(root, UiUtils.Notch.INVERSE));
+
         if (heightProvider != null) {
             heightProvider.start();
         }
@@ -303,10 +300,10 @@ public abstract class ActionDialog extends BottomSheetDialog {
         // skip framework animation
         try {
             ViewDragHelper helper = getViewDragHelper(behavior);
-            if(helper != null) {
+            if (helper != null) {
                 OverScroller scroller = getScroller(helper);
 
-                if(scroller != null) {
+                if (scroller != null) {
                     scroller.abortAnimation();
                 }
             }
