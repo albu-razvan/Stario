@@ -105,8 +105,8 @@ dependencies {
     // noinspection KtxExtensionAvailable
     implementation 'androidx.fragment:fragment:1.8.8'
     implementation 'androidx.interpolator:interpolator:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-common:2.9.1'
-    implementation 'androidx.lifecycle:lifecycle-process:2.9.1'
+    implementation 'androidx.lifecycle:lifecycle-common:2.8.7'
+    implementation 'androidx.lifecycle:lifecycle-process:2.8.7'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
     // noinspection KtxExtensionAvailable
     implementation 'androidx.palette:palette:1.0.0'
