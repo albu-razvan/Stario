@@ -19,18 +19,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/background_sheet">
+    android:layout_height="wrap_content">
 
-    <carbon.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/scroller"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="15dp"
         android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
         android:background="@drawable/background_medium_corners"
-        app:carbon_overScroll="never">
+        android:overScrollMode="never">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -52,21 +52,18 @@
             <carbon.widget.RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
                 app:carbon_cornerRadius="20dp">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:nestedScrollingEnabled="true"
-                    android:overScrollMode="never"
-                    app:carbon_overScroll="never" />
+                    android:layout_height="wrap_content"
+                    android:overScrollMode="never" />
 
             </carbon.widget.RelativeLayout>
 
         </LinearLayout>
 
-    </carbon.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </RelativeLayout>

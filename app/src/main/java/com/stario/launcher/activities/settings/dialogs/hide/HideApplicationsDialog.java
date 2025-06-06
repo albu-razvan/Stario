@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,8 +32,6 @@ import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;
-
-import carbon.widget.NestedScrollView;
 
 public class HideApplicationsDialog extends ActionDialog {
     public HideApplicationsDialog(@NonNull ThemedActivity activity) {
