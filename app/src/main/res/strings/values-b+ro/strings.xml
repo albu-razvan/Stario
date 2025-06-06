@@ -16,10 +16,6 @@
   -->
 
 <resources>
-    <!-- Non translatable -->
-    <string name="app_name" translatable="false">Stario</string>
-    <string name="affinity" translatable="false">com.stario</string>
-
     <!-- General -->
     <string name="unavailable">Indisponibil</string>
     <string name="default_text">Implicit</string>
