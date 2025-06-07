@@ -91,7 +91,7 @@ public class Utils {
     }
 
     public static double toFahrenheit(double celsius) {
-        return (celsius * 4.5d) + 32;
+        return (celsius * 1.8d) + 32;
     }
 
     public static double msToMph(double speed) {
