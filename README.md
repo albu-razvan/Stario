@@ -6,20 +6,16 @@
 [![Latest release](https://img.shields.io/github/downloads/albu-razvan/Stario/total?label=Download&logo=android&logoColor=white)](https://github.com/albu-razvan/Stario/releases/latest)
 [![Last commit](https://custom-icon-badges.demolab.com/github/last-commit/albu-razvan/Stario?logo=history&logoColor=white&label=Latest%20commit)](https://github.com/albu-razvan/Stario/commit)
 
----
-
 ## Overview
 
-nspired by the minimalist phone concept, Stario aims to keep functionality and productivity at 
+Inspired by the minimalist phone concept, Stario aims to keep functionality and productivity at 
 their peak in a simple and elegant format.
 
 This repository contains the complete codebase for Stario, a full rewrite of the previous
 Stario Launcher. This version offers significant improvements in both performance and usability.
 
-> **Note:** This version supersedes the old Stario Launcher. The old Play Store link is no longer
-> valid and this repository represents the latest and actively maintained version.
-
----
+> **Note:** This version supersedes the old Stario Launcher. The old Play Store version no longer
+> supported and this repository represents the latest and actively maintained version.
 
 ## Features
 
@@ -48,13 +44,9 @@ Stario Launcher. This version offers significant improvements in both performanc
 - **Page Sorting**  
   Easily reorder your home screen pages to suit your workflow.
 
----
-
 ## Download
 
 Get the latest release of Stario from the [GitHub Releases page](https://github.com/albu-razvan/Stario/releases/latest).
-
----
 
 ## Reproducibility
 
@@ -94,15 +86,11 @@ zip -d path/to/unsigned.apk "META-INF/*"
 
 If successful, the hashes should match exactly.
 
----
-
 ## Compatibility
 
 - Requires **Android SDK 28+** (Android 9.0 Pie or later)
 - Compatible with AOSP and most major OEM devices
 - Should work with custom ROMs, though these are not officially tested — user feedback is welcome
-
----
 
 ## Join the Community
 
