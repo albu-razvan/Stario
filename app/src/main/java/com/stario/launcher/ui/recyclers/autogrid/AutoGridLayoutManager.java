@@ -150,8 +150,11 @@ public class AutoGridLayoutManager extends AccurateScrollComputeGridLayoutManage
     }
 
     private int getBalancedSpanCount(int itemCount, int spanCount) {
+        if (itemCount <= 0 || spanCount <= 0) {
+            return 1;
+        }
+
         return Math.min((int) Math.ceil((double) itemCount /
                 ((int) Math.ceil((double) itemCount / spanCount))), spanCount);
     }
-
 }

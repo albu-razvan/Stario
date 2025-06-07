@@ -87,12 +87,19 @@ public class Measurements {
         defaultPadding = dpToPx(20);
 
         LIST_COLUMNS.updateObject(Math.min(6, width / dpToPx(90)));
-        FOLDER_COLUMNS.updateObject(Math.max(1, width / dpToPx(190)));
+
+        if (width < dpToPx(350)) {
+            FOLDER_COLUMNS.updateObject(1);
+        } else if (width < dpToPx(380)) {
+            FOLDER_COLUMNS.updateObject(2);
+        } else {
+            FOLDER_COLUMNS.updateObject(Math.max(1, width / dpToPx(190)));
+        }
 
         BRIEFING_COLUMNS.updateObject(Math.max(1, width / dpToPx(400)));
 
         //ensure that the number of columns is a multiple of 2
-        WIDGET_COLUMNS.updateObject(Math.max(2, (width / dpToPx(200) / 2) * 2));
+        WIDGET_COLUMNS.updateObject(Math.max(2, (width / dpToPx(160) / 2) * 2));
 
         root.setOnApplyWindowInsetsListener((v, insets) -> {
             if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
