@@ -7,6 +7,9 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.compose' version '2.0.0'
 }
 
+def hasSigningConfig = ['keystorePath', 'keystorePassword', 'keyAlias', 'keyPassword']
+        .every { project.hasProperty(it) }
+
 android {
     namespace 'com.stario.launcher'
     compileSdk 35
@@ -18,19 +21,34 @@ android {
         versionCode 89
         versionName '2.8'
     }
+
+    signingConfigs {
+        release {
+            if (hasSigningConfig) {
+                storeFile file(project.getProperty('keystorePath'))
+                storePassword project.getProperty('keystorePassword')
+                keyAlias project.getProperty('keyAlias')
+                keyPassword project.getProperty('keyPassword')
+            }
+        }
+    }
+
     buildTypes {
         release {
             debuggable false
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
-                    "proguard-rules.txt"
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), "proguard-rules.txt"
+            if (hasSigningConfig) {
+                signingConfig signingConfigs.release
+            }
         }
         debug {
             debuggable true
             applicationIdSuffix ".debug"
         }
     }
+
     sourceSets {
         main {
             res {
@@ -63,20 +81,38 @@ android {
             }
         }
     }
+
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+
     buildFeatures {
         compose true
         buildConfig true
     }
+
     kotlinOptions {
         jvmTarget = '11'
+    }
+
+    packagingOptions {
+        jniLibs.useLegacyPackaging = true
+    }
+
+    afterEvaluate {
+        def versionName = android.defaultConfig.versionName
+
+        tasks.register("getVersionName") {
+            doLast {
+                println versionName
+            }
+        }
     }
 }
 
