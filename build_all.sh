@@ -6,6 +6,12 @@ APP_NAME="Stario"
 SHOULD_SIGN=false
 GRADLE_SIGNING_PROPS=()
 
+# Signed build
+KEYSTORE_PATH=""
+KEYSTORE_PASSWORD=""
+KEY_ALIAS=""
+KEY_PASSWORD=""
+
 # Unix timestamp of last commit
 export SOURCE_DATE_EPOCH=$(git log -1 --format=%at)
 
@@ -15,57 +21,53 @@ echo ""
 
 # Keystore Path
 if [ -n "${KEYSTORE_PATH:-}" ]; then
-    export KEYSTORE_PATH
     echo "Using KEYSTORE_PATH from environment variable: $KEYSTORE_PATH"
 else
     read -p "Enter path to your keystore.jks [leave empty to skip signing]: " USER_KEYSTORE_PATH
     if [ -z "$USER_KEYSTORE_PATH" ]; then
-        unset KEYSTORE_PATH
         echo "Keystore path is not set. Signed AAB/APK will NOT be built."
     else
-        export KEYSTORE_PATH="$(realpath "$USER_KEYSTORE_PATH")"
+        KEYSTORE_PATH="$(realpath "$USER_KEYSTORE_PATH")"
+        echo "Using keystore at: $KEYSTORE_PATH"
     fi
 fi
 
 # Keystore Password
 if [ -n "${KEYSTORE_PASSWORD:-}" ]; then
-    export KEYSTORE_PASSWORD
     echo "Using KEYSTORE_PASSWORD from environment variable."
 else
     if [ -n "${KEYSTORE_PATH:-}" ]; then
         read -s -p "Enter keystore password: " KEYSTORE_PASSWORD_INPUT
         echo ""
-        export KEYSTORE_PASSWORD="$KEYSTORE_PASSWORD_INPUT"
+        KEYSTORE_PASSWORD="$KEYSTORE_PASSWORD_INPUT"
     fi
 fi
 
 # Key Alias
 if [ -n "${KEY_ALIAS:-}" ]; then
-    export KEY_ALIAS
     echo "Using KEY_ALIAS from environment variable: $KEY_ALIAS"
 else
     if [ -n "${KEYSTORE_PATH:-}" ]; then
         read -p "Enter key alias: " KEY_ALIAS_INPUT
-        export KEY_ALIAS="$KEY_ALIAS_INPUT"
+        KEY_ALIAS="$KEY_ALIAS_INPUT"
     fi
 fi
 
 # Key Password
 if [ -n "${KEY_PASSWORD:-}" ]; then
-    export KEY_PASSWORD
     echo "Using KEY_PASSWORD from environment variable."
 else
     if [ -n "${KEYSTORE_PATH:-}" ]; then
         read -s -p "Enter key password: " KEY_PASSWORD_INPUT
         echo ""
-        export KEY_PASSWORD="$KEY_PASSWORD_INPUT"
+        KEY_PASSWORD="$KEY_PASSWORD_INPUT"
     fi
 fi
 
-if [ -n "$KEYSTORE_PATH" ] && \
-   [ -n "$KEYSTORE_PASSWORD" ] && \
-   [ -n "$KEY_ALIAS" ] && \
-   [ -n "$KEY_PASSWORD" ]; then
+if [ -n "${KEYSTORE_PATH:-}" ] && \
+   [ -n "${KEYSTORE_PASSWORD:-}" ] && \
+   [ -n "${KEY_ALIAS:-}" ] && \
+   [ -n "${KEY_PASSWORD:-}" ]; then
     GRADLE_SIGNING_PROPS+=("-PkeystorePath=$KEYSTORE_PATH")
     GRADLE_SIGNING_PROPS+=("-PkeystorePassword=$KEYSTORE_PASSWORD")
     GRADLE_SIGNING_PROPS+=("-PkeyAlias=$KEY_ALIAS")
@@ -86,7 +88,7 @@ echo ""
 ./gradlew assembleDebug
 
 # Release AAB and Release APK
-if [ "$SHOULD_SIGN" = true ]; then
+if [ "${SHOULD_SIGN:-false}" = true ]; then
   echo ""
   echo "Building Release AAB..."
   echo ""
@@ -123,7 +125,7 @@ else
 fi
 
 # Release AAB and Signed Release APK
-if [ "$SHOULD_SIGN" = true ]; then
+if [ "${SHOULD_SIGN:-false}" = true ]; then
     SIGNED_AAB_SOURCE="app/build/outputs/bundle/release/app-release.aab"
     if [ -f "$SIGNED_AAB_SOURCE" ]; then
         cp "$SIGNED_AAB_SOURCE" "${FINAL_BUILD_DIR}/${APP_NAME}-v${APP_VERSION_NAME}.aab"
