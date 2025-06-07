@@ -1,0 +1,220 @@
+<!--
+  ~ Copyright (C) 2025 Răzvan Albu
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
+  -->
+
+<resources>
+    <!-- General -->
+    <string name="unavailable">Nem elérhető</string>
+    <string name="default_text">Alapértelmezett</string>
+    <string name="about">Infó</string>
+    <string name="remove">Eltávolítás</string>
+    <string name="licenses">Licencek</string>
+    <string name="restart">Újraindítás</string>
+    <string name="animations">Animációk</string>
+    <string name="drawer">Fiók</string>
+    <string name="search">Keresés</string>
+    <string name="miscellaneous">Egyéb</string>
+    <string name="apps">Alkalmazások</string>
+    <string name="personal">Személyes</string>
+    <string name="managed">Kezelt</string>
+    <string name="something_went_wrong">Valami hiba történt!</string>
+    <string name="refresh">Frissítés</string>
+
+    <!-- Home pop-up -->
+    <string name="settings">Kezdőképernyő beállításai</string>
+    <string name="wallpaper">Háttérkép és stílus</string>
+
+    <!-- Settings -->
+    <string name="preferences">Beállítások</string>
+    <string name="media_player">Média lejátszó</string>
+    <string name="notification_dots">Értesítési pontok</string>
+    <string name="lock_gesture">Dupla koppintás a zároláshoz</string>
+    <string name="imperial_units">Imperial mértékegységek</string>
+    <string name="vibrations">Rezgések</string>
+    <string name="theme">Téma</string>
+    <string name="pages">Oldal kezelő</string>
+    <string name="search_engine">Keresőmotor</string>
+    <string name="search_results">Keresési eredmények</string>
+    <string name="kagi_integration">Powered by Kagi</string>
+    <string name="hide_applications">Alkalmazások elrejtése</string>
+    <string name="legacy_lock_animation">Régi zárolási animáció</string>
+    <string name="icons">Ikonok</string>
+    <string name="weather">Időjárás</string>
+    <string name="weather_location">Időjárás helye</string>
+    <string name="location_ip_based">IP-alapú helymeghatározás (hozzávetőleges)</string>
+    <string name="system_launcher">Rendszerindító újrahozzárendelése</string>
+    <string name="app_info">App infó</string>
+
+    <!-- Page Manager -->
+    <string name="home_page">Kezdőlap</string>
+    <string name="default_position">Alapértelmezett pozíció</string>
+    <string name="left">Bal</string>
+    <string name="top">Felül</string>
+    <string name="right">Jobb</string>
+    <string name="bottom">Alul</string>
+    <string name="add">Hozzáadás</string>
+
+    <!-- Settings pop-up -->
+    <string name="return_button">Vissza</string>
+    <string name="proceed_button">Folytatás</string>
+
+    <!-- Notifications pop-up -->
+    <string name="read_notifications">Értesítések olvasása</string>
+    <string name="notifications_access">A Stario-nak hozzáférésre van szüksége az értesítésekhez, hogy ez a funkció működjön.</string>
+
+    <!-- Accessibility pop-up -->
+    <string name="use_accessibility">Kisegítő lehetőségek használata</string>
+    <string name="accessibility_notice">A Stario-nak hozzáférésre van szüksége a kisegítő szolgáltatásokhoz, hogy ez a funkció működjön.</string>
+
+    <!-- Theme pop-up -->
+    <string name="dynamic">Dinamikus</string>
+    <string name="red">Piros</string>
+    <string name="orange">Narancssárga</string>
+    <string name="yellow">Sárga</string>
+    <string name="lime">Lime</string>
+    <string name="green">Zöld</string>
+    <string name="turquoise">Türkiz</string>
+    <string name="cyan">Cián</string>
+    <string name="blue">Kék</string>
+    <string name="purple">Lila</string>
+    <string name="pink">Rózsaszín</string>
+    <string name="dark">Sötét</string>
+    <string name="force_dark">Sötét mód kényszerítése</string>
+
+    <!-- Icons pop-up -->
+    <string name="corner_radius">Sarok sugár</string>
+    <string name="regular">Normál</string>
+    <string name="squircle">Négyzetkör</string>
+    <string name="components">komponensek</string>
+    <string name="calculating">Számítás…</string>
+
+    <!-- Hidden apps pop-up -->
+    <string name="hidden_apps">Rejtett alkalmazások</string>
+
+    <!-- License pop-up -->
+    <string name="license">Licenc</string>
+    <string name="main_dependencies">Fő függőségek</string>
+    <string name="all_dependencies">Minden függőség</string>
+
+    <!-- Widgets -->
+    <string name="nothing_here_yet">Még semmi sincs itt!</string>
+    <string name="create_a_widget">Widget hozzáadása</string>
+    <string name="widgets">Widgetek</string>
+    <string name="widget_one">widget</string>
+    <string name="widget_many">widgetek</string>
+
+    <!-- Media -->
+    <string name="unknown_artist">Ismeretlen előadó</string>
+
+    <!-- Categories -->
+    <string name="categories">Kategóriák</string>
+    <string name="unsorted">Rendezetlen</string>
+    <string name="games">Játékok</string>
+    <string name="audio">Zene</string>
+    <string name="video">Szórakozás</string>
+    <string name="images">Fényképezés</string>
+    <string name="social">Közösségi</string>
+    <string name="news">Hírek</string>
+    <string name="maps">Navigáció</string>
+    <string name="productivity">Termelékenység</string>
+    <string name="accessibility">Kisegítő lehetőségek</string>
+    <string name="finance">Pénzügyek</string>
+    <string name="health">Egészség</string>
+    <string name="personalization">Személyre szabás</string>
+    <string name="sports">Sport</string>
+
+    <!-- Applications -->
+    <string name="uninstall">Eltávolítás</string>
+    <string name="customize">Testreszabás</string>
+    <string name="category">Kategória</string>
+    <string name="category_name">Kategória neve</string>
+    <string name="available_icons">Elérhető ikonok</string>
+    <string name="application_label">Címke</string>
+    <string name="category_name_warning">Ez a kategória már létezik.</string>
+    <string name="application_label_warning">A címke legalább egy karakter hosszú legyen.</string>
+    <string name="category_warning">Ez egy új kategóriát hoz létre a megadott névvel.</string>
+
+    <!-- Briefing -->
+    <string name="briefing">Az ön eligazítása</string>
+    <string name="briefing_configurator">Eligazítás</string>
+    <string name="import_feed">Feed importálása</string>
+    <string name="link_feed">Importálás</string>
+    <string name="invalid_url">Érvénytelen URL</string>
+    <string name="invalid_rss">Nem feed</string>
+    <string name="link">Feed link</string>
+    <string name="no_connection">Nincs internetkapcsolat</string>
+    <string name="already_subscribed">Már feliratkozott erre a feedre!</string>
+
+    <!-- Search -->
+    <string name="search_on">Keresés itt</string>
+    <string name="searching">Keresés…</string>
+    <string name="unauthorized">A Kagi szerverek jogosulatlan hozzáférést jelentettek. Érvényes az API kulcsa?</string>
+    <string name="to_search">keresés Kagi-val</string>
+    <string name="kagi_dependency">A Stario a Kagi által szolgáltatott adatokra támaszkodik a keresési eredmények biztosításához.</string>
+    <string name="kagi_api_key">Kagi API kulcs</string>
+    <string name="api_key">API kulcs</string>
+
+    <!-- Keyboard -->
+    <string name="done">Kész</string>
+
+    <!-- Weather -->
+    <string name="clear_sky">Tiszta égbolt</string>
+    <string name="cloudy">Felhős</string>
+    <string name="fair">Borús</string>
+    <string name="fog">Ködsz</string>
+    <string name="heavy_rain">Erős eső</string>
+    <string name="heavy_rain_and_thunder">Erős eső és zivatar</string>
+    <string name="heavy_rain_showers">Erős esőzáporok</string>
+    <string name="heavy_rain_showers_and_thunder">Erős esőzáporok és zivatar</string>
+    <string name="heavy_sleet">Erős hódara</string>
+    <string name="heavy_sleet_and_thunder">Erős hódara és zivatar</string>
+    <string name="heavy_sleet_showers">Erős hódara záporok</string>
+    <string name="heavy_sleet_showers_and_thunder">Erős hódara záporok és zivatar</string>
+    <string name="heavy_snow">Erős havazás</string>
+    <string name="heavy_snow_and_thunder">Erős havazás és zivatar</string>
+    <string name="heavy_snow_showers">Erős hózáporok</string>
+    <string name="heavy_snow_showers_and_thunder">Erős hózáporok és zivatar</string>
+    <string name="light_rain">Enyhe eső</string>
+    <string name="light_rain_and_thunder">Enyhe eső és zivatar</string>
+    <string name="light_rain_showers">Enyhe esőzáporok</string>
+    <string name="light_rain_showers_and_thunder">Enyhe esőzáporok és zivatar</string>
+    <string name="light_sleet">Enyhe hódara</string>
+    <string name="light_sleet_and_thunder">Enyhe hódara és zivatar</string>
+    <string name="light_sleet_showers">Enyhe hódara záporok</string>
+    <string name="light_snow">Enyhe havazás</string>
+    <string name="light_snow_and_thunder">Enyhe havazás és zivatar</string>
+    <string name="light_snow_showers">Enyhe hózáporok</string>
+    <string name="light_sleet_showers_and_thunder">Enyhe hódara záporok és zivatar</string>
+    <string name="light_snow_showers_and_thunder">Enyhe hózáporok és zivatar</string>
+    <string name="partly_cloudy">Részben felhős</string>
+    <string name="rain">Eső</string>
+    <string name="rain_and_thunder">Eső és zivatar</string>
+    <string name="rain_showers">Esőzáporok</string>
+    <string name="rain_showers_and_thunder">Esőzáporok és zivatar</string>
+    <string name="sleet">Hódara</string>
+    <string name="sleet_and_thunder">Hódara és zivatar</string>
+    <string name="sleet_showers">Hódara záporok</string>
+    <string name="sleet_showers_and_thunder">Hódara záporok és zivatar</string>
+    <string name="snow">Hó</string>
+    <string name="snow_and_thunder">Hó és zivatar</string>
+    <string name="snow_showers">Hózáporok</string>
+    <string name="snow_showers_and_thunder">Hózáporok és zivatar</string>
+    <string name="weather_source">Forrás: met.no</string>
+
+    <!-- Accessibility service -->
+
+    <string name="accessibility_service_description">A szolgáltatás egyetlen célja, hogy engedélyezze a zárolási képernyő gesztust a kezdőképernyőn. Nem gyűjt és nem oszt meg adatokat harmadik féllel.</string>
+</resources>

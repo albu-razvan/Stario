@@ -1,0 +1,219 @@
+<!--
+  ~ Copyright (C) 2025 Răzvan Albu
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
+  -->
+
+<resources>
+    <!-- General -->
+    <string name="unavailable">Utilgjengelig</string>
+    <string name="default_text">Standard</string>
+    <string name="about">Info</string>
+    <string name="remove">Fjern</string>
+    <string name="licenses">Lisenser</string>
+    <string name="restart">Start på nytt</string>
+    <string name="animations">Animasjoner</string>
+    <string name="drawer">Skuff</string>
+    <string name="search">Søk</string>
+    <string name="miscellaneous">Diverse</string>
+    <string name="apps">Applikasjoner</string>
+    <string name="personal">Personlig</string>
+    <string name="managed">Administrert</string>
+    <string name="something_went_wrong">Noe gikk galt!</string>
+    <string name="refresh">Oppdater</string>
+
+    <!-- Home pop-up -->
+    <string name="settings">Hjeminnstillinger</string>
+    <string name="wallpaper">Bakgrunn og stil</string>
+
+    <!-- Settings -->
+    <string name="preferences">Innstillinger</string>
+    <string name="media_player">Mediaspiller</string>
+    <string name="notification_dots">Varslingsprikker</string>
+    <string name="lock_gesture">Dobbelttrykk for å låse</string>
+    <string name="imperial_units">Imperiale enheter</string>
+    <string name="vibrations">Vibrasjoner</string>
+    <string name="theme">Tema</string>
+    <string name="pages">Sidebehandling</string>
+    <string name="search_engine">Søkemotor</string>
+    <string name="search_results">Søkeresultater</string>
+    <string name="kagi_integration">Drevet av Kagi</string>
+    <string name="hide_applications">Skjul applikasjoner</string>
+    <string name="legacy_lock_animation">Gammel låseanimasjon</string>
+    <string name="icons">Ikoner</string>
+    <string name="weather">Vær</string>
+    <string name="weather_location">Værlokasjon</string>
+    <string name="location_ip_based">IP Geolocation (omtrentlig)</string>
+    <string name="system_launcher">Tilordne systemstarter på nytt</string>
+    <string name="app_info">Appinfo</string>
+
+    <!-- Page Manager -->
+    <string name="home_page">Hjem</string>
+    <string name="default_position">Standard posisjon</string>
+    <string name="left">Venstre</string>
+    <string name="top">Topp</string>
+    <string name="right">Høyre</string>
+    <string name="bottom">Bunn</string>
+    <string name="add">Legg til</string>
+
+    <!-- Settings pop-up -->
+    <string name="return_button">Tilbake</string>
+    <string name="proceed_button">Fortsett</string>
+
+    <!-- Notifications pop-up -->
+    <string name="read_notifications">Les varsler</string>
+    <string name="notifications_access">Stario trenger tilgang til varsler for at denne funksjonen skal fungere.</string>
+
+    <!-- Accessibility pop-up -->
+    <string name="use_accessibility">Bruk tilgjengelighet</string>
+    <string name="accessibility_notice">Stario trenger tilgang til tilgjengelighetstjenester for at denne funksjonen skal fungere.</string>
+
+    <!-- Theme pop-up -->
+    <string name="dynamic">Dynamisk</string>
+    <string name="red">Rød</string>
+    <string name="orange">Oransje</string>
+    <string name="yellow">Gul</string>
+    <string name="lime">Lime</string>
+    <string name="green">Grønn</string>
+    <string name="turquoise">Turkis</string>
+    <string name="cyan">Cyan</string>
+    <string name="blue">Blå</string>
+    <string name="purple">Lilla</string>
+    <string name="pink">Rosa</string>
+    <string name="dark">Mørk</string>
+    <string name="force_dark">Tving mørk modus</string>
+
+    <!-- Icons pop-up -->
+    <string name="corner_radius">Hjørneradius</string>
+    <string name="regular">Vanlig</string>
+    <string name="squircle">Squircle</string>
+    <string name="components">komponenter</string>
+    <string name="calculating">Beregner…</string>
+
+    <!-- Hidden apps pop-up -->
+    <string name="hidden_apps">Skjulte apper</string>
+
+    <!-- License pop-up -->
+    <string name="license">Lisens</string>
+    <string name="main_dependencies">Hovedavhengigheter</string>
+    <string name="all_dependencies">Alle avhengigheter</string>
+
+    <!-- Widgets -->
+    <string name="nothing_here_yet">Ingenting her ennå!</string>
+    <string name="create_a_widget">Legg til en widget</string>
+    <string name="widgets">Widgets</string>
+    <string name="widget_one">widget</string>
+    <string name="widget_many">widgets</string>
+
+    <!-- Media -->
+    <string name="unknown_artist">Ukjent artist</string>
+
+    <!-- Categories -->
+    <string name="categories">Kategorier</string>
+    <string name="unsorted">Usortert</string>
+    <string name="games">Spill</string>
+    <string name="audio">Musikk</string>
+    <string name="video">Underholdning</string>
+    <string name="images">Fotografi</string>
+    <string name="social">Sosialt</string>
+    <string name="news">Nyheter</string>
+    <string name="maps">Navigasjon</string>
+    <string name="productivity">Produktivitet</string>
+    <string name="accessibility">Tilgjengelighet</string>
+    <string name="finance">Finans</string>
+    <string name="health">Helse</string>
+    <string name="personalization">Tilpasning</string>
+    <string name="sports">Sport</string>
+
+    <!-- Applications -->
+    <string name="uninstall">Avinstaller</string>
+    <string name="customize">Tilpass</string>
+    <string name="category">Kategori</string>
+    <string name="category_name">Kategorinavn</string>
+    <string name="available_icons">Tilgjengelige ikoner</string>
+    <string name="application_label">Etikett</string>
+    <string name="category_name_warning">Denne kategorien finnes allerede.</string>
+    <string name="application_label_warning">Etiketten må være minst ett tegn lang.</string>
+    <string name="category_warning">Dette vil opprette en ny kategori med det angitte navnet.</string>
+
+    <!-- Briefing -->
+    <string name="briefing">Din oppsummering</string>
+    <string name="briefing_configurator">Oppsummering</string>
+    <string name="import_feed">Importer en feed</string>
+    <string name="link_feed">Importer</string>
+    <string name="invalid_url">Ugyldig URL</string>
+    <string name="invalid_rss">Ikke en feed</string>
+    <string name="link">Feedlenke</string>
+    <string name="no_connection">Ingen internettforbindelse</string>
+    <string name="already_subscribed">Du er allerede abonnert på denne feeden!</string>
+
+    <!-- Search -->
+    <string name="search_on">Søk på</string>
+    <string name="searching">Søker…</string>
+    <string name="unauthorized">Kagi-servere rapporterte uautorisert tilgang. Er API-nøkkelen din gyldig?</string>
+    <string name="to_search">for å søke med Kagi</string>
+    <string name="kagi_dependency">Stario er avhengig av data levert av Kagi for å gi søkeresultater.</string>
+    <string name="kagi_api_key">Kagi API-nøkkel</string>
+    <string name="api_key">API-nøkkel</string>
+
+    <!-- Keyboard -->
+    <string name="done">Ferdig</string>
+
+    <!-- Weather -->
+    <string name="clear_sky">Klar himmel</string>
+    <string name="cloudy">Skyet</string>
+    <string name="fair">Pent</string>
+    <string name="fog">Tåke</string>
+    <string name="heavy_rain">Kraftig regn</string>
+    <string name="heavy_rain_and_thunder">Kraftig regn og torden</string>
+    <string name="heavy_rain_showers">Kraftige regnbyger</string>
+    <string name="heavy_rain_showers_and_thunder">Kraftige regnbyger og torden</string>
+    <string name="heavy_sleet">Kraftig sludd</string>
+    <string name="heavy_sleet_and_thunder">Kraftig sludd og torden</string>
+    <string name="heavy_sleet_showers">Kraftige sluddbyger</string>
+    <string name="heavy_sleet_showers_and_thunder">Kraftige sluddbyger og torden</string>
+    <string name="heavy_snow">Kraftig snø</string>
+    <string name="heavy_snow_and_thunder">Kraftig snø og torden</string>
+    <string name="heavy_snow_showers">Kraftige snøbyger</string>
+    <string name="heavy_snow_showers_and_thunder">Kraftige snøbyger og torden</string>
+    <string name="light_rain">Lett regn</string>
+    <string name="light_rain_and_thunder">Lett regn og torden</string>
+    <string name="light_rain_showers">Lette regnbyger</string>
+    <string name="light_rain_showers_and_thunder">Lette regnbyger og torden</string>
+    <string name="light_sleet">Lett sludd</string>
+    <string name="light_sleet_and_thunder">Lett sludd og torden</string>
+    <string name="light_sleet_showers">Lette sluddbyger</string>
+    <string name="light_snow">Lett snø</string>
+    <string name="light_snow_and_thunder">Lett snø og torden</string>
+    <string name="light_snow_showers">Lette snøbyger</string>
+    <string name="light_sleet_showers_and_thunder">Lette sluddbyger og torden</string>
+    <string name="light_snow_showers_and_thunder">Lette snøbyger og torden</string>
+    <string name="partly_cloudy">Delvis skyet</string>
+    <string name="rain">Regn</string>
+    <string name="rain_and_thunder">Regn og torden</string>
+    <string name="rain_showers">Regnbyger</string>
+    <string name="rain_showers_and_thunder">Regnbyger og torden</string>
+    <string name="sleet">Sludd</string>
+    <string name="sleet_and_thunder">Sludd og torden</string>
+    <string name="sleet_showers">Sluddbyger</string>
+    <string name="sleet_showers_and_thunder">Sluddbyger og torden</string>
+    <string name="snow">Snø</string>
+    <string name="snow_and_thunder">Snø og torden</string>
+    <string name="snow_showers">Snøbyger</string>
+    <string name="snow_showers_and_thunder">Snøbyger og torden</string>
+    <string name="weather_source">Kilde: met.no</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_description">Tjenesten har som eneste formål å aktivere låseskjermbevegelser på startskjermen. Den samler ikke inn eller deler data med tredjeparter.</string>
+</resources>

@@ -1,0 +1,219 @@
+<!--
+  ~ Copyright (C) 2025 Răzvan Albu
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
+  -->
+
+<resources>
+    <!-- General -->
+    <string name="unavailable">Ei saatavilla</string>
+    <string name="default_text">Oletus</string>
+    <string name="about">Tietoja</string>
+    <string name="remove">Poista</string>
+    <string name="licenses">Lisenssit</string>
+    <string name="restart">Käynnistä uudelleen</string>
+    <string name="animations">Animaatiot</string>
+    <string name="drawer">Sovellusvalikko</string>
+    <string name="search">Haku</string>
+    <string name="miscellaneous">Sekalaista</string>
+    <string name="apps">Sovellukset</string>
+    <string name="personal">Henkilökohtainen</string>
+    <string name="managed">Hallittu</string>
+    <string name="something_went_wrong">Jokin meni pieleen!</string>
+    <string name="refresh">Päivitä</string>
+
+    <!-- Home pop-up -->
+    <string name="settings">Aloitusnäytön asetukset</string>
+    <string name="wallpaper">Taustakuva &amp; Tyyli</string>
+
+    <!-- Settings -->
+    <string name="preferences">Asetukset</string>
+    <string name="media_player">Mediasoitin</string>
+    <string name="notification_dots">Ilmoituspisteet</string>
+    <string name="lock_gesture">Kaksoisnapautus lukitaksesi</string>
+    <string name="imperial_units">Brittiläiset yksiköt</string>
+    <string name="vibrations">Värinät</string>
+    <string name="theme">Teema</string>
+    <string name="pages">Sivujen hallinta</string>
+    <string name="search_engine">Hakukone</string>
+    <string name="search_results">Hakutulokset</string>
+    <string name="kagi_integration">Powered by Kagi</string>
+    <string name="hide_applications">Piilota sovellukset</string>
+    <string name="legacy_lock_animation">Vanha lukitusanimaatio</string>
+    <string name="icons">Kuvakkeet</string>
+    <string name="weather">Sää</string>
+    <string name="weather_location">Sijainti (sää)</string>
+    <string name="location_ip_based">IP-geosijainti (arvioitu)</string>
+    <string name="system_launcher">Määritä järjestelmän käynnistin uudelleen</string>
+    <string name="app_info">Sovellustiedot</string>
+
+    <!-- Page Manager -->
+    <string name="home_page">Koti</string>
+    <string name="default_position">Oletusasento</string>
+    <string name="left">Vasen</string>
+    <string name="top">Ylhäällä</string>
+    <string name="right">Oikea</string>
+    <string name="bottom">Alhaalla</string>
+    <string name="add">Lisää</string>
+
+    <!-- Settings pop-up -->
+    <string name="return_button">Palaa</string>
+    <string name="proceed_button">Jatka</string>
+
+    <!-- Notifications pop-up -->
+    <string name="read_notifications">Lue ilmoitukset</string>
+    <string name="notifications_access">Stario tarvitsee pääsyn ilmoituksiin, jotta tämä ominaisuus toimii.</string>
+
+    <!-- Accessibility pop-up -->
+    <string name="use_accessibility">Käytä helppokäyttöisyyttä</string>
+    <string name="accessibility_notice">Stario tarvitsee pääsyn helppokäyttöisyyspalveluihin, jotta tämä ominaisuus toimii.</string>
+
+    <!-- Theme pop-up -->
+    <string name="dynamic">Dynaaminen</string>
+    <string name="red">Punainen</string>
+    <string name="orange">Oranssi</string>
+    <string name="yellow">Keltainen</string>
+    <string name="lime">Lime</string>
+    <string name="green">Vihreä</string>
+    <string name="turquoise">Turkoosi</string>
+    <string name="cyan">Syaani</string>
+    <string name="blue">Sininen</string>
+    <string name="purple">Violetti</string>
+    <string name="pink">Pinkki</string>
+    <string name="dark">Tumma</string>
+    <string name="force_dark">Pakota tumma tila</string>
+
+    <!-- Icons pop-up -->
+    <string name="corner_radius">Kulman säde</string>
+    <string name="regular">Normaali</string>
+    <string name="squircle">Squircle</string>
+    <string name="components">komponentit</string>
+    <string name="calculating">Lasketaan…</string>
+
+    <!-- Hidden apps pop-up -->
+    <string name="hidden_apps">Piilotetut sovellukset</string>
+
+    <!-- License pop-up -->
+    <string name="license">Lisenssi</string>
+    <string name="main_dependencies">Pääriippuvuudet</string>
+    <string name="all_dependencies">Kaikki riippuvuudet</string>
+
+    <!-- Widgets -->
+    <string name="nothing_here_yet">Ei mitään täällä vielä!</string>
+    <string name="create_a_widget">Lisää widget</string>
+    <string name="widgets">Widgetit</string>
+    <string name="widget_one">widget</string>
+    <string name="widget_many">widgetit</string>
+
+    <!-- Media -->
+    <string name="unknown_artist">Tuntematon esittäjä</string>
+
+    <!-- Categories -->
+    <string name="categories">Kategoriat</string>
+    <string name="unsorted">Lajittelematon</string>
+    <string name="games">Pelit</string>
+    <string name="audio">Musiikki</string>
+    <string name="video">Viihde</string>
+    <string name="images">Valokuvaus</string>
+    <string name="social">Sosiaalinen</string>
+    <string name="news">Uutiset</string>
+    <string name="maps">Navigointi</string>
+    <string name="productivity">Tuottavuus</string>
+    <string name="accessibility">Helppokäyttöisyys</string>
+    <string name="finance">Rahoitus</string>
+    <string name="health">Terveys</string>
+    <string name="personalization">Personointi</string>
+    <string name="sports">Urheilu</string>
+
+    <!-- Applications -->
+    <string name="uninstall">Poista asennus</string>
+    <string name="customize">Mukauta</string>
+    <string name="category">Kategoria</string>
+    <string name="category_name">Kategorian nimi</string>
+    <string name="available_icons">Saatavilla olevat kuvakkeet</string>
+    <string name="application_label">Nimi</string>
+    <string name="category_name_warning">Tämä kategoria on jo olemassa.</string>
+    <string name="application_label_warning">Nimen on oltava vähintään yhden merkin pituinen.</string>
+    <string name="category_warning">Tämä luo uuden kategorian annetulla nimellä.</string>
+
+    <!-- Briefing -->
+    <string name="briefing">Tiedotteesi</string>
+    <string name="briefing_configurator">Tiedote</string>
+    <string name="import_feed">Tuo syöte</string>
+    <string name="link_feed">Tuo</string>
+    <string name="invalid_url">Virheellinen URL</string>
+    <string name="invalid_rss">Ei syöte</string>
+    <string name="link">Syötteen linkki</string>
+    <string name="no_connection">Ei internetyhteyttä</string>
+    <string name="already_subscribed">Olet jo tilannut tämän syötteen!</string>
+
+    <!-- Search -->
+    <string name="search_on">Hae osoitteesta</string>
+    <string name="searching">Haetaan…</string>
+    <string name="unauthorized">Kagin palvelimet ilmoittivat luvattomasta käytöstä. Onko API-avaimesi kelvollinen?</string>
+    <string name="to_search">hakemaan Kagilla</string>
+    <string name="kagi_dependency">Stario hyödyntää Kagin toimittamia tietoja hakutulosten tarjoamiseen.</string>
+    <string name="kagi_api_key">Kagin API-avain</string>
+    <string name="api_key">API-avain</string>
+
+    <!-- Keyboard -->
+    <string name="done">Valmis</string>
+
+    <!-- Weather -->
+    <string name="clear_sky">Selkeä</string>
+    <string name="cloudy">Pilvinen</string>
+    <string name="fair">Puolipilvinen</string>
+    <string name="fog">Sumu</string>
+    <string name="heavy_rain">Rankkasade</string>
+    <string name="heavy_rain_and_thunder">Rankkasade ja ukkonen</string>
+    <string name="heavy_rain_showers">Rankkoja sadekuuroja</string>
+    <string name="heavy_rain_showers_and_thunder">Rankkoja sadekuuroja ja ukkonen</string>
+    <string name="heavy_sleet">Rankka räntä</string>
+    <string name="heavy_sleet_and_thunder">Rankka räntä ja ukkonen</string>
+    <string name="heavy_sleet_showers">Rankkoja räntäsadekuuroja</string>
+    <string name="heavy_sleet_showers_and_thunder">Rankkoja räntäsadekuuroja ja ukkonen</string>
+    <string name="heavy_snow">Rankka lumi</string>
+    <string name="heavy_snow_and_thunder">Rankka lumi ja ukkonen</string>
+    <string name="heavy_snow_showers">Rankkoja lumisadekuuroja</string>
+    <string name="heavy_snow_showers_and_thunder">Rankkoja lumisadekuuroja ja ukkonen</string>
+    <string name="light_rain">Kevyt sade</string>
+    <string name="light_rain_and_thunder">Kevyt sade ja ukkonen</string>
+    <string name="light_rain_showers">Kevyitä sadekuuroja</string>
+    <string name="light_rain_showers_and_thunder">Kevyitä sadekuuroja ja ukkonen</string>
+    <string name="light_sleet">Kevyt räntä</string>
+    <string name="light_sleet_and_thunder">Kevyt räntä ja ukkonen</string>
+    <string name="light_sleet_showers">Kevyitä räntäsadekuuroja</string>
+    <string name="light_snow">Kevyt lumi</string>
+    <string name="light_snow_and_thunder">Kevyt lumi ja ukkonen</string>
+    <string name="light_snow_showers">Kevyitä lumisadekuuroja</string>
+    <string name="light_sleet_showers_and_thunder">Kevyitä räntäsadekuuroja ja ukkonen</string>
+    <string name="light_snow_showers_and_thunder">Kevyitä lumisadekuuroja ja ukkonen</string>
+    <string name="partly_cloudy">Puolipilvinen</string>
+    <string name="rain">Sade</string>
+    <string name="rain_and_thunder">Sade ja ukkonen</string>
+    <string name="rain_showers">Sadekuuroja</string>
+    <string name="rain_showers_and_thunder">Sadekuuroja ja ukkonen</string>
+    <string name="sleet">Räntä</string>
+    <string name="sleet_and_thunder">Räntä ja ukkonen</string>
+    <string name="sleet_showers">Räntäsadekuuroja</string>
+    <string name="sleet_showers_and_thunder">Räntäsadekuuroja ja ukkonen</string>
+    <string name="snow">Lumi</string>
+    <string name="snow_and_thunder">Lumi ja ukkonen</string>
+    <string name="snow_showers">Lumisadekuuroja</string>
+    <string name="snow_showers_and_thunder">Lumisadekuuroja ja ukkonen</string>
+    <string name="weather_source">Lähde: met.no</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_description">Palvelun ainoa tarkoitus on mahdollistaa lukitusnäytön eleet aloitusnäytöllä. Se ei kerää tai jaa tietoja kolmansien osapuolten kanssa.</string>
+</resources>
