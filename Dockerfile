@@ -28,13 +28,14 @@ RUN yes | sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --licenses && \
 WORKDIR /usr/local/stario
 
 # Clone the repo
-RUN git clone https://github.com/albu-razvan/stario .
+COPY . .
+RUN git fetch --all
 
 # Setup local.properties file pointing to Android SDK
 RUN echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
 
 # Make build scripts executable
-RUN chmod +x ./build_all.sh && \
+RUN chmod +x ./build.sh && \
     chmod +x ./gradlew
 
 CMD ["/bin/bash"]
