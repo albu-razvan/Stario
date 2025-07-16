@@ -26,9 +26,43 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include
-            layout="@layout/tabs"
-            app:layout_constraintTop_toBottomOf="@id/title_feeds" />
+        <com.stario.launcher.ui.common.FadingEdgeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingRight="30dp"
+            app:fel_edge="left|right"
+            app:fel_size_left="30dp"
+            app:fel_size_right="30dp"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.stario.launcher.ui.common.tabs.LeftTabLayout
+                android:id="@+id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="44sp"
+                android:clipToPadding="false"
+                app:stl_clickable="false"
+                app:stl_defaultTabBackground="@android:color/transparent"
+                app:stl_defaultTabTextAllCaps="false"
+                app:stl_defaultTabTextHorizontalPadding="14dp"
+                app:stl_defaultTabTextMinWidth="20dp"
+                app:stl_defaultTabTextSize="17sp"
+                app:stl_distributeEvenly="false"
+                app:stl_dividerThickness="0dp"
+                app:stl_drawDecorationAfterTab="false"
+                app:stl_indicatorAlwaysInCenter="true"
+                app:stl_indicatorColor="?attr/colorPrimaryContainer"
+                app:stl_indicatorCornerRadius="24dp"
+                app:stl_indicatorGravity="center"
+                app:stl_indicatorInFront="false"
+                app:stl_indicatorInterpolation="linear"
+                app:stl_indicatorThickness="44sp"
+                app:stl_indicatorWidth="auto"
+                app:stl_indicatorWithoutPadding="false"
+                app:stl_overlineThickness="0dp"
+                app:stl_titleOffset="0dp"
+                app:stl_underlineThickness="0dp" />
+
+        </com.stario.launcher.ui.common.FadingEdgeLayout>
 
         <com.stario.launcher.ui.common.pager.CustomDurationViewPager
             android:id="@+id/articles_container"

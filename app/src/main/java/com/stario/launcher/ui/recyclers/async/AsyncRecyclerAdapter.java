@@ -198,11 +198,12 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
         recyclerView.getRecycledViewPool()
                 .setMaxRecycledViews(VIEW_TYPE, MAX_POOL_SIZE);
 
-        recyclerView.setOnTouchListener((v, event) -> {
-            removeLimit();
-
-            recyclerView.setOnTouchListener(null);
-            return false;
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                removeLimit();
+                recyclerView.removeOnScrollListener(this);
+            }
         });
     }
 

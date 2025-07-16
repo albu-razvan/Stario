@@ -339,9 +339,11 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
     }
 
     public interface OnOverScrollListener {
-        void onOverScrollStateChanged(@OverScrollEffect.Edge int edge,
-                                      @NonNull OverScrollState state);
+        default void onOverScrollStateChanged(@OverScrollEffect.Edge int edge,
+                                              @NonNull OverScrollState state) {
+        }
 
-        void onOverScrolled(@OverScrollEffect.Edge int edge, float factor);
+        default void onOverScrolled(@OverScrollEffect.Edge int edge, float factor) {
+        }
     }
 }

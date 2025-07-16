@@ -256,6 +256,10 @@ abstract public class ThemedActivity extends AppCompatActivity {
         return super.getSharedPreferences(entry.toString(), MODE_PRIVATE);
     }
 
+    public SharedPreferences getSharedPreferences(Entry entry, String subPreference) {
+        return super.getSharedPreferences(entry.toSubPreference(subPreference), MODE_PRIVATE);
+    }
+
     public SharedPreferences getSettings() {
         return getSharedPreferences(Entry.STARIO);
     }

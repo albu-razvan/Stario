@@ -46,7 +46,7 @@ import java.util.Map;
 public final class ProfileApplicationManager {
     private static final String TAG = "ProfileApplicationManager";
 
-    private final List<LauncherApplication> applicationListHidden;
+    private final List<LauncherApplication> visibleApplicationList;
     private final Map<String, LauncherApplication> applicationMap;
     private final List<LauncherApplicationListener> listeners;
     private final List<LauncherApplication> applicationList;
@@ -61,12 +61,13 @@ public final class ProfileApplicationManager {
     private boolean registered;
 
     ProfileApplicationManager(ThemedActivity activity, UserHandle handle, boolean mainUser) {
+        this.visibleApplicationList = new ThreadSafeArrayList<>();
         this.applicationList = new ThreadSafeArrayList<>();
-        this.applicationListHidden = new ThreadSafeArrayList<>();
         this.applicationMap = new HashMap<>();
         this.listeners = new ThreadSafeArrayList<>();
         this.applicationLabels = activity.getSharedPreferences(Entry.APPLICATION_LABELS);
-        this.hiddenApplications = activity.getSharedPreferences(Entry.HIDDEN_APPS);
+        this.hiddenApplications = activity.getSharedPreferences(Entry.HIDDEN_APPS,
+                Integer.toString(handle.hashCode()));
         this.packageManager = activity.getPackageManager();
         this.mainUser = mainUser;
         this.registered = false;
@@ -248,8 +249,8 @@ public final class ProfileApplicationManager {
     }
 
     void update() {
-        for (int index = 0; index < applicationListHidden.size(); index++) {
-            updateApplication(applicationListHidden.get(index));
+        for (int index = 0; index < applicationList.size(); index++) {
+            updateApplication(applicationList.get(index));
         }
     }
 
@@ -269,9 +270,8 @@ public final class ProfileApplicationManager {
                     .putString(application.info.packageName, label)
                     .apply();
 
-            if (!hiddenApplications.contains(application.info.packageName)) {
-                hideApplication(application);
-                showApplication(application);
+            if (isVisibleToUser(application.info.packageName)) {
+                notifyUpdate(application);
             }
         }
     }
@@ -314,8 +314,8 @@ public final class ProfileApplicationManager {
      */
     @Nullable
     public LauncherApplication get(int index) {
-        if (index >= 0 && index < applicationList.size()) {
-            return applicationList.get(index);
+        if (index >= 0 && index < visibleApplicationList.size()) {
+            return visibleApplicationList.get(index);
         } else {
             return LauncherApplication.FALLBACK_APP;
         }
@@ -331,8 +331,8 @@ public final class ProfileApplicationManager {
     @Nullable
     public LauncherApplication get(int index, boolean hidden) {
         if (hidden) {
-            if (index >= 0 && index < applicationListHidden.size()) {
-                return applicationListHidden.get(index);
+            if (index >= 0 && index < applicationList.size()) {
+                return applicationList.get(index);
             } else {
                 return LauncherApplication.FALLBACK_APP;
             }
@@ -357,17 +357,15 @@ public final class ProfileApplicationManager {
     }
 
     public int getSize() {
-        return applicationListHidden.size();
+        return visibleApplicationList.size();
     }
 
     private synchronized void addApplication(LauncherApplication application) {
-        boolean hidden = hiddenApplications.contains(application.info.packageName);
-
         applicationMap.put(application.info.packageName, application);
 
         addApplicationToList(application, applicationList);
-        if (!hidden) {
-            addApplicationToList(application, applicationListHidden);
+        if (isVisibleToUser(application.info.packageName)) {
+            addApplicationToList(application, visibleApplicationList);
 
             for (LauncherApplicationListener listener : listeners) {
                 if (listener != null) {
@@ -423,8 +421,8 @@ public final class ProfileApplicationManager {
             }
 
             applicationMap.remove(packageName);
+            visibleApplicationList.remove(application);
             applicationList.remove(application);
-            applicationListHidden.remove(application);
 
             iconPacks.remove(application);
             if (mainUser) {
@@ -444,8 +442,8 @@ public final class ProfileApplicationManager {
                 .remove(application.info.packageName)
                 .apply();
 
-        if (!applicationListHidden.contains(application)) {
-            addApplicationToList(application, applicationListHidden);
+        if (!visibleApplicationList.contains(application)) {
+            addApplicationToList(application, visibleApplicationList);
             if (mainUser) {
                 CategoryManager.getInstance().addApplication(application);
             }
@@ -469,7 +467,7 @@ public final class ProfileApplicationManager {
             }
         }
 
-        applicationListHidden.remove(application);
+        visibleApplicationList.remove(application);
         if (mainUser) {
             CategoryManager.getInstance().removeApplication(application);
         }
@@ -493,10 +491,18 @@ public final class ProfileApplicationManager {
         }
     }
 
+    public boolean isVisibleToUser(LauncherApplication application) {
+        return isVisibleToUser(application.info.packageName);
+    }
+
+    public boolean isVisibleToUser(String packageName) {
+        return !hiddenApplications.contains(packageName);
+    }
+
     /**
      * @return Index of application in the hidden list
      **/
     public int indexOf(LauncherApplication application) {
-        return applicationListHidden.indexOf(application);
+        return applicationList.indexOf(application);
     }
 }

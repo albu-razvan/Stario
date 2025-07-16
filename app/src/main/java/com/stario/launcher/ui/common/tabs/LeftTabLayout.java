@@ -15,30 +15,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.ui.common;
+package com.stario.launcher.ui.common.tabs;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
 
-import androidx.core.view.ViewCompat;
-
-import com.ogaclejapan.smarttablayout.SmartTabLayout;
-
-public class TabLayout extends SmartTabLayout {
+public class LeftTabLayout extends CenterTabLayout {
     private int centerTranslation;
     private int centerBias;
 
-    public TabLayout(Context context) {
+    public LeftTabLayout(Context context) {
         super(context);
     }
 
-    public TabLayout(Context context, AttributeSet attrs) {
+    public LeftTabLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public TabLayout(Context context, AttributeSet attrs, int defStyle) {
+    public LeftTabLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
@@ -51,18 +46,8 @@ public class TabLayout extends SmartTabLayout {
         centerBias = (parent.getPaddingRight() - parent.getPaddingLeft()) / 2;
         centerTranslation = getPaddingLeft();
 
-        ViewCompat.setPaddingRelative(this, 0, getPaddingTop(),
+        setPaddingRelative(0, getPaddingTop(),
                 centerTranslation + centerBias, getPaddingBottom());
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        return false;
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return false;
     }
 
     @Override

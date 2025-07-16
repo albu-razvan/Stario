@@ -233,6 +233,10 @@ public class Measurements {
         return LIST_COLUMNS.getObject();
     }
 
+    public static int getListColumnCount(int maxWidth) {
+        return Math.min(6, Math.min(width, maxWidth) / dpToPx(90));
+    }
+
     public static int getFolderColumnCount() {
         return FOLDER_COLUMNS.getObject();
     }

@@ -260,8 +260,8 @@ public class WebAdapter extends AbstractSearchListAdapter<WebAdapter.ViewHolder>
 
             Matcher baseMatcher = BASE_URL_REGEX.matcher(entry.url);
 
-            if (baseMatcher.find()) {
-                Glide.with(viewHolder.favicon)
+            if (baseMatcher.find() && !activity.isDestroyed()) {
+                Glide.with(activity)
                         .load("https://f" + (int) Math.floor(Math.random() * 9 + 1) + ".allesedv.com/32/" + baseMatcher.group(1))
                         .listener(new RequestListener<>() {
                             @Override

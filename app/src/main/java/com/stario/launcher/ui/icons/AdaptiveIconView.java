@@ -67,6 +67,7 @@ public class AdaptiveIconView extends View {
     private Drawable alternateBadge;
     private boolean sizeRestricted;
     private boolean looseClipping;
+    private Boolean grayscale;
     private boolean paused;
     private Path path;
 
@@ -320,6 +321,15 @@ public class AdaptiveIconView extends View {
         this.sizeRestricted = value;
     }
 
+    /**
+     * If set, will override default application paused grayscale state.
+     */
+    public void setGrayscale(boolean value) {
+        this.grayscale = value;
+
+        post(this::invalidate);
+    }
+
     @Override
     public void draw(@NonNull Canvas canvas) {
         if (!looseClipping ||
@@ -351,7 +361,7 @@ public class AdaptiveIconView extends View {
                 Drawable foreground = adaptiveIconDrawable.getForeground();
 
                 if (background != null) {
-                    if (paused) {
+                    if (paused || (grayscale != null && grayscale)) {
                         background.setColorFilter(grayscaleFilter);
                     }
 
@@ -360,7 +370,7 @@ public class AdaptiveIconView extends View {
                 }
 
                 if (foreground != null) {
-                    if (paused) {
+                    if (paused || (grayscale != null && grayscale)) {
                         foreground.setColorFilter(grayscaleFilter);
                     }
 
@@ -368,7 +378,7 @@ public class AdaptiveIconView extends View {
                     foreground.setColorFilter(null);
                 }
             } else {
-                if (paused) {
+                if (paused || (grayscale != null && grayscale)) {
                     icon.setColorFilter(grayscaleFilter);
                 }
 

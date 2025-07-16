@@ -17,57 +17,237 @@
 
 package com.stario.launcher.activities.settings.dialogs.hide;
 
+import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 
 import androidx.annotation.NonNull;
-import androidx.core.widget.NestedScrollView;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.divider.MaterialDividerItemDecoration;
+import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.stario.launcher.R;
+import com.stario.launcher.activities.settings.dialogs.hide.pager.HideApplicationsPage;
+import com.stario.launcher.activities.settings.dialogs.hide.pager.HideApplicationsPagerAdapter;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
-import com.stario.launcher.ui.Measurements;
-import com.stario.launcher.ui.recyclers.DividerItemDecorator;
+import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
+import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
+import com.stario.launcher.ui.utils.animation.Animation;
 
-public class HideApplicationsDialog extends ActionDialog {
-    public HideApplicationsDialog(@NonNull ThemedActivity activity) {
-        super(activity);
+public class HideApplicationsDialog extends DialogFragment {
+    private OnHideListener hideListener;
+    private ThemedActivity activity;
+    private float moveSlop;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        if (!(context instanceof ThemedActivity)) {
+            throw new RuntimeException("Parent activity is not of type ThemedActivity.");
+        }
+
+        activity = (ThemedActivity) context;
+        moveSlop = ViewConfiguration.get(activity).getScaledTouchSlop();
+
+        super.onAttach(context);
     }
 
     @NonNull
     @Override
-    protected View inflateContent(LayoutInflater inflater) {
-        View root = inflater.inflate(R.layout.pop_up_hide, null);
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        return new ActionDialog(activity) {
+            @NonNull
+            @Override
+            protected View inflateContent(LayoutInflater inflater) {
+                View root = inflater.inflate(R.layout.pop_up_hide, null);
 
-        RecyclerView recycler = root.findViewById(R.id.recycler);
+                ViewPager pager = root.findViewById(R.id.pager);
+                HideApplicationsPagerAdapter adapter = new HideApplicationsPagerAdapter(
+                        getChildFragmentManager(), activity.getResources());
 
-        recycler.setLayoutManager(new LinearLayoutManager(activity,
-                LinearLayoutManager.VERTICAL, false));
-        recycler.addItemDecoration(new DividerItemDecorator(activity,
-                MaterialDividerItemDecoration.VERTICAL));
-        recycler.setAdapter(new HiddenRecyclerAdapter(activity));
+                View tabsContainer = root.findViewById(R.id.tabs_container);
+                SmartTabLayout tabLayout = root.findViewById(R.id.tabs);
 
-        NestedScrollView scroller = root.findViewById(R.id.scroller);
-        scroller.setClipToOutline(true);
+                pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                    private final OverScrollEffect.OnOverScrollListener overScrollListener;
+                    private final RecyclerView.OnScrollListener scrollListener;
 
-        return root;
+                    private OverScrollEffect.OverScrollState overScrollState;
+                    private OverScrollRecyclerView recyclerView;
+                    private boolean hidden;
+
+                    {
+                        this.scrollListener = new RecyclerView.OnScrollListener() {
+                            @Override
+                            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                                if (dy > 0) {
+                                    hideTooltip();
+                                } else if (dy < 0) {
+                                    showTooltip();
+                                }
+                            }
+                        };
+                        this.overScrollListener = new OverScrollEffect.OnOverScrollListener() {
+                            @Override
+                            public void onOverScrollStateChanged(int edge, @NonNull OverScrollEffect.OverScrollState state) {
+                                overScrollState = state;
+                            }
+                        };
+
+                        this.overScrollState = OverScrollEffect.OverScrollState.IDLE;
+                        this.hidden = tabsContainer.getTranslationY() != 0;
+
+                        pager.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft,
+                                                         oldTop, oldRight, oldBottom) -> {
+                            HideApplicationsPage fragment =
+                                    adapter.getRegisteredFragment(pager.getCurrentItem());
+
+                            if (fragment != null) {
+                                updateObservedRecycler(fragment.getRecycler());
+                            }
+                        });
+                    }
+
+                    @SuppressLint("ClickableViewAccessibility")
+                    private void updateObservedRecycler(OverScrollRecyclerView recyclerView) {
+                        if (this.recyclerView != null) {
+                            if (this.recyclerView == recyclerView) {
+                                return;
+                            }
+
+                            this.recyclerView.removeOnOverScrollListener(overScrollListener);
+                            this.recyclerView.removeOnScrollListener(scrollListener);
+                            this.recyclerView.setOnTouchListener(null);
+                            this.overScrollState = OverScrollEffect.OverScrollState.IDLE;
+                        }
+
+                        recyclerView.addOnOverScrollListener(overScrollListener);
+                        recyclerView.addOnScrollListener(scrollListener);
+                        recyclerView.setOnTouchListener(new View.OnTouchListener() {
+                            float totalDelta;
+                            float lastY;
+
+                            @Override
+                            public boolean onTouch(View v, MotionEvent event) {
+                                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                                    totalDelta = 0;
+                                } else {
+                                    float delta = lastY - event.getRawY();
+
+                                    if (Math.signum(totalDelta) != Math.signum(delta)) {
+                                        totalDelta = delta;
+                                    } else {
+                                        totalDelta += delta;
+                                    }
+
+                                    if (overScrollState == OverScrollEffect.OverScrollState.IDLE) {
+                                        if (totalDelta > moveSlop) {
+                                            hideTooltip();
+                                        } else if (totalDelta < -moveSlop) {
+                                            showTooltip();
+                                        }
+                                    } else {
+                                        hideTooltip();
+                                    }
+
+                                }
+
+                                lastY = event.getRawY();
+                                return false;
+                            }
+                        });
+                        this.recyclerView = recyclerView;
+                    }
+
+                    @Override
+                    public void onPageScrollStateChanged(int state) {
+                        if (state != ViewPager.SCROLL_STATE_IDLE) {
+                            showTooltip();
+                        }
+                    }
+
+                    @Override
+                    public void onPageSelected(int position) {
+                        updateObservedRecycler(adapter.getRegisteredFragment(position).getRecycler());
+                    }
+
+                    private void hideTooltip() {
+                        if (!hidden) {
+                            tabsContainer.animate()
+                                    .translationY(tabsContainer.getMeasuredHeight())
+                                    .setDuration(Animation.MEDIUM.getDuration());
+
+                            hidden = true;
+                        }
+                    }
+
+                    private void showTooltip() {
+                        if (hidden) {
+                            tabsContainer.animate()
+                                    .translationY(0)
+                                    .setDuration(Animation.MEDIUM.getDuration());
+
+                            hidden = false;
+                        }
+                    }
+                });
+
+                pager.setAdapter(adapter);
+                if (ProfileManager.from(activity).getProfiles().size() > 1) {
+                    tabLayout.setViewPager(pager);
+                } else {
+                    tabLayout.setVisibility(View.GONE);
+                }
+
+                return root;
+            }
+
+            @Override
+            protected int getDesiredInitialState() {
+                return BottomSheetBehavior.STATE_EXPANDED;
+            }
+
+            @Override
+            protected boolean blurBehind() {
+                return true;
+            }
+
+            @Override
+            public void hide() {
+                if (hideListener != null) {
+                    hideListener.onHide();
+                }
+            }
+        };
     }
 
     @Override
-    protected boolean blurBehind() {
-        return true;
+    public void onStop() {
+        dismissAllowingStateLoss();
+
+        super.onStop();
     }
 
-    @Override
-    protected int getDesiredInitialState() {
-        if (!Measurements.isLandscape()) {
-            return BottomSheetBehavior.STATE_HALF_EXPANDED;
+    public void show() {
+        if (getDialog() != null) {
+            getDialog().show();
         }
+    }
 
-        return BottomSheetBehavior.STATE_EXPANDED;
+    public void setOnHideListener(OnHideListener listener) {
+        this.hideListener = listener;
+    }
+
+    public interface OnHideListener {
+        void onHide();
     }
 }

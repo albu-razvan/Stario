@@ -26,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,8 +43,8 @@ import com.stario.launcher.sheet.briefing.feed.BriefingAdapter;
 import com.stario.launcher.sheet.briefing.feed.FeedPage;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
-import com.stario.launcher.ui.common.TabLayout;
 import com.stario.launcher.ui.common.pager.CustomDurationViewPager;
+import com.stario.launcher.ui.common.tabs.LeftTabLayout;
 import com.stario.launcher.ui.popup.PopupMenu;
 
 public class BriefingDialog extends SheetDialogFragment {
@@ -59,7 +58,7 @@ public class BriefingDialog extends SheetDialogFragment {
     private ViewGroup placeholder;
     private View tabsContainer;
     private ViewGroup main;
-    private TabLayout tabs;
+    private LeftTabLayout tabs;
     private View title;
     private View root;
 
@@ -166,39 +165,21 @@ public class BriefingDialog extends SheetDialogFragment {
         });
 
         tabs.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        tabs.setCustomTabView((viewGroup, position, adapter) -> {
-            CharSequence text = adapter.getPageTitle(position);
+        tabs.setOnTabLongClickListener((tab, position) -> {
+            Vibrations.getInstance().vibrate();
 
-            TextView textView = (TextView) inflater.inflate(R.layout.tab, viewGroup, false);
-            textView.setOnLongClickListener(new View.OnLongClickListener() {
-                private void showPopup() {
-                    Vibrations.getInstance().vibrate();
+            PopupMenu menu = new PopupMenu(activity);
 
-                    PopupMenu menu = new PopupMenu(activity);
+            Resources resources = activity.getResources();
 
-                    Resources resources = activity.getResources();
+            menu.add(new PopupMenu.Item(resources.getString(R.string.remove),
+                    ResourcesCompat.getDrawable(resources, R.drawable.ic_delete, activity.getTheme()),
+                    view -> list.remove(position)));
 
-                    menu.add(new PopupMenu.Item(resources.getString(R.string.remove),
-                            ResourcesCompat.getDrawable(resources, R.drawable.ic_delete, activity.getTheme()),
-                            view -> list.remove(position)));
-
-                    menu.show(activity, textView, PopupMenu.PIVOT_CENTER_HORIZONTAL);
-                }
-
-                @Override
-                public boolean onLongClick(View v) {
-                    showPopup();
-
-                    return false;
-                }
-            });
-            textView.setOnClickListener(view -> pager.setCurrentItem(position));
-            textView.setText(text);
-
-            return textView;
+            menu.show(activity, tab, PopupMenu.PIVOT_CENTER_HORIZONTAL);
         });
-
         tabs.setViewPager(pager);
+
         tabsContainer = (View) tabs.getParent();
 
         setOnBackPressed(() -> {

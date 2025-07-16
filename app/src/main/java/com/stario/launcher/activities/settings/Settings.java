@@ -54,6 +54,7 @@ import com.stario.launcher.activities.settings.dialogs.search.results.SearchResu
 import com.stario.launcher.activities.settings.dialogs.theme.ThemeDialog;
 import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.apps.LauncherApplication;
+import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.glance.extensions.media.Media;
 import com.stario.launcher.glance.extensions.weather.Weather;
@@ -334,16 +335,21 @@ public class Settings extends ThemedActivity {
             @Override
             public void onClick(View view) {
                 if (dialog == null) {
-                    dialog = new HideApplicationsDialog(Settings.this);
+                    dialog = new HideApplicationsDialog();
 
-                    dialog.setOnDismissListener(dialog -> {
+                    dialog.setOnHideListener(() -> {
                         updateHiddenAppsCount();
                         showing = false;
                     });
                 }
 
                 if (!showing) {
-                    dialog.show();
+                    if (!dialog.isAdded()) {
+                        dialog.show(getSupportFragmentManager(), "HideApplications");
+                    } else {
+                        dialog.show();
+                    }
+
                     showing = true;
                 }
             }
@@ -526,8 +532,13 @@ public class Settings extends ThemedActivity {
 
     @SuppressLint("SetTextI18n")
     private void updateHiddenAppsCount() {
-        hideCount.setText(resources.getString(R.string.hidden_apps) +
-                ": " + getSharedPreferences(Entry.HIDDEN_APPS).getAll().size());
+        int count = 0;
+
+        for (ProfileApplicationManager manager : ProfileManager.getInstance().getProfiles()) {
+            count += manager.getActualSize() - manager.getSize();
+        }
+
+        hideCount.setText(resources.getString(R.string.hidden_apps) + ": " + count);
     }
 
     private void checkNotificationPermission() {
