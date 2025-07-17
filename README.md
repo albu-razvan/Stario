@@ -8,7 +8,7 @@
 
 ## Overview
 
-Inspired by the minimalist phone concept, Stario aims to keep functionality and productivity at 
+Inspired by the minimalist phone concept, Stario aims to keep functionality and productivity at
 their peak in a simple and elegant format.
 
 This repository contains the complete codebase for Stario, a full rewrite of the previous
@@ -48,7 +48,13 @@ Stario Launcher. This version offers significant improvements in both performanc
 
 Get the latest release of Stario from the [GitHub Releases page](https://github.com/albu-razvan/Stario/releases/latest).
 
-## Reproducibility
+## Compatibility
+
+- Requires **Android SDK 28+** (Android 9.0 Pie or later)
+- Compatible with AOSP and most major OEM devices
+- Should work with custom ROMs, though these are not officially tested — user feedback is welcome
+
+## Development
 
 You can quickly set up the development environment using the provided Dockerfile:
 
@@ -56,42 +62,61 @@ You can quickly set up the development environment using the provided Dockerfile
 docker build --platform linux/amd64 -t stario-dev .
 
 docker run --platform linux/amd64 --rm -it \
-  -v /path/to/output:/usr/local/stario/build \
-  -v /path/to/keystore:/usr/local/stario/keystore \
+  -v </path/to/output>:/usr/local/stario/build \
   stario-dev
 ```
 
-- Use `--rm` to automatically remove the container after use.
-- The keystore volume is only necessary for building release APKs.
+> Tip: Use `--rm` to automatically remove the container after use.
 
-To build the app, run:
+## Building
 
-```bash
-./build_all.sh
-```
-
-After building, verify the APK integrity by comparing hash codes:
+Should you wish to build the application yourself, run the build
+script from within the development environment:
 
 ```bash
-sha256sum path/to/built.apk
+# Optionally, checkout to the tagged commit
+git checkout v2.9
+
+./build.sh
 ```
 
-> For signed APKs, strip signatures on both the built APK and the reference APK before hashing. Use
-> the following command to strip signatures:
+Alternatively, to also build a signed copy (APK and AAB), pass a keystore to the build script:
 
 ```bash
-cp path/to/original.apk path/to/unsigned.apk
-zip -d path/to/unsigned.apk "META-INF/*"
+docker run --platform linux/amd64 --rm -it \
+  -v </path/to/output>:/usr/local/stario/build \
+  -v </path/to/keystore>:/usr/local/stario/keystore \
+  stario-dev
+
+# Optionally, checkout to the tagged commit
+git checkout v2.9
+  
+./build.sh \
+  -K /usr/local/stario/keystore/keystore.jks \
+  -P keystore_password \
+  -a key_alias \
+  -p key_password
 ```
 
-If successful, the hashes should match exactly.
+## Reproducible Builds
 
-## Compatibility
+Check for RBs with the locally built unsigned APK and [apksigcopier](https://github.com/obfusk/apksigcopier). 
 
-- Requires **Android SDK 28+** (Android 9.0 Pie or later)
-- Compatible with AOSP and most major OEM devices
-- Should work with custom ROMs, though these are not officially tested — user feedback is welcome
+Firstly, copy the signature from the signed APK onto your built unsigned APK:
+
+```bash
+apksigcopier copy signed-from-source.apk unsigned-built-locally.apk out.apk
+```
+
+Then compare the two APKs:
+
+```bash
+apksigcopier compare stario-from-source.apk stario-built-locally.apk
+```
+
+> NOTE: `apksigcopier compare` requires [apksigner](https://developer.android.com/tools/apksigner).
 
 ## Join the Community
 
-Got questions or want to connect with other users and contributors? Join the [Stario Discord Server](https://discord.gg/WuVapMt9gY).
+Got questions or want to connect with other users and contributors? Join
+the [Stario Discord Server](https://discord.gg/WuVapMt9gY).

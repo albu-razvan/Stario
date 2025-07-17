@@ -2,7 +2,6 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.autonomousapps.dependency-analysis'
-    id 'com.google.android.gms.oss-licenses-plugin'
     id 'dev.rikka.tools.refine' version '4.3.0'
     id 'org.jetbrains.kotlin.plugin.compose' version '2.0.0'
 }
@@ -101,10 +100,6 @@ android {
         jvmTarget = '11'
     }
 
-    packagingOptions {
-        jniLibs.useLegacyPackaging = true
-    }
-
     afterEvaluate {
         def versionName = android.defaultConfig.versionName
 
@@ -182,6 +177,4 @@ dependencies {
     runtimeOnly 'com.fasterxml.woodstox:woodstox-core:6.6.2'
 
     annotationProcessor 'androidx.annotation:annotation:1.9.1'
-
-    implementation 'de.philipp-bobek:oss-licenses-parser:1.0.0'
 }

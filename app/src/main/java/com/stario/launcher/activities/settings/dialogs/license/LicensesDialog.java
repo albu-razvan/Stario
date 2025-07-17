@@ -45,12 +45,6 @@ public class LicensesDialog extends ActionDialog {
                 LinearLayoutManager.VERTICAL, false));
         licenses.setAdapter(new LicensesRecyclerAdapter(activity));
 
-        RecyclerView ossLicenses = root.findViewById(R.id.oss_licenses);
-
-        ossLicenses.setLayoutManager(new LinearLayoutManager(activity,
-                LinearLayoutManager.VERTICAL, false));
-        ossLicenses.setAdapter(new OSSLicensesRecyclerAdapter(activity));
-
         return root;
     }
 
