@@ -1,0 +1,223 @@
+<!--
+  ~ Copyright (C) 2025 Răzvan Albu
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
+  -->
+
+<resources>
+    <!-- Non translatable -->
+    <string name="app_name" translatable="false">Stario</string>
+    <string name="affinity" translatable="false">com.stario</string>
+
+    <!-- General -->
+    <string name="unavailable">不可用</string>
+    <string name="default_text">預設</string>
+    <string name="about">資訊</string>
+    <string name="remove">移除</string>
+    <string name="licenses">授權書</string>
+    <string name="restart">重新啟動</string>
+    <string name="animations">動畫</string>
+    <string name="drawer">抽屜</string>
+    <string name="search">搜尋</string>
+    <string name="miscellaneous">更多</string>
+    <string name="apps">應用程式</string>
+    <string name="personal">個人</string>
+    <string name="managed">受管理</string>
+    <string name="something_went_wrong">出錯！</string>
+    <string name="refresh">重新整理</string>
+
+    <!-- Home pop-up -->
+    <string name="settings">主畫面設定</string>
+    <string name="wallpaper">桌布與風格</string>
+
+    <!-- Settings -->
+    <string name="preferences">設定</string>
+    <string name="media_player">媒體播放器</string>
+    <string name="notification_dots">通知標記</string>
+    <string name="lock_gesture">連按兩下鎖定螢幕</string>
+    <string name="imperial_units">英制單位</string>
+    <string name="vibrations">振動</string>
+    <string name="theme">主題</string>
+    <string name="pages">頁面管理員</string>
+    <string name="search_engine">搜尋引擎</string>
+    <string name="search_results">搜尋結果</string>
+    <string name="kagi_integration">資料來源：Kagi</string>
+    <string name="hide_applications">隱藏應用程式</string>
+    <string name="legacy_lock_animation">舊式鎖定動畫</string>
+    <string name="icons">圖示</string>
+    <string name="weather">天氣</string>
+    <string name="weather_location">天氣位置</string>
+    <string name="location_ip_based">大致 IP 地理位置</string>
+    <string name="system_launcher">重新設定預設啟動器</string>
+    <string name="app_info">應用程式資訊</string>
+
+    <!-- Page Manager -->
+    <string name="home_page">主畫面</string>
+    <string name="default_position">預設位置</string>
+    <string name="left">左側</string>
+    <string name="top">上方</string>
+    <string name="right">右側</string>
+    <string name="bottom">底下</string>
+    <string name="add">新增</string>
+
+    <!-- Settings pop-up -->
+    <string name="return_button">返回</string>
+    <string name="proceed_button">繼續</string>
+
+    <!-- Notifications pop-up -->
+    <string name="read_notifications">讀取通知</string>
+    <string name="notifications_access">Stario 需要讀取通知權限以啟用此功能。</string>
+
+    <!-- Accessibility pop-up -->
+    <string name="use_accessibility">使用無障礙服務</string>
+    <string name="accessibility_notice">Stario 需要無障礙服務以啟用此功能。</string>
+
+    <!-- Theme pop-up -->
+    <string name="dynamic">動態取色</string>
+    <string name="red">紅色</string>
+    <string name="orange">橘色</string>
+    <string name="yellow">黃色</string>
+    <string name="lime">萊姆色</string>
+    <string name="green">綠色</string>
+    <string name="turquoise">青綠色</string>
+    <string name="cyan">青色</string>
+    <string name="blue">藍色</string>
+    <string name="purple">紫色</string>
+    <string name="pink">粉色</string>
+    <string name="dark">黑色</string>
+    <string name="force_dark">強制深色主題</string>
+
+    <!-- Icons pop-up -->
+    <string name="corner_radius">邊框曲率半徑</string>
+    <string name="regular">正常</string>
+    <string name="squircle">方圓形</string>
+    <string name="components">配件</string>
+    <string name="calculating">計算中……</string>
+
+    <!-- Hidden apps pop-up -->
+    <string name="hidden_apps">不可見應用程式</string>
+
+    <!-- License pop-up -->
+    <string name="license">許可證</string>
+    <string name="main_dependencies">主要依賴</string>
+    <string name="all_dependencies">所有依賴</string>
+
+    <!-- Widgets -->
+    <string name="nothing_here_yet">敬請期待</string>
+    <string name="create_a_widget">新增小工具</string>
+    <string name="widgets">小工具</string>
+    <string name="widget_one">小工具</string>
+    <string name="widget_many">小工具</string>
+
+    <!-- Media -->
+    <string name="unknown_artist">未知作者</string>
+
+    <!-- Categories -->
+    <string name="categories">分類</string>
+    <string name="unsorted">未分類</string>
+    <string name="games">遊戲</string>
+    <string name="audio">音樂</string>
+    <string name="video">娛樂</string>
+    <string name="images">攝影</string>
+    <string name="social">社交</string>
+    <string name="news">新聞</string>
+    <string name="maps">地圖</string>
+    <string name="productivity">生產力</string>
+    <string name="accessibility">無障礙</string>
+    <string name="finance">經濟</string>
+    <string name="health">健康</string>
+    <string name="personalization">客製化</string>
+    <string name="sports">體育</string>
+
+    <!-- Applications -->
+    <string name="uninstall">解除安裝</string>
+    <string name="customize">客製化</string>
+    <string name="category">分類</string>
+    <string name="category_name">分類名稱</string>
+    <string name="available_icons">可用圖示</string>
+    <string name="application_label">標籤</string>
+    <string name="category_name_warning">已存在此分類</string>
+    <string name="application_label_warning">標籤名稱不可為空</string>
+    <string name="category_warning">這將以此名稱新增分類</string>
+
+    <!-- Briefing -->
+    <string name="briefing">新聞</string>
+    <string name="briefing_configurator">新聞</string>
+    <string name="import_feed">導入</string>
+    <string name="link_feed">導出</string>
+    <string name="invalid_url">無效網址</string>
+    <string name="invalid_rss">不是新聞來源</string>
+    <string name="link">新聞來源連結</string>
+    <string name="no_connection">沒有網路連結</string>
+    <string name="already_subscribed">您已訂閱此新聞來源！</string>
+
+    <!-- Search -->
+    <string name="search_on">搜尋</string>
+    <string name="searching">Searching…</string>
+    <string name="unauthorized">Kagi 伺服器回傳無權限取用錯誤，請再次確認所輸入的 API 金鑰是正確的。</string>
+    <string name="to_search">用 Kagi 搜尋</string>
+    <string name="kagi_dependency">Stario 依賴 Kagi 以取得更精確的搜尋結果</string>
+    <string name="kagi_api_key">Kagi API 金鑰</string>
+    <string name="api_key">API 金鑰</string>
+
+    <!-- Keyboard -->
+    <string name="done">完成</string>
+
+    <!-- Weather -->
+    <string name="clear_sky">晴天</string>
+    <string name="cloudy">陰天</string>
+    <string name="fair">轉晴</string>
+    <string name="fog">霧</string>
+    <string name="heavy_rain">大雨</string>
+    <string name="heavy_rain_and_thunder">大雷雨</string>
+    <string name="heavy_rain_showers">大陣雨</string>
+    <string name="heavy_rain_showers_and_thunder">大雷陣雨</string>
+    <string name="heavy_sleet">重度雨夾雪</string>
+    <string name="heavy_sleet_and_thunder">重度雨夾雪伴雷</string>
+    <string name="heavy_sleet_showers">重度陣雨夾雪</string>
+    <string name="heavy_sleet_showers_and_thunder">重度雷陣雨夾雪</string>
+    <string name="heavy_snow">大雪</string>
+    <string name="heavy_snow_and_thunder">大雪伴雷</string>
+    <string name="heavy_snow_showers">重度陣雪</string>
+    <string name="heavy_snow_showers_and_thunder">重度雷陣雪</string>
+    <string name="light_rain">小雨</string>
+    <string name="light_rain_and_thunder">小雷雨</string>
+    <string name="light_rain_showers">小陣雨</string>
+    <string name="light_rain_showers_and_thunder">小雷陣雨</string>
+    <string name="light_sleet">輕度雨夾雪</string>
+    <string name="light_sleet_and_thunder">輕度雷雨夾雪</string>
+    <string name="light_sleet_showers">輕度陣雨夾雪</string>
+    <string name="light_snow">小雪</string>
+    <string name="light_snow_and_thunder">小雪伴雷</string>
+    <string name="light_snow_showers">輕度陣雪</string>
+    <string name="light_sleet_showers_and_thunder">輕度雷陣雨夾雪</string>
+    <string name="light_snow_showers_and_thunder">輕度雷陣雪</string>
+    <string name="partly_cloudy">部份多雲</string>
+    <string name="rain">降雨</string>
+    <string name="rain_and_thunder">雷雨</string>
+    <string name="rain_showers">陣雨</string>
+    <string name="rain_showers_and_thunder">雷陣雨</string>
+    <string name="sleet">雨夾雪</string>
+    <string name="sleet_and_thunder">雷雨夾雪</string>
+    <string name="sleet_showers">陣雨夾雪</string>
+    <string name="sleet_showers_and_thunder">雷陣雨夾雪</string>
+    <string name="snow">降雪</string>
+    <string name="snow_and_thunder">雪伴雷</string>
+    <string name="snow_showers">陣雪</string>
+    <string name="snow_showers_and_thunder">雷陣雪</string>
+    <string name="weather_source">資料來源：met.no</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_description">此服務僅用於主畫面啟用鎖定畫面手勢並未將此資料搜集或分享給其他第三方服務。</string>
+</resources>
