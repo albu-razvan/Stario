@@ -18,7 +18,9 @@
 package com.stario.launcher.ui.utils;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Color;
 import android.graphics.Outline;
 import android.graphics.Rect;
@@ -186,6 +188,18 @@ public class UiUtils {
                 }
             }
         });
+    }
+
+    public static Activity unwrapContext(Context context) {
+        while (!(context instanceof Activity) && context instanceof ContextWrapper) {
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+
+        if (context instanceof Activity) {
+            return (Activity) context;
+        }
+
+        return null;
     }
 
     public static void roundViewGroup(ViewGroup view, int radiusDp) {

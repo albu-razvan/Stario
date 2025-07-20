@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -15,58 +16,43 @@
   ~ along with this program. If not, see <http://www.gnu.org/licenses/>
   -->
 
-<carbon.widget.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/ripple"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:padding="20dp"
-    app:carbon_cornerRadius="5dp">
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:forceDarkAllowed="false"
+    android:gravity="center_horizontal|bottom"
+    android:orientation="vertical"
+    android:paddingBottom="10dp">
 
     <com.stario.launcher.ui.icons.AdaptiveIconView
         android:id="@+id/icon"
-        android:layout_width="50dp"
-        android:layout_height="50dp" />
+        android:layout_width="0px"
+        android:layout_height="0px"
+        android:layout_margin="10dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_gravity="center_horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <LinearLayout
-        android:layout_width="0dp"
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp">
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:breakStrategy="balanced"
+        android:ellipsize="end"
+        android:fontFamily="@font/dm_sans_medium"
+        android:gravity="center_horizontal"
+        android:letterSpacing="-0.03"
+        android:lines="2"
+        android:maxWidth="60dp"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/icon" />
 
-        <TextView
-            android:id="@+id/label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:fontFamily="@font/dm_sans_medium"
-            android:letterSpacing="-0.03"
-            android:lines="1"
-            android:maxLines="1"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/category"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:alpha="0.7"
-            android:ellipsize="end"
-            android:fontFamily="@font/dm_sans_regular"
-            android:lines="1"
-            android:maxLines="1"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="16sp" />
-
-    </LinearLayout>
-
-    <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/hide_switch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-</carbon.widget.LinearLayout>
+</LinearLayout>

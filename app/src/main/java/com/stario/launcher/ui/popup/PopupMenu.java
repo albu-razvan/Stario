@@ -54,10 +54,13 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.transition.platform.MaterialElevationScale;
 import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.recyclers.DividerItemDecorator;
+import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
 import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.util.HashMap;
@@ -73,8 +76,8 @@ public class PopupMenu {
     private static final int MAX_SHORTCUT_COUNT = 4;
     private static final float INSET_FRACTION = 0.2f;
     private static final int ICON_SIZE = 64;
-    private static final int PADDING = 10;
-    private static final int WIDTH = 200;
+    private static final int PADDING = 9;
+    private static final int WIDTH = 220;
 
     private final PopupWindow.OnDismissListener dismissListener;
     private final HashMap<Integer,
@@ -136,19 +139,23 @@ public class PopupMenu {
             return recyclers.get(identifier);
         }
 
-        RecyclerView recycler = new RecyclerView(activity);
+        RecyclerView recycler = new OverScrollRecyclerView(activity);
         RecyclerAdapter adapter = new RecyclerAdapter(popupWindow, activity);
-
-        recycler.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         int padding = Measurements.dpToPx(PADDING);
 
         recycler.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
-        recycler.setPadding(padding, 0, padding, 0);
+        recycler.setPadding(padding, padding, padding, padding);
+
+        recycler.setBackground(AppCompatResources.getDrawable(activity, R.drawable.popup_background));
+        recycler.setItemAnimator(null);
+        recycler.addItemDecoration(new DividerItemDecorator(activity,
+                MaterialDividerItemDecoration.VERTICAL, Measurements.dpToPx(PADDING) / 3));
+        recycler.setClipToOutline(true);
+        recycler.setClipToPadding(false);
 
         recycler.setLayoutManager(new LinearLayoutManager(activity));
-        recycler.setBackground(AppCompatResources.getDrawable(activity, R.drawable.popup_background));
         recycler.setAdapter(adapter);
 
         Map.Entry<RecyclerView, RecyclerAdapter> entry = Map.entry(recycler, adapter);

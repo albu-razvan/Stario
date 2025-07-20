@@ -167,7 +167,7 @@ public abstract class ActionDialog extends BottomSheetDialog {
 
                 Window window = getWindow();
 
-                if (window != null) {
+                if (!activity.isDestroyed() && !activity.isFinishing() && window != null) {
                     root.setScaleX(1 + slideOffset * 0.08f);
                     root.setScaleY(1 + slideOffset * 0.08f);
 
@@ -311,7 +311,7 @@ public abstract class ActionDialog extends BottomSheetDialog {
             Log.e("ActionDialog", "onAttachedToWindow: ", exception);
         }
 
-        // will dismiss since onSlide with slideoffset 0 will be called
+        dismiss();
     }
 
     @Override

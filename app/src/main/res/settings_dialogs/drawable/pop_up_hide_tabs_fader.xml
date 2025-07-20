@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -16,21 +15,8 @@
   ~ along with this program. If not, see <http://www.gnu.org/licenses/>
   -->
 
-<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
-    <locale android:name="en"/>
-    <locale android:name="de"/>
-    <locale android:name="es"/>
-    <locale android:name="fi"/>
-    <locale android:name="fr"/>
-    <locale android:name="hu"/>
-    <locale android:name="it"/>
-    <locale android:name="lv"/>
-    <locale android:name="nl"/>
-    <locale android:name="no"/>
-    <locale android:name="pt"/>
-    <locale android:name="ro"/>
-    <locale android:name="sk"/>
-    <locale android:name="sv"/>
-    <locale android:name="tr"/>
-    <locale android:name="zh-rTW"/>
-</locale-config>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient android:startColor="?attr/colorSurfaceContainer"
+        android:angle="90"
+        android:endColor="@android:color/transparent"/>
+</shape>

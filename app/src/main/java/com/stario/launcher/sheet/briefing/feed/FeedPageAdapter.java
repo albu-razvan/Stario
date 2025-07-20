@@ -148,11 +148,11 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
 
         Optional<Enclosure> optionalEnclosure = item.getEnclosure();
 
-        if (optionalEnclosure.isPresent()) {
+        if (optionalEnclosure.isPresent() && !activity.isDestroyed()) {
             viewHolder.representative.setVisibility(View.VISIBLE);
             Enclosure enclosure = optionalEnclosure.get();
 
-            Glide.with(viewHolder.display)
+            Glide.with(activity)
                     .load(enclosure.getUrl())
                     .listener(new RequestListener<>() {
                         @Override
@@ -171,10 +171,10 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
                                     .alpha(1)
                                     .setDuration(Animation.MEDIUM.getDuration());
 
-                            if (item.getCategories().size() > 0) {
+                            if (!item.getCategories().isEmpty()) {
                                 String text = item.getCategories().get(0);
 
-                                if (text.length() > 0) {
+                                if (!text.isEmpty()) {
                                     viewHolder.category.setText(text);
                                     viewHolder.category.setVisibility(View.VISIBLE);
                                 }
@@ -188,12 +188,12 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
             viewHolder.representative.setVisibility(View.GONE);
         }
 
-        if (item.getTitle().isPresent() && item.getTitle().get().length() > 0) {
+        if (item.getTitle().isPresent() && !item.getTitle().get().isEmpty()) {
             viewHolder.title.setText(item.getTitle().get());
             viewHolder.title.setVisibility(View.VISIBLE);
         }
 
-        if (item.getDescription().isPresent() && item.getDescription().get().length() > 0) {
+        if (item.getDescription().isPresent() && !item.getDescription().get().isEmpty()) {
             viewHolder.description.setText(HtmlCompat.fromHtml(
                     HtmlCompat.fromHtml(item.getDescription().get(),
                                     HtmlCompat.FROM_HTML_MODE_LEGACY)
@@ -203,7 +203,7 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
             viewHolder.description.setVisibility(View.VISIBLE);
         }
 
-        if (item.getAuthor().isPresent() && item.getAuthor().get().length() > 0) {
+        if (item.getAuthor().isPresent() && !item.getAuthor().get().isEmpty()) {
             viewHolder.author.setText(item.getAuthor().get());
             viewHolder.author.setVisibility(View.VISIBLE);
         }

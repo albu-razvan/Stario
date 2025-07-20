@@ -119,18 +119,6 @@ public class FeedPage extends Fragment {
         SheetType type = SheetType.getSheetTypeForSheetDialogFragment(activity, BriefingDialog.class);
         if (type.getAxes() == View.SCROLL_AXIS_HORIZONTAL) {
             recyclerView.setOverscrollPullEdges(OverScrollEffect.PULL_EDGE_BOTTOM);
-        } else {
-            recyclerView.addOnOverScrollListener(new OverScrollEffect.OnOverScrollListener() {
-                @Override
-                public void onOverScrollStateChanged(int edge, @NonNull OverScrollEffect.OverScrollState state) {
-
-                }
-
-                @Override
-                public void onOverScrolled(int edge, float factor) {
-
-                }
-            });
         }
 
         invalidateLayoutPadding();

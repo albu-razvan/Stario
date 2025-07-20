@@ -42,6 +42,8 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 
 import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplication;
+import com.stario.launcher.apps.ProfileApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.apps.popup.ApplicationCustomizationDialog;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
@@ -231,6 +233,17 @@ public abstract class RecyclerApplicationAdapter
                 menu.add(new PopupMenu.Item(resources.getString(R.string.customize),
                         ResourcesCompat.getDrawable(resources, R.drawable.ic_edit, activity.getTheme()),
                         view -> new ApplicationCustomizationDialog(activity, application).show()));
+
+                menu.add(new PopupMenu.Item(resources.getString(R.string.hide),
+                        ResourcesCompat.getDrawable(resources, R.drawable.ic_hide, activity.getTheme()),
+                        view -> {
+                            ProfileApplicationManager manager = ProfileManager.getInstance()
+                                    .getProfile(application.getProfile());
+
+                            if(manager != null) {
+                                manager.hideApplication(application);
+                            }
+                        }));
 
                 if (!application.systemPackage) {
                     menu.add(new PopupMenu.Item(resources.getString(R.string.uninstall),

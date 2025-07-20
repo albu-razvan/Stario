@@ -86,7 +86,7 @@ public class AppAdapter extends RecyclerApplicationAdapter
 
             for(ProfileApplicationManager manager : profileManagers) {
                 for (int index = 0; index < manager.getSize(); index++) {
-                    LauncherApplication application = manager.get(index, true);
+                    LauncherApplication application = manager.get(index);
 
                     if (application != null) {
                         String lowercaseLabel = application.getLabel().toLowerCase();

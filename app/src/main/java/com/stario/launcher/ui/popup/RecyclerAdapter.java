@@ -44,7 +44,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         this.items = new ArrayList<>();
     }
 
-    protected static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         private final ImageView icon;
         private final TextView label;
 

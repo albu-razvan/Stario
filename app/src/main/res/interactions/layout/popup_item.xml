@@ -16,13 +16,16 @@
   ~ along with this program. If not, see <http://www.gnu.org/licenses/>
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<carbon.widget.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    app:carbon_cornerRadius="9999px"
+    android:background="@drawable/transparent_ripple"
+    android:padding="5dp"
     android:orientation="horizontal"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp">
+    tools:ignore="PxUsage">
 
     <carbon.widget.ImageView
         android:id="@+id/icon"
@@ -45,4 +48,4 @@
         android:textColor="?attr/colorOnSurface"
         android:textSize="14sp" />
 
-</LinearLayout>
+</carbon.widget.LinearLayout>
