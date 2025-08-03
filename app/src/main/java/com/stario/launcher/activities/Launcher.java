@@ -26,8 +26,6 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
-import android.transition.Transition;
-import android.transition.TransitionListenerAdapter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -178,8 +176,6 @@ public class Launcher extends ThemedActivity {
             registerReceiver(screenOnReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
         }
 
-        prepareWallpaperTransitions();
-
         attachSheets(controller);
         attachGlance();
     }
@@ -290,6 +286,7 @@ public class Launcher extends ThemedActivity {
 
                     view.post(() -> {
                         Intent intent = new Intent(activity, Settings.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
                         activity.startActivity(intent,
                                 ActivityOptions.makeSceneTransitionAnimation(activity).toBundle());
@@ -351,42 +348,12 @@ public class Launcher extends ThemedActivity {
     }
 
     private void updateWallpaperZoom(float zoom) {
-        if (decorView.getWindowToken() != null) {
-            if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
-                zoom = Math.max(Math.min(1, zoom), 0);
+        if (decorView.getWindowToken() != null &&
+                Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
+            zoom = Math.max(Math.min(1, zoom), 0);
 
-                WallpaperAnimator.updateZoom(this, zoom);
-            }
+            WallpaperAnimator.updateZoom(this, zoom);
         }
-    }
-
-    private void prepareWallpaperTransitions() {
-        Window window = getWindow();
-
-        if (window == null) {
-            return;
-        }
-
-        Transition enterTransition = window.getEnterTransition();
-        if (enterTransition != null) {
-            enterTransition.addListener(new TransitionListenerAdapter() {
-                @Override
-                public void onTransitionStart(Transition transition) {
-                    WallpaperAnimator.animateZoom(Launcher.this, null, 0f);
-                }
-            });
-        }
-
-        Transition exitTransition = window.getExitTransition();
-        if (exitTransition != null) {
-            exitTransition.addListener(new TransitionListenerAdapter() {
-                @Override
-                public void onTransitionStart(Transition transition) {
-                    WallpaperAnimator.animateZoom(Launcher.this, null, 1f);
-                }
-            });
-        }
-
     }
 
     @Override
@@ -409,10 +376,9 @@ public class Launcher extends ThemedActivity {
     @Override
     protected void onResume() {
         glance.update();
+        updateWallpaperZoom(0f);
 
         super.onResume();
-
-        WallpaperAnimator.animateZoom(this, null, 0f);
     }
 
     @Override
@@ -429,10 +395,8 @@ public class Launcher extends ThemedActivity {
             statusBarContrast.animate().alpha(1)
                     .setDuration(Animation.LONG.getDuration());
         } else {
-            navBarContrast.animate().alpha(0)
-                    .setDuration(Animation.BRIEF.getDuration());
-            statusBarContrast.animate().alpha(0)
-                    .setDuration(Animation.BRIEF.getDuration());
+            navBarContrast.animate().alpha(0).setDuration(0);
+            statusBarContrast.animate().alpha(0).setDuration(0);
         }
     }
 
@@ -445,9 +409,6 @@ public class Launcher extends ThemedActivity {
 
     @Override
     protected void onStop() {
-        prepareWallpaperTransitions();
-        WallpaperAnimator.animateZoom(this, null, 1f);
-
         setContrastVisibility(View.GONE);
 
         homeWatcher.stopWatch();
@@ -456,6 +417,13 @@ public class Launcher extends ThemedActivity {
 
         setShowWhenLocked(false);
         main.reset();
+    }
+
+    @Override
+    protected void onPause() {
+        updateWallpaperZoom(1f);
+
+        super.onPause();
     }
 
     @Override

@@ -47,11 +47,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/pop_up_hide_tabs_fader"
-                android:paddingTop="50dp"
+                android:paddingTop="70dp"
                 android:paddingBottom="10dp"
-                app:fel_edge="left|right"
-                app:fel_size_left="30dp"
-                app:fel_size_right="30dp">
+                app:edge="left|right"
+                app:size_left="30dp"
+                app:size_right="30dp">
 
                 <com.stario.launcher.ui.common.tabs.CenterTabLayout
                     android:id="@+id/tabs"

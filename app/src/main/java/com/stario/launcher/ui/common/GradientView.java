@@ -21,6 +21,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -63,10 +64,17 @@ public class GradientView extends WebView {
         setFocusable(false);
         setFocusableInTouchMode(false);
 
+        setBackgroundColor(Color.TRANSPARENT);
+
+        WebSettings settings = getSettings();
+        settings.setOffscreenPreRaster(true);
+        settings.setJavaScriptEnabled(true);
+        settings.setDatabaseEnabled(false);
+        settings.setAllowFileAccess(false);
+        settings.setSupportZoom(false);
+
         // I refuse to rewrite the whole thing to work on an android canvas
         // Thank you Stripe and Kevin Hufnagl <3
-        getSettings().setJavaScriptEnabled(true);
-        setBackgroundColor(Color.TRANSPARENT);
         setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -102,6 +110,7 @@ public class GradientView extends WebView {
     protected void onAttachedToWindow() {
         if (!loaded) {
             loadUrl("file:///android_res/raw/gradient.html");
+            requestLayout();
             loaded = true;
         }
 

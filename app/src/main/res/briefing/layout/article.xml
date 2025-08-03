@@ -42,8 +42,8 @@
         <com.stario.launcher.ui.common.FadingEdgeLayout
             android:layout_width="600dp"
             android:layout_height="250dp"
-            app:fel_edge="bottom"
-            app:fel_size_bottom="250dp"
+            app:edge="bottom"
+            app:size_bottom="250dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 

@@ -23,12 +23,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RadialGradient;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -55,28 +53,43 @@ public class FadingEdgeLayout extends FrameLayout {
     private static final int[] FADE_COLORS = new int[]{Color.TRANSPARENT, Color.BLACK};
     private static final int[] FADE_COLORS_REVERSE = new int[]{Color.BLACK, Color.TRANSPARENT};
 
-    private boolean fadeTop, fadeBottom, fadeLeft, fadeRight;
-    private int gradientSizeTop, gradientSizeBottom, gradientSizeLeft, gradientSizeRight;
-    private Paint gradientPaintTop, gradientPaintBottom, gradientPaintLeft, gradientPaintRight;
-    private Paint cornerPaintTopLeft, cornerPaintTopRight, cornerPaintBottomLeft, cornerPaintBottomRight;
-    private Rect gradientRectTop, gradientRectBottom, gradientRectLeft, gradientRectRight;
+    private boolean fadeTop;
+    private boolean fadeBottom;
+    private boolean fadeLeft;
+    private boolean fadeRight;
+
+    private int gradientSizeTop;
+    private int gradientSizeBottom;
+    private int gradientSizeLeft;
+    private int gradientSizeRight;
+    private boolean rounded;
+
+    private Paint gradientPaintTop;
+    private Paint gradientPaintBottom;
+    private Paint gradientPaintLeft;
+    private Paint gradientPaintRight;
+
+    private Paint cornerPaint;
+
+    private Rect gradientRectTop;
+    private Rect gradientRectBottom;
+    private Rect gradientRectLeft;
+    private Rect gradientRectRight;
+
     private int gradientDirtyFlags;
 
     public FadingEdgeLayout(Context context) {
         super(context);
-
         init(null);
     }
 
     public FadingEdgeLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-
         init(attrs);
     }
 
     public FadingEdgeLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
         init(attrs);
     }
 
@@ -85,18 +98,20 @@ public class FadingEdgeLayout extends FrameLayout {
                 getResources().getDisplayMetrics());
 
         if (attrs != null) {
-            TypedArray arr = getContext().obtainStyledAttributes(attrs, R.styleable.FadingEdgeLayout, 0, 0);
-            int flags = arr.getInt(R.styleable.FadingEdgeLayout_fel_edge, 0);
+            TypedArray arr = getContext().obtainStyledAttributes(attrs,
+                    R.styleable.FadingEdgeLayout, 0, 0);
+            int flags = arr.getInt(R.styleable.FadingEdgeLayout_edge, 0);
 
             fadeTop = (flags & FADE_EDGE_TOP) == FADE_EDGE_TOP;
             fadeBottom = (flags & FADE_EDGE_BOTTOM) == FADE_EDGE_BOTTOM;
             fadeLeft = (flags & FADE_EDGE_LEFT) == FADE_EDGE_LEFT;
             fadeRight = (flags & FADE_EDGE_RIGHT) == FADE_EDGE_RIGHT;
 
-            gradientSizeTop = arr.getDimensionPixelSize(R.styleable.FadingEdgeLayout_fel_size_top, defaultSize);
-            gradientSizeBottom = arr.getDimensionPixelSize(R.styleable.FadingEdgeLayout_fel_size_bottom, defaultSize);
-            gradientSizeLeft = arr.getDimensionPixelSize(R.styleable.FadingEdgeLayout_fel_size_left, defaultSize);
-            gradientSizeRight = arr.getDimensionPixelSize(R.styleable.FadingEdgeLayout_fel_size_right, defaultSize);
+            gradientSizeTop = arr.getDimensionPixelSize(R.styleable.FadingEdgeLayout_size_top, defaultSize);
+            gradientSizeBottom = arr.getDimensionPixelSize(R.styleable.FadingEdgeLayout_size_bottom, defaultSize);
+            gradientSizeLeft = arr.getDimensionPixelSize(R.styleable.FadingEdgeLayout_size_left, defaultSize);
+            gradientSizeRight = arr.getDimensionPixelSize(R.styleable.FadingEdgeLayout_size_right, defaultSize);
+            rounded = arr.getBoolean(R.styleable.FadingEdgeLayout_is_rounded, false);
 
             if (fadeTop && gradientSizeTop > 0) gradientDirtyFlags |= DIRTY_FLAG_TOP;
             if (fadeLeft && gradientSizeLeft > 0) gradientDirtyFlags |= DIRTY_FLAG_LEFT;
@@ -106,19 +121,15 @@ public class FadingEdgeLayout extends FrameLayout {
             arr.recycle();
         } else {
             gradientSizeTop = gradientSizeBottom = gradientSizeLeft = gradientSizeRight = defaultSize;
+            rounded = false;
         }
 
-        PorterDuffXfermode mode = new PorterDuffXfermode(PorterDuff.Mode.DST_IN);
+        gradientPaintTop = createFadePaint();
+        gradientPaintBottom = createFadePaint();
+        gradientPaintLeft = createFadePaint();
+        gradientPaintRight = createFadePaint();
 
-        gradientPaintTop = createFadePaint(mode);
-        gradientPaintBottom = createFadePaint(mode);
-        gradientPaintLeft = createFadePaint(mode);
-        gradientPaintRight = createFadePaint(mode);
-
-        cornerPaintTopLeft = createFadePaint(mode);
-        cornerPaintTopRight = createFadePaint(mode);
-        cornerPaintBottomLeft = createFadePaint(mode);
-        cornerPaintBottomRight = createFadePaint(mode);
+        cornerPaint = createFadePaint();
 
         gradientRectTop = new Rect();
         gradientRectLeft = new Rect();
@@ -126,10 +137,22 @@ public class FadingEdgeLayout extends FrameLayout {
         gradientRectRight = new Rect();
     }
 
-    private Paint createFadePaint(PorterDuffXfermode mode) {
+    private Paint createFadePaint() {
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setXfermode(mode);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
         return paint;
+    }
+
+    public boolean isRounded() {
+        return rounded;
+    }
+
+    public void setRounded(boolean rounded) {
+        if (this.rounded != rounded) {
+            this.rounded = rounded;
+            gradientDirtyFlags = (DIRTY_FLAG_TOP | DIRTY_FLAG_LEFT | DIRTY_FLAG_BOTTOM | DIRTY_FLAG_TOP);
+            invalidate();
+        }
     }
 
     public void setFadeSizes(int top, int left, int bottom, int right) {
@@ -174,10 +197,19 @@ public class FadingEdgeLayout extends FrameLayout {
 
     @Override
     public void setPadding(int left, int top, int right, int bottom) {
-        if (getPaddingLeft() != left) gradientDirtyFlags |= DIRTY_FLAG_LEFT;
-        if (getPaddingTop() != top) gradientDirtyFlags |= DIRTY_FLAG_TOP;
-        if (getPaddingRight() != right) gradientDirtyFlags |= DIRTY_FLAG_RIGHT;
-        if (getPaddingBottom() != bottom) gradientDirtyFlags |= DIRTY_FLAG_BOTTOM;
+        if (getPaddingLeft() != left) {
+            gradientDirtyFlags |= DIRTY_FLAG_LEFT;
+        }
+        if (getPaddingTop() != top) {
+            gradientDirtyFlags |= DIRTY_FLAG_TOP;
+        }
+        if (getPaddingRight() != right) {
+            gradientDirtyFlags |= DIRTY_FLAG_RIGHT;
+        }
+        if (getPaddingBottom() != bottom) {
+            gradientDirtyFlags |= DIRTY_FLAG_BOTTOM;
+        }
+
         super.setPadding(left, top, right, bottom);
     }
 
@@ -194,9 +226,11 @@ public class FadingEdgeLayout extends FrameLayout {
 
     @Override
     protected void dispatchDraw(@NonNull Canvas canvas) {
-        int width = getWidth(), height = getHeight();
-        boolean fadeAnyEdge = fadeTop || fadeBottom || fadeLeft || fadeRight;
-        if (getVisibility() == GONE || width == 0 || height == 0 || !fadeAnyEdge) {
+        int width = getWidth();
+        int height = getHeight();
+
+        if (getVisibility() == GONE || width == 0 || height == 0
+                || !(fadeTop || fadeBottom || fadeLeft || fadeRight)) {
             super.dispatchDraw(canvas);
             return;
         }
@@ -218,80 +252,101 @@ public class FadingEdgeLayout extends FrameLayout {
             initRightGradient();
         }
 
-        int count = canvas.saveLayer(0.0f, 0.0f, width, height, null, Canvas.ALL_SAVE_FLAG);
+        int count = canvas.saveLayer(0.0f, 0.0f, width, height, null);
         super.dispatchDraw(canvas);
 
-        if (fadeTop && gradientSizeTop > 0) canvas.drawRect(gradientRectTop, gradientPaintTop);
-        if (fadeBottom && gradientSizeBottom > 0)
-            canvas.drawRect(gradientRectBottom, gradientPaintBottom);
-        if (fadeLeft && gradientSizeLeft > 0) canvas.drawRect(gradientRectLeft, gradientPaintLeft);
-        if (fadeRight && gradientSizeRight > 0)
-            canvas.drawRect(gradientRectRight, gradientPaintRight);
+        int radius_tl = 0, radius_tr = 0, radius_bl = 0, radius_br = 0;
+        if (rounded) {
+            if (fadeTop && fadeLeft) {
+                radius_tl = Math.min(gradientSizeTop, gradientSizeLeft);
+            }
+            if (fadeTop && fadeRight) {
+                radius_tr = Math.min(gradientSizeTop, gradientSizeRight);
+            }
+            if (fadeBottom && fadeLeft) {
+                radius_bl = Math.min(gradientSizeBottom, gradientSizeLeft);
+            }
+            if (fadeBottom && fadeRight) {
+                radius_br = Math.min(gradientSizeBottom, gradientSizeRight);
+            }
+        }
 
-        // Smooth corner blending
-        if (fadeTop && fadeLeft) {
-            drawCornerBlend(canvas, getPaddingLeft(), getPaddingTop(), Math.min(gradientSizeTop, gradientSizeLeft), Corner.TOP_LEFT, cornerPaintTopLeft);
+        if (fadeTop && gradientSizeTop > 0) {
+            Rect topRect = new Rect(gradientRectTop);
+            topRect.left += radius_tl;
+            topRect.right -= radius_tr;
+
+            if (topRect.left < topRect.right) {
+                canvas.drawRect(topRect, gradientPaintTop);
+            }
         }
-        if (fadeTop && fadeRight) {
-            drawCornerBlend(canvas, getWidth() - getPaddingRight(), getPaddingTop(), Math.min(gradientSizeTop, gradientSizeRight), Corner.TOP_RIGHT, cornerPaintTopRight);
+
+        if (fadeBottom && gradientSizeBottom > 0) {
+            Rect bottomRect = new Rect(gradientRectBottom);
+            bottomRect.left += radius_bl;
+            bottomRect.right -= radius_br;
+
+            if (bottomRect.left < bottomRect.right) {
+                canvas.drawRect(bottomRect, gradientPaintBottom);
+            }
         }
-        if (fadeBottom && fadeLeft) {
-            drawCornerBlend(canvas, getPaddingLeft(), getHeight() - getPaddingBottom(), Math.min(gradientSizeBottom, gradientSizeLeft), Corner.BOTTOM_LEFT, cornerPaintBottomLeft);
+
+        if (fadeLeft && gradientSizeLeft > 0) {
+            Rect leftRect = new Rect(gradientRectLeft);
+            leftRect.top += radius_tl;
+            leftRect.bottom -= radius_bl;
+
+            if (leftRect.top < leftRect.bottom) {
+                canvas.drawRect(leftRect, gradientPaintLeft);
+            }
         }
-        if (fadeBottom && fadeRight) {
-            drawCornerBlend(canvas, getWidth() - getPaddingRight(), getHeight() - getPaddingBottom(), Math.min(gradientSizeBottom, gradientSizeRight), Corner.BOTTOM_RIGHT, cornerPaintBottomRight);
+
+        if (fadeRight && gradientSizeRight > 0) {
+            Rect rightRect = new Rect(gradientRectRight);
+            rightRect.top += radius_tr;
+            rightRect.bottom -= radius_br;
+
+            if (rightRect.top < rightRect.bottom) {
+                canvas.drawRect(rightRect, gradientPaintRight);
+            }
+        }
+
+        if (rounded) {
+            if (radius_tl > 0) {
+                float cx = getPaddingLeft() + radius_tl;
+                float cy = getPaddingTop() + radius_tl;
+                cornerPaint.setShader(new RadialGradient(cx, cy, radius_tl, FADE_COLORS_REVERSE,
+                        null, Shader.TileMode.CLAMP));
+                canvas.drawRect(getPaddingLeft(), getPaddingTop(), cx, cy, cornerPaint);
+            }
+
+            if (radius_tr > 0) {
+                float cx = getWidth() - getPaddingRight() - radius_tr;
+                float cy = getPaddingTop() + radius_tr;
+                cornerPaint.setShader(new RadialGradient(cx, cy, radius_tr, FADE_COLORS_REVERSE,
+                        null, Shader.TileMode.CLAMP));
+                canvas.drawRect(cx, getPaddingTop(), getWidth() - getPaddingRight(), cy, cornerPaint);
+            }
+
+            if (radius_bl > 0) {
+                float cx = getPaddingLeft() + radius_bl;
+                float cy = getHeight() - getPaddingBottom() - radius_bl;
+                cornerPaint.setShader(new RadialGradient(cx, cy, radius_bl, FADE_COLORS_REVERSE,
+                        null, Shader.TileMode.CLAMP));
+                canvas.drawRect(getPaddingLeft(), cy, cx, getHeight() - getPaddingBottom(), cornerPaint);
+            }
+
+            if (radius_br > 0) {
+                float cx = getWidth() - getPaddingRight() - radius_br;
+                float cy = getHeight() - getPaddingBottom() - radius_br;
+                cornerPaint.setShader(new RadialGradient(cx, cy, radius_br, FADE_COLORS_REVERSE,
+                        null, Shader.TileMode.CLAMP));
+                canvas.drawRect(cx, cy, getWidth() - getPaddingRight(), getHeight() - getPaddingBottom(), cornerPaint);
+            }
         }
 
         canvas.restoreToCount(count);
     }
-
-    private void drawCornerBlend(Canvas canvas, int cx, int cy, int radius, Corner corner, Paint paint) {
-        Shader shader = new RadialGradient(
-                cx, cy, radius,
-                FADE_COLORS_REVERSE, // from black to transparent
-                null,
-                Shader.TileMode.CLAMP
-        );
-        paint.setShader(shader);
-
-        Path path = new Path();
-        switch (corner) {
-            case TOP_LEFT:
-                path.moveTo(cx, cy);
-                path.lineTo(cx, cy + radius);
-                path.arcTo(new RectF(cx, cy, cx + 2 * radius, cy + 2 * radius), 180, 90);
-                path.lineTo(cx + radius, cy);
-                path.close();
-                break;
-            case TOP_RIGHT:
-                path.moveTo(cx, cy);
-                path.lineTo(cx - radius, cy);
-                path.arcTo(new RectF(cx - 2 * radius, cy, cx, cy + 2 * radius), 270, 90);
-                path.lineTo(cx, cy + radius);
-                path.close();
-                break;
-            case BOTTOM_LEFT:
-                path.moveTo(cx, cy);
-                path.lineTo(cx + radius, cy);
-                path.arcTo(new RectF(cx, cy - 2 * radius, cx + 2 * radius, cy), 90, 90);
-                path.lineTo(cx, cy - radius);
-                path.close();
-                break;
-            case BOTTOM_RIGHT:
-                path.moveTo(cx, cy);
-                path.lineTo(cx - radius, cy);
-                path.arcTo(new RectF(cx - 2 * radius, cy - 2 * radius, cx, cy), 0, 90);
-                path.lineTo(cx, cy - radius);
-                path.close();
-                break;
-        }
-
-        canvas.save();
-        canvas.clipPath(path);
-        canvas.drawCircle(cx, cy, radius, paint);
-        canvas.restore();
-    }
-
 
     private void initTopGradient() {
         int actualHeight = getHeight() - getPaddingTop() - getPaddingBottom();
@@ -339,12 +394,5 @@ public class FadingEdgeLayout extends FrameLayout {
         gradientRectRight.set(l, t, r, b);
         LinearGradient gradient = new LinearGradient(l, t, r, t, FADE_COLORS_REVERSE, null, Shader.TileMode.CLAMP);
         gradientPaintRight.setShader(gradient);
-    }
-
-    private enum Corner {
-        TOP_LEFT,
-        TOP_RIGHT,
-        BOTTOM_LEFT,
-        BOTTOM_RIGHT
     }
 }

@@ -28,7 +28,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
-import android.transition.Fade;
 import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.View;
@@ -36,7 +35,6 @@ import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.AccelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.IntDef;
@@ -72,28 +70,18 @@ public class UiUtils {
         window.setAllowEnterTransitionOverlap(true);
         window.setAllowReturnTransitionOverlap(true);
 
-        //window transitions
-        TransitionSet enterTransition = new TransitionSet();
-        enterTransition.addTransition(new MaterialSharedAxis(MaterialSharedAxis.Z, false));
-        enterTransition.setInterpolator(new FastOutSlowInInterpolator());
-        enterTransition.setDuration(Animation.EXTENDED.getDuration());
+        TransitionSet transition = new TransitionSet();
+        transition.addTransition(new MaterialSharedAxis(MaterialSharedAxis.Z, true));
+        transition.setInterpolator(new FastOutSlowInInterpolator());
+        transition.setDuration(Animation.EXTENDED.getDuration());
 
-        enterTransition.excludeTarget(R.id.navigation_bar_contrast, true);
-        enterTransition.excludeTarget(R.id.status_bar_contrast, true);
+        transition.excludeTarget(R.id.navigation_bar_contrast, true);
+        transition.excludeTarget(R.id.status_bar_contrast, true);
 
-        window.setEnterTransition(enterTransition);
-        window.setReenterTransition(enterTransition);
-        window.setReturnTransition(enterTransition);
-
-        TransitionSet exitTransition = new TransitionSet();
-        exitTransition.addTransition(new Fade());
-        exitTransition.setInterpolator(new AccelerateInterpolator());
-        exitTransition.setDuration(Animation.SHORT.getDuration());
-
-        exitTransition.excludeTarget(R.id.navigation_bar_contrast, true);
-        exitTransition.excludeTarget(R.id.status_bar_contrast, true);
-
-        window.setExitTransition(exitTransition);
+        window.setEnterTransition(transition);
+        window.setExitTransition(transition);
+        window.setReenterTransition(transition);
+        window.setReturnTransition(transition);
     }
 
     public static void makeSysUITransparent(Window window) {

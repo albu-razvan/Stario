@@ -19,9 +19,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:fel_size_top="20dp"
-    app:fel_size_bottom="20dp"
-    app:fel_edge="top|bottom"
+    app:size_top="20dp"
+    app:size_bottom="20dp"
+    app:edge="top|bottom"
     android:orientation="vertical">
 
     <com.stario.launcher.ui.recyclers.autogrid.AutoGridRecyclerView

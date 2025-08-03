@@ -27,7 +27,7 @@
         android:layout_height="match_parent"
         android:clipChildren="false"
         android:clipToPadding="false"
-        app:fel_edge="top|bottom">
+        app:edge="top|bottom">
 
         <com.stario.launcher.ui.widgets.WidgetScroller
             android:id="@+id/scroller"

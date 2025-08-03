@@ -20,15 +20,18 @@ package com.stario.launcher.themes;
 import static com.stario.launcher.themes.Theme.THEME_BLUE;
 import static com.stario.launcher.themes.Theme.THEME_DYNAMIC;
 
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.transition.Transition;
+import android.transition.TransitionListenerAdapter;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.MotionEvent;
@@ -36,6 +39,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
 
 import androidx.activity.BackEventCompat;
 import androidx.activity.OnBackPressedCallback;
@@ -43,6 +47,8 @@ import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.compose.animation.core.CubicBezierEasing;
+import androidx.compose.animation.core.Easing;
 
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.Measurements;
@@ -58,8 +64,12 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
     private final HashMap<Integer, OnActivityResult> activityResultListeners;
 
+    private PaintDrawable roundedCornerBackground;
     private SharedPreferences themePreferences;
+    private ValueAnimator backgroundAnimator;
+    private ColorDrawable windowBackground;
     private boolean allowTouches;
+    private int backgroundColor;
     private Theme theme;
 
     public ThemedActivity() {
@@ -88,8 +98,10 @@ abstract public class ThemedActivity extends AppCompatActivity {
         theme = Theme.from(themePreferences.getString(THEME, THEME_BLUE.toString()));
         setTheme(isDarkModeOn ? theme.getDarkResourceID() : theme.getLightResourceID());
 
-        int backgroundColor = getAttributeData(com.google.android.material.R.attr.colorSurface);
-        Drawable background = new ColorDrawable(backgroundColor);
+        backgroundColor = getAttributeData(com.google.android.material.R.attr.colorSurface);
+
+        roundedCornerBackground = new PaintDrawable(backgroundColor);
+        roundedCornerBackground.setCornerRadius(Measurements.dpToPx(30));
 
         Window window = getWindow();
 
@@ -99,12 +111,21 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
             if (isOpaque()) {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER);
+
+                if(Utils.isMinimumSDK(Build.VERSION_CODES.Q)) {
+                    windowBackground = new ColorDrawable(Color.TRANSPARENT);
+                } else {
+                    windowBackground = new ColorDrawable(backgroundColor);
+                    windowBackground.setAlpha(0);
+                }
             } else {
                 window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER);
-                background.setAlpha(0);
+
+                windowBackground = new ColorDrawable(backgroundColor);
+                windowBackground.setAlpha(0);
             }
 
-            window.setBackgroundDrawable(background);
+            window.setBackgroundDrawable(windowBackground);
             window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
 
             if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
@@ -112,96 +133,185 @@ abstract public class ThemedActivity extends AppCompatActivity {
             }
         }
 
-        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
-            getOnBackPressedDispatcher().addCallback(this,
-                    new OnBackPressedCallback(true) {
-                        private int startingWindowBackgroundAlpha = isOpaque() ? 255 : 0;
-                        private Drawable startingRootBackground;
-                        private PaintDrawable progressRootBackground;
+        getOnBackPressedDispatcher().addCallback(this,
+                new OnBackPressedCallback(true) {
+                    private final Easing cubicBezier;
 
-                        @Override
-                        public void handleOnBackStarted(@NonNull BackEventCompat backEvent) {
-                            if (isAffectedByBackGesture() && !isActivityTransitionRunning()) {
-                                View root = getRoot();
+                    private int startingWindowBackgroundAlpha;
+                    private boolean initialized;
 
-                                if (root != null) {
-                                    startingWindowBackgroundAlpha = isActivityTransitionRunning() ?
-                                            (isOpaque() ? 255 : 0) : background.getAlpha();
+                    {
+                        this.startingWindowBackgroundAlpha = isOpaque() ? 255 : 0;
+                        this.cubicBezier = new CubicBezierEasing(0.43f, 0.1f, -0.2f, 1);
+                        this.initialized = false;
+                    }
 
-                                    startingRootBackground = root.getBackground();
-                                    progressRootBackground = new PaintDrawable(backgroundColor);
-                                    progressRootBackground.setCornerRadius(Measurements.dpToPx(10));
+                    private boolean handleInit() {
+                        if (initialized) {
+                            return true;
+                        }
 
-                                    root.setBackground(progressRootBackground);
+                        if (backgroundAnimator != null && backgroundAnimator.isRunning()) {
+                            backgroundAnimator.pause();
+                        }
 
-                                    if (backEvent.getSwipeEdge() == BackEventCompat.EDGE_RIGHT) {
-                                        root.setPivotX(root.getMeasuredWidth() * 0.25f);
-                                    } else if (backEvent.getSwipeEdge() == BackEventCompat.EDGE_LEFT) {
-                                        root.setPivotX(root.getMeasuredWidth() * 0.75f);
-                                    }
-                                }
+                        View root = getRoot();
+                        if (root != null) {
+                            root.animate().cancel();
+
+                            startingWindowBackgroundAlpha = isActivityTransitionRunning() ?
+                                    (isOpaque() ? 255 : 0) : windowBackground.getAlpha();
+
+                            this.initialized = true;
+                            return true;
+
+                        }
+
+                        return false;
+                    }
+
+                    @Override
+                    public void handleOnBackStarted(@NonNull BackEventCompat backEvent) {
+                        if (isAffectedByBackGesture() && !isActivityTransitionRunning()) {
+                            handleInit();
+                        }
+                    }
+
+                    @Override
+                    public void handleOnBackProgressed(@NonNull BackEventCompat backEvent) {
+                        if (isAffectedByBackGesture() &&
+                                !isActivityTransitionRunning() && handleInit()) {
+                            View root = getRoot();
+
+                            float progress = cubicBezier.transform(backEvent.getProgress());
+                            if (root != null) {
+                                windowBackground.setAlpha((int) (Math.max((1f - progress * 2), 0) * 255));
+
+                                root.setPivotY(backEvent.getTouchY() / 1.3f);
+
+                                root.setScaleX(1f - progress * 0.15f);
+                                root.setTranslationY((root.getHeight() / 10f) * progress);
+                                root.setScaleY(1f - progress * 0.15f);
+
+                                roundedCornerBackground.setCornerRadius(Measurements.dpToPx(10) +
+                                        progress * Measurements.dpToPx(20));
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void handleOnBackCancelled() {
+                        if (!initialized) {
+                            return;
+                        }
+
+                        if (isAffectedByBackGesture() && !isActivityTransitionRunning()) {
+                            View root = getRoot();
+
+                            if (root != null) {
+                                int alpha = windowBackground.getAlpha();
+
+                                root.animate()
+                                        .scaleX(1)
+                                        .scaleY(1)
+                                        .setDuration(Animation.MEDIUM.getDuration())
+                                        .setUpdateListener(animation -> {
+                                            float fraction = animation.getAnimatedFraction();
+
+                                            windowBackground.setAlpha(alpha +
+                                                    (int) ((startingWindowBackgroundAlpha - alpha) * fraction));
+                                        })
+                                        .withEndAction(() ->
+                                                windowBackground.setAlpha(startingWindowBackgroundAlpha));
                             }
                         }
 
-                        @Override
-                        public void handleOnBackProgressed(@NonNull BackEventCompat backEvent) {
-                            if (isAffectedByBackGesture() && !isActivityTransitionRunning()) {
-                                View root = getRoot();
+                        initialized = false;
+                    }
 
-                                float progress = backEvent.getProgress();
-
-                                if (root != null) {
-                                    background.setAlpha((int) ((1f - progress * 0.5f) * 255));
-
-                                    root.setPivotY(backEvent.getTouchY() / 1.3f);
-
-                                    root.setScaleX(1f - progress * 0.15f);
-                                    root.setScaleY(1f - progress * 0.15f);
-
-                                    if (progressRootBackground != null) {
-                                        progressRootBackground.setCornerRadius(Measurements.dpToPx(10) +
-                                                progress * Measurements.dpToPx(20));
-                                    }
-                                }
+                    @Override
+                    public void handleOnBackPressed() {
+                        if (initialized) {
+                            if (backgroundAnimator != null &&
+                                    backgroundAnimator.isRunning()) {
+                                backgroundAnimator.pause();
                             }
+
+                            backgroundAnimator = ValueAnimator.ofInt(windowBackground.getAlpha(), 0);
+                            backgroundAnimator.setDuration(Animation.BRIEF.getDuration());
+                            backgroundAnimator.addUpdateListener(animation ->
+                                    windowBackground.setAlpha((int) backgroundAnimator.getAnimatedValue()));
+                            backgroundAnimator.start();
                         }
 
-                        @Override
-                        public void handleOnBackCancelled() {
-                            if (isAffectedByBackGesture() && !isActivityTransitionRunning()) {
-                                View root = getRoot();
-
-                                if (root != null) {
-                                    int alpha = background.getAlpha();
-
-                                    root.animate()
-                                            .scaleX(1)
-                                            .scaleY(1)
-                                            .setDuration(Animation.MEDIUM.getDuration())
-                                            .setUpdateListener(animation -> {
-                                                float fraction = animation.getAnimatedFraction();
-
-                                                background.setAlpha(alpha +
-                                                        (int) ((startingWindowBackgroundAlpha - alpha) * fraction));
-                                            })
-                                            .withEndAction(() -> {
-                                                root.setBackground(startingRootBackground);
-                                                background.setAlpha(startingWindowBackgroundAlpha);
-                                            });
-                                }
-                            }
+                        if (isAffectedByBackGesture()) {
+                            finishAfterTransition();
                         }
 
-                        @Override
-                        public void handleOnBackPressed() {
-                            if (isAffectedByBackGesture()) {
-                                finishAfterTransition();
-                            }
-                        }
-                    });
-        }
+                        initialized = false;
+                    }
+                });
 
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        Window window = getWindow();
+
+        if (window != null && isOpaque()) {
+            getRoot().setBackground(roundedCornerBackground);
+
+            if (isActivityTransitionRunning()) {
+                if (backgroundAnimator != null &&
+                        backgroundAnimator.isRunning()) {
+                    backgroundAnimator.pause();
+                }
+
+                backgroundAnimator = ValueAnimator.ofFloat(30, 0);
+                backgroundAnimator.setInterpolator(new AccelerateInterpolator(2));
+                backgroundAnimator.setDuration((int) (Animation.EXTENDED.getDuration() *
+                        Measurements.getTransitionAnimationScale() /
+                        Measurements.getAnimatorDurationScale()));
+                backgroundAnimator.addUpdateListener(animation -> {
+                    roundedCornerBackground.setCornerRadius(
+                            Measurements.dpToPx((float) animation.getAnimatedValue()));
+                });
+                backgroundAnimator.start();
+
+                Transition transition = window.getEnterTransition();
+                transition.addListener(new TransitionListenerAdapter() {
+
+
+                    @Override
+                    public void onTransitionEnd(Transition transition) {
+                        assignActualBackgroundColor(window);
+                        transition.removeListener(this);
+                    }
+
+                    @Override
+                    public void onTransitionCancel(Transition transition) {
+                        assignActualBackgroundColor(window);
+                        transition.removeListener(this);
+                    }
+                });
+            } else {
+                assignActualBackgroundColor(window);
+            }
+        }
+    }
+
+    private void assignActualBackgroundColor(@NonNull Window window) {
+        roundedCornerBackground.setCornerRadius(Measurements.dpToPx(0));
+        windowBackground = new ColorDrawable(backgroundColor);
+
+        // If the window background, when set, is completely opaque (alpha 255),
+        // The window will treat every alpha value for the wallpaper as black
+        windowBackground.setAlpha(0);
+        window.setBackgroundDrawable(windowBackground);
+        windowBackground.setAlpha(255);
     }
 
     @Override

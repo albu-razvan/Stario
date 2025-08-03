@@ -17,13 +17,28 @@
 
 <carbon.widget.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/content"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal"
     android:animateLayoutChanges="true"
     android:orientation="vertical"
-    android:padding="20dp"
+    android:paddingTop="15dp"
+    android:paddingRight="20dp"
+    android:paddingBottom="20dp"
+    android:paddingLeft="20dp"
     app:carbon_maxWidth="500dp">
+
+    <TextView
+        android:id="@+id/title_landscape"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/dm_sans_medium"
+        android:letterSpacing="-0.03"
+        android:padding="10dp"
+        android:text="@string/settings"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="30sp" />
 
     <TextView
         android:layout_width="match_parent"
