@@ -66,6 +66,7 @@ import com.stario.launcher.glance.extensions.weather.Weather;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.search.SearchEngine;
+import com.stario.launcher.sheet.drawer.search.SearchFragment;
 import com.stario.launcher.sheet.drawer.search.recyclers.adapters.WebAdapter;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
@@ -113,8 +114,9 @@ public class Settings extends ThemedActivity {
         boolean lock = settings.getBoolean(LockDetector.PREFERENCE_ENTRY, false);
         boolean legacyLockAnim = settings.getBoolean(LockDetector.LEGACY_ANIMATION, false);
         boolean imperialUnits = settings.getBoolean(Weather.IMPERIAL_KEY, false);
-        boolean searchResults = search.getBoolean(WebAdapter.SEARCH_RESULTS, false);
         boolean vibrations = settings.getBoolean(Vibrations.PREFERENCE_ENTRY, true);
+        boolean searchResults = search.getBoolean(WebAdapter.SEARCH_RESULTS, false);
+        boolean searchHiddenApps = search.getBoolean(SearchFragment.SEARCH_HIDDEN_APPS, false);
 
         ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -133,6 +135,7 @@ public class Settings extends ThemedActivity {
         MaterialSwitch imperialSwitch = findViewById(R.id.imperial);
         MaterialSwitch searchResultsSwitch = findViewById(R.id.search_results);
         MaterialSwitch switchVibrations = findViewById(R.id.vibrations);
+        MaterialSwitch switchSearchHiddenApps = findViewById(R.id.search_hidden_apps);
 
         lockAnimSwitchContainer = findViewById(R.id.lock_animation_container);
         titleMeasurePlaceholder = findViewById(R.id.title_placeholder);
@@ -170,6 +173,7 @@ public class Settings extends ThemedActivity {
         lockSwitch.setChecked(Utils.isAccessibilityServiceEnabled(this) && lock);
         imperialSwitch.setChecked(imperialUnits);
         searchResultsSwitch.setChecked(searchResults);
+        switchSearchHiddenApps.setChecked(searchHiddenApps);
         lockAnimSwitch.setChecked(legacyLockAnim);
         switchVibrations.setChecked(vibrations);
 
@@ -179,6 +183,7 @@ public class Settings extends ThemedActivity {
         searchResultsSwitch.jumpDrawablesToCurrentState();
         lockAnimSwitch.jumpDrawablesToCurrentState();
         switchVibrations.jumpDrawablesToCurrentState();
+        switchSearchHiddenApps.jumpDrawablesToCurrentState();
 
         mediaSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             private NotificationConfigurator dialog;
@@ -292,6 +297,12 @@ public class Settings extends ThemedActivity {
                     showing = true;
                 }
             }
+        });
+
+        switchSearchHiddenApps.setOnCheckedChangeListener((compound, isChecked) -> {
+            search.edit()
+                    .putBoolean(SearchFragment.SEARCH_HIDDEN_APPS, isChecked)
+                    .apply();
         });
 
         searchEngine.setOnClickListener(new View.OnClickListener() {
@@ -492,6 +503,7 @@ public class Settings extends ThemedActivity {
         findViewById(R.id.lock_container).setOnClickListener((view) -> lockSwitch.performClick());
         findViewById(R.id.imperial_container).setOnClickListener((view) -> imperialSwitch.performClick());
         findViewById(R.id.vibrations_container).setOnClickListener((view) -> switchVibrations.performClick());
+        findViewById(R.id.search_hidden_apps_container).setOnClickListener((view) -> switchSearchHiddenApps.performClick());
         updateLockAnimationState(lockSwitch.isChecked());
 
         UiUtils.Notch.applyNotchMargin(findViewById(R.id.coordinator), UiUtils.Notch.CENTER);

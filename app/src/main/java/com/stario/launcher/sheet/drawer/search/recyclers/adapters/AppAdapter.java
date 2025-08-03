@@ -18,6 +18,7 @@
 package com.stario.launcher.sheet.drawer.search.recyclers.adapters;
 
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.apps.ProfileApplicationManager;
+import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.sheet.drawer.search.JaroWinklerDistance;
 import com.stario.launcher.sheet.drawer.search.SearchFragment;
@@ -39,6 +41,7 @@ import java.util.List;
 
 public class AppAdapter extends RecyclerApplicationAdapter
         implements Searchable {
+    private SharedPreferences preferences;
     private List<LauncherApplication> applications;
     private OnVisibilityChangeListener listener;
     private RecyclerView recyclerView;
@@ -47,6 +50,7 @@ public class AppAdapter extends RecyclerApplicationAdapter
         super(activity, null, InflationType.SYNCED);
 
         this.applications = new ArrayList<>();
+        this.preferences = activity.getSharedPreferences(Entry.SEARCH);
     }
 
     @Override
@@ -84,9 +88,13 @@ public class AppAdapter extends RecyclerApplicationAdapter
             List<ProfileApplicationManager> profileManagers =
                     ProfileManager.getInstance().getProfiles();
 
-            for(ProfileApplicationManager manager : profileManagers) {
-                for (int index = 0; index < manager.getSize(); index++) {
-                    LauncherApplication application = manager.get(index);
+            boolean showHiddenItems = !preferences.getBoolean(SearchFragment.SEARCH_HIDDEN_APPS, false);
+
+            for (ProfileApplicationManager manager : profileManagers) {
+                for (int index = 0; index < (showHiddenItems ?
+                        manager.getSize() : manager.getActualSize()); index++) {
+                    LauncherApplication application = showHiddenItems ?
+                            manager.get(index, true) : manager.get(index);
 
                     if (application != null) {
                         String lowercaseLabel = application.getLabel().toLowerCase();
