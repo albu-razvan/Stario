@@ -17,6 +17,7 @@
 
 package com.stario.launcher.activities.settings;
 
+import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityOptions;
@@ -25,19 +26,23 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.widget.NestedScrollView;
 
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.stario.launcher.BuildConfig;
@@ -66,29 +71,29 @@ import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.CollapsibleTitleBar;
 import com.stario.launcher.ui.common.lock.LockDetector;
-import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
 public class Settings extends ThemedActivity {
-    private CollapsibleTitleBar titleBar;
-    private View lockAnimSwitchContainer;
     private MaterialSwitch lockAnimSwitch;
+    private CollapsibleTitleBar titleBar;
+    private View titleMeasurePlaceholder;
+    private View lockAnimSwitchContainer;
     private MaterialSwitch mediaSwitch;
+    private NestedScrollView scroller;
     private MaterialSwitch lockSwitch;
     private TextView searchEngineName;
     private SharedPreferences search;
-    private HomeWatcher homeWatcher;
-    private boolean shouldRebirth;
     private TextView iconPackName;
     private Resources resources;
+    private View titleLandscape;
     private TextView hideCount;
     private View searchEngine;
+    private ViewGroup content;
+    private View fader;
 
     public Settings() {
         super();
-
-        this.shouldRebirth = false;
     }
 
     @SuppressLint({"ClickableViewAccessibility", "SetTextI18n"})
@@ -97,18 +102,9 @@ public class Settings extends ThemedActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
 
-        UiUtils.Notch.applyNotchMargin(getRoot(), UiUtils.Notch.INVERSE);
-
         postponeEnterTransition();
 
         resources = getResources();
-
-        homeWatcher = new HomeWatcher(this);
-        homeWatcher.setOnHomePressedListener(() -> {
-            if (!isActivityTransitionRunning() && !isFinishing()) {
-                finishAfterTransition();
-            }
-        });
 
         SharedPreferences settings = getSettings();
         search = getSharedPreferences(Entry.SEARCH);
@@ -128,6 +124,9 @@ public class Settings extends ThemedActivity {
                     }
                 });
 
+        content = findViewById(R.id.content);
+        scroller = findViewById(R.id.scroller);
+
         mediaSwitch = findViewById(R.id.media);
         lockSwitch = findViewById(R.id.lock);
         lockAnimSwitch = findViewById(R.id.lock_animation);
@@ -136,7 +135,19 @@ public class Settings extends ThemedActivity {
         MaterialSwitch switchVibrations = findViewById(R.id.vibrations);
 
         lockAnimSwitchContainer = findViewById(R.id.lock_animation_container);
-        View fader = findViewById(R.id.fader);
+        titleMeasurePlaceholder = findViewById(R.id.title_placeholder);
+        titleLandscape = findViewById(R.id.title_landscape);
+        View container = findViewById(R.id.container);
+        fader = findViewById(R.id.fader);
+
+        Measurements.addStatusBarListener(value ->
+                container.setPadding(container.getPaddingLeft(), value,
+                        container.getPaddingRight(), Measurements.getNavHeight()));
+
+        Measurements.addNavListener(value ->
+                container.setPadding(container.getPaddingLeft(), Measurements.getSysUIHeight(),
+                        container.getPaddingRight(), value));
+
 
         searchEngine = findViewById(R.id.search_engine);
         searchEngineName = findViewById(R.id.engine_name);
@@ -269,12 +280,9 @@ public class Settings extends ThemedActivity {
 
                     dialog.setOnDismissListener((ThemeDialog.OnDismissListener) stateChanged -> {
                         showing = false;
-                        if (stateChanged) {
-                            shouldRebirth = true;
 
-                            if (!isActivityTransitionRunning() && !isFinishing()) {
-                                finishAfterTransition();
-                            }
+                        if (stateChanged) {
+                            restart();
                         }
                     });
                 }
@@ -429,13 +437,7 @@ public class Settings extends ThemedActivity {
                 startActivity(new Intent(this, PageManager.class),
                         ActivityOptions.makeSceneTransitionAnimation(this).toBundle()));
 
-        findViewById(R.id.restart).setOnClickListener(view -> {
-            shouldRebirth = true;
-
-            if (!isActivityTransitionRunning() && !isFinishing()) {
-                finishAfterTransition();
-            }
-        });
+        findViewById(R.id.restart).setOnClickListener(view -> restart());
 
         findViewById(R.id.def_launcher).setOnClickListener((view) -> {
             if (Utils.isMinimumSDK(Build.VERSION_CODES.Q)) {
@@ -492,7 +494,23 @@ public class Settings extends ThemedActivity {
         findViewById(R.id.vibrations_container).setOnClickListener((view) -> switchVibrations.performClick());
         updateLockAnimationState(lockSwitch.isChecked());
 
+        UiUtils.Notch.applyNotchMargin(findViewById(R.id.coordinator), UiUtils.Notch.CENTER);
         getRoot().post(this::startPostponedEnterTransition);
+        handleOrientation();
+    }
+
+    private void restart() {
+        PackageManager packageManager = getPackageManager();
+        Intent intent = packageManager.getLaunchIntentForPackage(BuildConfig.APPLICATION_ID);
+
+        if (intent != null) {
+            ComponentName componentName = intent.getComponent();
+            Intent mainIntent = Intent.makeRestartActivityTask(componentName);
+            mainIntent.setPackage(BuildConfig.APPLICATION_ID);
+
+            startActivity(mainIntent);
+            System.exit(0);
+        }
     }
 
     private void updateLockAnimationState(boolean enabled) {
@@ -554,59 +572,54 @@ public class Settings extends ThemedActivity {
     }
 
     @Override
-    protected void onStart() {
-        homeWatcher.startWatch();
-
-        super.onStart();
-    }
-
-    @Override
-    protected void onStop() {
-        homeWatcher.stopWatch();
-        finish();
-
-        super.onStop();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
 
         checkNotificationPermission();
         checkAccessibilityPermission();
+    }
 
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration configuration) {
+        content.setLayoutTransition(null);
+
+        super.onConfigurationChanged(configuration);
+        handleOrientation();
+
+        content.post(() -> content.setLayoutTransition(new LayoutTransition()));
+    }
+
+    private void handleOrientation() {
         if (Measurements.isLandscape()) {
             titleBar.getLayoutParams().height = Measurements.dpToPx(Measurements.HEADER_SIZE_DP / 3f);
             titleBar.requestLayout();
+
+            titleMeasurePlaceholder.setVisibility(View.GONE);
+            titleLandscape.setVisibility(View.VISIBLE);
+            titleBar.setVisibility(View.GONE);
+
+            fader.setTranslationY(0);
         } else {
             titleBar.getLayoutParams().height = Measurements.dpToPx(Measurements.HEADER_SIZE_DP);
             titleBar.requestLayout();
+
+            titleMeasurePlaceholder.setVisibility(View.INVISIBLE);
+            titleLandscape.setVisibility(View.GONE);
+
+            scroller.post(() -> {
+                if (scroller.canScrollVertically(-1)) {
+                    titleBar.collapse();
+                    fader.setTranslationY(0);
+                }
+
+                titleBar.setVisibility(View.VISIBLE);
+            });
         }
     }
 
     @Override
     protected boolean isOpaque() {
         return true;
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if (shouldRebirth) {
-            PackageManager packageManager = getPackageManager();
-            Intent intent = packageManager.getLaunchIntentForPackage(BuildConfig.APPLICATION_ID);
-
-            if (intent != null) {
-                ComponentName componentName = intent.getComponent();
-                Intent mainIntent = Intent.makeRestartActivityTask(componentName);
-                mainIntent.setPackage(BuildConfig.APPLICATION_ID);
-
-                startActivity(mainIntent);
-
-                System.exit(0);
-            }
-        }
     }
 
     @Override

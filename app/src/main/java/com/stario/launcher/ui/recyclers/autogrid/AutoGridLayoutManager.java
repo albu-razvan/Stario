@@ -146,7 +146,11 @@ public class AutoGridLayoutManager extends AccurateScrollComputeGridLayoutManage
             recyclerView.setLayoutParams(marginLayoutParams);
         }
 
-        recyclerView.post(() -> recyclerView.requestLayout());
+        recyclerView.post(() -> {
+            if(recyclerView != null) {
+                recyclerView.requestLayout();
+            }
+        });
     }
 
     private int getBalancedSpanCount(int itemCount, int spanCount) {

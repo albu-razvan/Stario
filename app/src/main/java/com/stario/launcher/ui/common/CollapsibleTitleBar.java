@@ -120,6 +120,16 @@ public class CollapsibleTitleBar extends RelativeLayout {
         return consumed;
     }
 
+    public void collapse() {
+        setTranslationY(-expandedDelta);
+        updateScaling(-expandedDelta);
+    }
+
+    public void expand() {
+        setTranslationY(0);
+        updateScaling(0);
+    }
+
     private void updateScaling(int translation) {
         View child = getChildAt(0);
         if (child != null) {

@@ -25,7 +25,6 @@ import android.content.ClipDescription;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,7 +36,6 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
@@ -72,9 +70,10 @@ public class PageManager extends ThemedActivity {
     private final List<Pair<ConstraintLayout, SheetType>> placeholders;
 
     private LocalBroadcastManager broadcastManager;
-    private ConstraintLayout pageContainer;
+    private ConstraintLayout pagesContainer;
     private SharedPreferences preferences;
     private LayoutInflater inflater;
+    private ViewGroup container;
     private boolean dragging;
     private View addLabel;
     private View homePage;
@@ -92,17 +91,16 @@ public class PageManager extends ThemedActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.page_manager);
 
-        UiUtils.Notch.applyNotchMargin(getRoot(), UiUtils.Notch.INVERSE);
-
         broadcastManager = LocalBroadcastManager.getInstance(this);
         preferences = getSharedPreferences(Entry.SHEET);
 
         inflater = LayoutInflater.from(this);
 
-        pageContainer = findViewById(R.id.page_container);
+        pagesContainer = findViewById(R.id.pages_container);
+        container = findViewById(R.id.container);
+        homePage = findViewById(R.id.home);
         add = findViewById(R.id.add);
         addLabel = add.findViewById(R.id.add_label);
-        homePage = findViewById(R.id.home);
 
         add.setOnClickListener(new View.OnClickListener() {
             private InsertPageDialog dialog;
@@ -181,7 +179,7 @@ public class PageManager extends ThemedActivity {
             }
         });
 
-        invalidateViews();
+        loadParams();
 
         homePage.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft,
                                             oldTop, oldRight, oldBottom) -> homePage.post(() -> {
@@ -197,6 +195,9 @@ public class PageManager extends ThemedActivity {
                 pages.size() == placeholders.size()) {
             add.setVisibility(View.GONE);
         }
+
+        findViewById(R.id.gradient).animate().alpha(0.5f).setDuration(Animation.EXTENDED.getDuration());
+        UiUtils.Notch.applyNotchMargin(getRoot(), UiUtils.Notch.INVERSE);
     }
 
     @SuppressLint("FindViewByIdCast")
@@ -331,24 +332,9 @@ public class PageManager extends ThemedActivity {
                 .start();
     }
 
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration configuration) {
-        super.onConfigurationChanged(configuration);
-
-        UiUtils.Notch.applyNotchMargin(getRoot(), UiUtils.Notch.INVERSE);
-
-        homePage.post(() -> homePage.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                homePage.removeOnLayoutChangeListener(this);
-                invalidateViews();
-            }
-        }));
-    }
-
     private View inflatePage(SheetType type, Class<? extends SheetDialogFragment> clazz) {
-        ViewGroup page = (ViewGroup) inflater.inflate(R.layout.system_page, pageContainer, false);
+        ViewGroup page = (ViewGroup) inflater.inflate(R.layout.system_page,
+                pagesContainer, false);
         page.setClipToOutline(false);
         page.setClipChildren(false);
         measure(page);
@@ -395,8 +381,8 @@ public class PageManager extends ThemedActivity {
                     .setText(name.replace(" ", System.lineSeparator()));
         }
 
-        View gradient = page.findViewById(R.id.gradient_background);
-        gradient.setOnDragListener(new View.OnDragListener() {
+        View pageContainer = page.findViewById(R.id.page_container);
+        pageContainer.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View v, DragEvent event) {
                 if (event.getAction() == DragEvent.ACTION_DROP) {
@@ -464,14 +450,14 @@ public class PageManager extends ThemedActivity {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         });
-        gradient.setOnTouchListener(new View.OnTouchListener() {
+        pageContainer.setOnTouchListener(new View.OnTouchListener() {
             private final Point touchPoint;
 
             {
                 this.touchPoint = new Point();
 
-                gradient.setHapticFeedbackEnabled(false);
-                gradient.setOnLongClickListener(view -> {
+                pageContainer.setHapticFeedbackEnabled(false);
+                pageContainer.setOnLongClickListener(view -> {
                     Vibrations.getInstance().vibrate();
 
                     ClipData dragData = new ClipData(
@@ -517,16 +503,12 @@ public class PageManager extends ThemedActivity {
         params.height = homePage.getMeasuredHeight();
         params.width = homePage.getMeasuredWidth();
 
-        int edgeLength = Math.min(params.height, params.width) / 3;
-//        ((FadingEdgeLayout) page.findViewById(R.id.fader))
-//                .setFadeSizes(edgeLength, edgeLength, edgeLength, edgeLength);
-
         page.setLayoutParams(params);
     }
 
-    private void invalidateViews() {
+    private void loadParams() {
         ConstraintLayout.LayoutParams params =
-                (ConstraintLayout.LayoutParams) pageContainer.getLayoutParams();
+                (ConstraintLayout.LayoutParams) pagesContainer.getLayoutParams();
 
         if (Measurements.isLandscape()) {
             params.height = ConstraintLayout.LayoutParams.MATCH_PARENT;
@@ -544,10 +526,10 @@ public class PageManager extends ThemedActivity {
             addLabel.setVisibility(View.GONE);
         }
 
-        pageContainer.setLayoutParams(params);
-
-        pageContainer.post(pageContainer::requestLayout);
-        add.post(add::requestLayout);
+        pagesContainer.setLayoutParams(params);
+        pagesContainer.forceLayout();
+        container.requestLayout();
+        add.forceLayout();
     }
 
     @Override

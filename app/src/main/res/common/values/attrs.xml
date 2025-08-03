@@ -24,15 +24,16 @@
         <attr name="waveColor" format="color" />
     </declare-styleable>
     <declare-styleable name="FadingEdgeLayout">
-        <attr name="fel_edge" format="integer">
+        <attr name="edge" format="integer">
             <flag name="top" value="1" />
             <flag name="bottom" value="2" />
             <flag name="left" value="4" />
             <flag name="right" value="8" />
         </attr>
-        <attr name="fel_size_top" format="dimension" />
-        <attr name="fel_size_bottom" format="dimension" />
-        <attr name="fel_size_left" format="dimension" />
-        <attr name="fel_size_right" format="dimension" />
+        <attr name="size_top" format="dimension" />
+        <attr name="size_bottom" format="dimension" />
+        <attr name="size_left" format="dimension" />
+        <attr name="size_right" format="dimension" />
+        <attr name="is_rounded" format="boolean" />
     </declare-styleable>
 </resources>

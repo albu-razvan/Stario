@@ -19,9 +19,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:fel_edge="top|bottom"
-    app:fel_size_bottom="20dp"
-    app:fel_size_top="16dp">
+    app:edge="top|bottom"
+    app:size_bottom="20dp"
+    app:size_top="16dp">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -271,9 +271,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="10dp"
-                app:fel_edge="left|right"
-                app:fel_size_left="30dp"
-                app:fel_size_right="30dp">
+                app:edge="left|right"
+                app:size_left="30dp"
+                app:size_right="30dp">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/icons"

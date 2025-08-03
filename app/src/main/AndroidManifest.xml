@@ -43,6 +43,7 @@
         android:persistent="true"
         android:rollbackDataPolicy="wipe"
         android:supportsRtl="false"
+        tools:remove="android:appComponentFactory"
         tools:targetApi="tiramisu">
 
         <activity
@@ -50,9 +51,12 @@
             android:allowEmbedded="false"
             android:alwaysRetainTaskState="false"
             android:exported="true"
-            android:launchMode="standard"
+            android:launchMode="singleTask"
             android:rotationAnimation="crossfade"
             android:supportsPictureInPicture="false"
+            android:excludeFromRecents="true"
+            android:configChanges="orientation|screenSize|layoutDirection"
+            android:autoRemoveFromRecents="true"
             android:taskAffinity="@string/affinity"
             android:theme="@style/Theme.Light.Blue.Opaque" />
 
@@ -60,10 +64,11 @@
             android:name=".activities.pages.PageManager"
             android:allowEmbedded="false"
             android:alwaysRetainTaskState="false"
-            android:configChanges="orientation|screenSize|layoutDirection"
             android:exported="true"
             android:launchMode="standard"
             android:rotationAnimation="crossfade"
+            android:autoRemoveFromRecents="true"
+            android:excludeFromRecents="true"
             android:supportsPictureInPicture="false"
             android:taskAffinity="@string/affinity"
             android:theme="@style/Theme.Light.Blue.Opaque" />
@@ -72,16 +77,13 @@
             android:name=".activities.Launcher"
             android:allowEmbedded="false"
             android:alwaysRetainTaskState="true"
-            android:clearTaskOnLaunch="true"
             android:configChanges="orientation|screenSize|layoutDirection"
             android:exported="true"
             android:launchMode="singleTask"
-            android:persistableMode="persistAcrossReboots"
             android:resumeWhilePausing="true"
             android:rotationAnimation="crossfade"
             android:stateNotNeeded="true"
             android:supportsPictureInPicture="false"
-            android:taskAffinity="@string/affinity"
             android:theme="@style/Theme.Light.Blue">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

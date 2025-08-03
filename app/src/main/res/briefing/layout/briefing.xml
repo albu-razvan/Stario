@@ -30,9 +30,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingRight="30dp"
-            app:fel_edge="left|right"
-            app:fel_size_left="30dp"
-            app:fel_size_right="30dp"
+            app:edge="left|right"
+            app:size_left="30dp"
+            app:size_right="30dp"
             app:layout_constraintTop_toTopOf="parent">
 
             <com.stario.launcher.ui.common.tabs.LeftTabLayout

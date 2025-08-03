@@ -17,62 +17,80 @@
 
 package com.stario.launcher.ui.utils.animation;
 
-import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Window;
-
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
 import com.stario.launcher.hidden.WallpaperManagerHidden;
 
 import dev.rikka.tools.refine.Refine;
 
 public class WallpaperAnimator {
+    private static final String TAG = "WallpaperAnimation";
+    private static final Handler handler = new Handler();
+    private static final float ANIMATION_FRAME_STEP = 0.005f;
+    private static final int TARGET_FRAME_COUNT = 30;
+    private static final int ANIMATION_FRAME_DELAY = 8;
+
     private static WallpaperManagerHidden wallpaperManager;
+    private static boolean hasLoggedMissingMethod = false;
     private static float lastRecordedZoomValue = 0;
-    private static ValueAnimator animator;
-
-    /**
-     * @param activity context activity
-     * @param from starting value; <code>null</code> for last recorded value
-     * @param to end value; <code>null</code> for last recorded value
-     */
-    public static void animateZoom(Activity activity, Float from, Float to) {
-        if (animator != null) {
-            animator.cancel();
-        }
-
-        animator = ValueAnimator.ofFloat(from != null ? from : lastRecordedZoomValue,
-                to != null ? to : lastRecordedZoomValue);
-        animator.setInterpolator(new FastOutSlowInInterpolator());
-        animator.setDuration(Animation.LONG.getDuration());
-        animator.addUpdateListener(animation -> {
-            IBinder token = getWindowToken(activity);
-
-            if (token != null) {
-                lastRecordedZoomValue = (float) animation.getAnimatedValue();
-
-                getWallpaperManager(activity)
-                        .setWallpaperZoomOut(token, lastRecordedZoomValue);
-            }
-        });
-
-        animator.start();
-    }
+    private static Runnable zoomAnimator;
 
     public static void updateZoom(Activity activity, float zoom) {
-        if (animator != null && animator.isRunning()) {
+        if (hasLoggedMissingMethod || zoom == lastRecordedZoomValue) {
             return;
         }
 
-        IBinder token = getWindowToken(activity);
-
-        if (token != null) {
-            lastRecordedZoomValue = zoom;
-            getWallpaperManager(activity)
-                    .setWallpaperZoomOut(getWindowToken(activity), zoom);
+        if (zoomAnimator != null) {
+            handler.removeCallbacks(zoomAnimator);
         }
+
+        float direction = Math.signum(zoom - lastRecordedZoomValue);
+        IBinder token = getWindowToken(activity);
+        zoomAnimator = new Runnable() {
+            @Override
+            public void run() {
+                if (token != null) {
+                    lastRecordedZoomValue += direction *
+                            Math.max(ANIMATION_FRAME_STEP,
+                                    Math.abs(zoom - lastRecordedZoomValue) / TARGET_FRAME_COUNT);
+                    if ((direction > 0 && lastRecordedZoomValue > zoom)
+                            || (direction < 0 && lastRecordedZoomValue < zoom)) {
+                        lastRecordedZoomValue = zoom;
+                    }
+
+                    try {
+                        getWallpaperManager(activity)
+                                .setWallpaperZoomOut(token, lastRecordedZoomValue);
+                    } catch (NoSuchMethodError exception) {
+                        if (!hasLoggedMissingMethod) {
+                            Log.e(TAG, "WallpaperManager::setWallpaperZoomOut does not exist. This error message will not be shown again.");
+                            hasLoggedMissingMethod = true;
+                        }
+
+                        return;
+                    }
+
+                    if (lastRecordedZoomValue != zoom) {
+                        handler.postDelayed(this, ANIMATION_FRAME_DELAY);
+                    }
+                }
+            }
+        };
+
+        zoomAnimator.run();
+    }
+
+    private static WallpaperManagerHidden getWallpaperManager(Activity activity) {
+        if (wallpaperManager != null) {
+            return wallpaperManager;
+        }
+
+        wallpaperManager = Refine.unsafeCast(WallpaperManagerHidden.getInstance(activity));
+        return wallpaperManager;
     }
 
     private static IBinder getWindowToken(Activity activity) {
@@ -83,14 +101,5 @@ public class WallpaperAnimator {
         }
 
         return null;
-    }
-
-    private static WallpaperManagerHidden getWallpaperManager(Activity activity) {
-        if (wallpaperManager != null) {
-            return wallpaperManager;
-        }
-
-        wallpaperManager = Refine.unsafeCast(WallpaperManagerHidden.getInstance(activity));
-        return wallpaperManager;
     }
 }

@@ -28,9 +28,9 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
-        app:fel_edge="bottom|top"
-        app:fel_size_bottom="20dp"
-        app:fel_size_top="20dp">
+        app:edge="bottom|top"
+        app:size_bottom="20dp"
+        app:size_top="20dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/licenses"

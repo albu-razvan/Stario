@@ -20,8 +20,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:forceDarkAllowed="false"
-    app:fel_edge="top"
-    app:fel_size_top="130dp">
+    app:edge="top"
+    app:size_top="130dp">
 
     <LinearLayout
         android:id="@+id/exception"
