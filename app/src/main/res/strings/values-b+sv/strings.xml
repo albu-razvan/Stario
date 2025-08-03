@@ -50,6 +50,7 @@
     <string name="search_results">Sökresultat</string>
     <string name="kagi_integration">Drivs av Kagi</string>
     <string name="hide_applications">Dölj applikationer</string>
+    <string name="hide_applications_hint">Klicka för att dölja eller visa</string>
     <string name="legacy_lock_animation">Äldre låsanimering</string>
     <string name="icons">Ikoner</string>
     <string name="weather">Väder</string>
@@ -59,7 +60,6 @@
     <string name="app_info">Appinfo</string>
 
     <!-- Page Manager -->
-    <string name="home_page">Hem</string>
     <string name="default_position">Standardposition</string>
     <string name="left">Vänster</string>
     <string name="top">Topp</string>
@@ -138,6 +138,7 @@
 
     <!-- Applications -->
     <string name="uninstall">Avinstallera</string>
+    <string name="hide">Dölj</string>
     <string name="customize">Anpassa</string>
     <string name="category">Kategori</string>
     <string name="category_name">Kategorinamn</string>
@@ -161,6 +162,7 @@
     <!-- Search -->
     <string name="search_on">Sök på</string>
     <string name="searching">Söker…</string>
+    <string name="search_hidden_apps">Sök dolda appar</string>
     <string name="unauthorized">Kagi-servrar rapporterade obehörig åtkomst. Är din API-nyckel giltig?</string>
     <string name="to_search">att söka med Kagi</string>
     <string name="kagi_dependency">Stario förlitar sig på data från Kagi för att tillhandahålla sökresultat.</string>

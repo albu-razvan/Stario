@@ -50,6 +50,7 @@
     <string name="search_results">Hakutulokset</string>
     <string name="kagi_integration">Powered by Kagi</string>
     <string name="hide_applications">Piilota sovellukset</string>
+    <string name="hide_applications_hint">Piilota tai näytä napsauttamalla</string>
     <string name="legacy_lock_animation">Vanha lukitusanimaatio</string>
     <string name="icons">Kuvakkeet</string>
     <string name="weather">Sää</string>
@@ -59,7 +60,6 @@
     <string name="app_info">Sovellustiedot</string>
 
     <!-- Page Manager -->
-    <string name="home_page">Koti</string>
     <string name="default_position">Oletusasento</string>
     <string name="left">Vasen</string>
     <string name="top">Ylhäällä</string>
@@ -138,6 +138,7 @@
 
     <!-- Applications -->
     <string name="uninstall">Poista asennus</string>
+    <string name="hide">Piilota</string>
     <string name="customize">Mukauta</string>
     <string name="category">Kategoria</string>
     <string name="category_name">Kategorian nimi</string>
@@ -161,6 +162,7 @@
     <!-- Search -->
     <string name="search_on">Hae osoitteesta</string>
     <string name="searching">Haetaan…</string>
+    <string name="search_hidden_apps">Etsi piilotettuja sovelluksia</string>
     <string name="unauthorized">Kagin palvelimet ilmoittivat luvattomasta käytöstä. Onko API-avaimesi kelvollinen?</string>
     <string name="to_search">hakemaan Kagilla</string>
     <string name="kagi_dependency">Stario hyödyntää Kagin toimittamia tietoja hakutulosten tarjoamiseen.</string>

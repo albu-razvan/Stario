@@ -1,0 +1,38 @@
+<!--
+  ~ Copyright (C) 2025 Răzvan Albu
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M18.443,22.508L13.238,22.508C12.448,22.508 11.808,21.868 11.808,21.078C11.808,20.288 12.448,19.648 13.238,19.648L14.575,19.648L9.813,14.822C9.294,14.316 9.236,13.502 9.677,12.927C9.936,12.615 10.322,12.436 10.728,12.441C11.09,12.434 11.439,12.576 11.693,12.834L14.596,15.737L17.513,13.549C18.058,13.14 18.82,13.195 19.301,13.678C20.652,15.031 21.668,16.681 22.268,18.497L22.311,18.633"
+        android:strokeWidth="1.5"
+        android:strokeColor="?attr/colorOnSurface"
+        android:strokeLineCap="round" />
+
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M19,11C18.998,6.487 18.998,4.382 17.623,3.008C16.249,1.633 14.144,1.633 10.358,1.633C6.572,1.633 4.467,1.633 3.093,3.008C1.718,4.382 1.718,6.487 1.718,10.273C1.718,14.059 1.718,16.164 3.093,17.538C4.467,18.913 6.572,18.913 10.358,18.913"
+        android:strokeWidth="1.5"
+        android:strokeColor="?attr/colorOnSurface"
+        android:strokeLineCap="round" />
+
+</vector>

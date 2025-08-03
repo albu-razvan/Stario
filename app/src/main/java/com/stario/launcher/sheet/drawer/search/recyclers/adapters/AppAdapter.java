@@ -41,7 +41,7 @@ import java.util.List;
 
 public class AppAdapter extends RecyclerApplicationAdapter
         implements Searchable {
-    private SharedPreferences preferences;
+    private final SharedPreferences preferences;
     private List<LauncherApplication> applications;
     private OnVisibilityChangeListener listener;
     private RecyclerView recyclerView;
@@ -88,7 +88,7 @@ public class AppAdapter extends RecyclerApplicationAdapter
             List<ProfileApplicationManager> profileManagers =
                     ProfileManager.getInstance().getProfiles();
 
-            boolean showHiddenItems = !preferences.getBoolean(SearchFragment.SEARCH_HIDDEN_APPS, false);
+            boolean showHiddenItems = preferences.getBoolean(SearchFragment.SEARCH_HIDDEN_APPS, false);
 
             for (ProfileApplicationManager manager : profileManagers) {
                 for (int index = 0; index < (showHiddenItems ?

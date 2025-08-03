@@ -50,6 +50,7 @@
     <string name="search_results">Resultados da pesquisa</string>
     <string name="kagi_integration">Fornecido por Kagi</string>
     <string name="hide_applications">Ocultar aplicativos</string>
+    <string name="hide_applications_hint">Clique para ocultar ou mostrar</string>
     <string name="legacy_lock_animation">Animação de bloqueio antiga</string>
     <string name="icons">Ícones</string>
     <string name="weather">Clima</string>
@@ -59,7 +60,6 @@
     <string name="app_info">Informações do aplicativo</string>
 
     <!-- Page Manager -->
-    <string name="home_page">Início</string>
     <string name="default_position">Posição padrão</string>
     <string name="left">Esquerda</string>
     <string name="top">Superior</string>
@@ -138,6 +138,7 @@
 
     <!-- Applications -->
     <string name="uninstall">Desinstalar</string>
+    <string name="hide">Ocultar</string>
     <string name="customize">Personalizar</string>
     <string name="category">Categoria</string>
     <string name="category_name">Nome da categoria</string>
@@ -161,6 +162,7 @@
     <!-- Search -->
     <string name="search_on">Pesquisar em</string>
     <string name="searching">Pesquisando…</string>
+    <string name="search_hidden_apps">Pesquisar apps ocultos</string>
     <string name="unauthorized">Servidores Kagi relataram acesso não autorizado. Sua chave de API é válida?</string>
     <string name="to_search">para pesquisar com Kagi</string>
     <string name="kagi_dependency">Stario depende de dados fornecidos por Kagi para fornecer resultados de pesquisa.</string>

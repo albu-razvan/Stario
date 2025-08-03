@@ -50,6 +50,7 @@
     <string name="search_results">Meklēšanas rezultāti</string>
     <string name="kagi_integration">Darbina Kagi</string>
     <string name="hide_applications">Slēpt lietojumprogrammas</string>
+    <string name="hide_applications_hint">Noklikšķiniet, lai paslēptu vai parādītu</string>
     <string name="legacy_lock_animation">Mantotā bloķēšanas animācija</string>
     <string name="icons">Ikonas</string>
     <string name="weather">Laikapstākļi</string>
@@ -59,7 +60,6 @@
     <string name="app_info">Lietotnes informācija</string>
 
     <!-- Page Manager -->
-    <string name="home_page">Sākums</string>
     <string name="default_position">Noklusētā pozīcija</string>
     <string name="left">Pa kreisi</string>
     <string name="top">Augšā</string>
@@ -138,6 +138,7 @@
 
     <!-- Applications -->
     <string name="uninstall">Atinstalēt</string>
+    <string name="hide">Paslēpt</string>
     <string name="customize">Pielāgot</string>
     <string name="category">Kategorija</string>
     <string name="category_name">Kategorijas nosaukums</string>
@@ -161,6 +162,7 @@
     <!-- Search -->
     <string name="search_on">Meklēt vietnē</string>
     <string name="searching">Meklē…</string>
+    <string name="search_hidden_apps">Meklēt paslēptās lietotnes</string>
     <string name="unauthorized">Kagi serveri ziņoja par neatļautu piekļuvi. Vai jūsu API atslēga ir derīga?</string>
     <string name="to_search">meklēt ar Kagi</string>
     <string name="kagi_dependency">Stario paļaujas uz Kagi sniegtajiem datiem, lai nodrošinātu meklēšanas rezultātus.</string>

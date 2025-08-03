@@ -50,6 +50,7 @@
     <string name="search_results">Suchergebnisse</string>
     <string name="kagi_integration">Powered by Kagi</string>
     <string name="hide_applications">Anwendungen ausblenden</string>
+    <string name="hide_applications_hint">Zum Ein- oder Ausblenden klicken</string>
     <string name="legacy_lock_animation">Legacy-Sperranimation</string>
     <string name="icons">Symbole</string>
     <string name="weather">Wetter</string>
@@ -59,7 +60,6 @@
     <string name="app_info">App-Info</string>
 
     <!-- Page Manager -->
-    <string name="home_page">Startseite</string>
     <string name="default_position">Standardposition</string>
     <string name="left">Links</string>
     <string name="top">Oben</string>
@@ -138,6 +138,7 @@
 
     <!-- Applications -->
     <string name="uninstall">Deinstallieren</string>
+    <string name="hide">Ausblenden</string>
     <string name="customize">Anpassen</string>
     <string name="category">Kategorie</string>
     <string name="category_name">Kategoriename</string>
@@ -161,6 +162,7 @@
     <!-- Search -->
     <string name="search_on">Suchen auf</string>
     <string name="searching">Suche läuft…</string>
+    <string name="search_hidden_apps">Versteckte Apps suchen</string>
     <string name="unauthorized">Kagi-Server meldeten unautorisierten Zugriff. Ist Ihr API-Schlüssel gültig?</string>
     <string name="to_search">um mit Kagi zu suchen</string>
     <string name="kagi_dependency">Stario stützt sich auf von Kagi bereitgestellte Daten, um Suchergebnisse zu liefern.</string>

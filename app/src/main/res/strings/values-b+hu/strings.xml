@@ -50,6 +50,7 @@
     <string name="search_results">Keresési eredmények</string>
     <string name="kagi_integration">Powered by Kagi</string>
     <string name="hide_applications">Alkalmazások elrejtése</string>
+    <string name="hide_applications_hint">Kattintson a elrejtéshez vagy a megjelenítéshez</string>
     <string name="legacy_lock_animation">Régi zárolási animáció</string>
     <string name="icons">Ikonok</string>
     <string name="weather">Időjárás</string>
@@ -59,7 +60,6 @@
     <string name="app_info">App infó</string>
 
     <!-- Page Manager -->
-    <string name="home_page">Kezdőlap</string>
     <string name="default_position">Alapértelmezett pozíció</string>
     <string name="left">Bal</string>
     <string name="top">Felül</string>
@@ -138,6 +138,7 @@
 
     <!-- Applications -->
     <string name="uninstall">Eltávolítás</string>
+    <string name="hide">Elrejtés</string>
     <string name="customize">Testreszabás</string>
     <string name="category">Kategória</string>
     <string name="category_name">Kategória neve</string>
@@ -161,6 +162,7 @@
     <!-- Search -->
     <string name="search_on">Keresés itt</string>
     <string name="searching">Keresés…</string>
+    <string name="search_hidden_apps">Rejtett alkalmazások keresése</string>
     <string name="unauthorized">A Kagi szerverek jogosulatlan hozzáférést jelentettek. Érvényes az API kulcsa?</string>
     <string name="to_search">keresés Kagi-val</string>
     <string name="kagi_dependency">A Stario a Kagi által szolgáltatott adatokra támaszkodik a keresési eredmények biztosításához.</string>
