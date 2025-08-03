@@ -54,7 +54,7 @@
     <string name="search_results">Search results</string>
     <string name="kagi_integration">Powered by Kagi</string>
     <string name="hide_applications">Hide applications</string>
-    <string name="hide_applications_hint">Click on an application to hide or show it.</string>
+    <string name="hide_applications_hint">Click to hide or show</string>
     <string name="legacy_lock_animation">Legacy lock animation</string>
     <string name="icons">Icons</string>
     <string name="weather">Weather</string>
@@ -64,7 +64,6 @@
     <string name="app_info">App info</string>
 
     <!-- Page Manager -->
-    <string name="home_page">Home</string>
     <string name="default_position">Default position</string>
     <string name="left">Left</string>
     <string name="top">Top</string>
@@ -167,6 +166,7 @@
     <!-- Search -->
     <string name="search_on">Search on</string>
     <string name="searching">Searching…</string>
+    <string name="search_hidden_apps">Search hidden apps</string>
     <string name="unauthorized">Kagi servers reported unauthorized access. Is your API key valid?</string>
     <string name="to_search">to search with Kagi</string>
     <string name="kagi_dependency">Stario relies on data supplied by Kagi to provide search results.</string>

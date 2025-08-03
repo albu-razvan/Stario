@@ -23,10 +23,10 @@
     android:layout_gravity="center_horizontal"
     android:animateLayoutChanges="true"
     android:orientation="vertical"
+    android:paddingLeft="20dp"
     android:paddingTop="15dp"
     android:paddingRight="20dp"
     android:paddingBottom="20dp"
-    android:paddingLeft="20dp"
     app:carbon_maxWidth="500dp">
 
     <TextView
@@ -467,12 +467,41 @@
 
             </LinearLayout>
 
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="0px" />
+
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/search_results"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
         </carbon.widget.LinearLayout>
+
+        <carbon.widget.RelativeLayout
+            android:id="@+id/search_hidden_apps_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:padding="7dp"
+            app:carbon_cornerRadius="5dp">
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/search_hidden_apps"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:drawableStart="@drawable/ic_search_hidden_apps"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/dm_sans_medium"
+                android:letterSpacing="-0.03"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/search_hidden_apps"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
+
+        </carbon.widget.RelativeLayout>
 
     </carbon.widget.LinearLayout>
 

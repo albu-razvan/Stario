@@ -73,6 +73,7 @@ public class SearchFragment extends Fragment {
     private static final int SCROLL_STOP_TIMEOUT = 50;
 
     public static final String TAG = "SearchFragment";
+    public static final String SEARCH_HIDDEN_APPS = "com.stario.SEARCH_HIDDEN_APPS";
     public static final int MAX_APP_QUERY_ITEMS = 4;
 
     private SearchLayoutTransition searchLayoutTransition;
