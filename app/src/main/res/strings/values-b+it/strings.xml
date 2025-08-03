@@ -50,6 +50,7 @@
     <string name="search_results">Risultati di ricerca</string>
     <string name="kagi_integration">Fornito da Kagi</string>
     <string name="hide_applications">Nascondi applicazioni</string>
+    <string name="hide_applications_hint">Fai clic per nascondere o mostrare</string>
     <string name="legacy_lock_animation">Animazione di blocco legacy</string>
     <string name="icons">Icone</string>
     <string name="weather">Meteo</string>
@@ -59,7 +60,6 @@
     <string name="app_info">Info app</string>
 
     <!-- Page Manager -->
-    <string name="home_page">Home</string>
     <string name="default_position">Posizione predefinita</string>
     <string name="left">Sinistra</string>
     <string name="top">Sopra</string>
@@ -138,6 +138,7 @@
 
     <!-- Applications -->
     <string name="uninstall">Disinstalla</string>
+    <string name="hide">Nascondi</string>
     <string name="customize">Personalizza</string>
     <string name="category">Categoria</string>
     <string name="category_name">Nome categoria</string>
@@ -161,6 +162,7 @@
     <!-- Search -->
     <string name="search_on">Cerca su</string>
     <string name="searching">Ricerca in corso…</string>
+    <string name="search_hidden_apps">Cerca app nascoste</string>
     <string name="unauthorized">I server Kagi hanno segnalato un accesso non autorizzato. La tua chiave API è valida?</string>
     <string name="to_search">per cercare con Kagi</string>
     <string name="kagi_dependency">Stario si basa sui dati forniti da Kagi per fornire i risultati di ricerca.</string>

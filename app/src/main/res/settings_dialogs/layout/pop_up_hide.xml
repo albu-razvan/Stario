@@ -82,19 +82,38 @@
 
             </com.stario.launcher.ui.common.FadingEdgeLayout>
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/colorSurfaceContainer"
-                android:fontFamily="@font/dm_sans_regular"
                 android:gravity="center"
                 android:paddingLeft="30dp"
                 android:paddingTop="10dp"
-                android:paddingBottom="10dp"
                 android:paddingRight="30dp"
-                android:text="@string/hide_applications_hint"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp" />
+                android:paddingBottom="10dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_click" />
+
+                <Space
+                    android:layout_width="10dp"
+                    android:layout_height="0px" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:gravity="center_horizontal"
+                    android:breakStrategy="balanced"
+                    android:text="@string/hide_applications_hint"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

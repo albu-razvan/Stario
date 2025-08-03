@@ -50,6 +50,7 @@
     <string name="search_results">Arama sonuçları</string>
     <string name="kagi_integration">Kagi tarafından desteklenmektedir</string>
     <string name="hide_applications">Uygulamaları gizle</string>
+    <string name="hide_applications_hint">Gizlemek veya göstermek için tıklayın</string>
     <string name="legacy_lock_animation">Eski kilit animasyonu</string>
     <string name="icons">Simgeler</string>
     <string name="weather">Hava Durumu</string>
@@ -59,7 +60,6 @@
     <string name="app_info">Uygulama bilgisi</string>
 
     <!-- Page Manager -->
-    <string name="home_page">Ana Sayfa</string>
     <string name="default_position">Varsayılan konum</string>
     <string name="left">Sol</string>
     <string name="top">Üst</string>
@@ -138,6 +138,7 @@
 
     <!-- Applications -->
     <string name="uninstall">Kaldır</string>
+    <string name="hide">Gizle</string>
     <string name="customize">Özelleştir</string>
     <string name="category">Kategori</string>
     <string name="category_name">Kategori adı</string>
@@ -161,6 +162,7 @@
     <!-- Search -->
     <string name="search_on">Ara</string>
     <string name="searching">Aranıyor…</string>
+    <string name="search_hidden_apps">Gizli uygulamaları ara</string>
     <string name="unauthorized">Kagi sunucuları yetkisiz erişim bildirdi. API anahtarınız geçerli mi?</string>
     <string name="to_search">Kagi ile arama yapmak için</string>
     <string name="kagi_dependency">Stario, arama sonuçları sağlamak için Kagi tarafından sağlanan verilere güvenmektedir.</string>

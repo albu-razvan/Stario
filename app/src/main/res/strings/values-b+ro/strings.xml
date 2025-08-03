@@ -50,6 +50,7 @@
     <string name="search_results">Rezultate căutare</string>
     <string name="kagi_integration">Susținut de Kagi</string>
     <string name="hide_applications">Ascunde aplicațiile</string>
+    <string name="hide_applications_hint">Faceți clic pentru a ascunde sau a afișa</string>
     <string name="legacy_lock_animation">Animație de blocare veche</string>
     <string name="icons">Icoane</string>
     <string name="weather">Vremea</string>
@@ -59,7 +60,6 @@
     <string name="app_info">Informații aplicație</string>
 
     <!-- Page Manager -->
-    <string name="home_page">Acasă</string>
     <string name="default_position">Poziție implicită</string>
     <string name="left">Stânga</string>
     <string name="top">Sus</string>
@@ -138,6 +138,7 @@
 
     <!-- Applications -->
     <string name="uninstall">Dezinstalează</string>
+    <string name="hide">Ascunde</string>
     <string name="customize">Personalizează</string>
     <string name="category">Categorie</string>
     <string name="category_name">Nume categorie</string>
@@ -161,6 +162,7 @@
     <!-- Search -->
     <string name="search_on">Caută pe</string>
     <string name="searching">Se caută…</string>
+    <string name="search_hidden_apps">Căutare aplicații ascunse</string>
     <string name="unauthorized">Serverele Kagi au raportat acces neautorizat. Cheia ta API este validă?</string>
     <string name="to_search">pentru a căuta cu Kagi</string>
     <string name="kagi_dependency">Stario se bazează pe datele furnizate de Kagi pentru a oferi rezultate de căutare.</string>

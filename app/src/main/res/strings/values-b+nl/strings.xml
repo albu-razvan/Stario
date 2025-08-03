@@ -50,6 +50,7 @@
     <string name="search_results">Zoekresultaten</string>
     <string name="kagi_integration">Aangedreven door Kagi</string>
     <string name="hide_applications">Applicaties verbergen</string>
+    <string name="hide_applications_hint">Klik om te verbergen of te tonen</string>
     <string name="legacy_lock_animation">Verouderde vergrendelingsanimatie</string>
     <string name="icons">Pictogrammen</string>
     <string name="weather">Weer</string>
@@ -59,7 +60,6 @@
     <string name="app_info">App info</string>
 
     <!-- Page Manager -->
-    <string name="home_page">Startpagina</string>
     <string name="default_position">Standaard positie</string>
     <string name="left">Links</string>
     <string name="top">Boven</string>
@@ -138,6 +138,7 @@
 
     <!-- Applications -->
     <string name="uninstall">Verwijderen</string>
+    <string name="hide">Verbergen</string>
     <string name="customize">Aanpassen</string>
     <string name="category">Categorie</string>
     <string name="category_name">Categorienaam</string>
@@ -161,6 +162,7 @@
     <!-- Search -->
     <string name="search_on">Zoeken op</string>
     <string name="searching">Bezig met zoeken…</string>
+    <string name="search_hidden_apps">Verborgen apps zoeken</string>
     <string name="unauthorized">Kagi-servers meldden ongeautoriseerde toegang. Is uw API-sleutel geldig?</string>
     <string name="to_search">om te zoeken met Kagi</string>
     <string name="kagi_dependency">Stario is afhankelijk van gegevens van Kagi om zoekresultaten te leveren.</string>

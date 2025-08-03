@@ -50,6 +50,7 @@
     <string name="search_results">Výsledky vyhľadávania</string>
     <string name="kagi_integration">Poháňané Kagi</string>
     <string name="hide_applications">Skryť aplikácie</string>
+    <string name="hide_applications_hint">Kliknutím skryjete alebo zobrazíte</string>
     <string name="legacy_lock_animation">Stará animácia zamknutia</string>
     <string name="icons">Ikony</string>
     <string name="weather">Počasie</string>
@@ -59,7 +60,6 @@
     <string name="app_info">Informácie o aplikácii</string>
 
     <!-- Page Manager -->
-    <string name="home_page">Domov</string>
     <string name="default_position">Predvolená pozícia</string>
     <string name="left">Vľavo</string>
     <string name="top">Hore</string>
@@ -138,6 +138,7 @@
 
     <!-- Applications -->
     <string name="uninstall">Odinštalovať</string>
+    <string name="hide">Skryť</string>
     <string name="customize">Prispôsobiť</string>
     <string name="category">Kategória</string>
     <string name="category_name">Názov kategórie</string>
@@ -161,6 +162,7 @@
     <!-- Search -->
     <string name="search_on">Hľadať na</string>
     <string name="searching">Hľadá sa…</string>
+    <string name="search_hidden_apps">Hľadať skryté aplikácie</string>
     <string name="unauthorized">Servery Kagi hlásili neoprávnený prístup. Je váš API kľúč platný?</string>
     <string name="to_search">na vyhľadávanie s Kagi</string>
     <string name="kagi_dependency">Stario sa spolieha na dáta dodávané Kagi na poskytovanie výsledkov vyhľadávania.</string>
