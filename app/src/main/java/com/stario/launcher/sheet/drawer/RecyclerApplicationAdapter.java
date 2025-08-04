@@ -196,6 +196,10 @@ public abstract class RecyclerApplicationAdapter
             });
         }
 
+        public void setLabel(CharSequence sequence) {
+            label.setText(sequence);
+        }
+
         private void showPopup(LauncherApplication application) {
             LauncherApps launcherApps =
                     ((LauncherApps) activity.getSystemService(Context.LAUNCHER_APPS_SERVICE));
@@ -311,7 +315,7 @@ public abstract class RecyclerApplicationAdapter
         LauncherApplication application = getApplication(index);
 
         if (application != LauncherApplication.FALLBACK_APP) {
-            viewHolder.label.setText(application.getLabel());
+            viewHolder.setLabel(application.getLabel());
             // TODO: notification dots
             viewHolder.notification.setVisibility(false ? View.VISIBLE : View.GONE);
 

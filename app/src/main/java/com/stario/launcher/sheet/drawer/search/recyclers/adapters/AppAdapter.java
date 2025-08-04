@@ -19,20 +19,22 @@ package com.stario.launcher.sheet.drawer.search.recyclers.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.StyleSpan;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.apps.LauncherApplication;
-import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.apps.ProfileApplicationManager;
+import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.sheet.drawer.search.JaroWinklerDistance;
 import com.stario.launcher.sheet.drawer.search.SearchFragment;
 import com.stario.launcher.sheet.drawer.search.Searchable;
-import com.stario.launcher.sheet.drawer.search.recyclers.OnVisibilityChangeListener;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.recyclers.async.InflationType;
 
@@ -43,13 +45,14 @@ public class AppAdapter extends RecyclerApplicationAdapter
         implements Searchable {
     private final SharedPreferences preferences;
     private List<LauncherApplication> applications;
-    private OnVisibilityChangeListener listener;
     private RecyclerView recyclerView;
+    private String currentQuery;
 
     public AppAdapter(ThemedActivity activity) {
         super(activity, null, InflationType.SYNCED);
 
         this.applications = new ArrayList<>();
+        this.currentQuery = "";
         this.preferences = activity.getSharedPreferences(Entry.SEARCH);
     }
 
@@ -117,6 +120,7 @@ public class AppAdapter extends RecyclerApplicationAdapter
         }
 
         applications = filteredList;
+        currentQuery = query;
 
         Runnable runnable = () -> {
             notifyDataSetChanged();
@@ -150,37 +154,30 @@ public class AppAdapter extends RecyclerApplicationAdapter
         return false;
     }
 
-    public void setOnVisibilityChangeListener(OnVisibilityChangeListener listener) {
-        this.listener = listener;
-    }
-
     private void updateRecyclerVisibility() {
         if (recyclerView != null) {
             if (getItemCount() == 0 && recyclerView.getVisibility() != View.GONE) {
-                if (listener != null) {
-                    listener.onPreChange(recyclerView, View.GONE);
-                }
-
                 recyclerView.setVisibility(View.GONE);
-
-                recyclerView.post(() -> {
-                    if (listener != null) {
-                        listener.onChange(recyclerView, View.GONE);
-                    }
-                });
             } else if (getItemCount() > 0 && recyclerView.getVisibility() != View.VISIBLE) {
-                if (listener != null) {
-                    listener.onPreChange(recyclerView, View.VISIBLE);
-                }
-
                 recyclerView.setVisibility(View.VISIBLE);
-
-                recyclerView.post(() -> {
-                    if (listener != null) {
-                        listener.onChange(recyclerView, View.VISIBLE);
-                    }
-                });
             }
+        }
+    }
+
+    @Override
+    public void onBind(@NonNull ViewHolder viewHolder, int index) {
+        super.onBind(viewHolder, index);
+
+        String label = getApplication(index).getLabel();
+        int substringStart = label.toLowerCase().indexOf(currentQuery);
+
+        if (substringStart >= 0) {
+            SpannableStringBuilder builder = new SpannableStringBuilder(label);
+            builder.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),
+                    substringStart, substringStart + currentQuery.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            viewHolder.setLabel(builder);
         }
     }
 
