@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId 'com.stario.launcher'
-        minSdkVersion 28
+        minSdkVersion 29
         targetSdkVersion 35
         versionCode 90
         versionName '2.9'

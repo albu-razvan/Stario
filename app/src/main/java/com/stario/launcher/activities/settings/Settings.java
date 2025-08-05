@@ -451,24 +451,18 @@ public class Settings extends ThemedActivity {
         findViewById(R.id.restart).setOnClickListener(view -> restart());
 
         findViewById(R.id.def_launcher).setOnClickListener((view) -> {
-            if (Utils.isMinimumSDK(Build.VERSION_CODES.Q)) {
-                RoleManager roleManager = getApplicationContext().getSystemService(RoleManager.class);
+            RoleManager roleManager = getApplicationContext().getSystemService(RoleManager.class);
 
-                if (roleManager.isRoleAvailable(RoleManager.ROLE_HOME)) {
-                    if (!roleManager.isRoleHeld(RoleManager.ROLE_HOME)) {
-                        Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_HOME);
+            if (roleManager.isRoleAvailable(RoleManager.ROLE_HOME)) {
+                if (!roleManager.isRoleHeld(RoleManager.ROLE_HOME)) {
+                    Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_HOME);
 
-                        activityResultLauncher.launch(intent, ActivityOptionsCompat.makeBasic());
-                    } else {
-                        Intent intent = new Intent(android.provider.Settings.ACTION_HOME_SETTINGS);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                    }
+                    activityResultLauncher.launch(intent, ActivityOptionsCompat.makeBasic());
+                } else {
+                    Intent intent = new Intent(android.provider.Settings.ACTION_HOME_SETTINGS);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
                 }
-            } else {
-                Intent intent = new Intent(android.provider.Settings.ACTION_HOME_SETTINGS);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
             }
         });
 

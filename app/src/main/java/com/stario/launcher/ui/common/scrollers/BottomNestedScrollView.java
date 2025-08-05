@@ -84,24 +84,6 @@ public class BottomNestedScrollView extends PreEventNestedScrollView {
     }
 
     @Override
-    public boolean onNestedFling(@NonNull View target, float velocityX, float velocityY, boolean consumed) {
-        if (!Utils.isMinimumSDK(Build.VERSION_CODES.Q)) {
-            velocityY = -velocityY;
-        }
-
-        return super.onNestedFling(target, velocityX, velocityY, consumed);
-    }
-
-    @Override
-    public void fling(int velocityY) {
-        if (!Utils.isMinimumSDK(Build.VERSION_CODES.Q)) {
-            velocityY = -velocityY;
-        }
-
-        super.fling(velocityY);
-    }
-
-    @Override
     public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
         nestedScrolling = true;
 
