@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace 'com.stario.launcher.hidden'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         minSdkVersion 29
