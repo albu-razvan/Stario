@@ -1,0 +1,15 @@
+<p>Inspired by the minimalist phone concept, a decluttered experience brought to the quotidian smartphone, <i>Stario</i> aims to keep functionality and productivity at their peak in a simple and elegant format. Oh, and by the way, it is all free!</p>
+<p><br><b>FEATURES</b></p><ul>
+<li>Material You Support</li>
+<li>Application Customization</li>
+<li>Built-In Weather Widget</li>
+<li>Global Search Integration</li>
+<li>Minimalist Media Player Controls</li>
+<li>Application Categories</li>
+<li>RSS/Atom Reader</li>
+<li>Page Sorting</li>
+</ul>
+<p><b>PRIVACY</b></p>
+<p><i>Stario fully respects your privacy. It does not collect app usage or personal data, and it may very well protect your data better than yourself!</p>
+<p><br><b>ACCESSIBILITY SERVICE</b></p>
+<p>Stario’s Accessibility Service is used exclusively to let you turn off your phone’s screen with a gesture. It is optional, disabled by default and doesn’t collect or share any data.</p>
