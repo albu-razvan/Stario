@@ -111,13 +111,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
             if (isOpaque()) {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER);
-
-                if(Utils.isMinimumSDK(Build.VERSION_CODES.Q)) {
-                    windowBackground = new ColorDrawable(Color.TRANSPARENT);
-                } else {
-                    windowBackground = new ColorDrawable(backgroundColor);
-                    windowBackground.setAlpha(0);
-                }
+                windowBackground = new ColorDrawable(Color.TRANSPARENT);
             } else {
                 window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER);
 

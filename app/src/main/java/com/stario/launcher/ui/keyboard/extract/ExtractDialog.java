@@ -83,11 +83,7 @@ public class ExtractDialog extends DialogFragment {
             if (extractedEditText != null) {
                 extractedEditText.setMaxLines(editText.getMaxLines());
                 extractedEditText.setImeOptions(editText.getImeOptions() | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-
-                if (Utils.isMinimumSDK(Build.VERSION_CODES.Q)) {
-                    extractedEditText.setSingleLine(editText.isSingleLine());
-                }
-
+                extractedEditText.setSingleLine(editText.isSingleLine());
                 extractedEditText.setHint(editText.getHint());
 
                 Editable text = editText.getText();

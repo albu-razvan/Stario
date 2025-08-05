@@ -135,12 +135,9 @@ public class KeyboardHeightProvider extends PopupWindow {
             Display display = activity.getWindowManager().getDefaultDisplay();
             display.getSize(screenSize);
 
-            if (Utils.isMinimumSDK(Build.VERSION_CODES.Q)) {
-                DisplayCutout displayCutout = display.getCutout();
-
-                if (displayCutout != null) {
-                    screenSize.y += displayCutout.getSafeInsetTop();
-                }
+            DisplayCutout displayCutout = display.getCutout();
+            if (displayCutout != null) {
+                screenSize.y += displayCutout.getSafeInsetTop();
             }
 
             Rect rect = new Rect();

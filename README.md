@@ -50,7 +50,7 @@ Get the latest release of Stario from the [GitHub Releases page](https://github.
 
 ## Compatibility
 
-- Requires **Android SDK 28+** (Android 9.0 Pie or later)
+- Requires **Android SDK 29+** (Android 10.0 or later)
 - Compatible with AOSP and most major OEM devices
 - Should work with custom ROMs, though these are not officially tested — user feedback is welcome
 

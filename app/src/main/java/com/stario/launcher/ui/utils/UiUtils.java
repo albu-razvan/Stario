@@ -92,10 +92,8 @@ public class UiUtils {
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS |
                 WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
 
-        if (Utils.isMinimumSDK(Build.VERSION_CODES.Q)) {
-            window.setStatusBarContrastEnforced(false);
-            window.setNavigationBarContrastEnforced(false);
-        }
+        window.setStatusBarContrastEnforced(false);
+        window.setNavigationBarContrastEnforced(false);
 
         WindowCompat.setDecorFitsSystemWindows(window, false);
     }
