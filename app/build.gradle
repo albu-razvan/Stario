@@ -11,12 +11,12 @@ def hasSigningConfig = ['keystorePath', 'keystorePassword', 'keyAlias', 'keyPass
 
 android {
     namespace 'com.stario.launcher'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId 'com.stario.launcher'
         minSdkVersion 29
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode 90
         versionName '2.9'
     }
