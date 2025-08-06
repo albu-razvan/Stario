@@ -118,7 +118,7 @@ public class LockDetector extends LinearLayout {
                 if (isAccessibilitySettingsOn(activity) &&
                         preferences.getBoolean(PREFERENCE_ENTRY, false)) {
 
-                    if (!preferences.getBoolean(LEGACY_ANIMATION, true)) {
+                    if (!preferences.getBoolean(LEGACY_ANIMATION, false)) {
                         getClosingAnimationView()
                                 .closeTo(event.getRawX(), event.getRawY(),
                                         () -> sleep(activity));

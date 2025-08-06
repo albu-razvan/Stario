@@ -75,6 +75,7 @@ public class Launcher extends ThemedActivity {
     private BroadcastReceiver killReceiver;
     private ClosingAnimationView main;
     private HomeWatcher homeWatcher;
+    private boolean showWhenLocked;
     private View statusBarContrast;
     private LockDetector detector;
     private View navBarContrast;
@@ -165,7 +166,6 @@ public class Launcher extends ThemedActivity {
         screenOnReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                setShowWhenLocked(false);
                 main.reset();
             }
         };
@@ -410,13 +410,28 @@ public class Launcher extends ThemedActivity {
     @Override
     protected void onStop() {
         setContrastVisibility(View.GONE);
-
         homeWatcher.stopWatch();
+
+        if(showWhenLocked) {
+            moveTaskToBack(true);
+        }
 
         super.onStop();
 
-        setShowWhenLocked(false);
         main.reset();
+        if(showWhenLocked) {
+            setShowWhenLocked(false);
+
+            Intent intent = new Intent(this, Launcher.class);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void setShowWhenLocked(boolean showWhenLocked) {
+        this.showWhenLocked = showWhenLocked;
+
+        super.setShowWhenLocked(showWhenLocked);
     }
 
     @Override
