@@ -53,6 +53,7 @@ android {
             res {
                 srcDirs = ['src/main/res/common',
                            'src/main/res/themes',
+                           'src/main/res/pins',
                            'src/main/res/applications',
                            'src/main/res/strings',
                            'src/main/res/extract',

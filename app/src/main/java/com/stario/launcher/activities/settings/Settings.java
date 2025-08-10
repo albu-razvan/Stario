@@ -29,7 +29,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +46,10 @@ import androidx.core.widget.NestedScrollView;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.stario.launcher.BuildConfig;
 import com.stario.launcher.R;
+import com.stario.launcher.Stario;
+import com.stario.launcher.activities.launcher.glance.extensions.media.Media;
+import com.stario.launcher.activities.launcher.glance.extensions.weather.Weather;
+import com.stario.launcher.activities.launcher.pins.PinnedCategory;
 import com.stario.launcher.activities.pages.PageManager;
 import com.stario.launcher.activities.settings.dialogs.AccessibilityConfigurator;
 import com.stario.launcher.activities.settings.dialogs.NotificationConfigurator;
@@ -54,15 +57,15 @@ import com.stario.launcher.activities.settings.dialogs.hide.HideApplicationsDial
 import com.stario.launcher.activities.settings.dialogs.icons.IconsDialog;
 import com.stario.launcher.activities.settings.dialogs.license.LicensesDialog;
 import com.stario.launcher.activities.settings.dialogs.location.LocationDialog;
+import com.stario.launcher.activities.settings.dialogs.pin.PinnedCategoryDialog;
 import com.stario.launcher.activities.settings.dialogs.search.engine.SearchEngineDialog;
 import com.stario.launcher.activities.settings.dialogs.search.results.SearchResultsDialog;
 import com.stario.launcher.activities.settings.dialogs.theme.ThemeDialog;
+import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.apps.ProfileManager;
-import com.stario.launcher.glance.extensions.media.Media;
-import com.stario.launcher.glance.extensions.weather.Weather;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.search.SearchEngine;
@@ -75,16 +78,22 @@ import com.stario.launcher.ui.common.lock.LockDetector;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
+import java.util.UUID;
+
 public class Settings extends ThemedActivity {
     private MaterialSwitch lockAnimSwitch;
     private CollapsibleTitleBar titleBar;
     private View titleMeasurePlaceholder;
     private View lockAnimSwitchContainer;
+    private TextView pinnedCategoryName;
     private MaterialSwitch mediaSwitch;
+    private SharedPreferences settings;
     private NestedScrollView scroller;
     private MaterialSwitch lockSwitch;
     private TextView searchEngineName;
     private SharedPreferences search;
+    private SharedPreferences icons;
+    private SharedPreferences pins;
     private TextView iconPackName;
     private Resources resources;
     private View titleLandscape;
@@ -107,8 +116,13 @@ public class Settings extends ThemedActivity {
 
         resources = getResources();
 
-        SharedPreferences settings = getSettings();
-        search = getSharedPreferences(Entry.SEARCH);
+        Stario stario = getApplicationContext();
+        settings = stario.getSettings();
+        icons = stario.getSharedPreferences(Entry.ICONS);
+        search = stario.getSharedPreferences(Entry.SEARCH);
+        pins = stario.getSharedPreferences(Entry.PINNED_CATEGORY);
+        SharedPreferences theme = stario.getSharedPreferences(Entry.THEME);
+        SharedPreferences weather = stario.getSharedPreferences(Entry.WEATHER);
 
         boolean mediaAllowed = settings.getBoolean(Media.PREFERENCE_ENTRY, false);
         boolean lock = settings.getBoolean(LockDetector.PREFERENCE_ENTRY, false);
@@ -117,6 +131,7 @@ public class Settings extends ThemedActivity {
         boolean vibrations = settings.getBoolean(Vibrations.PREFERENCE_ENTRY, true);
         boolean searchResults = search.getBoolean(WebAdapter.SEARCH_RESULTS, false);
         boolean searchHiddenApps = search.getBoolean(SearchFragment.SEARCH_HIDDEN_APPS, false);
+        boolean pinnedCategoryVisible = pins.getBoolean(PinnedCategory.PINNED_CATEGORY_VISIBLE, false);
 
         ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -134,9 +149,11 @@ public class Settings extends ThemedActivity {
         lockAnimSwitch = findViewById(R.id.lock_animation);
         MaterialSwitch imperialSwitch = findViewById(R.id.imperial);
         MaterialSwitch searchResultsSwitch = findViewById(R.id.search_results);
+        MaterialSwitch pinnedCategorySwitch = findViewById(R.id.pinned_category);
         MaterialSwitch switchVibrations = findViewById(R.id.vibrations);
         MaterialSwitch switchSearchHiddenApps = findViewById(R.id.search_hidden_apps);
 
+        View pinnedCategoryContainer = findViewById(R.id.pinned_category_container);
         lockAnimSwitchContainer = findViewById(R.id.lock_animation_container);
         titleMeasurePlaceholder = findViewById(R.id.title_placeholder);
         titleLandscape = findViewById(R.id.title_landscape);
@@ -154,6 +171,7 @@ public class Settings extends ThemedActivity {
 
         searchEngine = findViewById(R.id.search_engine);
         searchEngineName = findViewById(R.id.engine_name);
+        pinnedCategoryName = findViewById(R.id.pinned_category_name);
         iconPackName = findViewById(R.id.pack_name);
         hideCount = findViewById(R.id.hidden_count);
 
@@ -172,6 +190,7 @@ public class Settings extends ThemedActivity {
         mediaSwitch.setChecked(Utils.isNotificationServiceEnabled(this) && mediaAllowed);
         lockSwitch.setChecked(Utils.isAccessibilityServiceEnabled(this) && lock);
         imperialSwitch.setChecked(imperialUnits);
+        pinnedCategorySwitch.setChecked(pinnedCategoryVisible);
         searchResultsSwitch.setChecked(searchResults);
         switchSearchHiddenApps.setChecked(searchHiddenApps);
         lockAnimSwitch.setChecked(legacyLockAnim);
@@ -180,6 +199,7 @@ public class Settings extends ThemedActivity {
         lockSwitch.jumpDrawablesToCurrentState();
         mediaSwitch.jumpDrawablesToCurrentState();
         imperialSwitch.jumpDrawablesToCurrentState();
+        pinnedCategorySwitch.jumpDrawablesToCurrentState();
         searchResultsSwitch.jumpDrawablesToCurrentState();
         lockAnimSwitch.jumpDrawablesToCurrentState();
         switchVibrations.jumpDrawablesToCurrentState();
@@ -249,6 +269,17 @@ public class Settings extends ThemedActivity {
                     .apply();
         });
 
+        pinnedCategorySwitch.setOnCheckedChangeListener((compound, isChecked) -> {
+            if (isChecked && !isPinnedCategoryValid()) {
+                pinnedCategorySwitch.setChecked(false);
+                pinnedCategoryContainer.performClick();
+            } else {
+                pins.edit()
+                        .putBoolean(PinnedCategory.PINNED_CATEGORY_VISIBLE, isChecked)
+                        .apply();
+            }
+        });
+
         searchResultsSwitch.setOnCheckedChangeListener((compound, isChecked) -> {
             search.edit()
                     .putBoolean(WebAdapter.SEARCH_RESULTS, isChecked)
@@ -270,7 +301,7 @@ public class Settings extends ThemedActivity {
         });
 
         themeName.setText(getThemeType().getDisplayName());
-        if (getSharedPreferences(Entry.THEME).getBoolean(FORCE_DARK, false)) {
+        if (theme.getBoolean(FORCE_DARK, false)) {
             themeName.append(" " + resources.getString(R.string.dark));
         }
 
@@ -289,6 +320,34 @@ public class Settings extends ThemedActivity {
                         if (stateChanged) {
                             restart();
                         }
+                    });
+                }
+
+                if (!showing) {
+                    dialog.show();
+                    showing = true;
+                }
+            }
+        });
+
+        updatePinnedCategoryName();
+        pinnedCategoryContainer.setOnClickListener(new View.OnClickListener() {
+            private PinnedCategoryDialog dialog;
+            private boolean showing = false;
+
+            @Override
+            public void onClick(View view) {
+                if (dialog == null) {
+                    dialog = new PinnedCategoryDialog(Settings.this, pins,
+                            (isChecked) -> {
+                                pinnedCategorySwitch.setChecked(isChecked);
+
+                                return isPinnedCategoryValid() && isChecked;
+                            });
+
+                    dialog.setOnDismissListener(dialog -> {
+                        updatePinnedCategoryName();
+                        showing = false;
                     });
                 }
 
@@ -396,8 +455,6 @@ public class Settings extends ThemedActivity {
             }
         });
 
-        SharedPreferences weather = getSharedPreferences(Entry.WEATHER);
-
         locationName.setText(weather.getString(Weather.LOCATION_NAME,
                 resources.getString(R.string.location_ip_based)));
         location.setOnClickListener(new View.OnClickListener() {
@@ -500,7 +557,7 @@ public class Settings extends ThemedActivity {
         findViewById(R.id.search_hidden_apps_container).setOnClickListener((view) -> switchSearchHiddenApps.performClick());
         updateLockAnimationState(lockSwitch.isChecked());
 
-        UiUtils.Notch.applyNotchMargin(findViewById(R.id.coordinator), UiUtils.Notch.CENTER);
+        UiUtils.Notch.applyNotchMargin(findViewById(R.id.coordinator), UiUtils.Notch.Treatment.CENTER);
         getRoot().post(this::startPostponedEnterTransition);
         handleOrientation();
     }
@@ -530,15 +587,14 @@ public class Settings extends ThemedActivity {
     }
 
     private void updateEngineName() {
-        searchEngineName.setText(SearchEngine.getEngine(this).toString());
+        searchEngineName.setText(SearchEngine.getEngine(getApplicationContext()).toString());
 
         searchEngine.setEnabled(!search.getBoolean(WebAdapter.SEARCH_RESULTS, false));
         searchEngine.setAlpha(searchEngine.isEnabled() ? 1f : 0.6f);
     }
 
     private void updateIconPackName() {
-        SharedPreferences iconPreferences = getSharedPreferences(Entry.ICONS);
-        String packPackageName = iconPreferences.getString(IconPackManager.ICON_PACK_ENTRY, null);
+        String packPackageName = icons.getString(IconPackManager.ICON_PACK_ENTRY, null);
 
         if (packPackageName != null) {
             LauncherApplication iconPackApplication = ProfileManager
@@ -552,6 +608,20 @@ public class Settings extends ThemedActivity {
         }
 
         iconPackName.setText(R.string.default_text);
+    }
+
+    private void updatePinnedCategoryName() {
+        if (pins.contains(PinnedCategory.PINNED_CATEGORY)) {
+            try {
+                pinnedCategoryName.setText(CategoryManager.getInstance().getCategoryName(
+                        UUID.fromString(pins.getString(PinnedCategory.PINNED_CATEGORY, ""))));
+                pinnedCategoryName.setVisibility(View.VISIBLE);
+            } catch (IllegalArgumentException exception) {
+                pinnedCategoryName.setVisibility(View.GONE);
+            }
+        } else {
+            pinnedCategoryName.setVisibility(View.GONE);
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -574,6 +644,20 @@ public class Settings extends ThemedActivity {
     private void checkAccessibilityPermission() {
         if (!Utils.isAccessibilityServiceEnabled(this)) {
             lockSwitch.setChecked(false);
+        }
+    }
+
+    private boolean isPinnedCategoryValid() {
+        String identifier = pins.getString(PinnedCategory.PINNED_CATEGORY, null);
+
+        if (identifier == null) {
+            return false;
+        }
+
+        try {
+            return CategoryManager.getInstance().get(UUID.fromString(identifier)) != null;
+        } catch (IllegalArgumentException exception) {
+            return false;
         }
     }
 

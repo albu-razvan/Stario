@@ -39,10 +39,6 @@ public class Measurements {
     public static final int HEADER_SIZE_DP = 250;
     private static final ObservableObject<Integer> NAV_HEIGHT = new ObservableObject<>(0);
     private static final ObservableObject<Integer> SYS_UI_HEIGHT = new ObservableObject<>(0);
-    private static final ObservableObject<Integer> LIST_COLUMNS = new ObservableObject<>(0);
-    private static final ObservableObject<Integer> FOLDER_COLUMNS = new ObservableObject<>(0);
-    private static final ObservableObject<Integer> BRIEFING_COLUMNS = new ObservableObject<>(0);
-    private static final ObservableObject<Integer> WIDGET_COLUMNS = new ObservableObject<>(0);
     private static final ObservableObject<Float> WINDOW_ANIMATION_SCALE = new ObservableObject<>(1f);
     private static final ObservableObject<Float> ANIMATOR_DURATION_SCALE = new ObservableObject<>(1f);
     private static final ObservableObject<Float> TRANSITION_ANIMATION_SCALE = new ObservableObject<>(1f);
@@ -85,21 +81,6 @@ public class Measurements {
         height = displayMetrics.heightPixels;
 
         defaultPadding = dpToPx(20);
-
-        LIST_COLUMNS.updateObject(Math.min(6, width / dpToPx(90)));
-
-        if (width < dpToPx(350)) {
-            FOLDER_COLUMNS.updateObject(1);
-        } else if (width < dpToPx(380)) {
-            FOLDER_COLUMNS.updateObject(2);
-        } else {
-            FOLDER_COLUMNS.updateObject(Math.max(1, width / dpToPx(190)));
-        }
-
-        BRIEFING_COLUMNS.updateObject(Math.max(1, width / dpToPx(400)));
-
-        //ensure that the number of columns is a multiple of 2
-        WIDGET_COLUMNS.updateObject(Math.max(2, (width / dpToPx(160) / 2) * 2));
 
         root.setOnApplyWindowInsetsListener((v, insets) -> {
             if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
@@ -185,10 +166,6 @@ public class Measurements {
         }
     }
 
-    public static int getIconSize() {
-        return dpToPx(60);
-    }
-
     public static int dpToPx(float value) {
         return (int) (dp * value);
     }
@@ -229,26 +206,6 @@ public class Measurements {
         return SYS_UI_HEIGHT.getObject();
     }
 
-    public static int getListColumnCount() {
-        return LIST_COLUMNS.getObject();
-    }
-
-    public static int getListColumnCount(int maxWidth) {
-        return Math.min(6, Math.min(width, maxWidth) / dpToPx(90));
-    }
-
-    public static int getFolderColumnCount() {
-        return FOLDER_COLUMNS.getObject();
-    }
-
-    public static int getWidgetColumnCount() {
-        return WIDGET_COLUMNS.getObject();
-    }
-
-    public static int getBriefingColumnCount() {
-        return BRIEFING_COLUMNS.getObject();
-    }
-
     public static float getWindowAnimationScale() {
         return WINDOW_ANIMATION_SCALE.getObject();
     }
@@ -259,38 +216,6 @@ public class Measurements {
 
     public static float getAnimatorDurationScale() {
         return ANIMATOR_DURATION_SCALE.getObject();
-    }
-
-    public static void addListColumnCountChangeListener(ObservableObject.OnSet<Integer> listener) {
-        if (listener != null) {
-            LIST_COLUMNS.addListener(listener);
-
-            listener.onSet(LIST_COLUMNS.getObject());
-        }
-    }
-
-    public static void addFolderColumnCountChangeListener(ObservableObject.OnSet<Integer> listener) {
-        if (listener != null) {
-            FOLDER_COLUMNS.addListener(listener);
-
-            listener.onSet(FOLDER_COLUMNS.getObject());
-        }
-    }
-
-    public static void addWidgetColumnCountChangeListener(ObservableObject.OnSet<Integer> listener) {
-        if (listener != null) {
-            WIDGET_COLUMNS.addListener(listener);
-
-            listener.onSet(WIDGET_COLUMNS.getObject());
-        }
-    }
-
-    public static void addBriefingColumnCountChangeListener(ObservableObject.OnSet<Integer> listener) {
-        if (listener != null) {
-            BRIEFING_COLUMNS.addListener(listener);
-
-            listener.onSet(BRIEFING_COLUMNS.getObject());
-        }
     }
 
     public static void addStatusBarListener(ObservableObject.OnSet<Integer> listener) {

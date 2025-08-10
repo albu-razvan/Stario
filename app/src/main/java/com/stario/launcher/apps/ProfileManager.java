@@ -27,16 +27,12 @@ import android.os.Build;
 import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.stario.launcher.Stario;
 import com.stario.launcher.apps.interfaces.LauncherProfileListener;
-import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.ThreadSafeArrayList;
 import com.stario.launcher.utils.Utils;
 
@@ -59,22 +55,19 @@ public final class ProfileManager {
     private final List<LauncherProfileListener> listeners;
     private final IconPackManager iconPacks;
 
-    private boolean registered;
-
-    private ProfileManager(ThemedActivity activity) {
+    private ProfileManager(Stario stario) {
         // CategoryData and IconPackManager needs LauncherApplicationManager
         // to be instantiated. Assign the instance in the constructor before
         // everything else to guarantee that the instance will be supplied.
         instance = this;
 
-        this.iconPacks = IconPackManager.from(activity, this::update);
+        this.iconPacks = IconPackManager.from(stario, this::update);
         this.listeners = new ThreadSafeArrayList<>();
         this.profilesList = new ArrayList<>();
         this.profilesMap = new HashMap<>();
-        this.registered = false;
 
-        LauncherApps launcherApps = (LauncherApps) activity.getSystemService(Context.LAUNCHER_APPS_SERVICE);
-        UserManager userManager = (UserManager) activity.getSystemService(Context.USER_SERVICE);
+        LauncherApps launcherApps = (LauncherApps) stario.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        UserManager userManager = (UserManager) stario.getSystemService(Context.USER_SERVICE);
 
         // work profiles will always be created after the owner
         List<UserHandle> profiles = launcherApps.getProfiles();
@@ -89,7 +82,7 @@ public final class ProfileManager {
             UserHandle handle = profiles.get(index);
 
             ProfileApplicationManager manager =
-                    new ProfileApplicationManager(activity, handle, index == 0);
+                    new ProfileApplicationManager(stario, handle, index == 0);
 
             profilesMap.put(handle, manager);
             profilesList.add(manager);
@@ -99,61 +92,30 @@ public final class ProfileManager {
         owner = !profilesList.isEmpty() ? profilesList.get(0).handle : Process.myUserHandle();
     }
 
-    public static ProfileManager from(@NonNull ThemedActivity activity) {
+    public static ProfileManager from(@NonNull Stario stario) {
+        return from(stario, true);
+    }
+
+    public static ProfileManager from(@NonNull Stario stario, boolean refreshIcons) {
         if (instance == null) {
-            instance = new ProfileManager(activity);
-        } else {
+            instance = new ProfileManager(stario);
+            BroadcastReceiver receiver = getReceiver(instance);
+
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+                stario.registerReceiver(receiver, getIntentFilter(), Context.RECEIVER_EXPORTED);
+            } else {
+                //noinspection UnspecifiedRegisterReceiverFlag
+                stario.registerReceiver(receiver, getIntentFilter());
+            }
+        } else if (refreshIcons) {
             instance.iconPacks.refresh();
             instance.update();
-        }
-
-        instance.refreshReceiver(activity);
-        for (ProfileApplicationManager manager : instance.profilesList) {
-            manager.refreshReceiver(activity);
         }
 
         return instance;
     }
 
-    public static UserHandle getOwner() {
-        if (instance == null || owner == null) {
-            throw new IllegalStateException("ProfileManager not initialized");
-        }
-
-        return owner;
-    }
-
-    private void refreshReceiver(ThemedActivity activity) {
-        if (!registered) {
-            BroadcastReceiver receiver = getReceiver();
-
-            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
-                activity.registerReceiver(receiver, getIntentFilter(), Context.RECEIVER_EXPORTED);
-            } else {
-                //noinspection UnspecifiedRegisterReceiverFlag
-                activity.registerReceiver(receiver, getIntentFilter());
-            }
-
-            Lifecycle lifecycle = activity.getLifecycle();
-            lifecycle.addObserver(new DefaultLifecycleObserver() {
-                @Override
-                public void onDestroy(@NonNull LifecycleOwner owner) {
-                    try {
-                        activity.unregisterReceiver(receiver);
-                        registered = false;
-                    } catch (Exception exception) {
-                        Log.e(TAG, "Receiver not registered");
-                    }
-
-                    lifecycle.removeObserver(this);
-                }
-            });
-
-            registered = true;
-        }
-    }
-
-    private BroadcastReceiver getReceiver() {
+    private static BroadcastReceiver getReceiver(ProfileManager instance) {
         return new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -170,57 +132,72 @@ public final class ProfileManager {
 
                 String action = intent.getAction();
                 if (action != null) {
-                    if (action.equals(Intent.ACTION_MANAGED_PROFILE_ADDED)) {
-                        if (profilesMap.containsKey(handle)) {
-                            return;
-                        }
+                    switch (action) {
+                        case Intent.ACTION_MANAGED_PROFILE_ADDED:
+                            if (instance.profilesMap.containsKey(handle)) {
+                                return;
+                            }
 
-                        LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+                            LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
 
-                        for (UserHandle profileHandle : launcherApps.getProfiles()) {
-                            if (handle.equals(profileHandle)) {
-                                ProfileApplicationManager manager = new ProfileApplicationManager((ThemedActivity) context,
-                                        profileHandle, Utils.isMainProfile(profileHandle));
+                            for (UserHandle profileHandle : launcherApps.getProfiles()) {
+                                if (handle.equals(profileHandle)) {
+                                    ProfileApplicationManager manager = new ProfileApplicationManager(
+                                            (Stario) context.getApplicationContext(),
+                                            profileHandle, Utils.isMainProfile(profileHandle)
+                                    );
 
-                                profilesMap.put(profileHandle, manager);
-                                profilesList.add(manager);
+                                    instance.profilesMap.put(profileHandle, manager);
+                                    instance.profilesList.add(manager);
 
-                                for (LauncherProfileListener listener : listeners) {
-                                    if (listener != null) {
-                                        listener.onInserted(profileHandle);
+                                    for (LauncherProfileListener listener : instance.listeners) {
+                                        if (listener != null) {
+                                            listener.onInserted(profileHandle);
+                                        }
                                     }
                                 }
                             }
-                        }
-                    } else if (action.equals(Intent.ACTION_MANAGED_PROFILE_REMOVED)) {
-                        ProfileApplicationManager manager = profilesMap.remove(handle);
+                            break;
+                        case Intent.ACTION_MANAGED_PROFILE_REMOVED:
+                            ProfileApplicationManager manager = instance.profilesMap.remove(handle);
 
-                        if (manager == null) {
-                            return;
-                        }
-
-                        profilesList.remove(manager);
-                        for (LauncherProfileListener listener : listeners) {
-                            if (listener != null) {
-                                listener.onRemoved(handle);
+                            if (manager == null) {
+                                return;
                             }
-                        }
-                    } else if (action.equals(Intent.ACTION_MANAGED_PROFILE_AVAILABLE)) {
-                        intent = new Intent(getProfileAvailabilityIntentAction(handle));
-                        intent.putExtra(PROFILE_AVAILABLE_EXTRA, true);
 
-                        LocalBroadcastManager.getInstance(context)
-                                .sendBroadcastSync(intent);
-                    } else if (action.equals(Intent.ACTION_MANAGED_PROFILE_UNAVAILABLE)) {
-                        intent = new Intent(getProfileAvailabilityIntentAction(handle));
-                        intent.putExtra(PROFILE_AVAILABLE_EXTRA, false);
+                            instance.profilesList.remove(manager);
+                            for (LauncherProfileListener listener : instance.listeners) {
+                                if (listener != null) {
+                                    listener.onRemoved(handle);
+                                }
+                            }
+                            break;
+                        case Intent.ACTION_MANAGED_PROFILE_AVAILABLE:
+                            intent = new Intent(getProfileAvailabilityIntentAction(handle));
+                            intent.putExtra(PROFILE_AVAILABLE_EXTRA, true);
 
-                        LocalBroadcastManager.getInstance(context)
-                                .sendBroadcastSync(intent);
+                            LocalBroadcastManager.getInstance(context)
+                                    .sendBroadcastSync(intent);
+                            break;
+                        case Intent.ACTION_MANAGED_PROFILE_UNAVAILABLE:
+                            intent = new Intent(getProfileAvailabilityIntentAction(handle));
+                            intent.putExtra(PROFILE_AVAILABLE_EXTRA, false);
+
+                            LocalBroadcastManager.getInstance(context)
+                                    .sendBroadcastSync(intent);
+                            break;
                     }
                 }
             }
         };
+    }
+
+    public static UserHandle getOwner() {
+        if (instance == null || owner == null) {
+            throw new IllegalStateException("ProfileManager not initialized");
+        }
+
+        return owner;
     }
 
     public static String getProfileAvailabilityIntentAction(UserHandle handle) {

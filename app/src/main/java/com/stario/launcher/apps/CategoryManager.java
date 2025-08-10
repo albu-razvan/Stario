@@ -23,9 +23,9 @@ import android.content.pm.ApplicationInfo;
 import androidx.annotation.NonNull;
 
 import com.stario.launcher.R;
+import com.stario.launcher.Stario;
 import com.stario.launcher.apps.interfaces.LauncherApplicationListener;
 import com.stario.launcher.preferences.Entry;
-import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.ThreadSafeArrayList;
 import com.stario.launcher.utils.Utils;
@@ -59,45 +59,48 @@ public final class CategoryManager {
 
     private final HashMap<String, String> resolvedCategoryResources;
     private final CategoryMappings.Comparator<Category> comparator;
+    private final ProfileApplicationManager applicationManager;
     private final List<CategoryListener> categoryListeners;
     private final SharedPreferences customCategoryNames;
     private final SharedPreferences remappedCategories;
     private final SharedPreferences hiddenApplications;
     private final ArrayList<Category> categories;
 
-    private CategoryManager(ThemedActivity activity, ProfileApplicationManager applicationManager) {
+    private CategoryManager(@NonNull Stario stario, @NonNull ProfileApplicationManager applicationManager) {
+        this.applicationManager = applicationManager;
         this.categories = new ThreadSafeArrayList<>();
-        this.hiddenApplications = activity.getSharedPreferences(Entry.HIDDEN_APPS);
-        this.remappedCategories = activity.getSharedPreferences(Entry.CATEGORIES);
-        this.customCategoryNames = activity.getSharedPreferences(Entry.CATEGORY_NAMES);
+        this.hiddenApplications = stario.getSharedPreferences(Entry.HIDDEN_APPS,
+                Integer.toString(applicationManager.handle.hashCode()));
+        this.remappedCategories = stario.getSharedPreferences(Entry.CATEGORIES);
+        this.customCategoryNames = stario.getSharedPreferences(Entry.CATEGORY_NAMES);
         this.resolvedCategoryResources = new HashMap<>();
         this.categoryListeners = new ArrayList<>();
 
-        CategoryMappings.from(activity);
+        CategoryMappings.from(stario);
         comparator = CategoryMappings.getCategoryComparator();
 
         applicationManager.addApplicationListener(new LauncherApplicationListener() {
-                    @Override
-                    public void onUpdated(LauncherApplication application) {
-                        for (Category category : categories) {
-                            if (category.applications.contains(application)) {
-                                for (Category.CategoryItemListener listener : category.listeners) {
-                                    listener.onUpdated(application);
-                                }
-                            }
+            @Override
+            public void onUpdated(LauncherApplication application) {
+                for (Category category : categories) {
+                    if (category.applications.contains(application)) {
+                        for (Category.CategoryItemListener listener : category.listeners) {
+                            listener.onUpdated(application);
                         }
                     }
-                });
+                }
+            }
+        });
     }
 
-    public static CategoryManager from(ThemedActivity activity, ProfileApplicationManager applicationManager) {
+    public static CategoryManager from(Stario stario, ProfileApplicationManager applicationManager) {
         if (instance == null) {
-            instance = new CategoryManager(activity, applicationManager);
+            instance = new CategoryManager(stario, applicationManager);
         }
 
         DEFAULT_CATEGORIES.forEach((id, resource) ->
                 instance.resolvedCategoryResources.put(Utils.intToUUID(id).toString(),
-                        activity.getResources().getString(resource))
+                        stario.getResources().getString(resource))
         );
 
         return instance;
@@ -109,6 +112,14 @@ public final class CategoryManager {
         }
 
         return instance;
+    }
+
+    public void addOnReadyListener(ProfileApplicationManager.OnLoadReadyListener readyListener) {
+        applicationManager.addOnReadyListener(readyListener);
+    }
+
+    public boolean isReady() {
+        return applicationManager.isReady();
     }
 
     public Category get(int index) {
@@ -143,7 +154,7 @@ public final class CategoryManager {
                 return category.identifier;
             }
 
-            if(resolvedCategoryResources.containsKey(category.identifier.toString())) {
+            if (resolvedCategoryResources.containsKey(category.identifier.toString())) {
                 testedDefaults.add(category.identifier);
             }
         }
@@ -318,7 +329,6 @@ public final class CategoryManager {
                 }
 
                 Category category = get(index);
-
                 category.addApplication(application);
             });
         }

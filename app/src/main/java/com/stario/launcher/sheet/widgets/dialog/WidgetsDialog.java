@@ -101,7 +101,8 @@ public class WidgetsDialog extends SheetDialogFragment {
 
         this.activity = (ThemedActivity) context;
         this.manager = AppWidgetManager.getInstance(activity);
-        this.widgetStore = activity.getSharedPreferences(Entry.WIDGETS);
+        this.widgetStore = activity.getApplicationContext()
+                .getSharedPreferences(Entry.WIDGETS);
 
         bindWidgetRequest = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),

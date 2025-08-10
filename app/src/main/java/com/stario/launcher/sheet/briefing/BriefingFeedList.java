@@ -42,7 +42,8 @@ public class BriefingFeedList {
     private BriefingFeedList(ThemedActivity activity) {
         this.items = new ArrayList<>();
         this.listeners = new ArrayList<>();
-        this.state = activity.getSharedPreferences(Entry.BRIEFING);
+        this.state = activity.getApplicationContext()
+                .getSharedPreferences(Entry.BRIEFING);
 
         load(state.getString(FEEDS_KEY, null));
     }

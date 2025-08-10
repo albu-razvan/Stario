@@ -19,6 +19,7 @@ package com.stario.launcher.sheet.drawer.category.list;
 
 import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
@@ -32,10 +33,12 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
+import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.autogrid.AutoGridLayoutManager;
+import com.stario.launcher.ui.utils.LayoutSizeObserver;
 
 public class FolderList extends DrawerPage {
     @NonNull
@@ -46,9 +49,24 @@ public class FolderList extends DrawerPage {
 
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
 
-        AutoGridLayoutManager manager = new AutoGridLayoutManager(activity,
-                Measurements.getFolderColumnCount());
-        Measurements.addFolderColumnCountChangeListener(manager::setSpanCount);
+        AutoGridLayoutManager manager = new AutoGridLayoutManager(activity, 1);
+        LayoutSizeObserver.attach(rootView, LayoutSizeObserver.WIDTH, new LayoutSizeObserver.OnChange() {
+            @Override
+            public void onChange(View view, int watchFlags, Rect rect) {
+                int width = rect.width();
+                int columns;
+
+                if (width < Measurements.dpToPx(350)) {
+                    columns = 1;
+                } else if (width < Measurements.dpToPx(380)) {
+                    columns = 2;
+                } else {
+                    columns = Math.max(1, width / Measurements.dpToPx(190));
+                }
+
+                manager.setSpanCount(columns);
+            }
+        });
 
         drawer.setLayoutManager(manager);
         drawer.setItemAnimator(null);
@@ -124,14 +142,10 @@ public class FolderList extends DrawerPage {
 
         drawer.post(this::startPostponedEnterTransition);
 
+        CategoryManager.getInstance()
+                .addOnReadyListener(applicationManager -> showLayout());
+
         return rootView;
-    }
-
-    @Override
-    public void onDestroyView() {
-        drawer.setAdapter(null);
-
-        super.onDestroyView();
     }
 
     @Override

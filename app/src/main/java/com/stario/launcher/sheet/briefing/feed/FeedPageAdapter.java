@@ -40,7 +40,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.stario.launcher.R;
-import com.stario.launcher.activities.Launcher;
+import com.stario.launcher.activities.launcher.Launcher;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.ui.utils.animation.Animation;
@@ -119,7 +119,12 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
 
         @Override
         public void onClick(View view) {
-            Item item = items.get(getAbsoluteAdapterPosition());
+            int index = getBindingAdapterPosition();
+            if(index == RecyclerView.NO_POSITION) {
+                return;
+            }
+
+            Item item = items.get(index);
 
             Vibrations.getInstance().vibrate();
 

@@ -20,8 +20,6 @@ package com.stario.launcher.activities.settings.dialogs.hide.pager;
 import android.annotation.SuppressLint;
 import android.os.Parcelable;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,18 +28,17 @@ import com.stario.launcher.R;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.apps.interfaces.LauncherApplicationListener;
+import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
-import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
 import com.stario.launcher.ui.recyclers.async.InflationType;
 
 import java.util.function.Supplier;
 
-public class HiddenRecyclerAdapter
-        extends AsyncRecyclerAdapter<HiddenRecyclerAdapter.ViewHolder> {
+public class HiddenRecyclerAdapter extends RecyclerApplicationAdapter {
     private static final String TAG = "HiddenRecyclerAdapter";
-    private static final float HIDDEN_ALPHA = 0.5f;
+    private static final float HIDDEN_ALPHA = 0.3f;
+    private static final float HIDDEN_SCALE = 0.9f;
 
     private final ProfileApplicationManager applicationManager;
     private final LauncherApplicationListener listener;
@@ -80,36 +77,27 @@ public class HiddenRecyclerAdapter
         setHasStableIds(true);
     }
 
-    public class ViewHolder extends AsyncViewHolder {
+    public class HiddenViewHolder extends ApplicationViewHolder {
         private AdaptiveIconView icon;
-        private TextView label;
 
         @SuppressLint("ClickableViewAccessibility")
         @Override
         protected void onInflated() {
-            label = itemView.findViewById(R.id.textView);
+            super.onInflated();
+
             icon = itemView.findViewById(R.id.icon);
-
-            ViewGroup.LayoutParams params = icon.getLayoutParams();
-            params.width = Measurements.getIconSize();
-            params.height = Measurements.getIconSize();
-
-            label.setLines(2);
         }
-    }
 
-    @Override
-    public void onBind(@NonNull ViewHolder viewHolder, int index) {
-        LauncherApplication application = getApplication(index);
+        @Override
+        public View.OnClickListener getOnClickListener() {
+            return view -> {
+                int index = getBindingAdapterPosition();
+                if(index == RecyclerView.NO_POSITION) {
+                    return;
+                }
 
-        if (application != LauncherApplication.FALLBACK_APP) {
-            boolean hidden = !applicationManager.isVisibleToUser(application);
+                LauncherApplication application = getApplication(index);
 
-            viewHolder.icon.setApplication(application);
-            viewHolder.icon.setGrayscale(hidden);
-            viewHolder.icon.setAlpha(hidden ? HIDDEN_ALPHA : 1f);
-
-            viewHolder.itemView.setOnClickListener(view -> {
                 if (applicationManager.isVisibleToUser(application)) {
                     applicationManager.hideApplication(application);
                 } else {
@@ -117,21 +105,31 @@ public class HiddenRecyclerAdapter
                 }
 
                 notifyItemChanged(index);
-            });
+            };
+        }
 
-            viewHolder.label.setText(application.getLabel());
-            viewHolder.itemView.setVisibility(View.VISIBLE);
+        @Override
+        public View.OnLongClickListener getOnLongClickListener() {
+            return null;
         }
     }
 
     @Override
-    protected int getLayout() {
-        return R.layout.hidden_item;
+    public void onBind(@NonNull ApplicationViewHolder viewHolder, int index) {
+        super.onBind(viewHolder, index);
+
+        boolean hidden = !applicationManager.isVisibleToUser(getApplication(index));
+        HiddenViewHolder hiddenViewHolder = (HiddenViewHolder) viewHolder;
+
+        hiddenViewHolder.icon.setAlpha(hidden ? HIDDEN_ALPHA : 1f);
+        hiddenViewHolder.icon.setScaleX(hidden ? HIDDEN_SCALE : 1f);
+        hiddenViewHolder.icon.setScaleY(hidden ? HIDDEN_SCALE : 1f);
+        hiddenViewHolder.icon.setGrayscale(hidden);
     }
 
     @Override
-    protected Supplier<ViewHolder> getHolderSupplier() {
-        return ViewHolder::new;
+    protected Supplier<ApplicationViewHolder> getHolderSupplier(int viewType) {
+        return HiddenViewHolder::new;
     }
 
     private void notifyItemRemovedInternal() {
@@ -180,24 +178,19 @@ public class HiddenRecyclerAdapter
         this.recyclerView = null;
     }
 
+    @Override
     protected LauncherApplication getApplication(int index) {
         return applicationManager != null ?
                 applicationManager.get(index, true) : LauncherApplication.FALLBACK_APP;
     }
 
     @Override
-    public long getItemId(int position) {
-        LauncherApplication application = applicationManager.get(position, true);
-
-        if (application != null) {
-            return application.getInfo().packageName.hashCode();
-        } else {
-            return -1;
-        }
+    public int getTotalItemCount() {
+        return applicationManager.getActualSize();
     }
 
     @Override
-    public int getTotalItemCount() {
-        return applicationManager.getActualSize();
+    protected boolean allowApplicationStateEditing() {
+        return false;
     }
 }

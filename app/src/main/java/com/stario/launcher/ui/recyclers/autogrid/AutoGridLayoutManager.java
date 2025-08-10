@@ -32,6 +32,7 @@ public class AutoGridLayoutManager extends AccurateScrollComputeGridLayoutManage
 
     private RecyclerView.Adapter<?> adapter;
     private RecyclerView recyclerView;
+    private boolean centerItems;
     private int actualSpanCount;
 
     public AutoGridLayoutManager(Context context, int spanCount) {
@@ -40,6 +41,7 @@ public class AutoGridLayoutManager extends AccurateScrollComputeGridLayoutManage
         this.actualSpanCount = spanCount;
         this.recyclerView = null;
         this.adapter = null;
+        this.centerItems = true;
         this.layoutListener = new View.OnLayoutChangeListener() {
             int width = 0;
 
@@ -73,6 +75,7 @@ public class AutoGridLayoutManager extends AccurateScrollComputeGridLayoutManage
 
     @Override
     public void setSpanCount(int spanCount) {
+        spanCount = Math.max(spanCount, 1);
         this.actualSpanCount = spanCount;
 
         centerItems();
@@ -114,29 +117,7 @@ public class AutoGridLayoutManager extends AccurateScrollComputeGridLayoutManage
             return;
         }
 
-        int itemCount;
-        if (adapter instanceof AsyncRecyclerAdapter) {
-            itemCount = ((AsyncRecyclerAdapter<?>) adapter).getTotalItemCount();
-        } else {
-            itemCount = adapter.getItemCount();
-        }
-        itemCount = getBalancedSpanCount(itemCount, actualSpanCount);
-
-        if (itemCount < actualSpanCount) {
-            super.setSpanCount(itemCount);
-
-            ViewGroup.MarginLayoutParams marginLayoutParams =
-                    ((ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams());
-
-            int margin = (int) ((recyclerView.getMeasuredWidth()
-                    + marginLayoutParams.leftMargin + marginLayoutParams.rightMargin
-                    - recyclerView.getPaddingLeft() - recyclerView.getPaddingRight())
-                    * (1f - itemCount / (float) actualSpanCount) / 2);
-
-            marginLayoutParams.leftMargin = Math.max(0, margin);
-            marginLayoutParams.rightMargin = Math.max(0, margin);
-            recyclerView.setLayoutParams(marginLayoutParams);
-        } else {
+        if (!centerItems) {
             super.setSpanCount(actualSpanCount);
 
             ViewGroup.MarginLayoutParams marginLayoutParams =
@@ -144,10 +125,42 @@ public class AutoGridLayoutManager extends AccurateScrollComputeGridLayoutManage
             marginLayoutParams.leftMargin = 0;
             marginLayoutParams.rightMargin = 0;
             recyclerView.setLayoutParams(marginLayoutParams);
+        } else {
+            int itemCount;
+            if (adapter instanceof AsyncRecyclerAdapter) {
+                itemCount = ((AsyncRecyclerAdapter<?>) adapter).getTotalItemCount();
+            } else {
+                itemCount = adapter.getItemCount();
+            }
+            itemCount = getBalancedSpanCount(itemCount, actualSpanCount);
+
+            if (itemCount < actualSpanCount) {
+                super.setSpanCount(itemCount);
+
+                ViewGroup.MarginLayoutParams marginLayoutParams =
+                        ((ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams());
+
+                int margin = (int) ((recyclerView.getMeasuredWidth()
+                        + marginLayoutParams.leftMargin + marginLayoutParams.rightMargin
+                        - recyclerView.getPaddingLeft() - recyclerView.getPaddingRight())
+                        * (1f - itemCount / (float) actualSpanCount) / 2);
+
+                marginLayoutParams.leftMargin = Math.max(0, margin);
+                marginLayoutParams.rightMargin = Math.max(0, margin);
+                recyclerView.setLayoutParams(marginLayoutParams);
+            } else {
+                super.setSpanCount(actualSpanCount);
+
+                ViewGroup.MarginLayoutParams marginLayoutParams =
+                        ((ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams());
+                marginLayoutParams.leftMargin = 0;
+                marginLayoutParams.rightMargin = 0;
+                recyclerView.setLayoutParams(marginLayoutParams);
+            }
         }
 
         recyclerView.post(() -> {
-            if(recyclerView != null) {
+            if (recyclerView != null) {
                 recyclerView.requestLayout();
             }
         });
@@ -160,5 +173,10 @@ public class AutoGridLayoutManager extends AccurateScrollComputeGridLayoutManage
 
         return Math.min((int) Math.ceil((double) itemCount /
                 ((int) Math.ceil((double) itemCount / spanCount))), spanCount);
+    }
+
+    public void setCenterItems(boolean value) {
+        this.centerItems = value;
+        centerItems();
     }
 }

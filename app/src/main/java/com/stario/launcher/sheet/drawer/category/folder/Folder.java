@@ -19,6 +19,7 @@ package com.stario.launcher.sheet.drawer.category.folder;
 
 import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.transition.Transition;
@@ -38,15 +39,16 @@ import com.stario.launcher.apps.Category;
 import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.apps.popup.RenameCategoryDialog;
 import com.stario.launcher.preferences.Vibrations;
-import com.stario.launcher.sheet.drawer.DrawerPage;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
+import com.stario.launcher.sheet.drawer.search.ListDrawerPage;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.autogrid.AutoGridLayoutManager;
+import com.stario.launcher.ui.utils.LayoutSizeObserver;
 
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-public class Folder extends DrawerPage {
+public class Folder extends ListDrawerPage {
     private final CategoryManager.CategoryListener categoryListener;
 
     private ItemTouchHelper itemTouchHelper;
@@ -74,9 +76,13 @@ public class Folder extends DrawerPage {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
 
-        AutoGridLayoutManager manager = new AutoGridLayoutManager(activity,
-                Measurements.getListColumnCount());
-        Measurements.addListColumnCountChangeListener(manager::setSpanCount);
+        AutoGridLayoutManager manager = new AutoGridLayoutManager(activity, 1);
+        LayoutSizeObserver.attach(rootView, LayoutSizeObserver.WIDTH, new LayoutSizeObserver.OnChange() {
+            @Override
+            public void onChange(View view, int watchFlags, Rect rect) {
+                manager.setSpanCount(Math.min(6, rect.width() / Measurements.dpToPx(90)));
+            }
+        });
 
         drawer.setLayoutManager(manager);
         drawer.setItemAnimator(null);
@@ -133,7 +139,7 @@ public class Folder extends DrawerPage {
                 if (actionState == ItemTouchHelper.ACTION_STATE_DRAG
                         && viewHolder != null) {
                     viewHolder.itemView.forceLayout();
-                    ((RecyclerApplicationAdapter.ViewHolder) viewHolder).focus();
+                    ((RecyclerApplicationAdapter.ApplicationViewHolder) viewHolder).hideLabel();
 
                     drawer.setItemAnimator(new DefaultItemAnimator());
 
@@ -145,7 +151,7 @@ public class Folder extends DrawerPage {
 
             @Override
             public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-                ((RecyclerApplicationAdapter.ViewHolder) viewHolder).clearFocus();
+                ((RecyclerApplicationAdapter.ApplicationViewHolder) viewHolder).showLabel();
                 RecyclerView.ItemAnimator itemAnimator = drawer.getItemAnimator();
 
                 if (itemAnimator != null) {
@@ -190,6 +196,11 @@ public class Folder extends DrawerPage {
         return rootView;
     }
 
+    @Override
+    public boolean hideInflatedLayout() {
+        return false;
+    }
+
     public void updateCategory(UUID identifier) {
         postponeEnterTransition();
 
@@ -212,13 +223,6 @@ public class Folder extends DrawerPage {
                 startPostponedEnterTransition();
             });
         });
-    }
-
-    @Override
-    public void onDestroyView() {
-        drawer.setAdapter(null);
-
-        super.onDestroyView();
     }
 
     @Override
