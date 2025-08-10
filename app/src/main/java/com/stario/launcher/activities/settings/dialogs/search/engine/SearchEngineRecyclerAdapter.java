@@ -65,7 +65,7 @@ public class SearchEngineRecyclerAdapter extends RecyclerView.Adapter<SearchEngi
         viewHolder.url.setText(engine.getUrl());
 
         viewHolder.itemView.setOnClickListener(v -> {
-            SearchEngine.setEngine(activity, engine);
+            SearchEngine.setEngine(activity.getApplicationContext(), engine);
 
             if (listener != null) {
                 listener.onClick(v);

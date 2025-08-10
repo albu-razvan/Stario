@@ -22,9 +22,9 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
+import com.stario.launcher.Stario;
 import com.stario.launcher.exceptions.NoExistingInstanceException;
 import com.stario.launcher.preferences.Entry;
-import com.stario.launcher.themes.ThemedActivity;
 
 import java.util.List;
 
@@ -36,16 +36,12 @@ public class CategoryMappings {
         this.provider = provider;
     }
 
-    /**
-     * This method should be called once, typically in a {@link ThemedActivity}, to
-     * load the mappings.
-     *
-     * @param activity The themed activity for which mappings will be loaded.
-     */
-    public static void from(ThemedActivity activity) {
+    public static void from(Stario stario) {
         if (instance == null) {
             instance = new CategoryMappings((name) ->
-                    activity.getSharedPreferences(Entry.CATEGORY_MAP.toSubPreference(name), Context.MODE_PRIVATE));
+                    stario.getSharedPreferences(
+                            Entry.CATEGORY_MAP.toSubPreference(name), Context.MODE_PRIVATE)
+            );
         }
     }
 

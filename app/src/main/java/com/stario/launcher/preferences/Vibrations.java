@@ -22,8 +22,8 @@ import android.content.SharedPreferences;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 
+import com.stario.launcher.Stario;
 import com.stario.launcher.exceptions.NoExistingInstanceException;
-import com.stario.launcher.themes.ThemedActivity;
 
 public class Vibrations {
     public static final String PREFERENCE_ENTRY = "com.stario.VIBRATIONS";
@@ -31,13 +31,12 @@ public class Vibrations {
     private final SharedPreferences settings;
     private final Vibrator vibrator;
 
-    private Vibrations(ThemedActivity activity) {
-        settings = activity.getSettings();
-
-        vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
+    private Vibrations(Stario stario) {
+        settings = stario.getSharedPreferences(Entry.STARIO);
+        vibrator = (Vibrator) stario.getSystemService(Context.VIBRATOR_SERVICE);
     }
 
-    public static void from(ThemedActivity activity) {
+    public static void from(Stario activity) {
         if (instance == null) {
             instance = new Vibrations(activity);
         }

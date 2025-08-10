@@ -43,12 +43,14 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- Avoid pixel gaps -->
             <com.stario.launcher.ui.common.FadingEdgeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/pop_up_hide_tabs_fader"
                 android:paddingTop="70dp"
                 android:paddingBottom="10dp"
+                android:translationY="1px"
                 app:edge="left|right"
                 app:size_left="30dp"
                 app:size_right="30dp">

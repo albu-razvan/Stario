@@ -25,9 +25,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 
 import com.stario.launcher.R;
+import com.stario.launcher.Stario;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.sheet.drawer.search.recyclers.adapters.WebAdapter;
-import com.stario.launcher.themes.ThemedActivity;
 
 public enum SearchEngine {
     GOOGLE("Google", "google.com", "/search?q=", R.drawable.ic_google),
@@ -71,10 +71,10 @@ public enum SearchEngine {
     }
 
     // Defaults to GOOGLE
-    public static SearchEngine getEngine(ThemedActivity activity) {
+    public static SearchEngine getEngine(Stario stario) {
         SearchEngine engine = GOOGLE;
 
-        SharedPreferences preferences = activity.getSharedPreferences(Entry.SEARCH);
+        SharedPreferences preferences = stario.getSharedPreferences(Entry.SEARCH);
 
         if (preferences.getBoolean(WebAdapter.SEARCH_RESULTS, false)) {
             engine = KAGI;
@@ -103,8 +103,8 @@ public enum SearchEngine {
         return engine;
     }
 
-    public static void setEngine(ThemedActivity activity, SearchEngine engine) {
-        activity.getSharedPreferences(Entry.SEARCH)
+    public static void setEngine(Stario stario, SearchEngine engine) {
+        stario.getSharedPreferences(Entry.SEARCH)
                 .edit()
                 .putString(SEARCH_ENGINE, engine.url)
                 .apply();

@@ -18,6 +18,7 @@
 package com.stario.launcher;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -25,6 +26,9 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
+import com.stario.launcher.apps.ProfileManager;
+import com.stario.launcher.preferences.Entry;
+import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.ui.Measurements;
 
 import org.chickenhook.restrictionbypass.Unseal;
@@ -40,6 +44,9 @@ public class Stario extends Application {
             Log.e("Stario", "Could not unseal the process.", exception);
         }
 
+        Vibrations.from(this);
+        ProfileManager.from(this);
+
         ProcessLifecycleOwner.get()
                 .getLifecycle()
                 .addObserver(new DefaultLifecycleObserver() {
@@ -50,5 +57,28 @@ public class Stario extends Application {
                         }
                     }
                 });
+    }
+
+    //warn the usage of malformed preference stores
+    @Override
+    public SharedPreferences getSharedPreferences(String name, int mode) {
+        if (!Entry.isValid(name)) {
+            Log.w("Stario", "getSharedPreferences: " + name +
+                    " should be part of " + Entry.class.getCanonicalName());
+        }
+
+        return super.getSharedPreferences(name, mode);
+    }
+
+    public SharedPreferences getSharedPreferences(Entry entry) {
+        return super.getSharedPreferences(entry.toString(), MODE_PRIVATE);
+    }
+
+    public SharedPreferences getSharedPreferences(Entry entry, String subPreference) {
+        return super.getSharedPreferences(entry.toSubPreference(subPreference), MODE_PRIVATE);
+    }
+
+    public SharedPreferences getSettings() {
+        return getSharedPreferences(Entry.STARIO);
     }
 }

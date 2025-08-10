@@ -19,6 +19,7 @@ package com.stario.launcher.sheet.briefing.feed;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +33,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.apptasticsoftware.rssreader.Item;
 import com.stario.launcher.R;
-import com.stario.launcher.activities.Launcher;
+import com.stario.launcher.activities.launcher.Launcher;
 import com.stario.launcher.sheet.SheetType;
 import com.stario.launcher.sheet.briefing.BriefingFeedList;
 import com.stario.launcher.sheet.briefing.dialog.BriefingDialog;
@@ -44,6 +45,7 @@ import com.stario.launcher.ui.recyclers.CustomStaggeredGridLayoutManager;
 import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
+import com.stario.launcher.ui.utils.LayoutSizeObserver;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.utils.Utils;
@@ -140,8 +142,13 @@ public class FeedPage extends Fragment {
             adapter.updateAttributes(recyclerView);
         }
 
-        manager = new CustomStaggeredGridLayoutManager(Measurements.getBriefingColumnCount());
-        Measurements.addBriefingColumnCountChangeListener(value -> manager.setSpanCount(value));
+        manager = new CustomStaggeredGridLayoutManager(0);
+        LayoutSizeObserver.attach(root, LayoutSizeObserver.WIDTH, new LayoutSizeObserver.OnChange() {
+            @Override
+            public void onChange(View view, int watchFlags, Rect rect) {
+                manager.setSpanCount(Math.max(1, rect.width() / Measurements.dpToPx(400)));
+            }
+        });
         manager.setItemPrefetchEnabled(true);
 
         recyclerView.setLayoutManager(manager);

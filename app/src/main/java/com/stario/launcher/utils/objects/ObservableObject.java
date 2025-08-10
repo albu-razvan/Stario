@@ -28,6 +28,11 @@ public class ObservableObject<A> {
         this.observable = new ClosedObservableObject<>(object);
     }
 
+    public ObservableObject(A object, @NonNull ObservableObject.OnSet<A> listener) {
+        this.observable = new ClosedObservableObject<>(object);
+        observable.addListener(listener);
+    }
+
     public void updateObject(A object) {
         if (!((object != null && object.equals(observable.object)) ||
                 object == observable.object)) {

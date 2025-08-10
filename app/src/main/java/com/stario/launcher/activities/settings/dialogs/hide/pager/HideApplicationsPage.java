@@ -18,6 +18,7 @@
 package com.stario.launcher.activities.settings.dialogs.hide.pager;
 
 import android.annotation.SuppressLint;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +34,7 @@ import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.autogrid.AutoGridLayoutManager;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
+import com.stario.launcher.ui.utils.LayoutSizeObserver;
 
 public class HideApplicationsPage extends Fragment {
     private ProfileApplicationManager applicationManager;
@@ -55,8 +57,13 @@ public class HideApplicationsPage extends Fragment {
         recyclerView = root.findViewById(R.id.recycler);
         recyclerView.setOverscrollPullEdges(OverScrollEffect.PULL_EDGE_BOTTOM);
 
-        AutoGridLayoutManager manager = new AutoGridLayoutManager(getActivity(),
-                Measurements.getListColumnCount(Measurements.dpToPx(500)));
+        AutoGridLayoutManager manager = new AutoGridLayoutManager(getActivity(), 1);
+        LayoutSizeObserver.attach(root, LayoutSizeObserver.WIDTH, new LayoutSizeObserver.OnChange() {
+            @Override
+            public void onChange(View view, int watchFlags, Rect rect) {
+                manager.setSpanCount(Math.min(6, rect.width() / Measurements.dpToPx(90)));
+            }
+        });
 
         recyclerView.setLayoutManager(manager);
         recyclerView.setItemAnimator(null);
@@ -66,6 +73,13 @@ public class HideApplicationsPage extends Fragment {
         });
 
         return root;
+    }
+
+    @Override
+    public void onDestroy() {
+        recyclerView.setAdapter(null);
+
+        super.onDestroy();
     }
 
     public OverScrollRecyclerView getRecycler() {

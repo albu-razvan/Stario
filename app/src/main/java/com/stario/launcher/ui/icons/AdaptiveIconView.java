@@ -24,8 +24,10 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.drawable.AdaptiveIconDrawable;
@@ -52,6 +54,7 @@ import java.io.Serializable;
 public class AdaptiveIconView extends View {
     public static final String CORNER_RADIUS_ENTRY = "com.stario.CORNER_RADIUS";
     public static final float DEFAULT_CORNER_RADIUS = 1f;
+    private static final int MAX_SHADOW_SIZE = 3;
     public static final float MAX_SCALE = 1.12f;
 
     private ObjectDelegate<PathCornerTreatmentAlgorithm> pathAlgorithm;
@@ -67,6 +70,7 @@ public class AdaptiveIconView extends View {
     private Drawable alternateBadge;
     private boolean sizeRestricted;
     private boolean looseClipping;
+    private Paint shadowPaint;
     private Boolean grayscale;
     private boolean paused;
     private Path path;
@@ -90,7 +94,8 @@ public class AdaptiveIconView extends View {
     }
 
     private void init(Context context, @Nullable AttributeSet attrs) {
-        this.preferences = context.getSharedPreferences(Entry.ICONS.toString(), Context.MODE_PRIVATE);
+        this.preferences = context.getApplicationContext()
+                .getSharedPreferences(Entry.ICONS.toString(), Context.MODE_PRIVATE);
         this.localBroadcastManager = LocalBroadcastManager.getInstance(context);
         this.radiusReceiver = new BroadcastReceiver() {
             @Override
@@ -144,6 +149,9 @@ public class AdaptiveIconView extends View {
         this.pausedReceiver = null;
         this.paused = false;
 
+        this.shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        shadowPaint.setColor(Color.TRANSPARENT);
+
         setLayerType(LAYER_TYPE_HARDWARE, null);
     }
 
@@ -177,9 +185,13 @@ public class AdaptiveIconView extends View {
         localBroadcastManager.unregisterReceiver(squircleReceiver);
     }
 
+    public static int getMaxIconSize() {
+        return Measurements.dpToPx(60);
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int maxIconSize = Measurements.getIconSize();
+        int maxIconSize = getMaxIconSize();
         int measuredWidth = MeasureSpec.getSize(widthMeasureSpec);
         int measuredHeight = MeasureSpec.getSize(heightMeasureSpec);
 
@@ -194,19 +206,11 @@ public class AdaptiveIconView extends View {
 
                 widthMeasureSpec = heightMeasureSpec =
                         MeasureSpec.makeMeasureSpec(size, MeasureSpec.getMode(widthMeasureSpec));
-                measuredWidth = measuredHeight = size;
+                measuredWidth = size;
             }
 
-            Drawable icon = this.icon.getValue();
-
-            if (icon != null) {
-                icon.setBounds(0, 0, measuredWidth, measuredHeight);
-            }
-
-            updateClipPath(measuredWidth, measuredHeight);
-
-            alternateBadge.setBounds((int) (measuredWidth * 0.6),
-                    (int) (measuredHeight * 0.6), measuredWidth, measuredHeight);
+            //noinspection SuspiciousNameCombination
+            setClipBounds(new Rect(0, 0, measuredWidth, measuredWidth));
         }
 
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -283,7 +287,8 @@ public class AdaptiveIconView extends View {
         if (icon != null && icon.getConstantState() != null) {
             Drawable constantStateIcon = icon.getConstantState().newDrawable();
 
-            constantStateIcon.setBounds(0, 0, getMeasuredWidth(), getMeasuredHeight());
+            constantStateIcon.setBounds(MAX_SHADOW_SIZE, MAX_SHADOW_SIZE,
+                    getMeasuredWidth() - MAX_SHADOW_SIZE, getMeasuredHeight() - MAX_SHADOW_SIZE);
 
             this.icon.setValue(constantStateIcon);
         } else {
@@ -292,24 +297,32 @@ public class AdaptiveIconView extends View {
 
         paused = false;
         applyAlternateBadge = false;
+
+        post(this::requestLayout);
     }
 
     @Override
     public void setClipBounds(Rect clipBounds) {
         if (icon.getValue() != null) {
-            if (clipBounds != null) {
-                icon.getValue().setBounds(clipBounds);
+            int size = clipBounds.width();
+            int inset = (size - MAX_SHADOW_SIZE * 2);
 
-                updateClipPath(clipBounds.width(), clipBounds.height());
-            } else {
-                icon.getValue().setBounds(0, 0, getMeasuredWidth(), getMeasuredHeight());
-
-                updateClipPath(getMeasuredWidth(), getMeasuredHeight());
+            Drawable icon = this.icon.getValue();
+            if (icon != null) {
+                icon.setBounds(0, 0, inset, inset);
             }
+
+            updateClipPath(inset, inset);
+
+            alternateBadge.setBounds((int) (inset * 0.6), (int) (inset * 0.6), inset, inset);
+
+            shadowPaint.setShadowLayer(
+                    ((float) size / getMaxIconSize()) * MAX_SHADOW_SIZE * 0.75f,
+                    0, 0, Color.argb(100, 0, 0, 0)
+            );
         }
 
         super.setClipBounds(clipBounds);
-
         invalidate();
     }
 
@@ -332,14 +345,19 @@ public class AdaptiveIconView extends View {
 
     @Override
     public void draw(@NonNull Canvas canvas) {
+        int saveCount = canvas.save();
+        canvas.translate(MAX_SHADOW_SIZE, MAX_SHADOW_SIZE);
+
         if (!looseClipping ||
-                (icon != null && icon.getValue() instanceof AdaptiveIconDrawable)) {
-            int save = canvas.save();
+                (icon.getValue() instanceof AdaptiveIconDrawable)) {
+            canvas.drawPath(path, shadowPaint);
+
+            int clipSave = canvas.save();
 
             canvas.clipPath(path);
 
             super.draw(canvas);
-            canvas.restoreToCount(save);
+            canvas.restoreToCount(clipSave);
         } else {
             super.draw(canvas);
         }
@@ -347,6 +365,8 @@ public class AdaptiveIconView extends View {
         if (applyAlternateBadge) {
             alternateBadge.draw(canvas);
         }
+
+        canvas.restoreToCount(saveCount);
     }
 
     @Override

@@ -66,7 +66,7 @@ public class IconsDialog extends ActionDialog {
         super(activity);
 
         this.localBroadcastManager = LocalBroadcastManager.getInstance(activity);
-        this.preferences = activity.getSharedPreferences(Entry.ICONS);
+        this.preferences = activity.getApplicationContext().getSharedPreferences(Entry.ICONS);
     }
 
     @SuppressLint("ClickableViewAccessibility")

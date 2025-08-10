@@ -47,7 +47,8 @@ public class SearchResultsDialog extends ActionDialog {
     public SearchResultsDialog(@NonNull ThemedActivity activity) {
         super(activity);
 
-        preferences = activity.getSharedPreferences(Entry.SEARCH);
+        preferences = activity.getApplicationContext()
+                .getSharedPreferences(Entry.SEARCH);
     }
 
     @NonNull

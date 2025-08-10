@@ -32,7 +32,6 @@ import com.stario.launcher.R;
 import com.stario.launcher.apps.Category;
 import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.preferences.Vibrations;
-import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.category.Categories;
 import com.stario.launcher.sheet.drawer.category.folder.Folder;
 import com.stario.launcher.themes.ThemedActivity;
@@ -52,7 +51,6 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
     private static final float TARGET_SCALE = 0.9f;
 
     private final CategoryManager.CategoryListener listener;
-    private final List<AdaptiveIconView> sharedIcons;
     private final CategoryManager categoryManager;
     private final ThemedActivity activity;
     private final FolderList folderList;
@@ -65,7 +63,6 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
         this.folderList = folderList;
 
         this.categoryManager = CategoryManager.getInstance();
-        this.sharedIcons = new ArrayList<>();
         this.folder = new Folder();
 
         this.listener = new CategoryManager.CategoryListener() {
@@ -113,10 +110,12 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
     }
 
     public boolean move(RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder targetHolder) {
-        int position = viewHolder.getAbsoluteAdapterPosition();
-        int target = targetHolder.getAbsoluteAdapterPosition();
+        int position = viewHolder.getBindingAdapterPosition();
+        int target = targetHolder.getBindingAdapterPosition();
 
-        if (position == target) {
+        if (position == target
+                || position == RecyclerView.NO_POSITION
+                || target == RecyclerView.NO_POSITION) {
             return false;
         }
 
@@ -242,12 +241,6 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
                 if (!folderList.isTransitioning()) {
                     Vibrations.getInstance().vibrate();
 
-                    for (int index = sharedIcons.size() - 1; index >= 0; index--) {
-                        AdaptiveIconView icon = sharedIcons.remove(index);
-
-                        icon.setTransitionName(null);
-                    }
-
                     List<View> excluded = new ArrayList<>();
 
                     FragmentManager fragmentManager = folderList.getParentFragmentManager();
@@ -258,29 +251,20 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
                         for (int position = 0;
                              position < viewHolder.adapter.getItemCount() &&
-                                     position < FolderListItemAdapter.HARD_LIMIT; position++) {
+                                     position < FolderListItemAdapter.HARD_LIMIT;
+                             position++) {
 
                             View group = layoutManager.findViewByPosition(position);
-
                             excluded.add(group);
 
                             AdaptiveIconView icon = getIcon(group);
-
                             if (icon != null) {
-                                sharedIcons.add(icon);
-
-                                String transitionName = DrawerAdapter.SHARED_ELEMENT_PREFIX + position;
-
-                                icon.setTransitionName(transitionName);
-                                transaction.addSharedElement(icon, transitionName);
-
+                                transaction.addSharedElement(icon, icon.getTransitionName());
                                 excluded.add(icon);
                             }
                         }
 
-                        excluded.addAll(sharedIcons);
-
-                        if(UiUtils.areTransitionsOn(activity)) {
+                        if (UiUtils.areTransitionsOn(activity)) {
                             Transition transition = new SharedElementTransition.SharedAppFolderTransition();
                             transition.setDuration(Animation.LONG.getDuration());
 
@@ -293,19 +277,17 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
                             folder.setSharedElementEnterTransition(null);
                             folder.setEnterTransition(null);
 
-                            folderList.setEnterTransition(null);
+                            folderList.setExitTransition(null);
                             folderList.setReenterTransition(null);
                         }
 
                         folder.setSharedElementReturnTransition(null);
 
                         transaction.setReorderingAllowed(true);
-                        transaction.addToBackStack(Categories.STACK_ID);
+                        transaction.addToBackStack(Categories.FOLDER_STACK_ID);
 
                         transaction.hide(folderList)
                                 .add(R.id.categories, folder);
-
-                        fragmentManager.executePendingTransactions();
                         transaction.commit();
 
                         folder.updateCategory(category.identifier);
@@ -330,17 +312,16 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         categoryManager.removeOnCategoryUpdateListener(listener);
-
         super.onDetachedFromRecyclerView(recyclerView);
     }
 
     @Override
-    protected int getLayout() {
+    protected int getLayout(int viewType) {
         return R.layout.folder;
     }
 
     @Override
-    protected Supplier<ViewHolder> getHolderSupplier() {
+    protected Supplier<ViewHolder> getHolderSupplier(int viewType) {
         return ViewHolder::new;
     }
 

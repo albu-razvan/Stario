@@ -39,8 +39,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.PathInterpolator;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
@@ -82,6 +82,7 @@ public class PopupMenu {
     private final PopupWindow.OnDismissListener dismissListener;
     private final HashMap<Integer,
             Map.Entry<RecyclerView, RecyclerAdapter>> recyclers;
+    private final boolean dismissOnItemClick;
     private final LifecycleObserver observer;
     private final PopupWindow popupWindow;
     private final ThemedActivity activity;
@@ -91,7 +92,12 @@ public class PopupMenu {
     private int shortcutCount;
 
     public PopupMenu(ThemedActivity activity) {
+        this(activity, true);
+    }
+
+    public PopupMenu(ThemedActivity activity, boolean dismissOnItemClick) {
         this.activity = activity;
+        this.dismissOnItemClick = dismissOnItemClick;
         this.recyclers = new HashMap<>();
         this.shortcutCount = 0;
 
@@ -112,7 +118,7 @@ public class PopupMenu {
 
         Transition exit = new MaterialElevationScale(false);
         exit.setDuration(Animation.SHORT.getDuration());
-        exit.setInterpolator(new AccelerateInterpolator());
+        exit.setInterpolator(new PathInterpolator(0.5f, 0f, .9f, 1.1f));
 
         popupWindow.setExitTransition(exit);
 
@@ -140,7 +146,8 @@ public class PopupMenu {
         }
 
         RecyclerView recycler = new OverScrollRecyclerView(activity);
-        RecyclerAdapter adapter = new RecyclerAdapter(popupWindow, activity);
+        RecyclerAdapter adapter = new RecyclerAdapter(activity,
+                dismissOnItemClick ? view -> dismiss() : null);
 
         int padding = Measurements.dpToPx(PADDING);
 

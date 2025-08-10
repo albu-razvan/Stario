@@ -18,7 +18,7 @@
 package com.stario.launcher.sheet.drawer.list;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.UserHandle;
@@ -33,14 +33,16 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.stario.launcher.R;
 import com.stario.launcher.apps.ProfileApplicationManager;
 import com.stario.launcher.apps.ProfileManager;
-import com.stario.launcher.sheet.drawer.DrawerPage;
+import com.stario.launcher.sheet.drawer.search.ListDrawerPage;
 import com.stario.launcher.ui.Measurements;
-import com.stario.launcher.ui.recyclers.autogrid.AutoGridLayoutManager;
 import com.stario.launcher.ui.recyclers.FastScroller;
 import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
+import com.stario.launcher.ui.recyclers.autogrid.AutoGridLayoutManager;
+import com.stario.launcher.ui.utils.LayoutSizeObserver;
 import com.stario.launcher.utils.Utils;
+import com.stario.launcher.utils.objects.ObservableObject;
 
-public class List extends DrawerPage {
+public class List extends ListDrawerPage {
     private static final String USER_HANDLE_KEY = "com.stario.UserHandle";
 
     private FastScroller fastScroller;
@@ -54,11 +56,6 @@ public class List extends DrawerPage {
         this.handle = profile.handle;
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-    }
-
     @NonNull
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -67,8 +64,13 @@ public class List extends DrawerPage {
 
         fastScroller = rootView.findViewById(R.id.fast_scroller);
 
-        AutoGridLayoutManager manager = new AutoGridLayoutManager(activity, Measurements.getListColumnCount());
-        Measurements.addListColumnCountChangeListener(manager::setSpanCount);
+        AutoGridLayoutManager manager = new AutoGridLayoutManager(activity, 1);
+        LayoutSizeObserver.attach(fastScroller, LayoutSizeObserver.WIDTH, new LayoutSizeObserver.OnChange() {
+            @Override
+            public void onChange(View view, int watchFlags, Rect rect) {
+                manager.setSpanCount(getColumnCount(rect.width()));
+            }
+        });
 
         drawer.setLayoutManager(manager);
         drawer.setItemAnimator(null);
@@ -128,10 +130,21 @@ public class List extends DrawerPage {
             }
         }
 
-        AsyncRecyclerAdapter<?> adapter = new ListAdapter(activity,
-                ProfileManager.getInstance().getProfile(handle));
-        Measurements.addListColumnCountChangeListener(object ->
-                adapter.approximateRecyclerHeight());
+        ProfileApplicationManager applicationManager = ProfileManager.getInstance().getProfile(handle);
+        AsyncRecyclerAdapter<?> adapter = new ListAdapter(activity, applicationManager);
+        LayoutSizeObserver.attach(drawer, LayoutSizeObserver.WIDTH, new LayoutSizeObserver.OnChange() {
+            final ObservableObject<Integer> columnCount;
+
+            {
+                columnCount = new ObservableObject<>(0,
+                        object -> adapter.approximateRecyclerHeight());
+            }
+
+            @Override
+            public void onChange(View view, int watchFlags, Rect rect) {
+                columnCount.updateObject(getColumnCount(rect.width()));
+            }
+        });
         adapter.setRecyclerHeightApproximationListener(height -> {
             ViewGroup parent = (ViewGroup) drawer.getParent();
             ConstraintLayout.LayoutParams params =
@@ -151,6 +164,8 @@ public class List extends DrawerPage {
         });
         drawer.setAdapter(adapter);
 
+        applicationManager.addOnReadyListener(manager -> showLayout());
+
         super.onViewStateRestored(savedInstanceState);
     }
 
@@ -159,13 +174,6 @@ public class List extends DrawerPage {
         outState.putParcelable(USER_HANDLE_KEY, handle);
 
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onDestroyView() {
-        drawer.setAdapter(null);
-
-        super.onDestroyView();
     }
 
     @Override

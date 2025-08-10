@@ -77,7 +77,8 @@ public enum SheetType {
     public static List<Pair<SheetType, Class<? extends SheetDialogFragment>>> getStoredSheets(
             @NonNull ThemedActivity activity) {
         List<Pair<SheetType, Class<? extends SheetDialogFragment>>> list = new ArrayList<>();
-        SharedPreferences preferences = activity.getSharedPreferences(Entry.SHEET);
+        SharedPreferences preferences = activity.getApplicationContext()
+                .getSharedPreferences(Entry.SHEET);
         preferences.getAll().forEach((string, object) -> {
             try {
                 Class<?> clazz = Class.forName(string);
@@ -113,7 +114,8 @@ public enum SheetType {
     public static SheetType getSheetTypeForSheetDialogFragment(
             @NonNull ThemedActivity activity, @NonNull Class<? extends SheetDialogFragment> clazz) {
         SheetType type = null;
-        String typeString = activity.getSharedPreferences(Entry.SHEET)
+        String typeString = activity.getApplicationContext()
+                .getSharedPreferences(Entry.SHEET)
                 .getString(clazz.getName(), null);
 
         if (typeString != null) {
@@ -135,7 +137,8 @@ public enum SheetType {
     private static SheetType getDefaultSheetTypeForSheetDialogFragment(
             ThemedActivity activity, Class<? extends SheetDialogFragment> clazz, boolean writeToPreferences) {
         SheetType type = null;
-        SharedPreferences preferences = activity.getSharedPreferences(Entry.SHEET);
+        SharedPreferences preferences = activity.getApplicationContext()
+                .getSharedPreferences(Entry.SHEET);
 
         if (clazz == ApplicationsDialog.class) {
             if (writeToPreferences) {

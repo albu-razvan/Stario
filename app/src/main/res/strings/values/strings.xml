@@ -50,6 +50,8 @@
     <string name="vibrations">Vibrations</string>
     <string name="theme">Theme</string>
     <string name="pages">Page manager</string>
+    <string name="dock">Dock</string>
+    <string name="pinned_category">Pinned category</string>
     <string name="search_engine">Search engine</string>
     <string name="search_results">Search results</string>
     <string name="kagi_integration">Powered by Kagi</string>

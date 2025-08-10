@@ -50,7 +50,8 @@ public class ThemeDialog extends ActionDialog {
     @NonNull
     @Override
     protected View inflateContent(LayoutInflater inflater) {
-        SharedPreferences themePreferences = activity.getSharedPreferences(Entry.THEME);
+        SharedPreferences themePreferences = activity.getApplicationContext()
+                .getSharedPreferences(Entry.THEME);
         View root = inflater.inflate(R.layout.pop_up_theme, null);
 
         boolean isForceDarkOn = themePreferences.getBoolean(ThemedActivity.FORCE_DARK, false);

@@ -53,7 +53,8 @@ public class AppAdapter extends RecyclerApplicationAdapter
 
         this.applications = new ArrayList<>();
         this.currentQuery = "";
-        this.preferences = activity.getSharedPreferences(Entry.SEARCH);
+        this.preferences = activity.getApplicationContext()
+                .getSharedPreferences(Entry.SEARCH);
     }
 
     @Override
@@ -165,7 +166,7 @@ public class AppAdapter extends RecyclerApplicationAdapter
     }
 
     @Override
-    public void onBind(@NonNull ViewHolder viewHolder, int index) {
+    public void onBind(@NonNull ApplicationViewHolder viewHolder, int index) {
         super.onBind(viewHolder, index);
 
         String label = getApplication(index).getLabel();

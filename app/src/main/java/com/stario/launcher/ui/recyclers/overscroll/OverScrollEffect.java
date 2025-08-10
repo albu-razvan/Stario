@@ -18,8 +18,6 @@
 package com.stario.launcher.ui.recyclers.overscroll;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.View;
@@ -46,7 +44,6 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
     private static final float SPRING_FACTOR_MULTIPLIER = 1000f;
     private static final float SPRING_STIFFNESS = 500f;
     private static final float SCALE_MULTIPLIER = 0.05f;
-    private static final float SCALE_ALPHA = 0.3f;
     private static final byte PIVOT_UNSPECIFIED = 0b00;
     private static final byte PIVOT_TOP = 0b01;
     private static final byte PIVOT_BOTTOM = 0b10;
@@ -244,14 +241,6 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
 
     @Override
     public boolean draw(Canvas canvas) {
-        if (isCanvasCaptured) {
-            canvas.drawColor(
-                    Color.argb(
-                            1f - factor.getValue() * SCALE_ALPHA, 0f, 0f, 0f
-                    ), PorterDuff.Mode.DST_IN
-            );
-        }
-
         return isCanvasCaptured && !isFinished();
     }
 

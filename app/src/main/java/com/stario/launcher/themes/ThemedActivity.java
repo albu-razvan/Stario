@@ -50,6 +50,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.compose.animation.core.CubicBezierEasing;
 import androidx.compose.animation.core.Easing;
 
+import com.stario.launcher.Stario;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.utils.UiUtils;
@@ -79,7 +80,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        themePreferences = getSharedPreferences(Entry.THEME);
+        themePreferences = getApplicationContext().getSharedPreferences(Entry.THEME);
 
         //default theme if it doesn't exist
         if (!themePreferences.contains(THEME)) {
@@ -332,15 +333,14 @@ abstract public class ThemedActivity extends AppCompatActivity {
         return (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
     }
 
-    //disallow the usage of malformed preference store
+    @Override
+    public Stario getApplicationContext() {
+        return (Stario) super.getApplicationContext();
+    }
+
     @Override
     public SharedPreferences getSharedPreferences(String name, int mode) {
-        if (Entry.isValid(name)) {
-            return super.getSharedPreferences(name, mode);
-        } else {
-            throw new IllegalArgumentException("Name must be declared in " +
-                    Entry.class.getCanonicalName());
-        }
+        throw new RuntimeException("Use the application context to retrieve shared preferences.");
     }
 
     @Override
@@ -356,20 +356,16 @@ abstract public class ThemedActivity extends AppCompatActivity {
         return allowTouches;
     }
 
-    public SharedPreferences getSharedPreferences(Entry entry) {
-        return super.getSharedPreferences(entry.toString(), MODE_PRIVATE);
-    }
-
-    public SharedPreferences getSharedPreferences(Entry entry, String subPreference) {
-        return super.getSharedPreferences(entry.toSubPreference(subPreference), MODE_PRIVATE);
-    }
-
-    public SharedPreferences getSettings() {
-        return getSharedPreferences(Entry.STARIO);
-    }
-
     public Theme getThemeType() {
         return theme;
+    }
+
+    public int getThemeResourceId() {
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        boolean isDarkModeOn = nightModeFlags == Configuration.UI_MODE_NIGHT_YES ||
+                themePreferences.getBoolean(FORCE_DARK, false);
+
+        return isDarkModeOn ? theme.getDarkResourceID() : theme.getLightResourceID();
     }
 
     public int getAttributeData(@AttrRes int attr) {
@@ -403,7 +399,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         boolean isDarkModeOn = nightModeFlags == Configuration.UI_MODE_NIGHT_YES ||
                 themePreferences.getBoolean(FORCE_DARK, false);
-        if (isDarkModeOn) {
+        if (isDarkModeOn || forceDark) {
             wrapper = new ContextThemeWrapper(getApplicationContext(), theme.getDarkResourceID());
         } else {
             wrapper = new ContextThemeWrapper(getApplicationContext(), theme.getLightResourceID());

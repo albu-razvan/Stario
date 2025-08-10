@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.stario.launcher.BuildConfig;
+import com.stario.launcher.Stario;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
@@ -80,28 +81,32 @@ public final class IconPackManager {
     private OnChangeListener listener;
     private IconPack activeIconPack;
 
-    private IconPackManager(ThemedActivity activity, OnChangeListener listener) {
+    private IconPackManager(Stario stario, OnChangeListener listener) {
         this.iconPacks = new ArrayList<>();
         this.listener = listener;
-        this.preferences = activity.getSharedPreferences(Entry.ICONS);
-        this.packageManager = activity.getPackageManager();
-        this.launcherApps = (LauncherApps) activity.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        this.preferences = stario.getSharedPreferences(Entry.ICONS);
+        this.packageManager = stario.getPackageManager();
+        this.launcherApps = (LauncherApps) stario.getSystemService(Context.LAUNCHER_APPS_SERVICE);
 
         this.activeIconPack = null;
     }
 
     public static IconPackManager from(@NonNull ThemedActivity activity) {
+        return from(activity.getApplicationContext());
+    }
+
+    public static IconPackManager from(@NonNull Stario stario) {
         if (instance == null) {
-            instance = new IconPackManager(activity, null);
+            instance = new IconPackManager(stario, null);
         }
 
         return instance;
     }
 
-    static IconPackManager from(@NonNull ThemedActivity activity,
+    static IconPackManager from(@NonNull Stario stario,
                                 OnChangeListener listener) {
         if (instance == null) {
-            instance = new IconPackManager(activity, listener);
+            instance = new IconPackManager(stario, listener);
         } else {
             instance.listener = listener;
         }
@@ -178,52 +183,54 @@ public final class IconPackManager {
         return null;
     }
 
-    synchronized void updateIcon(@NonNull String packageName) {
-        IconPack pack = activeIconPack;
-        String drawableName = null;
+    void updateIcon(@NonNull String packageName) {
+        Utils.submitTask(() -> {
+            IconPack pack = activeIconPack;
+            String drawableName = null;
 
-        if (preferences.contains(packageName)) {
-            String packagePreference = preferences.getString(packageName, null);
+            if (preferences.contains(packageName)) {
+                String packagePreference = preferences.getString(packageName, null);
 
-            if (packagePreference != null) {
-                if (packagePreference.equals(BuildConfig.APPLICATION_ID)) {
-                    pack = null;
-                } else {
-                    try {
-                        JSONObject json = new JSONObject(packagePreference);
+                if (packagePreference != null) {
+                    if (packagePreference.equals(BuildConfig.APPLICATION_ID)) {
+                        pack = null;
+                    } else {
+                        try {
+                            JSONObject json = new JSONObject(packagePreference);
 
-                        IconPack target = getPack((String) json.get(JSON_ICON_PACK));
-                        if (target != null) {
-                            pack = target;
+                            IconPack target = getPack((String) json.get(JSON_ICON_PACK));
+                            if (target != null) {
+                                pack = target;
 
-                            if (json.has(JSON_ICON_DRAWABLE_NAME)) {
-                                drawableName = (String) json.get(JSON_ICON_DRAWABLE_NAME);
+                                if (json.has(JSON_ICON_DRAWABLE_NAME)) {
+                                    drawableName = (String) json.get(JSON_ICON_DRAWABLE_NAME);
+                                }
                             }
+                        } catch (Exception exception) {
+                            Log.e("IconPackManager", "loadDrawable: " +
+                                    "Malformed JSON icon store for package " + packageName);
                         }
-                    } catch (Exception exception) {
-                        Log.e("IconPackManager", "loadDrawable: " +
-                                "Malformed JSON icon store for package " + packageName);
                     }
                 }
             }
-        }
 
-        if (pack != null) {
-            CompletableFuture<Drawable> future = pack.loadDrawable(packageName, drawableName);
+            if (pack != null) {
+                CompletableFuture<Drawable> future = pack.loadDrawable(packageName, drawableName);
 
-            future.thenAccept(icon -> {
-                if (icon == null) {
-                    icon = ImageUtils.getIcon(launcherApps, packageName);
-                }
+                future.thenAccept(icon -> {
+                    if (icon == null) {
+                        icon = ImageUtils.getIcon(launcherApps, packageName);
+                    }
 
-                final Drawable drawable = icon;
-                UiUtils.runOnUIThread(() ->
-                        ProfileManager.getInstance().updateIcon(packageName, drawable));
-            });
-        } else {
-            ProfileManager.getInstance().updateIcon(packageName,
-                    ImageUtils.getIcon(launcherApps, packageName));
-        }
+                    final Drawable drawable = icon;
+                    UiUtils.runOnUIThread(() ->
+                            ProfileManager.getInstance().updateIcon(packageName, drawable));
+                });
+            } else {
+                ProfileManager.getInstance().updateIcon(packageName,
+                        ImageUtils.getIcon(launcherApps, packageName));
+            }
+        });
     }
 
     synchronized void remove(LauncherApplication application) {
@@ -362,7 +369,7 @@ public final class IconPackManager {
             this.cached = false;
         }
 
-        void load(Runnable completionListener) {
+        synchronized void load(Runnable completionListener) {
             if (cached) {
                 if (completionListener != null) {
                     completionListener.run();
