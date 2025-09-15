@@ -71,7 +71,7 @@
             android:theme="@style/Theme.Light.Blue.Opaque" />
 
         <activity
-            android:name=".activities.Launcher"
+            android:name=".activities.launcher.Launcher"
             android:allowEmbedded="false"
             android:alwaysRetainTaskState="true"
             android:configChanges="orientation|screenSize|layoutDirection"

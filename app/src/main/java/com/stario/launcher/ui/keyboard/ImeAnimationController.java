@@ -60,7 +60,6 @@ public class ImeAnimationController {
 
         if (insets != null) {
             isImeShownAtStart = insets.isVisible(WindowInsetsCompat.Type.ime());
-
             cancellationSignal = new CancellationSignal();
 
             //noinspection deprecation
@@ -74,6 +73,10 @@ public class ImeAnimationController {
                             public void onReady(@NonNull WindowInsetsAnimationControllerCompat controller, int types) {
                                 insetsAnimationController = controller;
                                 cancellationSignal = null;
+
+                                insetTo(isImeShownAtStart
+                                        ? insetsAnimationController.getShownStateInsets().bottom
+                                        : 0);
                             }
 
                             @Override
@@ -141,7 +144,8 @@ public class ImeAnimationController {
         }
 
         return (float) insetsAnimationController.getCurrentInsets().bottom /
-                (insetsAnimationController.getShownStateInsets().bottom - insetsAnimationController.getHiddenStateInsets().bottom);
+                (insetsAnimationController.getShownStateInsets().bottom -
+                        insetsAnimationController.getHiddenStateInsets().bottom);
     }
 
     public boolean isCurrentPositionFullyHidden() {
@@ -176,7 +180,7 @@ public class ImeAnimationController {
         }
 
         if (insetsAnimationController != null) {
-            if (velocity != null) {
+            if (velocity != null && velocity != 0) {
                 if (velocity > 0 && isCurrentPositionFullyShown()) {
                     insetsAnimationController.finish(true);
                 } else if (velocity < 0 && isCurrentPositionFullyHidden()) {
@@ -224,8 +228,8 @@ public class ImeAnimationController {
     private void setVisibilityWithAnimation(boolean visible, Integer velocity) {
         springAnimation = new SpringAnimation(new FloatValueHolder((float) insetsAnimationController.getCurrentInsets().bottom));
 
-        springAnimation.addUpdateListener((animation, value, vel) -> insetTo(Math.round(value)));
-
+        springAnimation.addUpdateListener(
+                (animation, value, vel) -> insetTo(Math.round(value)));
         springAnimation.addEndListener((animation, canceled, value, vel) -> {
             if (!canceled) {
                 if (insetsAnimationController != null) {
@@ -258,7 +262,7 @@ public class ImeAnimationController {
         springAnimation.getSpring().setStiffness(3000);
     }
 
-    public boolean isAnimationControllDisallowed() {
+    public boolean isAnimationControlDisallowed() {
         return disallowAnimationControl;
     }
 }

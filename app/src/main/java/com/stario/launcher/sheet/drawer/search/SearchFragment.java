@@ -109,7 +109,8 @@ public class SearchFragment extends Fragment {
         activity = (ThemedActivity) context;
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 
-        searchPreferences = activity.getSharedPreferences(Entry.SEARCH);
+        searchPreferences = activity.getApplicationContext()
+                .getSharedPreferences(Entry.SEARCH);
 
         homeWatcher = new HomeWatcher(context);
         homeWatcher.setOnHomePressedListener(() -> {
@@ -335,7 +336,7 @@ public class SearchFragment extends Fragment {
                 @Override
                 public boolean onPreScroll(int delta) {
                     if (controller.isRequestPending() ||
-                            controller.isAnimationControllDisallowed() ||
+                            controller.isAnimationControlDisallowed() ||
                             controller.isSettleAnimationInProgress()) {
                         return true;
                     }
@@ -396,7 +397,7 @@ public class SearchFragment extends Fragment {
                 @Override
                 public boolean onPreFling(int velocity) {
                     if (controller.isRequestPending() ||
-                            controller.isAnimationControllDisallowed() ||
+                            controller.isAnimationControlDisallowed() ||
                             controller.isSettleAnimationInProgress()) {
                         return true;
                     }
@@ -603,7 +604,7 @@ public class SearchFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        SearchEngine engine = SearchEngine.getEngine(activity);
+        SearchEngine engine = SearchEngine.getEngine(activity.getApplicationContext());
         search.setCompoundDrawablesWithIntrinsicBounds(
                 engine.getDrawable(activity), null, null, null);
     }

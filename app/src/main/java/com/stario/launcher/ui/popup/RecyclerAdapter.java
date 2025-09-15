@@ -20,26 +20,27 @@ package com.stario.launcher.ui.popup;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
+import com.stario.launcher.preferences.Vibrations;
 
 import java.util.ArrayList;
 
 import carbon.widget.ImageView;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
-    private final Activity activity;
-    private final PopupWindow popupWindow;
+    private final View.OnClickListener clickListener;
     private final ArrayList<PopupMenu.Item> items;
+    private final Activity activity;
 
-    public RecyclerAdapter(PopupWindow popupWindow, Activity activity) {
-        this.popupWindow = popupWindow;
+    public RecyclerAdapter(Activity activity, View.OnClickListener clickListener) {
+        this.clickListener = clickListener;
         this.activity = activity;
         this.items = new ArrayList<>();
     }
@@ -63,10 +64,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
         viewHolder.icon.setBackground(holder.icon);
         viewHolder.label.setText(holder.label);
-        viewHolder.itemView.setOnClickListener(v -> {
-            holder.listener.onClick(v);
 
-            popupWindow.dismiss();
+        viewHolder.itemView.setOnClickListener(view -> {
+            Vibrations.getInstance().vibrate();
+            holder.listener.onClick(view);
+
+            if (clickListener != null) {
+                clickListener.onClick(view);
+            }
         });
     }
 

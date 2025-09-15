@@ -105,8 +105,10 @@ public abstract class ActionDialog extends BottomSheetDialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getBehavior().setSkipCollapsed(true);
-        getBehavior().setPeekHeight(100_000_000);
+        BottomSheetBehavior<?> behavior = getBehavior();
+
+        behavior.setSkipCollapsed(true);
+        behavior.setPeekHeight(100_000_000);
 
         LayoutInflater inflater = activity.getLayoutInflater();
 
@@ -121,13 +123,13 @@ public abstract class ActionDialog extends BottomSheetDialog {
                     heightProvider, (translation) -> content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
                             content.getPaddingRight(), (int) (Measurements.getNavHeight() - translation)));
 
-            heightProvider.addKeyboardHeightListener(height -> getBehavior().setDraggable(height == 0));
+            heightProvider.addKeyboardHeightListener(height -> behavior.setDraggable(height == 0));
         } else {
             heightProvider.addKeyboardHeightListener(height -> {
                 content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
                         content.getPaddingRight(), Measurements.getNavHeight() + height);
 
-                getBehavior().setDraggable(height == 0);
+                behavior.setDraggable(height == 0);
             });
         }
 
@@ -141,7 +143,7 @@ public abstract class ActionDialog extends BottomSheetDialog {
 
         ((View) root.getParent()).setBackgroundColor(Color.TRANSPARENT);
 
-        getBehavior().addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+        behavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED ||
@@ -281,7 +283,7 @@ public abstract class ActionDialog extends BottomSheetDialog {
         BottomSheetBehavior<?> behavior = getBehavior();
         behavior.setDraggable(heightProvider.getKeyboardHeight() == 0);
 
-        root.post(() -> UiUtils.Notch.applyNotchMargin(root, UiUtils.Notch.INVERSE));
+        root.post(() -> UiUtils.Notch.applyNotchMargin(root, UiUtils.Notch.Treatment.INVERSE));
 
         if (heightProvider != null) {
             heightProvider.start();
@@ -294,12 +296,11 @@ public abstract class ActionDialog extends BottomSheetDialog {
     }
 
     private void dismissWithoutSheetAnimation() {
-        BottomSheetBehavior<?> behavior = getBehavior();
-        behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        dismiss();
 
         // skip framework animation
         try {
-            ViewDragHelper helper = getViewDragHelper(behavior);
+            ViewDragHelper helper = getViewDragHelper(getBehavior());
             if (helper != null) {
                 OverScroller scroller = getScroller(helper);
 
@@ -310,8 +311,6 @@ public abstract class ActionDialog extends BottomSheetDialog {
         } catch (Exception exception) {
             Log.e("ActionDialog", "onAttachedToWindow: ", exception);
         }
-
-        dismiss();
     }
 
     @Override

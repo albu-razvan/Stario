@@ -44,7 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:fontFamily="@font/dm_sans_regular"
+            android:fontFamily="@font/dm_sans_medium"
             android:letterSpacing="-0.03"
             android:lines="1"
             android:maxLines="1"

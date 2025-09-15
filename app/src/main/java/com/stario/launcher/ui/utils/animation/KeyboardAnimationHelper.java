@@ -78,15 +78,10 @@ public class KeyboardAnimationHelper {
                 }
 
                 heightProvider.addKeyboardHeightListener((height) -> {
-                    if ((!running && !pendingTransition) ||
-                            Measurements.getAnimatorDurationScale() == 0) {
-                        // fix initial calculation flicker
-                        // sometimes, detecting the keyboard height takes longer than the actual animation
-                        // dev tools -> animation scale 0
+                    if (Measurements.getAnimatorDurationScale() == 0) {
                         listener.translate(-height);
                     } else {
                         endBottom = height;
-
                     }
                 });
             }

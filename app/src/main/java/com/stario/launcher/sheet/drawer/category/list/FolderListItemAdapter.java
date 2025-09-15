@@ -26,16 +26,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.stario.launcher.R;
 import com.stario.launcher.apps.Category;
 import com.stario.launcher.apps.LauncherApplication;
+import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.themes.ThemedActivity;
-import com.stario.launcher.ui.icons.AdaptiveIconView;
-import com.stario.launcher.ui.recyclers.async.AsyncRecyclerAdapter;
 
 import java.util.function.Supplier;
 
-public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAdapter.ViewHolder> {
+public class FolderListItemAdapter extends RecyclerApplicationAdapter {
     public static final int SOFT_LIMIT = 3;
     public static final int HARD_LIMIT = 5;
-    private final ThemedActivity activity;
 
     private Category.CategoryItemListener listener;
     private RecyclerView recyclerView;
@@ -43,10 +41,6 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
 
     public FolderListItemAdapter(ThemedActivity activity) {
         super(activity);
-
-        this.activity = activity;
-
-        setHasStableIds(true);
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -94,62 +88,57 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
         }
     }
 
-    protected class ViewHolder extends AsyncViewHolder {
-        private AdaptiveIconView icon;
+    protected class FolderItemViewHolder extends ApplicationViewHolder {
+        @Override
+        public View.OnClickListener getOnClickListener() {
+            return view -> {
+                int position = getAbsoluteAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
+
+                if (position >= SOFT_LIMIT && category.getSize() >= HARD_LIMIT) {
+                    View folder = (View) itemView.getParent();
+
+                    while (!(folder.getParent() instanceof RecyclerView)) {
+                        folder = (View) folder.getParent();
+                    }
+
+                    folder.callOnClick();
+                } else {
+                    View.OnClickListener superListener = super.getOnClickListener();
+
+                    if (superListener != null) {
+                        superListener.onClick(view);
+                    }
+                }
+            };
+        }
 
         @Override
-        protected void onInflated() {
-            itemView.setHapticFeedbackEnabled(false);
-
-            icon = itemView.findViewById(R.id.icon);
+        public View.OnLongClickListener getOnLongClickListener() {
+            return null;
         }
     }
 
     @Override
-    protected int getLayout() {
+    protected Supplier<ApplicationViewHolder> getHolderSupplier(int viewType) {
+        return FolderItemViewHolder::new;
+    }
+
+    @Override
+    protected int getLayout(int viewType) {
         return R.layout.folder_item;
     }
 
     @Override
-    protected void onBind(@NonNull ViewHolder holder, int position) {
-        if (position < category.getSize()) {
-            LauncherApplication application = category.get(position);
-
-            if (application != LauncherApplication.FALLBACK_APP) {
-                if (position >= SOFT_LIMIT && category.getSize() >= HARD_LIMIT) {
-                    holder.itemView.setOnClickListener((view) -> {
-                        View folder = (View) holder.itemView.getParent();
-
-                        while (!(folder.getParent() instanceof RecyclerView)) {
-                            folder = (View) folder.getParent();
-                        }
-
-                        folder.callOnClick();
-                    });
-                } else {
-                    holder.itemView.setOnClickListener(view -> application.launch(activity));
-                }
-
-                holder.icon.setApplication(application);
-            }
-        } else {
-            holder.icon.setIcon(null);
-
-            holder.itemView.setOnClickListener(null);
-        }
-
-        holder.itemView.requestLayout();
+    protected LauncherApplication getApplication(int index) {
+        return category != null ? category.get(index) : LauncherApplication.FALLBACK_APP;
     }
 
     @Override
-    public long getItemId(int position) {
-        LauncherApplication application = category.get(position);
-
-        if (application != null) {
-            return application.hashCode();
-        } else {
-            return RecyclerView.NO_ID;
-        }
+    protected boolean allowApplicationStateEditing() {
+        return false;
     }
 
     @Override
@@ -166,11 +155,6 @@ public class FolderListItemAdapter extends AsyncRecyclerAdapter<FolderListItemAd
         }
 
         this.recyclerView = null;
-    }
-
-    @Override
-    protected Supplier<ViewHolder> getHolderSupplier() {
-        return ViewHolder::new;
     }
 
     @Override

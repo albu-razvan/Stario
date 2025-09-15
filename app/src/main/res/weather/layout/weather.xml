@@ -16,11 +16,14 @@
   -->
 
 <com.stario.launcher.ui.common.glance.GlanceConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container_weather"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/colorSurfaceContainer"
-    android:minHeight="200dp">
+    android:minHeight="200dp"
+    app:strokeColor="?attr/colorSurfaceContainerHigh"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:id="@+id/container"

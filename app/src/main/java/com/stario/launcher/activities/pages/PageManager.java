@@ -43,7 +43,7 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.stario.launcher.R;
-import com.stario.launcher.activities.Launcher;
+import com.stario.launcher.activities.launcher.sheets.LauncherSheets;
 import com.stario.launcher.activities.pages.insert.InsertPageDialog;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.preferences.Vibrations;
@@ -92,7 +92,7 @@ public class PageManager extends ThemedActivity {
         setContentView(R.layout.page_manager);
 
         broadcastManager = LocalBroadcastManager.getInstance(this);
-        preferences = getSharedPreferences(Entry.SHEET);
+        preferences = getApplicationContext().getSharedPreferences(Entry.SHEET);
 
         inflater = LayoutInflater.from(this);
 
@@ -123,8 +123,8 @@ public class PageManager extends ThemedActivity {
                             hideAddButton();
                         }
 
-                        Intent intent = new Intent(Launcher.ACTION_ADD_SHEET);
-                        intent.putExtra(Launcher.INTENT_SHEET_CLASS_EXTRA, item.second);
+                        Intent intent = new Intent(LauncherSheets.ACTION_ADD_SHEET);
+                        intent.putExtra(LauncherSheets.INTENT_SHEET_CLASS_EXTRA, item.second);
                         broadcastManager.sendBroadcastSync(intent);
                     });
 
@@ -197,7 +197,7 @@ public class PageManager extends ThemedActivity {
         }
 
         findViewById(R.id.gradient).animate().alpha(0.5f).setDuration(Animation.EXTENDED.getDuration());
-        UiUtils.Notch.applyNotchMargin(getRoot(), UiUtils.Notch.INVERSE);
+        UiUtils.Notch.applyNotchMargin(getRoot(), UiUtils.Notch.Treatment.INVERSE);
     }
 
     @SuppressLint("FindViewByIdCast")
@@ -243,8 +243,8 @@ public class PageManager extends ThemedActivity {
                                         .putString(clazz.getName(), type.toString())
                                         .apply();
 
-                                Intent intent = new Intent(Launcher.ACTION_MOVE_SHEET);
-                                intent.putExtra(Launcher.INTENT_SHEET_CLASS_EXTRA, clazz);
+                                Intent intent = new Intent(LauncherSheets.ACTION_MOVE_SHEET);
+                                intent.putExtra(LauncherSheets.INTENT_SHEET_CLASS_EXTRA, clazz);
                                 broadcastManager.sendBroadcastSync(intent);
                             }
                         }
@@ -353,8 +353,8 @@ public class PageManager extends ThemedActivity {
                         .putString(clazz.getName(), SheetType.UNDEFINED.toString())
                         .apply();
 
-                Intent intent = new Intent(Launcher.ACTION_REMOVE_SHEET);
-                intent.putExtra(Launcher.INTENT_SHEET_CLASS_EXTRA, clazz);
+                Intent intent = new Intent(LauncherSheets.ACTION_REMOVE_SHEET);
+                intent.putExtra(LauncherSheets.INTENT_SHEET_CLASS_EXTRA, clazz);
                 broadcastManager.sendBroadcastSync(intent);
             }
         });
@@ -425,8 +425,8 @@ public class PageManager extends ThemedActivity {
                             }
                         }
 
-                        Intent intent = new Intent(Launcher.ACTION_MOVE_SHEET);
-                        intent.putExtra(Launcher.INTENT_SHEET_CLASS_EXTRA,
+                        Intent intent = new Intent(LauncherSheets.ACTION_MOVE_SHEET);
+                        intent.putExtra(LauncherSheets.INTENT_SHEET_CLASS_EXTRA,
                                 new Class[]{pages.get(draggedPage), pages.get(otherPage)});
                         broadcastManager.sendBroadcastSync(intent);
                     }

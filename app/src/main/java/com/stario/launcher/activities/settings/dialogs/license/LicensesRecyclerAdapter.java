@@ -30,7 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.stario.launcher.R;
 
 public class LicensesRecyclerAdapter extends RecyclerView.Adapter<LicensesRecyclerAdapter.ViewHolder> {
-    private final String[][] licenses = {{"Android", "The Android Open Source Project", "Apache 2.0"},
+    private static final String[][] licenses = {{"Android", "The Android Open Source Project", "Apache 2.0"},
             {"Android Fading Edge Layout", "Yang Bo", "Apache 2.0"},
             {"Android Jetpack", "The Android Open Source Project", "Apache 2.0"},
             {"Android Support Library", "The Android Open Source Project", "Apache 2.0"},

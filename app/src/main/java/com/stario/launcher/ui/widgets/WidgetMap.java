@@ -20,7 +20,6 @@ package com.stario.launcher.ui.widgets;
 import androidx.annotation.Nullable;
 
 import com.stario.launcher.sheet.widgets.WidgetSize;
-import com.stario.launcher.ui.Measurements;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -28,8 +27,15 @@ import java.util.Set;
 public class WidgetMap {
     private final Set<Cell> set;
 
-    WidgetMap() {
+    private int columns;
+
+    WidgetMap(int columns) {
         this.set = new HashSet<>();
+        this.columns = columns;
+    }
+
+    public void setColumnCount(int columns) {
+        this.columns = columns;
     }
 
     void add(Cell origin, WidgetSize size) {
@@ -51,7 +57,7 @@ public class WidgetMap {
 
             column = column + 1;
 
-            if (column >= Measurements.getWidgetColumnCount()) {
+            if (column >= columns) {
                 column = 0;
                 row++;
             }
@@ -62,7 +68,7 @@ public class WidgetMap {
 
 
     private boolean checkFreeSpace(Cell origin, WidgetSize size) {
-        if (origin.column + size.width > Measurements.getWidgetColumnCount()) {
+        if (origin.column + size.width > columns) {
             return false;
         }
 

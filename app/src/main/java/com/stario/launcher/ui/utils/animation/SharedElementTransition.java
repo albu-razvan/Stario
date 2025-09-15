@@ -36,19 +36,6 @@ public abstract class SharedElementTransition extends TransitionSet {
         addTransition(new ChangeTransform());
     }
 
-    public static class SharedAppSplashScreenTransition extends SharedElementTransition {
-        public SharedAppSplashScreenTransition() {
-            setPathMotion(null);
-            setInterpolator(new PathInterpolator(0.1f, 1f, 0.15f, 1f));
-
-            ChangeBounds containerChangeBounds = new ChangeBounds();
-            containerChangeBounds.setResizeClip(false);
-            containerChangeBounds.excludeTarget(AdaptiveIconView.class, true);
-
-            addTransition(containerChangeBounds);
-        }
-    }
-
     public static class SharedAppFolderTransition extends SharedElementTransition {
         public SharedAppFolderTransition() {
             setPathMotion(new SharedElementMotion());

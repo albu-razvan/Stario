@@ -34,7 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
-import com.stario.launcher.activities.Launcher;
+import com.stario.launcher.activities.launcher.Launcher;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.themes.ThemedActivity;

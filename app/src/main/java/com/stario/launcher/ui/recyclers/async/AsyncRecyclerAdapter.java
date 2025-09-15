@@ -42,7 +42,8 @@ import java.util.function.Supplier;
 @SuppressWarnings("rawtypes")
 public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.AsyncViewHolder>
         extends RecyclerView.Adapter<AVH> {
-    private final static int VIEW_TYPE = 0;
+    protected final static int DEFAULT_VIEW_TYPE = 0;
+
     private final static int NO_LIMIT = -1;
     private final static int MAX_POOL_SIZE = 20;
 
@@ -62,11 +63,11 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
 
     public AsyncRecyclerAdapter(Activity activity, InflationType type) {
         this.approximatedRecyclerHeight = AsyncViewHolder.HEIGHT_UNMEASURED;
+        this.limit = type == InflationType.SYNCED ? NO_LIMIT : 1;
         this.layoutInflater = new AsyncLayoutInflater(activity);
         this.holderHeight = AsyncViewHolder.HEIGHT_UNMEASURED;
         this.activity = activity;
         this.type = type;
-        this.limit = 1;
     }
 
     public abstract class AsyncViewHolder extends RecyclerView.ViewHolder {
@@ -77,10 +78,14 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
         private boolean inflated;
 
         public AsyncViewHolder() {
+            this(DEFAULT_VIEW_TYPE);
+        }
+
+        public AsyncViewHolder(int viewType) {
             super(createHolderRoot());
 
             if (type == InflationType.ASYNC) {
-                layoutInflater.inflate(getLayout(), (ViewGroup) itemView,
+                layoutInflater.inflate(getLayout(viewType), (ViewGroup) itemView,
                         (view, resourceId, parent) -> {
                             ViewGroup.LayoutParams params = itemView.getLayoutParams();
                             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -96,7 +101,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
                 itemView.setLayoutParams(params);
                 itemView.requestLayout();
 
-                LayoutInflater.from(activity).inflate(getLayout(),
+                LayoutInflater.from(activity).inflate(getLayout(viewType),
                         (ViewGroup) itemView, true);
 
                 postInflate();
@@ -196,7 +201,7 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
         this.recyclerView = recyclerView;
 
         recyclerView.getRecycledViewPool()
-                .setMaxRecycledViews(VIEW_TYPE, MAX_POOL_SIZE);
+                .setMaxRecycledViews(DEFAULT_VIEW_TYPE, MAX_POOL_SIZE);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -217,19 +222,26 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
             int oldLimit = limit;
 
             limit = NO_LIMIT;
-            recyclerView.post(() -> notifyItemRangeInserted(oldLimit, getTotalItemCount() - oldLimit));
+
+            Runnable runnable = () -> notifyItemRangeInserted(oldLimit,
+                    getTotalItemCount() - oldLimit);
+            if (recyclerView != null) {
+                recyclerView.post(runnable);
+            } else {
+                runnable.run();
+            }
         }
     }
 
     @NonNull
     @Override
     public final AVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return getHolderSupplier().get();
+        return getHolderSupplier(viewType).get();
     }
 
     @Override
-    public final int getItemViewType(int position) {
-        return VIEW_TYPE;
+    public int getItemViewType(int position) {
+        return DEFAULT_VIEW_TYPE;
     }
 
     @Override
@@ -274,9 +286,9 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
 
     protected abstract void onBind(@NonNull AVH holder, int position);
 
-    protected abstract int getLayout();
+    protected abstract int getLayout(int viewType);
 
-    protected abstract Supplier<AVH> getHolderSupplier();
+    protected abstract Supplier<AVH> getHolderSupplier(int viewType);
 
     private interface InflationListener {
         void onInflated();

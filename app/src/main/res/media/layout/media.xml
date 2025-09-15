@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -22,7 +21,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/colorSurfaceContainer"
-    android:minHeight="180dp">
+    android:minHeight="180dp"
+    app:strokeColor="?attr/colorSurfaceContainerHigh"
+    app:strokeWidth="1dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -32,9 +33,9 @@
 
         <ImageView
             android:id="@+id/album_cover"
-            android:alpha="0.8"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:alpha="0.8"
             android:scaleType="centerCrop" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

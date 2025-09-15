@@ -18,7 +18,12 @@
 package com.stario.launcher.sheet.drawer.dialog;
 
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.transition.Transition;
@@ -33,9 +38,11 @@ import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.stario.launcher.R;
@@ -45,6 +52,7 @@ import com.stario.launcher.sheet.SheetType;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.sheet.drawer.DrawerAdapter;
 import com.stario.launcher.sheet.drawer.DrawerPage;
+import com.stario.launcher.sheet.drawer.category.Categories;
 import com.stario.launcher.sheet.drawer.search.SearchEngine;
 import com.stario.launcher.sheet.drawer.search.SearchFragment;
 import com.stario.launcher.themes.ThemedActivity;
@@ -59,8 +67,10 @@ import java.util.Objects;
 public class ApplicationsDialog extends SheetDialogFragment {
     private static final String APPLICATIONS_PAGE = "com.stario.APPLICATIONS_PAGE";
 
+    private BroadcastReceiver popStackReceiver;
     private ThemedActivity activity;
     private ResumeListener listener;
+    private Drawable swipeDrawable;
     private DrawerAdapter adapter;
     private ViewPager pager;
     private EditText search;
@@ -352,15 +362,25 @@ public class ApplicationsDialog extends SheetDialogFragment {
             @Override
             public void onPageSelected(int position) {
                 if (position > 0 && position < adapter.getCount() - 1) {
-                    activity.getSharedPreferences(Entry.DRAWER)
+                    activity.getApplicationContext()
+                            .getSharedPreferences(Entry.DRAWER)
                             .edit()
                             .putInt(APPLICATIONS_PAGE, position)
                             .apply();
                 }
             }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if (state == ViewPager.SCROLL_STATE_DRAGGING) {
+                    swipeDrawable = null;
+                    updateSearchBarCompoundDrawables();
+                }
+            }
         });
 
         pager.setCurrentItem(activity
+                .getApplicationContext()
                 .getSharedPreferences(Entry.DRAWER)
                 .getInt(APPLICATIONS_PAGE, DrawerAdapter.CATEGORIES_POSITION), false);
     }
@@ -379,23 +399,62 @@ public class ApplicationsDialog extends SheetDialogFragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        popStackReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (adapter != null) {
+                    adapter.collapse();
+                }
+            }
+        };
+
+        LocalBroadcastManager.getInstance(activity)
+                .registerReceiver(popStackReceiver, new IntentFilter(Categories.FOLDER_STACK_ID));
+
+        swipeDrawable =
+                AppCompatResources.getDrawable(activity, R.drawable.ic_swipe_animated);
+        if (swipeDrawable != null) {
+            ((Animatable) swipeDrawable).start();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        LocalBroadcastManager.getInstance(activity).unregisterReceiver(popStackReceiver);
+
+        super.onDestroy();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
 
-        SearchEngine engine = SearchEngine.getEngine(activity);
-        search.setCompoundDrawablesWithIntrinsicBounds(
-                engine.getDrawable(activity), null, null, null);
+        updateSearchBarCompoundDrawables();
 
         if (!adapter.isTransitioning()) {
             getChildFragmentManager()
                     .popBackStackImmediate(SearchFragment.TAG,
                             FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            getBehavior().setDraggable(true);
+
+            SheetBehavior<?> behavior = getBehavior();
+            if(behavior != null) {
+                behavior.setDraggable(true);
+            }
         }
 
         if (listener != null) {
             listener.onResume();
         }
+    }
+
+    private void updateSearchBarCompoundDrawables() {
+        SearchEngine engine = SearchEngine.getEngine(activity.getApplicationContext());
+        search.setCompoundDrawablesWithIntrinsicBounds(
+                engine.getDrawable(activity), null,
+                swipeDrawable, null);
     }
 
     private void setOnResumeListener(ResumeListener listener) {

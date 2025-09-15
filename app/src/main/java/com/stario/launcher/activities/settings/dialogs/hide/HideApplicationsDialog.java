@@ -202,7 +202,8 @@ public class HideApplicationsDialog extends DialogFragment {
                 });
 
                 pager.setAdapter(adapter);
-                if (ProfileManager.from(activity).getProfiles().size() > 1) {
+                if (ProfileManager.from(activity.getApplicationContext(), false)
+                        .getProfiles().size() > 1) {
                     tabLayout.setViewPager(pager);
                 } else {
                     tabLayout.setVisibility(View.GONE);

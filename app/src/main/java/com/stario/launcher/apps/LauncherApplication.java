@@ -62,8 +62,9 @@ public class LauncherApplication {
         LauncherActivityInfo info = Utils.getMainActivity(activity, getInfo().packageName, handle);
 
         if (info != null) {
-            activity.getSystemService(LauncherApps.class).startMainActivity(info.getComponentName(),
-                    handle, null, null);
+            activity.getSystemService(LauncherApps.class)
+                    .startMainActivity(info.getComponentName(),
+                            handle, null, null);
         }
     }
 

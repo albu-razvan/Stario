@@ -53,7 +53,7 @@ public class Utils {
     public static final String USER_AGENT = "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/W.X.Y.Z Mobile Safari/537.36 (compatible; Googlebot/2.1; +https://www.google.com/bot.html)";
 
     private static final String TAG = "com.stario.Utils";
-    private static final ExecutorService executorPool = Executors.newFixedThreadPool(10);
+    private static final ExecutorService executorPool = Executors.newCachedThreadPool();
     private static final String[] IPV4_APIS = {
             "https://checkip.amazonaws.com/",
             "https://ipv4.icanhazip.com/",
