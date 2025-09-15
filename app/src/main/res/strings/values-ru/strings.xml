@@ -1,0 +1,208 @@
+<resources>
+    <!-- Non translatable -->
+    <string name="app_name" translatable="false">Stario</string>
+    <string name="affinity" translatable="false">com.stario</string>
+
+    <!-- General -->
+    <string name="unavailable">Недоступно</string>
+    <string name="default_text">По умолчанию</string>
+    <string name="about">Инфо</string>
+    <string name="remove">Удалить</string>
+    <string name="licenses">Лицензии</string>
+    <string name="restart">Перезапустить</string>
+    <string name="animations">Анимации</string>
+    <string name="drawer">Меню</string>
+    <string name="search">Поиск</string>
+    <string name="miscellaneous">Разное</string>
+    <string name="apps">Приложения</string>
+    <string name="personal">Личное</string>
+    <string name="managed">Управляемые</string>
+    <string name="something_went_wrong">Что-то пошло не так!</string>
+    <string name="refresh">Обновить</string>
+
+    <!-- Home pop-up -->
+    <string name="settings">Настройки</string>
+    <string name="wallpaper">Обои и стиль</string>
+
+    <!-- Settings -->
+    <string name="preferences">Настройки</string>
+    <string name="media_player">Медиаплеер</string>
+    <string name="notification_dots">Точки уведомлений</string>
+    <string name="lock_gesture">Двойное касание для блокировки</string>
+    <string name="imperial_units">Имперские единицы</string>
+    <string name="vibrations">Вибрация</string>
+    <string name="theme">Тема</string>
+    <string name="pages">Менеджер страниц</string>
+    <string name="search_engine">Поисковая система</string>
+    <string name="search_results">Результаты поиска</string>
+    <string name="kagi_integration">На базе Kagi</string>
+    <string name="hide_applications">Скрыть приложения</string>
+    <string name="hide_applications_hint">Нажмите, чтобы скрыть или показать</string>
+    <string name="legacy_lock_animation">Старая анимация блокировки</string>
+    <string name="icons">Иконки</string>
+    <string name="weather">Погода</string>
+    <string name="weather_location">Местоположение для погоды</string>
+    <string name="location_ip_based">IP-геолокация (приблизительно)</string>
+    <string name="system_launcher">Переназначить системный лаунчер</string>
+    <string name="app_info">Информация о приложении</string>
+
+    <!-- Page Manager -->
+    <string name="default_position">Положение по умолчанию</string>
+    <string name="left">Слева</string>
+    <string name="top">Сверху</string>
+    <string name="right">Справа</string>
+    <string name="bottom">Снизу</string>
+    <string name="add">Добавить</string>
+
+    <!-- Settings pop-up -->
+    <string name="return_button">Назад</string>
+    <string name="proceed_button">Продолжить</string>
+
+    <!-- Notifications pop-up -->
+    <string name="read_notifications">Чтение уведомлений</string>
+    <string name="notifications_access">Stario нужен доступ к уведомлениям для работы этой функции.</string>
+
+    <!-- Accessibility pop-up -->
+    <string name="use_accessibility">Использовать доступность</string>
+    <string name="accessibility_notice">Stario нужен доступ к службам доступности для работы этой функции.</string>
+
+    <!-- Theme pop-up -->
+    <string name="dynamic">Динамическая</string>
+    <string name="red">Красный</string>
+    <string name="orange">Оранжевый</string>
+    <string name="yellow">Жёлтый</string>
+    <string name="lime">Лайм</string>
+    <string name="green">Зелёный</string>
+    <string name="turquoise">Бирюзовый</string>
+    <string name="cyan">Циановый</string>
+    <string name="blue">Синий</string>
+    <string name="purple">Фиолетовый</string>
+    <string name="pink">Розовый</string>
+    <string name="dark">Тёмная</string>
+    <string name="force_dark">Принудительный тёмный режим</string>
+
+    <!-- Icons pop-up -->
+    <string name="corner_radius">Скругление углов</string>
+    <string name="regular">Обычные</string>
+    <string name="squircle">Сквиркл</string>
+    <string name="components">Компоненты</string>
+    <string name="calculating">Вычисление…</string>
+
+    <!-- Hidden apps pop-up -->
+    <string name="hidden_apps">Скрытые приложения</string>
+
+    <!-- License pop-up -->
+    <string name="license">Лицензия</string>
+    <string name="main_dependencies">Основные зависимости</string>
+    <string name="all_dependencies">Все зависимости</string>
+
+    <!-- Widgets -->
+    <string name="nothing_here_yet">Здесь пока ничего нет!</string>
+    <string name="create_a_widget">Добавить виджет</string>
+    <string name="widgets">Виджеты</string>
+    <string name="widget_one">виджет</string>
+    <string name="widget_many">виджета</string>
+
+    <!-- Media -->
+    <string name="unknown_artist">Неизвестный исполнитель</string>
+
+    <!-- Categories -->
+    <string name="categories">Категории</string>
+    <string name="unsorted">Без категории</string>
+    <string name="games">Игры</string>
+    <string name="audio">Музыка</string>
+    <string name="video">Развлечения</string>
+    <string name="images">Фотография</string>
+    <string name="social">Соцсети</string>
+    <string name="news">Новости</string>
+    <string name="maps">Навигация</string>
+    <string name="productivity">Продуктивность</string>
+    <string name="accessibility">Доступность</string>
+    <string name="finance">Финансы</string>
+    <string name="health">Здоровье</string>
+    <string name="personalization">Персонализация</string>
+    <string name="sports">Спорт</string>
+
+    <!-- Applications -->
+    <string name="uninstall">Удалить</string>
+    <string name="hide">Скрыть</string>
+    <string name="customize">Настроить</string>
+    <string name="category">Категория</string>
+    <string name="category_name">Название категории</string>
+    <string name="available_icons">Доступные иконки</string>
+    <string name="application_label">Метка</string>
+    <string name="category_name_warning">Эта категория уже существует.</string>
+    <string name="application_label_warning">Метка должна содержать хотя бы один символ.</string>
+    <string name="category_warning">Будет создана новая категория с указанным названием.</string>
+
+    <!-- Briefing -->
+    <string name="briefing">Ваша сводка</string>
+    <string name="briefing_configurator">Сводка</string>
+    <string name="import_feed">Импортировать ленту</string>
+    <string name="link_feed">Импорт</string>
+    <string name="invalid_url">Неверный URL</string>
+    <string name="invalid_rss">Не является лентой</string>
+    <string name="link">Ссылка на ленту</string>
+    <string name="no_connection">Нет подключения к интернету</string>
+    <string name="already_subscribed">Вы уже подписаны на эту ленту!</string>
+
+    <!-- Search -->
+    <string name="search_on">Искать в</string>
+    <string name="searching">Поиск…</string>
+    <string name="search_hidden_apps">Поиск в скрытых приложениях</string>
+    <string name="unauthorized">Серверы Kagi сообщили о несанкционированном доступе. Ваш API-ключ действителен?</string>
+    <string name="to_search">для поиска с Kagi</string>
+    <string name="kagi_dependency">Stario полагается на данные, предоставляемые Kagi, для отображения результатов поиска.</string>
+    <string name="kagi_api_key">API-ключ Kagi</string>
+    <string name="api_key">API-ключ</string>
+
+    <!-- Keyboard -->
+    <string name="done">Готово</string>
+
+    <!-- Weather -->
+    <string name="clear_sky">Ясно</string>
+    <string name="cloudy">Облачно</string>
+    <string name="fair">Хорошо</string>
+    <string name="fog">Туман</string>
+    <string name="heavy_rain">Сильный дождь</string>
+    <string name="heavy_rain_and_thunder">Сильный дождь с грозой</string>
+    <string name="heavy_rain_showers">Сильные дожди</string>
+    <string name="heavy_rain_showers_and_thunder">Сильные дожди с грозой</string>
+    <string name="heavy_sleet">Сильный мокрый снег</string>
+    <string name="heavy_sleet_and_thunder">Сильный мокрый снег с грозой</string>
+    <string name="heavy_sleet_showers">Сильные осадки мокрого снега</string>
+    <string name="heavy_sleet_showers_and_thunder">Сильные осадки мокрого снега с грозой</string>
+    <string name="heavy_snow">Сильный снег</string>
+    <string name="heavy_snow_and_thunder">Сильный снег с грозой</string>
+    <string name="heavy_snow_showers">Сильные снегопады</string>
+    <string name="heavy_snow_showers_and_thunder">Сильные снегопады с грозой</string>
+    <string name="light_rain">Лёгкий дождь</string>
+    <string name="light_rain_and_thunder">Лёгкий дождь с грозой</string>
+    <string name="light_rain_showers">Лёгкие дожди</string>
+    <string name="light_rain_showers_and_thunder">Лёгкие дожди с грозой</string>
+    <string name="light_sleet">Лёгкий мокрый снег</string>
+    <string name="light_sleet_and_thunder">Лёгкий мокрый снег с грозой</string>
+    <string name="light_sleet_showers">Лёгкие осадки мокрого снега</string>
+    <string name="light_snow">Лёгкий снег</string>
+    <string name="light_snow_and_thunder">Лёгкий снег с грозой</string>
+    <string name="light_snow_showers">Лёгкие снегопады</string>
+    <string name="light_sleet_showers_and_thunder">Лёгкие осадки мокрого снега с грозой</string>
+    <string name="light_snow_showers_and_thunder">Лёгкие снегопады с грозой</string>
+    <string name="partly_cloudy">Переменная облачность</string>
+    <string name="rain">Дождь</string>
+    <string name="rain_and_thunder">Дождь с грозой</string>
+    <string name="rain_showers">Дожди</string>
+    <string name="rain_showers_and_thunder">Дожди с грозой</string>
+    <string name="sleet">Мокрый снег</string>
+    <string name="sleet_and_thunder">Мокрый снег с грозой</string>
+    <string name="sleet_showers">Осадки мокрого снега</string>
+    <string name="sleet_showers_and_thunder">Осадки мокрого снега с грозой</string>
+    <string name="snow">Снег</string>
+    <string name="snow_and_thunder">Снег с грозой</string>
+    <string name="snow_showers">Снегопады</string>
+    <string name="snow_showers_and_thunder">Снегопады с грозой</string>
+    <string name="weather_source">Источник: met.no</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_description">Служба используется исключительно для включения жеста блокировки на главном экране. Она не собирает и не передаёт данные третьим лицам.</string>
+</resources>
