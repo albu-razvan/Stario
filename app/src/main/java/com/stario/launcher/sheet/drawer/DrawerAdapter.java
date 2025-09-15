@@ -43,7 +43,6 @@ import java.util.ArrayList;
  * @noinspection deprecation
  */
 public class DrawerAdapter extends FragmentPagerAdapter {
-    public static final String SHARED_ELEMENT_PREFIX = "SharedElementApp";
     public static final int CATEGORIES_POSITION = 1;
 
     // category page + 2 empty pages for transitioning
@@ -244,7 +243,7 @@ public class DrawerAdapter extends FragmentPagerAdapter {
 
     public boolean collapse() {
         if (!fragmentManager.isDestroyed() && !isTransitioning()) {
-            return fragmentManager.popBackStackImmediate(Categories.STACK_ID,
+            return fragmentManager.popBackStackImmediate(Categories.FOLDER_STACK_ID,
                     FragmentManager.POP_BACK_STACK_INCLUSIVE);
         } else {
             return false;

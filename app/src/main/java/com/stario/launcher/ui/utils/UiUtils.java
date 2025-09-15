@@ -24,7 +24,6 @@ import android.content.ContextWrapper;
 import android.graphics.Color;
 import android.graphics.Outline;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
@@ -37,7 +36,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -49,10 +47,6 @@ import com.google.android.material.transition.platform.MaterialSharedAxis;
 import com.stario.launcher.R;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.utils.animation.Animation;
-import com.stario.launcher.utils.Utils;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 public class UiUtils {
     private static final Handler UIHandler = new Handler(Looper.getMainLooper());
@@ -208,25 +202,22 @@ public class UiUtils {
     }
 
     public static class Notch {
-        public static final int DEFAULT = 0;
-        public static final int CENTER = 1;
-        public static final int INVERSE = 2;
-
-        @IntDef({
-                DEFAULT,
-                CENTER,
-                INVERSE
-        })
-
-        @Retention(RetentionPolicy.SOURCE)
-        public @interface NotchTreatment {
+        public enum Treatment {
+            DEFAULT,
+            CENTER,
+            INVERSE
         }
 
         public static void applyNotchMargin(@NonNull View view) {
-            applyNotchMargin(view, DEFAULT);
+            applyNotchMargin(view, Treatment.DEFAULT);
         }
 
-        public static void applyNotchMargin(@NonNull View view, @NotchTreatment int treatment) {
+        public static void applyNotchMargin(@NonNull View view, Treatment treatment) {
+            applyNotchMargin(view, treatment, null);
+        }
+
+        public static void applyNotchMargin(@NonNull View view,
+                                            Treatment treatment, OnNotchMarginApplied listener) {
             view.setOnApplyWindowInsetsListener((v, insets) -> {
                 WindowInsetsCompat compatInset = WindowInsetsCompat.toWindowInsetsCompat(insets);
                 Insets cutoutInsets = compatInset.getInsets(WindowInsetsCompat.Type.displayCutout());
@@ -254,6 +245,11 @@ public class UiUtils {
                 }
 
                 view.setLayoutParams(params);
+
+                if (listener != null) {
+                    listener.onApplied();
+                }
+
                 return view.onApplyWindowInsets(insets);
             });
 
@@ -273,6 +269,10 @@ public class UiUtils {
                     }
                 });
             }
+        }
+
+        public interface OnNotchMarginApplied {
+            void onApplied();
         }
     }
 }

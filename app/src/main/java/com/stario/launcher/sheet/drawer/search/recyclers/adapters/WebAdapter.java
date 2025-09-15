@@ -84,8 +84,9 @@ public class WebAdapter extends AbstractSearchListAdapter<WebAdapter.ViewHolder>
 
     public WebAdapter(ThemedActivity activity) {
         this.activity = activity;
-        this.preferences = activity.getSharedPreferences(Entry.SEARCH);
         this.searchResults = new ArrayList<>();
+        this.preferences = activity.getApplicationContext()
+                .getSharedPreferences(Entry.SEARCH);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

@@ -1,0 +1,33 @@
+<!--
+  ~ Copyright (C) 2025 Răzvan Albu
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+
+    <group
+        android:name="swipe_group"
+        android:pivotX="480"
+        android:pivotY="700">
+        <path
+            android:fillAlpha="0.5"
+            android:fillColor="?attr/colorOnSurface"
+            android:pathData="M473,880q-24,0 -46,-9t-39,-26L184,640l30,-31q16,-16 37.5,-21.5t42.5,0.5l66,19v-327q0,-17 11.5,-28.5T400,240q17,0 28.5,11.5T440,280v433l-97,-27 102,102q5,5 12.5,8.5T473,800h167q33,0 56.5,-23.5T720,720v-160q0,-17 11.5,-28.5T760,520q17,0 28.5,11.5T800,560v160q0,66 -47,113T640,880L473,880ZM480,600v-160q0,-17 11.5,-28.5T520,400q17,0 28.5,11.5T560,440v160h-80ZM600,600v-120q0,-17 11.5,-28.5T640,440q17,0 28.5,11.5T680,480v120h-80ZM580,680ZM880,280L680,280v-60h116q-66,-58 -147,-89t-169,-31q-88,0 -169,31t-147,89h116v60L80,280v-200h60v81q72,-59 159,-90t181,-31q94,0 181,31t159,90v-81h60v200Z" />
+    </group>
+</vector>

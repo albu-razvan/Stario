@@ -36,6 +36,7 @@ import com.stario.launcher.sheet.widgets.WidgetSize;
 import com.stario.launcher.sheet.widgets.dialog.WidgetsDialog;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.widgets.RoundedWidgetHost;
 import com.stario.launcher.utils.Casing;
 import com.stario.launcher.utils.Utils;
@@ -227,13 +228,13 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
 
             if (previewImage == null) {
                 previewImage = entry.icon;
-                params.height = Measurements.getIconSize();
+                params.height = AdaptiveIconView.getMaxIconSize();
             } else {
                 params.height = 0;
                 params.dimensionRatio = "W," + ((float) previewImage.getIntrinsicHeight() /
                         previewImage.getIntrinsicWidth()) + "f";
                 params.matchConstraintMaxHeight = Math.min(params.matchConstraintMaxHeight,
-                        Math.max(Measurements.dpToPx(50), previewImage.getIntrinsicHeight()));
+                        Math.max(AdaptiveIconView.getMaxIconSize(), previewImage.getIntrinsicHeight()));
             }
 
             ImageView imageView = new ImageView(activity);

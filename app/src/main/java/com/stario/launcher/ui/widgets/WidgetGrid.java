@@ -23,6 +23,7 @@ import android.animation.ObjectAnimator;
 import android.appwidget.AppWidgetHostView;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,13 +33,17 @@ import androidx.annotation.NonNull;
 
 import com.stario.launcher.sheet.widgets.Widget;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.utils.LayoutSizeObserver;
 import com.stario.launcher.ui.utils.animation.Animation;
+import com.stario.launcher.utils.objects.ObservableObject;
 
 import java.util.PriorityQueue;
 
 public class WidgetGrid extends GridLayout {
     private static final String TAG = "com.stario.WidgetGrid";
+
     private Runnable onDispatchDrawReorderRunnable;
+    private ObservableObject<Integer> columnCount;
     private WidgetMap map;
 
     public WidgetGrid(Context context) {
@@ -60,8 +65,31 @@ public class WidgetGrid extends GridLayout {
     }
 
     private void init() {
-        this.map = new WidgetMap();
+        this.map = new WidgetMap(2);
         this.onDispatchDrawReorderRunnable = null;
+        this.columnCount = new ObservableObject<>(0,
+                object -> {
+                    View parent = (View) getParent();
+
+                    float originalAlpha = parent != null ? parent.getAlpha() : 1;
+                    if (parent != null) {
+                        parent.setAlpha(0);
+                    }
+
+                    map.setColumnCount(object);
+
+                    LayoutTransition transition = getLayoutTransition();
+                    setLayoutTransition(null);
+
+                    scheduleReorder();
+
+                    if (parent != null && originalAlpha > 0) {
+                        post(() -> parent.animate().alpha(originalAlpha)
+                                .setDuration(Animation.MEDIUM.getDuration()));
+                    }
+
+                    setLayoutTransition(transition);
+                });
 
         setRotation(180);
 
@@ -83,25 +111,11 @@ public class WidgetGrid extends GridLayout {
 
         setLayoutTransition(layoutTransition);
 
-        Measurements.addWidgetColumnCountChangeListener(object -> {
-            View parent = (View) getParent();
-
-            float originalAlpha = parent != null ? parent.getAlpha() : 1;
-            if (parent != null) {
-                parent.setAlpha(0);
+        LayoutSizeObserver.attach(this, LayoutSizeObserver.WIDTH, new LayoutSizeObserver.OnChange() {
+            @Override
+            public void onChange(View view, int watchFlags, Rect rect) {
+                columnCount.updateObject(Math.max(2, (rect.width() / Measurements.dpToPx(160) / 2) * 2));
             }
-
-            LayoutTransition transition = getLayoutTransition();
-            setLayoutTransition(null);
-
-            scheduleReorder();
-
-            if (parent != null && originalAlpha > 0) {
-                post(() -> parent.animate().alpha(originalAlpha)
-                        .setDuration(Animation.MEDIUM.getDuration()));
-            }
-
-            setLayoutTransition(transition);
         });
     }
 
@@ -144,7 +158,7 @@ public class WidgetGrid extends GridLayout {
     }
 
     int getCellSize() {
-        return getMeasuredWidth() / Measurements.getWidgetColumnCount();
+        return getMeasuredWidth() / columnCount.getObject();
     }
 
     public void attach(AppWidgetHostView host, Widget widget) {
@@ -187,6 +201,6 @@ public class WidgetGrid extends GridLayout {
     }
 
     public int computeCellSize() {
-        return getWidth() / Measurements.getWidgetColumnCount();
+        return getWidth() / columnCount.getObject();
     }
 }

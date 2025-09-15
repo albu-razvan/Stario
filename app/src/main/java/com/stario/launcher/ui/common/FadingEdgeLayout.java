@@ -150,6 +150,7 @@ public class FadingEdgeLayout extends FrameLayout {
     public void setRounded(boolean rounded) {
         if (this.rounded != rounded) {
             this.rounded = rounded;
+
             gradientDirtyFlags = (DIRTY_FLAG_TOP | DIRTY_FLAG_LEFT | DIRTY_FLAG_BOTTOM | DIRTY_FLAG_TOP);
             invalidate();
         }
@@ -172,7 +173,9 @@ public class FadingEdgeLayout extends FrameLayout {
             gradientSizeRight = right;
             gradientDirtyFlags |= DIRTY_FLAG_RIGHT;
         }
-        if (gradientDirtyFlags != 0) invalidate();
+        if (gradientDirtyFlags != 0) {
+            invalidate();
+        }
     }
 
     public void setFadeEdges(boolean fadeTop, boolean fadeLeft, boolean fadeBottom, boolean fadeRight) {
@@ -192,7 +195,9 @@ public class FadingEdgeLayout extends FrameLayout {
             this.fadeRight = fadeRight;
             gradientDirtyFlags |= DIRTY_FLAG_RIGHT;
         }
-        if (gradientDirtyFlags != 0) invalidate();
+        if (gradientDirtyFlags != 0) {
+            invalidate();
+        }
     }
 
     @Override
@@ -211,16 +216,31 @@ public class FadingEdgeLayout extends FrameLayout {
         }
 
         super.setPadding(left, top, right, bottom);
+        invalidate();
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+
         if (w != oldw) {
             gradientDirtyFlags |= DIRTY_FLAG_LEFT | DIRTY_FLAG_RIGHT;
         }
+
         if (h != oldh) {
             gradientDirtyFlags |= DIRTY_FLAG_TOP | DIRTY_FLAG_BOTTOM;
+        }
+
+        invalidate();
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+
+        if (changed) {
+            gradientDirtyFlags |= DIRTY_FLAG_TOP | DIRTY_FLAG_BOTTOM | DIRTY_FLAG_LEFT | DIRTY_FLAG_RIGHT;
+            invalidate();
         }
     }
 

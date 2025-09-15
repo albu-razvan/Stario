@@ -17,7 +17,6 @@
 
 package com.stario.launcher.apps;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.LauncherActivityInfo;
@@ -28,17 +27,16 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
 
 import com.stario.launcher.BuildConfig;
+import com.stario.launcher.Stario;
 import com.stario.launcher.apps.interfaces.LauncherApplicationListener;
 import com.stario.launcher.preferences.Entry;
-import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.ThreadSafeArrayList;
 import com.stario.launcher.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,60 +48,40 @@ public final class ProfileApplicationManager {
     private final Map<String, LauncherApplication> applicationMap;
     private final List<LauncherApplicationListener> listeners;
     private final List<LauncherApplication> applicationList;
+    private final List<OnLoadReadyListener> readyListeners;
     private final SharedPreferences hiddenApplications;
     private final SharedPreferences applicationLabels;
     private final PackageManager packageManager;
     private final IconPackManager iconPacks;
     private final boolean mainUser;
-
     public final UserHandle handle;
 
-    private boolean registered;
+    private boolean loaded;
 
-    ProfileApplicationManager(ThemedActivity activity, UserHandle handle, boolean mainUser) {
+    ProfileApplicationManager(Stario stario, UserHandle handle, boolean mainUser) {
         this.visibleApplicationList = new ThreadSafeArrayList<>();
         this.applicationList = new ThreadSafeArrayList<>();
         this.applicationMap = new HashMap<>();
         this.listeners = new ThreadSafeArrayList<>();
-        this.applicationLabels = activity.getSharedPreferences(Entry.APPLICATION_LABELS);
-        this.hiddenApplications = activity.getSharedPreferences(Entry.HIDDEN_APPS,
+        this.applicationLabels = stario.getSharedPreferences(Entry.APPLICATION_LABELS);
+        this.hiddenApplications = stario.getSharedPreferences(Entry.HIDDEN_APPS,
                 Integer.toString(handle.hashCode()));
-        this.packageManager = activity.getPackageManager();
+        this.packageManager = stario.getPackageManager();
+        this.readyListeners = new ArrayList<>();
         this.mainUser = mainUser;
-        this.registered = false;
+        this.loaded = false;
         this.handle = handle;
 
-        this.iconPacks = IconPackManager.from(activity);
+        LauncherApps launcherApps = stario.getSystemService(LauncherApps.class);
+        LauncherApps.Callback callback = getReceiver(launcherApps);
+        launcherApps.registerCallback(callback);
+
+        this.iconPacks = IconPackManager.from(stario);
         if (mainUser) {
-            CategoryManager.from(activity, this);
+            CategoryManager.from(stario, this);
         }
 
-        Utils.submitTask(() -> loadApplications(activity));
-    }
-
-    void refreshReceiver(ThemedActivity activity) {
-        if (!registered) {
-            LauncherApps launcherApps = ((LauncherApps) activity.getSystemService(Context.LAUNCHER_APPS_SERVICE));
-            LauncherApps.Callback callback = getReceiver(launcherApps);
-            launcherApps.registerCallback(callback);
-
-            Lifecycle lifecycle = activity.getLifecycle();
-            lifecycle.addObserver(new DefaultLifecycleObserver() {
-                @Override
-                public void onDestroy(@NonNull LifecycleOwner owner) {
-                    try {
-                        launcherApps.unregisterCallback(callback);
-                        registered = false;
-                    } catch (Exception exception) {
-                        Log.e(TAG, "Receiver not registered");
-                    }
-
-                    lifecycle.removeObserver(this);
-                }
-            });
-
-            registered = true;
-        }
+        Utils.submitTask(() -> loadApplications(stario));
     }
 
     private LauncherApps.Callback getReceiver(LauncherApps launcherApps) {
@@ -208,38 +186,67 @@ public final class ProfileApplicationManager {
         };
     }
 
-    private void loadApplications(ThemedActivity activity) {
-        LauncherApps launcherApps = activity.getSystemService(LauncherApps.class);
+    private void loadApplications(Stario stario) {
+        LauncherApps launcherApps = stario.getSystemService(LauncherApps.class);
         List<LauncherActivityInfo> activityInfoList =
                 launcherApps.getActivityList(null, handle);
 
-        for (int index = 0; index < activityInfoList.size(); index++) {
-            ApplicationInfo applicationInfo = activityInfoList.get(index).getApplicationInfo();
+        List<ApplicationInfo> iconPackApps = new ArrayList<>();
+        List<ApplicationInfo> otherApps = new ArrayList<>();
+
+        for (LauncherActivityInfo activityInfo : activityInfoList) {
+            ApplicationInfo applicationInfo = activityInfo.getApplicationInfo();
+            if (applicationInfo == null ||
+                    BuildConfig.APPLICATION_ID.equals(applicationInfo.packageName)) {
+                continue;
+            }
 
             if (iconPacks.checkPackValidity(applicationInfo.packageName)) {
-                addApplication(createApplication(applicationInfo));
+                iconPackApps.add(applicationInfo);
+            } else {
+                otherApps.add(applicationInfo);
             }
         }
 
-        for (int index = 0; index < activityInfoList.size(); index++) {
-            ApplicationInfo applicationInfo = activityInfoList.get(index).getApplicationInfo();
+        for (ApplicationInfo appInfo : iconPackApps) {
+            if (!applicationMap.containsKey(appInfo.packageName)) {
+                addApplication(createApplication(appInfo));
+            }
+        }
 
-            if (applicationInfo != null) {
-                if (!BuildConfig.APPLICATION_ID.equals(applicationInfo.packageName)) {
-                    if (applicationMap.containsKey(applicationInfo.packageName)) {
-                        LauncherApplication application = get(applicationInfo.packageName);
+        for (LauncherApplication application : applicationList) {
+            iconPacks.updateIcon(application.info.packageName);
+        }
 
-                        if (application != null) {
-                            iconPacks.updateIcon(application.info.packageName);
-                        }
-                    } else {
-                        addApplication(createApplication(applicationInfo));
-                    }
-                }
+        for (ApplicationInfo appInfo : otherApps) {
+            if (!applicationMap.containsKey(appInfo.packageName)) {
+                addApplication(createApplication(appInfo));
+            }
+        }
+
+        loaded = true;
+        UiUtils.runOnUIThread(() -> {
+            for (OnLoadReadyListener listener : readyListeners) {
+                listener.onReady(this);
+            }
+
+            readyListeners.clear();
+        });
+    }
+
+    public boolean isReady() {
+        return loaded;
+    }
+
+    public void addOnReadyListener(OnLoadReadyListener listener) {
+        if (listener != null) {
+            if (loaded) {
+                listener.onReady(this);
+            } else {
+                readyListeners.add(listener);
             }
         }
     }
-
 
     public void updateApplication(LauncherApplication application) {
         iconPacks.updateIcon(application.info.packageName);
@@ -492,7 +499,7 @@ public final class ProfileApplicationManager {
     }
 
     public boolean isVisibleToUser(LauncherApplication application) {
-        return isVisibleToUser(application.info.packageName);
+        return application != null && isVisibleToUser(application.info.packageName);
     }
 
     public boolean isVisibleToUser(String packageName) {
@@ -504,5 +511,9 @@ public final class ProfileApplicationManager {
      **/
     public int indexOf(LauncherApplication application) {
         return applicationList.indexOf(application);
+    }
+
+    public interface OnLoadReadyListener {
+        void onReady(ProfileApplicationManager manager);
     }
 }

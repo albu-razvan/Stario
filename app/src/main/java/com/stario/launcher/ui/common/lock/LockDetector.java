@@ -35,7 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.stario.launcher.BuildConfig;
-import com.stario.launcher.activities.Launcher;
+import com.stario.launcher.activities.launcher.Launcher;
 import com.stario.launcher.services.AccessibilityService;
 
 public class LockDetector extends LinearLayout {
@@ -102,7 +102,7 @@ public class LockDetector extends LinearLayout {
 
         private DoubleTapDetector(Launcher activity) {
             this.activity = activity;
-            this.preferences = activity.getSettings();
+            this.preferences = activity.getApplicationContext().getSettings();
             this.lastEventTime = NOT_REGISTERED;
         }
 

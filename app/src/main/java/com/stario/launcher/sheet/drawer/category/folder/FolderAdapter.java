@@ -18,15 +18,18 @@
 package com.stario.launcher.sheet.drawer.category.folder;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.Category;
 import com.stario.launcher.apps.CategoryManager;
+import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
+import com.stario.launcher.sheet.drawer.category.Categories;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.recyclers.async.InflationType;
 
@@ -70,6 +73,11 @@ class FolderAdapter extends RecyclerApplicationAdapter {
             @Override
             public void onRemoved(LauncherApplication application) {
                 if (recyclerView != null) {
+                    if (category != null && category.getSize() == 0) {
+                        LocalBroadcastManager.getInstance(activity)
+                                .sendBroadcastSync(new Intent(Categories.FOLDER_STACK_ID));
+                    }
+
                     recyclerView.post(() -> {
                         if (preparedRemovalIndex >= 0) {
                             notifyItemRemoved(preparedRemovalIndex);
@@ -98,10 +106,12 @@ class FolderAdapter extends RecyclerApplicationAdapter {
     }
 
     public boolean move(RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder targetHolder) {
-        int position = viewHolder.getAbsoluteAdapterPosition();
-        int target = targetHolder.getAbsoluteAdapterPosition();
+        int position = viewHolder.getBindingAdapterPosition();
+        int target = targetHolder.getBindingAdapterPosition();
 
-        if (position == target) {
+        if (position == target
+                || position == RecyclerView.NO_POSITION
+                || target == RecyclerView.NO_POSITION) {
             return false;
         }
 

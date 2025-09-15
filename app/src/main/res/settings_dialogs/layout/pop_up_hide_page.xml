@@ -16,24 +16,26 @@
   -->
 
 <com.stario.launcher.ui.common.FadingEdgeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:size_top="20dp"
-    app:size_bottom="20dp"
+    android:orientation="vertical"
     app:edge="top|bottom"
-    android:orientation="vertical">
+    app:size_bottom="20dp"
+    app:size_top="20dp">
 
+    <!-- Avoid pixel gaps -->
     <com.stario.launcher.ui.recyclers.autogrid.AutoGridRecyclerView
         android:id="@+id/recycler"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:clipToPadding="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_margin="1px"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:paddingLeft="20dp"
+        android:paddingTop="10dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="10dp">
 
     </com.stario.launcher.ui.recyclers.autogrid.AutoGridRecyclerView>
 

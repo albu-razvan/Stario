@@ -76,7 +76,7 @@ public class AutosuggestAdapter extends SuggestionSearchAdapter {
         }
 
         if (query != null && !query.isEmpty()) {
-            SearchEngine engine = SearchEngine.getEngine(activity);
+            SearchEngine engine = SearchEngine.getEngine(activity.getApplicationContext());
             String constraint = query.toLowerCase();
             currentQuery = constraint;
 
@@ -149,7 +149,8 @@ public class AutosuggestAdapter extends SuggestionSearchAdapter {
 
         activity.startActivity(
                 new Intent(Intent.ACTION_VIEW,
-                        Uri.parse(SearchEngine.getEngine(activity)
+                        Uri.parse(SearchEngine
+                                .getEngine(activity.getApplicationContext())
                                 .getQuery(currentQuery))),
                 activityOptions.toBundle());
 

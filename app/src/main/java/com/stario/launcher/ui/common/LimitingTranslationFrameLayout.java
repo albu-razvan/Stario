@@ -29,33 +29,65 @@ import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class LimitingTranslationFrameLayout extends FrameLayout {
-    float startX = 0;
-    float startY = 0;
-    float endX = 0;
-    float endY = 0;
+    private View.OnLayoutChangeListener layoutChangeListener;
+    private float startX;
+    private float startY;
+    private View parent;
+    private float endX;
+    private float endY;
 
     public LimitingTranslationFrameLayout(Context context) {
         super(context);
+
+        init();
     }
 
     public LimitingTranslationFrameLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        init();
     }
 
     public LimitingTranslationFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+
+        init();
+    }
+
+    private void init() {
+        startX = 0;
+        startY = 0;
+        endX = 0;
+        endY = 0;
+
+        parent = null;
+        layoutChangeListener = (view, i, i1, i2, i3, i4, i5, i6, i7) -> {
+            startX = view.getPaddingLeft();
+            startY = view.getPaddingTop();
+            endX = view.getWidth() - view.getPaddingRight();
+            endY = view.getHeight() - view.getPaddingBottom();
+        };
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
 
-        View parent = ((View) getParent());
+        ViewParent viewParent = getParent();
+        if (viewParent != null) {
+            parent = (View) viewParent;
+            parent.addOnLayoutChangeListener(layoutChangeListener);
+            layoutChangeListener.onLayoutChange(parent, 0, 0, 0, 0, 0, 0, 0, 0);
+        }
+    }
 
-        this.startX = parent.getPaddingLeft();
-        this.startY = parent.getPaddingTop();
-        this.endX = parent.getWidth() - parent.getPaddingRight();
-        this.endY = parent.getHeight() - parent.getPaddingBottom();
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        if (parent != null) {
+            parent.removeOnLayoutChangeListener(layoutChangeListener);
+        }
     }
 
     @Override

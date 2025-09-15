@@ -30,6 +30,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.interpolator.view.animation.FastOutLinearInInterpolator;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
@@ -40,11 +41,13 @@ import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 public abstract class DrawerPage extends Fragment implements ScrollToTop {
     private int currentlyRunningAnimations;
     private RelativeLayout titleContainer;
     private boolean selected;
+    private ViewGroup root;
 
     protected OverScrollRecyclerView drawer;
     protected ThemedActivity activity;
@@ -72,7 +75,12 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
     @NonNull
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViewGroup root = (ViewGroup) inflater.inflate(getLayoutResID(), container, false);
+        root = (ViewGroup) inflater.inflate(getLayoutResID(), container, false);
+
+        if (hideInflatedLayout()) {
+            root.setVisibility(View.GONE);
+            root.setAlpha(0);
+        }
 
         titleContainer = root.findViewById(R.id.title_container);
         drawer = root.findViewById(R.id.drawer);
@@ -169,6 +177,20 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
         updateTitleTransforms(drawer);
 
         return root;
+    }
+
+    public boolean hideInflatedLayout() {
+        return true;
+    }
+
+    protected void showLayout() {
+        if (hideInflatedLayout() && root != null) {
+            root.setVisibility(View.VISIBLE);
+            root.animate()
+                    .alpha(1f)
+                    .setDuration(Animation.LONG.getDuration())
+                    .setInterpolator(new FastOutLinearInInterpolator());
+        }
     }
 
     public void setSelected(boolean selected) {
@@ -349,6 +371,13 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
                 currentlyRunningAnimations++;
             }
         });
+    }
+
+    @Override
+    public void onDestroyView() {
+        drawer.setAdapter(null);
+
+        super.onDestroyView();
     }
 
     public boolean isTransitioning() {

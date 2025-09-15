@@ -17,11 +17,7 @@
 
 package com.stario.launcher.activities.settings.dialogs.theme;
 
-import static com.stario.launcher.themes.Theme.THEME_DYNAMIC;
-
 import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,8 +69,10 @@ public class ThemeRecyclerAdapter extends RecyclerView.Adapter<ThemeRecyclerAdap
         viewHolder.theme.setText(theme.getDisplayName());
 
         viewHolder.itemView.setOnClickListener(v -> {
-            activity.getSharedPreferences(Entry.THEME).edit()
-                    .putString(ThemedActivity.THEME, theme.toString()).apply();
+            activity.getApplicationContext()
+                    .getSharedPreferences(Entry.THEME).edit()
+                    .putString(ThemedActivity.THEME, theme.toString())
+                    .apply();
 
             if (clickListener != null) {
                 clickListener.onClick(v);

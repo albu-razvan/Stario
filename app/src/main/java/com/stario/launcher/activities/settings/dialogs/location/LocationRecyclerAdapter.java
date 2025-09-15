@@ -33,7 +33,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
-import com.stario.launcher.glance.extensions.weather.Weather;
+import com.stario.launcher.activities.launcher.glance.extensions.weather.Weather;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.utils.UiUtils;
@@ -63,7 +63,8 @@ public class LocationRecyclerAdapter extends RecyclerView.Adapter<LocationRecycl
         this.geocoder = new Geocoder(activity);
         this.activity = activity;
         this.clickListener = clickListener;
-        this.preferences = activity.getSharedPreferences(Entry.WEATHER);
+        this.preferences = activity.getApplicationContext()
+                .getSharedPreferences(Entry.WEATHER);
 
         this.defaultAddresses = loadDefaultAddresses();
         this.addresses = new ArrayList<>(this.defaultAddresses);
@@ -153,6 +154,7 @@ public class LocationRecyclerAdapter extends RecyclerView.Adapter<LocationRecycl
                                 }
                             }
 
+                            // noinspection notifyDataSetChanged
                             notifyDataSetChanged();
                         });
                     }

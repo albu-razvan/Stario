@@ -23,6 +23,10 @@
     <declare-styleable name="WaveUnderlineTextView">
         <attr name="waveColor" format="color" />
     </declare-styleable>
+    <declare-styleable name="GlanceConstraintLayout">
+        <attr name="strokeColor" format="color" />
+        <attr name="strokeWidth" format="dimension" />
+    </declare-styleable>
     <declare-styleable name="FadingEdgeLayout">
         <attr name="edge" format="integer">
             <flag name="top" value="1" />

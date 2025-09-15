@@ -30,7 +30,7 @@
         android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"
         android:overScrollMode="never"
-        android:background="@drawable/background_medium_corners">
+        android:background="@drawable/widget_corner_clipping">
 
         <LinearLayout
             android:layout_width="match_parent"

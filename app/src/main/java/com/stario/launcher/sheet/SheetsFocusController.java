@@ -29,7 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentManager;
 
-import com.stario.launcher.activities.Launcher;
+import com.stario.launcher.activities.launcher.Launcher;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.ui.utils.UiUtils;
 
@@ -82,8 +82,7 @@ public class SheetsFocusController extends ConstraintLayout {
         int action = ev.getAction();
 
         if (action == MotionEvent.ACTION_DOWN) {
-            targetPointers.add(0,
-                    ev.getAction() >> MotionEvent.ACTION_POINTER_INDEX_SHIFT);
+            targetPointers.add(0, 0);
 
             X = ev.getX(getPointer(ev));
             Y = ev.getY(getPointer(ev));
@@ -141,8 +140,7 @@ public class SheetsFocusController extends ConstraintLayout {
             targetPointers.clear();
         } else {
             if (action == MotionEvent.ACTION_DOWN) {
-                targetPointers.add(0,
-                        ev.getAction() >> MotionEvent.ACTION_POINTER_INDEX_SHIFT);
+                targetPointers.add(0, 0);
 
                 X = ev.getX(getPointer(ev));
                 Y = ev.getY(getPointer(ev));
