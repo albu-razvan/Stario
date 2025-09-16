@@ -66,6 +66,10 @@ public enum SearchEngine {
         return AppCompatResources.getDrawable(context, drawable);
     }
 
+    public boolean getIsWebOnly() {
+        return this == CHATGPT;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -99,6 +103,8 @@ public enum SearchEngine {
                 engine = KAGI;
             } else if (BRAVE.url.equals(engineString)) {
                 engine = BRAVE;
+            } else if (CHATGPT.url.equals(engineString)) {
+                engine = CHATGPT;
             }
         }
 

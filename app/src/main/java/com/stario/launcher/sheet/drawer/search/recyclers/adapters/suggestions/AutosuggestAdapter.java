@@ -19,6 +19,8 @@ package com.stario.launcher.sheet.drawer.search.recyclers.adapters.suggestions;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -147,11 +149,19 @@ public class AutosuggestAdapter extends SuggestionSearchAdapter {
             activityOptions.setSplashScreenStyle(SplashScreen.SPLASH_SCREEN_STYLE_ICON);
         }
 
+        SearchEngine engine = SearchEngine
+                .getEngine(activity.getApplicationContext());
+
+        Intent intent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse(engine
+                        .getQuery(currentQuery)));
+
+        if (engine.getIsWebOnly()) {
+            configureIntentToLaunchInBrowser(intent);
+        }
+
         activity.startActivity(
-                new Intent(Intent.ACTION_VIEW,
-                        Uri.parse(SearchEngine
-                                .getEngine(activity.getApplicationContext())
-                                .getQuery(currentQuery))),
+                intent,
                 activityOptions.toBundle());
 
         return true;
@@ -184,7 +194,16 @@ public class AutosuggestAdapter extends SuggestionSearchAdapter {
                 activityOptions.setSplashScreenStyle(SplashScreen.SPLASH_SCREEN_STYLE_ICON);
             }
 
-            activity.startActivity(new Intent(Intent.ACTION_VIEW, entry.uri), activityOptions.toBundle());
+            SearchEngine engine = SearchEngine
+                    .getEngine(activity.getApplicationContext());
+
+            Intent intent = new Intent(Intent.ACTION_VIEW, entry.uri);
+
+            if (engine.getIsWebOnly()) {
+                configureIntentToLaunchInBrowser(intent);
+            }
+
+            activity.startActivity(intent, activityOptions.toBundle());
         });
 
         viewHolder.label.setText(entry.label);
@@ -198,6 +217,18 @@ public class AutosuggestAdapter extends SuggestionSearchAdapter {
     @Override
     public long getItemId(int position) {
         return suggestionResults.get(position).hashCode();
+    }
+
+    private void configureIntentToLaunchInBrowser(Intent intent) {
+        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        PackageManager pm = activity.getPackageManager();
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://"));
+        ResolveInfo resolveInfo = pm.resolveActivity(browserIntent, PackageManager.MATCH_DEFAULT_ONLY);
+        if (resolveInfo != null) {
+            intent.setPackage(resolveInfo.activityInfo.packageName);
+        }
     }
 
     private static class SuggestionEntry {
