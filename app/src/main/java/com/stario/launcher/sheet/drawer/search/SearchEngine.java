@@ -38,7 +38,9 @@ public enum SearchEngine {
     PERPLEXITY("Perplexity AI", "perplexity.ai", "/?s=o&q=", R.drawable.ic_perplexity),
     ECOSIA("Ecosia", "ecosia.org", "/search?q=", R.drawable.ic_ecosia),
     YANDEX("Yandex", "yandex.com", "/search/?text=", R.drawable.ic_yandex),
-    YAHOO("Yahoo", "search.yahoo.com", "/search?p=", R.drawable.ic_yahoo);
+    YAHOO("Yahoo", "search.yahoo.com", "/search?p=", R.drawable.ic_yahoo),
+    CHATGPT("ChatGPT", "chatgpt.com", "/?q=", R.drawable.ic_chatgpt);
+
     public static final String SEARCH_ENGINE = "com.stario.SEARCH_ENGINE";
     private final String label;
     private final String url;
