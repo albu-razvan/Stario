@@ -25,6 +25,7 @@
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="500dp"
+        android:overScrollMode="never"
         android:paddingTop="10dp" />
 
     <LinearLayout
@@ -45,10 +46,11 @@
 
             <!-- Avoid pixel gaps -->
             <com.stario.launcher.ui.common.FadingEdgeLayout
+                android:id="@+id/contrast_fader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/pop_up_hide_tabs_fader"
-                android:paddingTop="70dp"
+                android:paddingTop="100dp"
                 android:paddingBottom="10dp"
                 android:translationY="1px"
                 app:edge="left|right"
@@ -106,11 +108,11 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:maxLines="1"
+                    android:breakStrategy="balanced"
                     android:ellipsize="end"
                     android:fontFamily="@font/dm_sans_regular"
                     android:gravity="center_horizontal"
-                    android:breakStrategy="balanced"
+                    android:maxLines="1"
                     android:text="@string/hide_applications_hint"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="16sp" />

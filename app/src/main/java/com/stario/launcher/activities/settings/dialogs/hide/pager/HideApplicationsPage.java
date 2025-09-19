@@ -57,6 +57,9 @@ public class HideApplicationsPage extends Fragment {
         recyclerView = root.findViewById(R.id.recycler);
         recyclerView.setOverscrollPullEdges(OverScrollEffect.PULL_EDGE_BOTTOM);
 
+        recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerView.getPaddingTop(),
+                recyclerView.getPaddingRight(), Measurements.dpToPx(40) + Measurements.spToPx(60));
+
         AutoGridLayoutManager manager = new AutoGridLayoutManager(getActivity(), 1);
         LayoutSizeObserver.attach(root, LayoutSizeObserver.WIDTH, new LayoutSizeObserver.OnChange() {
             @Override
