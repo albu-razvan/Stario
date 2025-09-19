@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import androidx.core.math.MathUtils;
 import androidx.core.util.Consumer;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -98,8 +99,10 @@ public class PinnedCategory {
         LayoutSizeObserver.attach(root, LayoutSizeObserver.WIDTH, new LayoutSizeObserver.OnChange() {
             @Override
             public void onChange(View view, int watchFlags, Rect rect) {
-                int columns = Math.max(1, Math.min(6, rect.width() /
-                        (AdaptiveIconView.getMaxIconSize() + Measurements.getDefaultPadding())));
+                int columns = MathUtils.clamp(rect.width() /
+                                (AdaptiveIconView.getMaxIconSize()
+                                        + Measurements.getDefaultPadding()),
+                        1, 6);
 
                 manager.setSpanCount(columns);
                 adapter.setMaxItemCount(columns);

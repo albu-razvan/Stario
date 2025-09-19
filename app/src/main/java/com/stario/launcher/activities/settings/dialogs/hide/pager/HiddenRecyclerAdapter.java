@@ -92,7 +92,7 @@ public class HiddenRecyclerAdapter extends RecyclerApplicationAdapter {
         public View.OnClickListener getOnClickListener() {
             return view -> {
                 int index = getBindingAdapterPosition();
-                if(index == RecyclerView.NO_POSITION) {
+                if (index == RecyclerView.NO_POSITION) {
                     return;
                 }
 

@@ -28,11 +28,15 @@ import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.math.MathUtils;
+import androidx.core.view.ViewCompat;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
 import com.stario.launcher.ui.utils.animation.Animation;
 
 public class CollapsibleTitleBar extends RelativeLayout {
+    private static final float EXPAND_DAMPENING_FACTOR = 0.2f;
+
     private OffsetListener offsetListener;
     private ViewPropertyAnimator animator;
     private int collapsedHeight;
@@ -107,7 +111,8 @@ public class CollapsibleTitleBar extends RelativeLayout {
             animator = null;
         }
 
-        int newTranslation = (int) Math.max(-expandedDelta, Math.min(0, getTranslationY() - scrolled));
+        int newTranslation = (int) MathUtils.clamp(
+                getTranslationY() - scrolled, -expandedDelta, 0);
         int consumed = (int) (getTranslationY() - newTranslation);
 
         setTranslationY(newTranslation);
@@ -183,7 +188,7 @@ public class CollapsibleTitleBar extends RelativeLayout {
     }
 
     private class CollapsibleTitleBehavior extends CoordinatorLayout.Behavior<CollapsibleTitleBar> {
-        private boolean flinging = false;
+        private int flingCounter = 0;
 
         @Override
         public void onNestedPreScroll(@NonNull CoordinatorLayout coordinatorLayout, @NonNull CollapsibleTitleBar child, @NonNull View target, int dx, int dy, @NonNull int[] consumed, int type) {
@@ -196,32 +201,38 @@ public class CollapsibleTitleBar extends RelativeLayout {
 
         @Override
         public void onNestedScroll(@NonNull CoordinatorLayout coordinatorLayout, @NonNull CollapsibleTitleBar child, @NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int type, @NonNull int[] consumed) {
-            update(dyUnconsumed);
-
-            super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, type, consumed);
+            if (flingCounter <= 0) {
+                update(dyUnconsumed);
+            }
         }
 
         @Override
         public boolean onStartNestedScroll(@NonNull CoordinatorLayout coordinatorLayout, @NonNull CollapsibleTitleBar child, @NonNull View directTargetChild, @NonNull View target, int axes, int type) {
+            if (type == ViewCompat.TYPE_TOUCH) {
+                flingCounter = 0;
+            }
+
             return true;
         }
 
         @Override
         public boolean onNestedPreFling(@NonNull CoordinatorLayout coordinatorLayout, @NonNull CollapsibleTitleBar child, @NonNull View target, float velocityX, float velocityY) {
-            flinging = true;
+            // onStopNestedScroll has to be called twice if so
+            // we want to process the second event, but still
+            // remember that we are flinging for onNestedScroll
+            flingCounter = 2;
 
             return super.onNestedPreFling(coordinatorLayout, child, target, velocityX, velocityY);
         }
 
         @Override
         public void onStopNestedScroll(@NonNull CoordinatorLayout coordinatorLayout, @NonNull CollapsibleTitleBar child, @NonNull View target, int type) {
-            if (!flinging) {
+            if (flingCounter <= 1) {
                 settle();
             }
 
-            flinging = false;
-
             super.onStopNestedScroll(coordinatorLayout, child, target, type);
+            flingCounter--;
         }
     }
 }

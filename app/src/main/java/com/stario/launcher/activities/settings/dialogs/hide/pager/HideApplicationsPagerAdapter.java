@@ -19,6 +19,7 @@ package com.stario.launcher.activities.settings.dialogs.hide.pager;
 
 import android.content.res.Resources;
 import android.util.SparseArray;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -71,6 +72,38 @@ public class HideApplicationsPagerAdapter extends FragmentPagerAdapter {
         return ProfileManager.getInstance().size();
     }
 
+    @Override
+    public void setPrimaryItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+        super.setPrimaryItem(container, position, object);
+
+        Fragment fragment = ((Fragment) object);
+        View view = fragment.getView();
+
+        if (view != null) {
+            View nestedView = view.findViewWithTag("nested");
+
+            if (nestedView != null) {
+                nestedView.setNestedScrollingEnabled(true);
+            }
+        }
+
+        FragmentManager fragmentManager = fragment.getParentFragmentManager();
+        for (Fragment otherFragment : fragmentManager.getFragments()) {
+            if (!fragment.equals(otherFragment)) {
+                view = otherFragment.getView();
+
+                if (view != null) {
+                    View nestedView = view.findViewWithTag("nested");
+
+                    if (nestedView != null) {
+                        nestedView.setNestedScrollingEnabled(false);
+                    }
+                }
+            }
+        }
+
+        container.requestLayout();
+    }
 
     @NonNull
     @Override

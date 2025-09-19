@@ -116,7 +116,7 @@ class PinnedAppsAdapter extends RecyclerApplicationAdapter {
 
         try {
             category = CategoryManager.getInstance().get(
-                    UUID.fromString(settings.getString(PinnedCategory.PINNED_CATEGORY, null))
+                    UUID.fromString(settings.getString(PinnedCategory.PINNED_CATEGORY, ""))
             );
 
             if (category != null) {

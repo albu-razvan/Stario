@@ -20,9 +20,9 @@ package com.stario.launcher.activities.settings.dialogs.hide;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
@@ -40,7 +40,6 @@ import com.stario.launcher.activities.settings.dialogs.hide.pager.HideApplicatio
 import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
-import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
 import com.stario.launcher.ui.utils.animation.Animation;
 
@@ -78,33 +77,34 @@ public class HideApplicationsDialog extends DialogFragment {
                 SmartTabLayout tabLayout = root.findViewById(R.id.tabs);
 
                 pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-                    private final OverScrollEffect.OnOverScrollListener overScrollListener;
                     private final RecyclerView.OnScrollListener scrollListener;
 
-                    private OverScrollEffect.OverScrollState overScrollState;
                     private OverScrollRecyclerView recyclerView;
+                    private Drawable contrastDrawable;
                     private boolean hidden;
 
                     {
                         this.scrollListener = new RecyclerView.OnScrollListener() {
                             @Override
                             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                                if (dy > 0) {
-                                    hideTooltip();
+                                getBehavior().setDraggable(recyclerView.computeVerticalScrollOffset() == 0);
+
+                                if (dy > 0 && !recyclerView.canScrollVertically(1)) {
+                                    showTooltip(false);
                                 } else if (dy < 0) {
-                                    showTooltip();
+                                    showTooltip(true);
+                                } else if (dy > 0) {
+                                    hideTooltip();
                                 }
                             }
                         };
-                        this.overScrollListener = new OverScrollEffect.OnOverScrollListener() {
-                            @Override
-                            public void onOverScrollStateChanged(int edge, @NonNull OverScrollEffect.OverScrollState state) {
-                                overScrollState = state;
-                            }
-                        };
 
-                        this.overScrollState = OverScrollEffect.OverScrollState.IDLE;
                         this.hidden = tabsContainer.getTranslationY() != 0;
+
+                        View fader = root.findViewById(R.id.contrast_fader);
+                        if (fader != null) {
+                            this.contrastDrawable = fader.getBackground();
+                        }
 
                         pager.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft,
                                                          oldTop, oldRight, oldBottom) -> {
@@ -124,60 +124,30 @@ public class HideApplicationsDialog extends DialogFragment {
                                 return;
                             }
 
-                            this.recyclerView.removeOnOverScrollListener(overScrollListener);
                             this.recyclerView.removeOnScrollListener(scrollListener);
                             this.recyclerView.setOnTouchListener(null);
-                            this.overScrollState = OverScrollEffect.OverScrollState.IDLE;
                         }
 
-                        recyclerView.addOnOverScrollListener(overScrollListener);
                         recyclerView.addOnScrollListener(scrollListener);
-                        recyclerView.setOnTouchListener(new View.OnTouchListener() {
-                            float totalDelta;
-                            float lastY;
 
-                            @Override
-                            public boolean onTouch(View v, MotionEvent event) {
-                                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                                    totalDelta = 0;
-                                } else {
-                                    float delta = lastY - event.getRawY();
-
-                                    if (Math.signum(totalDelta) != Math.signum(delta)) {
-                                        totalDelta = delta;
-                                    } else {
-                                        totalDelta += delta;
-                                    }
-
-                                    if (overScrollState == OverScrollEffect.OverScrollState.IDLE) {
-                                        if (totalDelta > moveSlop) {
-                                            hideTooltip();
-                                        } else if (totalDelta < -moveSlop) {
-                                            showTooltip();
-                                        }
-                                    } else {
-                                        hideTooltip();
-                                    }
-
-                                }
-
-                                lastY = event.getRawY();
-                                return false;
-                            }
-                        });
+                        getBehavior().setDraggable(recyclerView.computeVerticalScrollOffset() == 0);
                         this.recyclerView = recyclerView;
                     }
 
                     @Override
                     public void onPageScrollStateChanged(int state) {
                         if (state != ViewPager.SCROLL_STATE_IDLE) {
-                            showTooltip();
+                            showTooltip(true);
                         }
                     }
 
                     @Override
                     public void onPageSelected(int position) {
-                        updateObservedRecycler(adapter.getRegisteredFragment(position).getRecycler());
+                        HideApplicationsPage fragment = adapter.getRegisteredFragment(position);
+
+                        if (fragment != null) {
+                            updateObservedRecycler(fragment.getRecycler());
+                        }
                     }
 
                     private void hideTooltip() {
@@ -190,7 +160,11 @@ public class HideApplicationsDialog extends DialogFragment {
                         }
                     }
 
-                    private void showTooltip() {
+                    private void showTooltip(boolean enforceContrast) {
+                        if (contrastDrawable != null) {
+                            contrastDrawable.setAlpha(enforceContrast ? 255 : 0);
+                        }
+
                         if (hidden) {
                             tabsContainer.animate()
                                     .translationY(0)

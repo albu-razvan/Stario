@@ -37,6 +37,7 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.math.MathUtils;
 
 import com.stario.launcher.R;
 import com.stario.launcher.activities.launcher.glance.Glance;
@@ -277,7 +278,7 @@ public class Launcher extends ThemedActivity {
     private void updateWallpaperZoom(float zoom) {
         if (decorView.getWindowToken() != null &&
                 Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
-            zoom = Math.max(Math.min(1, zoom), 0);
+            zoom = MathUtils.clamp(zoom, 0, 1);
 
             WallpaperAnimator.updateZoom(this, zoom);
         }
