@@ -17,6 +17,7 @@
 
 package com.stario.launcher.services;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.content.Intent;
 import android.service.notification.NotificationListenerService;
@@ -97,6 +98,7 @@ public class NotificationService extends NotificationListenerService {
         return notificationMap;
     }
 
+    @SuppressLint("UnsafeImplicitIntentLaunch")
     private void sendBroadcastForNotification(StatusBarNotification notification) {
         Intent intent = new Intent();
         intent.setAction(UPDATE_NOTIFICATIONS);
