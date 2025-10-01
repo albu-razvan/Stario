@@ -415,7 +415,7 @@ public class Launcher extends ThemedActivity {
     }
 
     @SuppressWarnings("deprecation")
-    @SuppressLint("MissingSuperCall")
+    @SuppressLint({"MissingSuperCall", "GestureBackNavigation"})
     @Override
     public void onBackPressed() {
     }

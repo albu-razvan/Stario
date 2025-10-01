@@ -17,6 +17,7 @@
 
 package com.stario.launcher.ui.dialogs;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -92,6 +93,7 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
         return themeId;
     }
 
+    @SuppressLint("GestureBackNavigation")
     @Override
     public void onBackPressed() {
         if (listener == null || listener.onPressed()) {
