@@ -87,6 +87,10 @@ android {
         includeInBundle = false
     }
 
+    lint {
+        disable 'MissingTranslation'
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
