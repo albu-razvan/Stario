@@ -2,6 +2,7 @@
 
 <img src="docs/representative.png" alt="Stario representative">
 
+[![Build](https://img.shields.io/github/actions/workflow/status/albu-razvan/Stario/build.yml?label=Build)](https://github.com/albu-razvan/Stario/actions/workflows/build.yml)
 [![Discord](https://img.shields.io/discord/1110537583726964820?label=Discord&logo=discord&logoColor=white)](https://discord.gg/WuVapMt9gY)
 [![Latest release](https://img.shields.io/github/downloads/albu-razvan/Stario/total?label=Download&logo=android&logoColor=white)](https://github.com/albu-razvan/Stario/releases/latest)
 [![Last commit](https://custom-icon-badges.demolab.com/github/last-commit/albu-razvan/Stario?logo=history&logoColor=white&label=Latest%20commit)](https://github.com/albu-razvan/Stario/commit)
