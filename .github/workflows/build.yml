@@ -1,4 +1,4 @@
-name: Check
+name: Build
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
   pull_request:
 
 jobs:
-  check:
-    name: Gradle Check
+  build:
+    name: Gradle Build
     runs-on: ubuntu-latest
     
     steps:
@@ -27,5 +27,5 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Gradle Check
-        run: ./gradlew check
+      - name: Gradle Build
+        run: ./gradlew build
