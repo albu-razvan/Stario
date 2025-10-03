@@ -1,0 +1,209 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    
+    <string name="app_name" translatable="false">Stario</string>
+    <string name="affinity" translatable="false">com.stario</string>
+
+    
+    <string name="unavailable">مفقودة</string>
+    <string name="default_text">الأصل</string>
+    <string name="about">عنا</string>
+    <string name="remove">حذف</string>
+    <string name="licenses">التراخيص</string>
+    <string name="restart">عد للأصل</string>
+    <string name="animations">التحريكات</string>
+    <string name="drawer">حاوية التطبيقات</string>
+    <string name="search">بحث</string>
+    <string name="miscellaneous">أُخرى</string>
+    <string name="apps">التطبيقات</string>
+    <string name="personal">شخصية</string>
+    <string name="managed">إدارية</string>
+    <string name="something_went_wrong">خطأ مجهول!</string>
+    <string name="refresh">تحديث</string>
+
+    
+    <string name="settings">الإعدادات</string>
+    <string name="wallpaper">خلفية &amp; نمط</string>
+
+    
+    <string name="preferences">التفضيلات</string>
+    <string name="media_player">مدير المحتوى</string>
+    <string name="notification_dots">علامة لإشعارات</string>
+    <string name="lock_gesture">الغلق بلمستين</string>
+    <string name="imperial_units">وحدات القياس البريطانية</string>
+    <string name="vibrations">الاهتزازات</string>
+    <string name="theme">تنسيق الألوان</string>
+    <string name="pages">مدير الصفحات</string>
+    <string name="search_engine">محرك البحث</string>
+    <string name="search_results">نتائج البحث</string>
+    <string name="kagi_integration">مُدعم ببحث كاجي (Kagi)</string>
+    <string name="hide_applications">إخفاء التطبيقات</string>
+    <string name="hide_applications_hint">اللمس للإخفاء أو الإظهار</string>
+    <string name="legacy_lock_animation">حركة القفل القديمة</string>
+    <string name="icons">أيقونات</string>
+    <string name="weather">الطقس</string>
+    <string name="weather_location">طقس المنطقة</string>
+    <string name="location_ip_based">تحديد المنطقة التقريبية من المُعرف</string>
+    <string name="system_launcher">تغير مُشغل النظام</string>
+    <string name="app_info">معلومات مشغل ستاريو(Stario)</string>
+
+    
+    <string name="default_position">الموضع الأصلي</string>
+    <string name="left">يسار</string>
+    <string name="top">أعلى</string>
+    <string name="right">يمين</string>
+    <string name="bottom">أسفل</string>
+    <string name="add">إضافة</string>
+
+    
+    <string name="return_button">إلغاء</string>
+    <string name="proceed_button">إكمال</string>
+
+    
+    <string name="read_notifications">أعرض الإشعارات</string>
+    <string name="notifications_access">مشغل ستاريو(Stario) سيحتاج للوصول إلى الإشعارات</string>
+
+    
+    <string name="use_accessibility">أستخدم التسهيلات</string>
+    <string name="accessibility_notice">مشغل ستاريو(Stario) سيحتاج للوصول للتسهيلات</string>
+
+    
+    <string name="dynamic">تلقائي</string>
+    <string name="red">أحمر</string>
+    <string name="orange">برتقالي</string>
+    <string name="yellow">أصفر</string>
+    <string name="lime">ليموني</string>
+    <string name="green">أخضر</string>
+    <string name="turquoise">فيروزي</string>
+    <string name="cyan">سماوي</string>
+    <string name="blue">أزرق</string>
+    <string name="purple">بنفسجي</string>
+    <string name="pink">وردي</string>
+    <string name="dark">داكن</string>
+    <string name="force_dark">الإلزام بالنمط الداكن</string>
+
+    
+    <string name="corner_radius">مُدورة</string>
+    <string name="regular">عادية</string>
+    <string name="squircle">مُربعة مدوّرة</string>
+    <string name="components">المكونات</string>
+    <string name="calculating">يَحسُب...</string>
+
+    
+    <string name="hidden_apps">التطبيقات المخفية</string>
+
+    
+    <string name="license">الترخيص</string>
+    <string name="main_dependencies">الأعتمادات الأساسية</string>
+    <string name="all_dependencies">كل الأعتمادات</string>
+
+    
+    <string name="nothing_here_yet">لم يُضاف بعد!</string>
+    <string name="create_a_widget">إنشاء أداة</string>
+    <string name="widgets">الأدوات</string>
+    <string name="widget_one">أداة</string>
+    <string name="widget_many">أدوات</string>
+
+    
+    <string name="unknown_artist">مجهول</string>
+
+    
+    <string name="categories">التصنيفات</string>
+    <string name="unsorted">ليست مصنفّة</string>
+    <string name="games">الألعاب</string>
+    <string name="audio">الصوتيات</string>
+    <string name="video">المرئيات</string>
+    <string name="images">الصور</string>
+    <string name="social">التواصل إجتماعي</string>
+    <string name="news">الأخبار</string>
+    <string name="maps">التنقل</string>
+    <string name="productivity">الإنتاجية</string>
+    <string name="accessibility">التسهيلات</string>
+    <string name="finance">المالية</string>
+    <string name="health">الصحية</string>
+    <string name="personalization">الشخصية</string>
+    <string name="sports">الرياضية</string>
+
+    
+    <string name="uninstall">حذف</string>
+    <string name="hide">إخفاء</string>
+    <string name="customize">تخصيص</string>
+    <string name="category">التصنيف</string>
+    <string name="category_name">اسم التصنيف</string>
+    <string name="available_icons">الأيقونات</string>
+    <string name="application_label">المسمى</string>
+    <string name="category_name_warning">التصنيف موجود</string>
+    <string name="application_label_warning">يجب أن يكون التصنيف من حرف على الأقل</string>
+    <string name="category_warning">ستُنشئ تصنيف جديدًا بالاسم المختار</string>
+
+    
+    <string name="briefing">خلاصتك</string>
+    <string name="briefing_configurator">الخلاصة</string>
+    <string name="import_feed">أختر مصدرا</string>
+    <string name="link_feed">جلب</string>
+    <string name="invalid_url">الرابط خاطئ</string>
+    <string name="invalid_rss">ليس بمصدر</string>
+    <string name="link">رابط للمصدر</string>
+    <string name="no_connection">أقطع الاتصال</string>
+    <string name="already_subscribed">أضفت المصدر من قبل!</string>
+
+    
+    <string name="search_on">بحث</string>
+    <string name="searching">يبحث...</string>
+    <string name="search_hidden_apps">أبحث في التطبيقات المخفية</string>
+    <string name="unauthorized">غير مصرح لك بالوصول إلى كاجي، هل واجهتك البرمجية تعمل ؟</string>
+    <string name="to_search">للبحث من كاجي</string>
+    <string name="kagi_dependency">مشغل ستاريو(Stario) يعتمد على بيانات كاجي لبحث</string>
+    <string name="kagi_api_key">مُعرف الواجهة البرمجية لكاجي</string>
+    <string name="api_key">مُعرف الواجهة البرمجية</string>
+
+    
+    <string name="done">تم</string>
+
+    
+    <string name="clear_sky">صافٍ</string>
+    <string name="cloudy">غائم</string>
+    <string name="fair">صحو</string>
+    <string name="fog">ضباب</string>
+    <string name="heavy_rain">مطر غزير</string>
+    <string name="heavy_rain_and_thunder">مطر غزير و رعد</string>
+    <string name="heavy_rain_showers">مطر غزير متقطع</string>
+    <string name="heavy_rain_showers_and_thunder">مطر متقطع و رعد</string>
+    <string name="heavy_sleet">برَد غزير</string>
+    <string name="heavy_sleet_and_thunder">برَد غزير و رعد</string>
+    <string name="heavy_sleet_showers">برَد متقطع</string>
+    <string name="heavy_sleet_showers_and_thunder">برَد متقطع و رعد</string>
+    <string name="heavy_snow">ثلج غزير</string>
+    <string name="heavy_snow_and_thunder">ثلج غزير و رعد</string>
+    <string name="heavy_snow_showers">ثلج متقطع</string>
+    <string name="heavy_snow_showers_and_thunder">ثلج متقطع و رعد</string>
+    <string name="light_rain">رذاذ</string>
+    <string name="light_rain_and_thunder">رذاذ و رعد</string>
+    <string name="light_rain_showers">رذاذ متقطع</string>
+    <string name="light_rain_showers_and_thunder">رذاذ متقطع و رعد</string>
+    <string name="light_sleet">برَد خفيف</string>
+    <string name="light_sleet_and_thunder">برَد خفيف و رعد</string>
+    <string name="light_sleet_showers">برَد خفيف مقتطع و رعد</string>
+    <string name="light_snow">ثلج خفيف</string>
+    <string name="light_snow_and_thunder">ثلج خفيف و رعد</string>
+    <string name="light_snow_showers">ثلج خفيف متقطع</string>
+    <string name="light_sleet_showers_and_thunder">ثلج خفيف متقطع و رعد</string>
+    <string name="light_snow_showers_and_thunder">ثلج متقطع و رعد</string>
+    <string name="partly_cloudy">ملبّد</string>
+    <string name="rain">ماطر</string>
+    <string name="rain_and_thunder">مطر و رعد</string>
+    <string name="rain_showers">مطر متقطع</string>
+    <string name="rain_showers_and_thunder">مطر مقطع و رعد</string>
+    <string name="sleet">برَد</string>
+    <string name="sleet_and_thunder">برَد و رعد</string>
+    <string name="sleet_showers">برَد متقطع و رعد</string>
+    <string name="sleet_showers_and_thunder">برَد متقطع و رعد</string>
+    <string name="snow">مثلج</string>
+    <string name="snow_and_thunder">ثلج و رعد</string>
+    <string name="snow_showers">ثلج متقطع</string>
+    <string name="snow_showers_and_thunder">ثلج متقطع و رعد</string>
+    <string name="weather_source">عن : met.no</string>
+
+    
+    <string name="accessibility_service_description">هذه الخدمة إنما تُستخدم لتفعيل إمائات شاشة الرئيسية ، ولا تجمع أو تشارك البيانات مع أي أطراف خارجية</string>
+</resources>
