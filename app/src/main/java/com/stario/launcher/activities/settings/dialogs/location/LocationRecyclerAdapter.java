@@ -21,8 +21,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Address;
-import android.location.Geocoder;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,13 +31,13 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
+import com.stario.launcher.activities.launcher.glance.extensions.weather.GeocoderFallback;
 import com.stario.launcher.activities.launcher.glance.extensions.weather.Weather;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -54,13 +52,13 @@ public class LocationRecyclerAdapter extends RecyclerView.Adapter<LocationRecycl
     private final SharedPreferences preferences;
     private final List<Address> addresses;
     private final ThemedActivity activity;
-    private final Geocoder geocoder;
+    private final GeocoderFallback geocoder;
 
     private String query;
 
     public LocationRecyclerAdapter(ThemedActivity activity,
                                    View.OnClickListener clickListener) {
-        this.geocoder = new Geocoder(activity);
+        this.geocoder = new GeocoderFallback(activity);
         this.activity = activity;
         this.clickListener = clickListener;
         this.preferences = activity.getApplicationContext()
@@ -136,30 +134,27 @@ public class LocationRecyclerAdapter extends RecyclerView.Adapter<LocationRecycl
             addresses.clear();
             addresses.addAll(defaultAddresses);
 
+            // noinspection notifyDataSetChanged
             notifyDataSetChanged();
         } else {
             Utils.submitTask(() -> {
-                try {
-                    List<Address> addressList = geocoder.getFromLocationName(query, MAX_LOCALITIES);
+                List<Address> addressList = geocoder.getFromLocationName(query, MAX_LOCALITIES);
 
-                    if (query.equals(LocationRecyclerAdapter.this.query)) {
-                        UiUtils.runOnUIThread(() -> {
-                            addresses.clear();
+                if (query.equals(LocationRecyclerAdapter.this.query)) {
+                    UiUtils.runOnUIThread(() -> {
+                        addresses.clear();
 
-                            if (addressList != null) {
-                                for (Address address : addressList) {
-                                    if (address.hasLatitude() && address.hasLongitude()) {
-                                        addresses.add(address);
-                                    }
+                        if (addressList != null) {
+                            for (Address address : addressList) {
+                                if (address.hasLatitude() && address.hasLongitude()) {
+                                    addresses.add(address);
                                 }
                             }
+                        }
 
-                            // noinspection notifyDataSetChanged
-                            notifyDataSetChanged();
-                        });
-                    }
-                } catch (IOException exception) {
-                    Log.e(TAG, "update: ", exception);
+                        // noinspection notifyDataSetChanged
+                        notifyDataSetChanged();
+                    });
                 }
             });
         }
@@ -206,6 +201,10 @@ public class LocationRecyclerAdapter extends RecyclerView.Adapter<LocationRecycl
                 locality = address.getLocality();
 
                 if (locality == null || locality.isBlank()) {
+                    locality = address.getFeatureName();
+                }
+
+                if (locality == null || locality.isBlank()) {
                     locality = address.getAdminArea();
                 }
 
@@ -215,10 +214,8 @@ public class LocationRecyclerAdapter extends RecyclerView.Adapter<LocationRecycl
                 viewHolder.locality.setText(locality);
 
                 String mainLocality = address.getLocality();
-
                 if (mainLocality != null) {
-                    viewHolder.location.setText(address.getLocality()
-                            + ", " + address.getCountryName());
+                    viewHolder.location.setText(mainLocality + ", " + address.getCountryName());
                 } else {
                     viewHolder.location.setText(address.getCountryName());
                 }

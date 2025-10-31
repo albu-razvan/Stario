@@ -37,6 +37,8 @@ import com.stario.launcher.apps.ProfileManager;
 import com.stario.launcher.services.AccessibilityService;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -151,6 +153,21 @@ public class Utils {
         }
 
         return null;
+    }
+
+    public static String readStream(InputStream inputStream) throws IOException {
+        StringBuilder builder = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                builder.append(line);
+            }
+        }
+
+        return builder.toString();
     }
 
     public static boolean isNotificationServiceEnabled(Context context) {
