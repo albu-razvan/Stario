@@ -74,11 +74,15 @@ public class LocationDialog extends ActionDialog {
 
             @Override
             public boolean onTouch(View view, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_CANCEL ||
-                        event.getAction() == MotionEvent.ACTION_UP) {
-                    behavior.setDraggable(true);
+                if (UiUtils.isKeyboardVisible(view)) {
+                    behavior.setDraggable(false);
                 } else {
-                    behavior.setDraggable(scrolledToTop);
+                    if (event.getAction() == MotionEvent.ACTION_CANCEL ||
+                            event.getAction() == MotionEvent.ACTION_UP) {
+                        behavior.setDraggable(true);
+                    } else {
+                        behavior.setDraggable(scrolledToTop);
+                    }
                 }
 
                 return false;
