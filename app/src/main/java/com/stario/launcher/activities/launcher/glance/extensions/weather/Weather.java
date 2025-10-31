@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.Address;
-import android.location.Geocoder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,7 +66,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.Future;
 
 public class Weather extends GlanceDialogExtension {
@@ -351,7 +349,7 @@ public class Weather extends GlanceDialogExtension {
     private Future<?> runningTask;
     private RecyclerView recycler;
     private TextView temperature;
-    private Geocoder geocoder;
+    private GeocoderFallback geocoder;
     private TextView location;
     private TextView summary;
     private Address address;
@@ -403,7 +401,7 @@ public class Weather extends GlanceDialogExtension {
         weatherPreferences = stario.getSharedPreferences(Entry.WEATHER);
         settings = stario.getSettings();
 
-        geocoder = new Geocoder(activity);
+        geocoder = new GeocoderFallback(activity);
 
         this.container = root.findViewById(R.id.container);
         temperature = root.findViewById(R.id.temperature);
@@ -653,9 +651,10 @@ public class Weather extends GlanceDialogExtension {
     private void updateLocation(String ip) {
         for (IpApiEntry entry : LOCATION_APIS) {
             StringBuilder response = new StringBuilder();
+            HttpURLConnection connection = null;
 
             try {
-                HttpURLConnection connection = (HttpURLConnection)
+                connection = (HttpURLConnection)
                         (new URL(entry.api.replace(LOCATION_API_IP_WILDCARD, ip)).openConnection());
 
                 connection.setReadTimeout(REQUEST_TIMEOUT);
@@ -666,8 +665,8 @@ public class Weather extends GlanceDialogExtension {
 
                 connection.connect();
 
+                int responseCode = connection.getResponseCode();
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-
                     InputStream inputStream = new BufferedInputStream(connection.getInputStream());
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -676,33 +675,32 @@ public class Weather extends GlanceDialogExtension {
                     while ((line = reader.readLine()) != null) {
                         response.append(line);
                     }
+
+                    JSONObject jsonObject = new JSONObject(response.toString());
+                    for (IpApiEntry.Callback callback : entry.callback) {
+                        callback.assign(jsonObject.getDouble(callback.field));
+                    }
+
+                    address = geocoder.getFromLocation(lat, lon);
+                } else {
+                    Log.w(TAG, "getWeatherInfo: Server returned non-OK status: " + responseCode);
                 }
-
-                connection.disconnect();
-
-                JSONObject jsonObject = new JSONObject(response.toString());
-                for (IpApiEntry.Callback callback : entry.callback) {
-                    callback.assign(jsonObject.getDouble(callback.field));
-                }
-
-                List<Address> addresses = geocoder.getFromLocation(lat, lon, 1);
-
-                if (addresses != null && !addresses.isEmpty()) {
-                    address = addresses.get(0);
-                }
-
-                return;
             } catch (Exception exception) {
                 Log.e(TAG, "updateLocation: " + exception.getMessage());
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
             }
         }
     }
 
     private JSONObject getWeatherInfo() {
         StringBuilder response = new StringBuilder();
+        HttpURLConnection connection = null;
 
         try {
-            HttpURLConnection connection = (HttpURLConnection)
+            connection = (HttpURLConnection)
                     (new URL("https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=" +
                             lat + "&lon=" + lon).openConnection());
 
@@ -714,25 +712,22 @@ public class Weather extends GlanceDialogExtension {
 
             connection.connect();
 
-            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-
-                InputStream inputStream = new BufferedInputStream(connection.getInputStream());
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                return new JSONObject(Utils.readStream(connection.getInputStream()));
+            } else {
+                Log.w(TAG, "getWeatherInfo: Server returned non-OK status: " + responseCode);
             }
 
-            connection.disconnect();
-
-            return new JSONObject(response.toString());
+            return null;
         } catch (Exception exception) {
             Log.e(TAG, "getWeatherInfo: " + exception.getMessage());
 
             return null;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
     }
 
