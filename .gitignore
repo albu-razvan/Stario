@@ -3,4 +3,5 @@
 .idea/
 build/
 keystore/
+TODO.md
 local.properties
