@@ -60,7 +60,8 @@
     <string name="legacy_lock_animation">Legacy lock animation</string>
     <string name="icons">Icons</string>
     <string name="weather">Weather</string>
-    <string name="weather_location">Weather location</string>
+    <string name="weather_forecast">Weather forecast</string>
+    <string name="weather_location">Location</string>
     <string name="location_ip_based">IP Geolocation (Approximated)</string>
     <string name="system_launcher">Reassign system launcher</string>
     <string name="app_info">App info</string>

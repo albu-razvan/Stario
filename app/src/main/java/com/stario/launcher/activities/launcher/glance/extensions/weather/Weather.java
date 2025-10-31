@@ -70,6 +70,7 @@ import java.util.concurrent.Future;
 
 public class Weather extends GlanceDialogExtension {
     public static final String ACTION_REQUEST_UPDATE = "com.stario.REQUEST_UPDATE";
+    public static final String FORECAST_KEY = "com.stario.WEATHER_FORECAST";
     public static final String IMPERIAL_KEY = "com.stario.IMPERIAL";
     public static final String LOCATION_NAME = "com.stario.LOCATION";
     public static final String LATITUDE_KEY = "com.stario.LATITUDE";
@@ -370,6 +371,7 @@ public class Weather extends GlanceDialogExtension {
             @Override
             public void onReceive(Context context, Intent intent) {
                 lastUpdate = 0;
+                weatherData.clear();
                 preview.update(null);
 
                 if (runningTask != null &&
@@ -434,6 +436,7 @@ public class Weather extends GlanceDialogExtension {
                     }
                 });
 
+        //noinspection deprecation
         LocalBroadcastManager.getInstance(activity).registerReceiver(receiver,
                 new IntentFilter(ACTION_REQUEST_UPDATE));
     }
@@ -443,6 +446,7 @@ public class Weather extends GlanceDialogExtension {
         super.onDetach();
 
         try {
+            //noinspection deprecation
             LocalBroadcastManager.getInstance(activity).unregisterReceiver(receiver);
         } catch (Exception exception) {
             Log.e(TAG, "onDetach: Receiver not registered.");
@@ -465,7 +469,8 @@ public class Weather extends GlanceDialogExtension {
 
     @Override
     public void update() {
-        if (runningTask != null && !runningTask.isDone()) {
+        if (!weatherPreferences.getBoolean(FORECAST_KEY, true) ||
+                (runningTask != null && !runningTask.isDone())) {
             return;
         }
 

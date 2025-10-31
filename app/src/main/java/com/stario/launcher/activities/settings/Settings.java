@@ -42,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.widget.NestedScrollView;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.stario.launcher.BuildConfig;
@@ -129,6 +130,7 @@ public class Settings extends ThemedActivity {
         boolean legacyLockAnim = settings.getBoolean(LockDetector.LEGACY_ANIMATION, false);
         boolean imperialUnits = settings.getBoolean(Weather.IMPERIAL_KEY, false);
         boolean vibrations = settings.getBoolean(Vibrations.PREFERENCE_ENTRY, true);
+        boolean weatherForecast = weather.getBoolean(Weather.FORECAST_KEY, true);
         boolean searchResults = search.getBoolean(WebAdapter.SEARCH_RESULTS, false);
         boolean searchHiddenApps = search.getBoolean(SearchFragment.SEARCH_HIDDEN_APPS, false);
         boolean pinnedCategoryVisible = pins.getBoolean(PinnedCategory.PINNED_CATEGORY_VISIBLE, false);
@@ -151,6 +153,7 @@ public class Settings extends ThemedActivity {
         MaterialSwitch searchResultsSwitch = findViewById(R.id.search_results);
         MaterialSwitch pinnedCategorySwitch = findViewById(R.id.pinned_category);
         MaterialSwitch switchVibrations = findViewById(R.id.vibrations);
+        MaterialSwitch switchWeather = findViewById(R.id.weather);
         MaterialSwitch switchSearchHiddenApps = findViewById(R.id.search_hidden_apps);
 
         View pinnedCategoryContainer = findViewById(R.id.pinned_category_container);
@@ -195,6 +198,7 @@ public class Settings extends ThemedActivity {
         switchSearchHiddenApps.setChecked(searchHiddenApps);
         lockAnimSwitch.setChecked(legacyLockAnim);
         switchVibrations.setChecked(vibrations);
+        switchWeather.setChecked(weatherForecast);
 
         lockSwitch.jumpDrawablesToCurrentState();
         mediaSwitch.jumpDrawablesToCurrentState();
@@ -204,6 +208,7 @@ public class Settings extends ThemedActivity {
         lockAnimSwitch.jumpDrawablesToCurrentState();
         switchVibrations.jumpDrawablesToCurrentState();
         switchSearchHiddenApps.jumpDrawablesToCurrentState();
+        switchWeather.setChecked(weatherForecast);
 
         mediaSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             private NotificationConfigurator dialog;
@@ -298,6 +303,16 @@ public class Settings extends ThemedActivity {
             settings.edit()
                     .putBoolean(Vibrations.PREFERENCE_ENTRY, isChecked)
                     .apply();
+        });
+
+        switchWeather.setOnCheckedChangeListener((compound, isChecked) -> {
+            weather.edit()
+                    .putBoolean(Weather.FORECAST_KEY, isChecked)
+                    .apply();
+
+            //noinspection deprecation
+            LocalBroadcastManager.getInstance(this)
+                    .sendBroadcastSync(new Intent(Weather.ACTION_REQUEST_UPDATE));
         });
 
         themeName.setText(getThemeType().getDisplayName());
@@ -554,6 +569,7 @@ public class Settings extends ThemedActivity {
         findViewById(R.id.lock_container).setOnClickListener((view) -> lockSwitch.performClick());
         findViewById(R.id.imperial_container).setOnClickListener((view) -> imperialSwitch.performClick());
         findViewById(R.id.vibrations_container).setOnClickListener((view) -> switchVibrations.performClick());
+        findViewById(R.id.weather_container).setOnClickListener((view) -> switchWeather.performClick());
         findViewById(R.id.search_hidden_apps_container).setOnClickListener((view) -> switchSearchHiddenApps.performClick());
         updateLockAnimationState(lockSwitch.isChecked());
 
