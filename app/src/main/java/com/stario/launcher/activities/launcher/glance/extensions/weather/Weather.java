@@ -23,7 +23,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Address;
+import android.location.LocationManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,20 +58,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 
 public class Weather extends GlanceDialogExtension {
     public static final String ACTION_REQUEST_UPDATE = "com.stario.REQUEST_UPDATE";
+    public static final String PRECISE_LOCATION = "com.stario.PRECISE_LOCATION";
     public static final String FORECAST_KEY = "com.stario.WEATHER_FORECAST";
     public static final String IMPERIAL_KEY = "com.stario.IMPERIAL";
     public static final String LOCATION_NAME = "com.stario.LOCATION";
@@ -79,7 +81,8 @@ public class Weather extends GlanceDialogExtension {
     private static final String TAG = "com.stario.launcher.Weather";
 
     private static final int FORECAST_MAX_ENTRIES = 20;
-    private static final int UPDATE_INTERVAL = 3_600_000;
+    private static final int DEFAULT_UPDATE_INTERVAL = 3_600_000;
+    private static final int FALLBACK_UPDATE_INTERVAL = 300_000;
     private static final int REQUEST_TIMEOUT = 10_000;
     private static final int DAY = 0;
     private static final int NIGHT = 1;
@@ -337,33 +340,34 @@ public class Weather extends GlanceDialogExtension {
         }});
     }};
 
-    private static double lat = Double.MAX_VALUE;
-    private static double lon = Double.MAX_VALUE;
+    private static volatile double lat = Double.MAX_VALUE;
+    private static volatile double lon = Double.MAX_VALUE;
 
     private final BroadcastReceiver receiver;
     private final WeatherPreview preview;
     private final DateParser dateParser;
 
     private SharedPreferences weatherPreferences;
-    private ArrayList<Data> weatherData;
     private SharedPreferences settings;
+    private GeocoderFallback geocoder;
+    private volatile Address address;
+    private volatile long lastUpdate;
+    private List<Data> weatherData;
     private Future<?> runningTask;
     private RecyclerView recycler;
     private TextView temperature;
-    private GeocoderFallback geocoder;
     private TextView location;
     private TextView summary;
-    private Address address;
-    private long lastUpdate;
     private View direction;
     private TextView speed;
     private View container;
     private ImageView icon;
 
     public Weather() {
-        this.weatherData = new ArrayList<>();
+        this.weatherData = new CopyOnWriteArrayList<>();
         this.dateParser = DateParser.newBuilder().build();
         this.runningTask = null;
+        this.address = null;
         this.lastUpdate = 0;
 
         this.preview = new WeatherPreview();
@@ -371,12 +375,15 @@ public class Weather extends GlanceDialogExtension {
             @Override
             public void onReceive(Context context, Intent intent) {
                 lastUpdate = 0;
+                address = null;
                 weatherData.clear();
                 preview.update(null);
 
-                if (runningTask != null &&
-                        !runningTask.isDone()) {
-                    runningTask.cancel(true);
+                synchronized (Weather.this) {
+                    if (runningTask != null &&
+                            !runningTask.isDone()) {
+                        runningTask.cancel(true);
+                    }
                 }
 
                 update();
@@ -468,22 +475,44 @@ public class Weather extends GlanceDialogExtension {
     public HashMap<String, Object> data = new HashMap<>();
 
     @Override
-    public void update() {
+    public synchronized void update() {
         if (!weatherPreferences.getBoolean(FORECAST_KEY, true) ||
                 (runningTask != null && !runningTask.isDone())) {
             return;
         }
 
         runningTask = Utils.submitTask(() -> {
-            if (Math.abs(System.currentTimeMillis() - lastUpdate) > UPDATE_INTERVAL) {
-                if (weatherPreferences.contains(LATITUDE_KEY) &&
-                        weatherPreferences.contains(LONGITUDE_KEY)) {
-                    lat = Double.longBitsToDouble(
-                            weatherPreferences.getLong(LATITUDE_KEY, Long.MAX_VALUE));
-                    lon = Double.longBitsToDouble(
-                            weatherPreferences.getLong(LONGITUDE_KEY, Long.MAX_VALUE));
-                } else {
-                    updateLocation(Utils.getPublicIPAddress());
+            if (Math.abs(System.currentTimeMillis() - lastUpdate) > DEFAULT_UPDATE_INTERVAL) {
+                boolean prefersPreciseLocation = weatherPreferences.getBoolean(PRECISE_LOCATION, false);
+                boolean fetchedPreciseLocation = false;
+
+                if (prefersPreciseLocation) {
+                    if (activity.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+                        LocationManager locationManager = (LocationManager)
+                                activity.getSystemService(Context.LOCATION_SERVICE);
+                        android.location.Location location =
+                                locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+                        if (location != null) {
+                            lat = location.getLatitude();
+                            lon = location.getLongitude();
+
+                            fetchedPreciseLocation = true;
+                        }
+                    }
+                }
+
+                if (!fetchedPreciseLocation) {
+                    if (weatherPreferences.contains(LATITUDE_KEY) &&
+                            weatherPreferences.contains(LONGITUDE_KEY)) {
+                        lat = Double.longBitsToDouble(
+                                weatherPreferences.getLong(LATITUDE_KEY, Long.MAX_VALUE));
+                        lon = Double.longBitsToDouble(
+                                weatherPreferences.getLong(LONGITUDE_KEY, Long.MAX_VALUE));
+                    } else {
+                        loadApproximatedLocation(Utils.getPublicIPAddress());
+                    }
                 }
 
                 if (lat < -90 || lat > 90 ||
@@ -537,11 +566,24 @@ public class Weather extends GlanceDialogExtension {
                     int index = getFirstIndexInTime();
 
                     if (index > 0) {
-                        UiUtils.runOnUIThread(() ->
-                                preview.update(this.weatherData.get(index)));
+                        UiUtils.runOnUIThread(() -> preview.update(this.weatherData.get(index)));
                     }
 
-                    lastUpdate = System.currentTimeMillis();
+                    String addressName = weatherPreferences.getString(LOCATION_NAME, null);
+                    if (addressName == null) {
+                        address = geocoder.getFromLocation(lat, lon);
+                    } else {
+                        address = new Address(Locale.ENGLISH);
+                        address.setLocality(addressName);
+                    }
+
+                    // Artificially change the update interval if we want precise location data
+                    // But location is not accessible
+                    if(!fetchedPreciseLocation && prefersPreciseLocation) {
+                        lastUpdate = System.currentTimeMillis() - DEFAULT_UPDATE_INTERVAL + FALLBACK_UPDATE_INTERVAL;
+                    } else {
+                        lastUpdate = System.currentTimeMillis();
+                    }
                 } catch (JSONException exception) {
                     Log.e(TAG, "updateWeather: ", exception);
                 }
@@ -566,17 +608,25 @@ public class Weather extends GlanceDialogExtension {
 
             summary.setText(getSummary(data.iconCode));
 
-            String locationString = weatherPreferences.getString(LOCATION_NAME, null);
-            if (locationString != null) {
-                location.setText(locationString);
-            } else if (address != null) {
-                locationString = address.getSubLocality();
+            if (address != null) {
+                String subLocality = address.getSubLocality();
+                String locality = address.getLocality();
 
-                if (locationString == null) {
-                    locationString = address.getLocality();
+                if (locality == null) {
+                    locality = address.getSubAdminArea();
                 }
 
-                location.setText(locationString);
+                if (locality == null) {
+                    locality = address.getAdminArea();
+                }
+
+                if (locality == null) {
+                    locality = subLocality;
+                } else if (subLocality != null) {
+                    locality = subLocality + ", " + locality;
+                }
+
+                location.setText(locality);
             } else {
                 location.setText(null);
             }
@@ -653,9 +703,8 @@ public class Weather extends GlanceDialogExtension {
         return summary != null ? summary : 0;
     }
 
-    private void updateLocation(String ip) {
+    private void loadApproximatedLocation(String ip) {
         for (IpApiEntry entry : LOCATION_APIS) {
-            StringBuilder response = new StringBuilder();
             HttpURLConnection connection = null;
 
             try {
@@ -671,22 +720,11 @@ public class Weather extends GlanceDialogExtension {
                 connection.connect();
 
                 int responseCode = connection.getResponseCode();
-                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    InputStream inputStream = new BufferedInputStream(connection.getInputStream());
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
-
-                    JSONObject jsonObject = new JSONObject(response.toString());
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    JSONObject jsonObject = new JSONObject(Utils.readStream(connection.getInputStream()));
                     for (IpApiEntry.Callback callback : entry.callback) {
                         callback.assign(jsonObject.getDouble(callback.field));
                     }
-
-                    address = geocoder.getFromLocation(lat, lon);
                 } else {
                     Log.w(TAG, "getWeatherInfo: Server returned non-OK status: " + responseCode);
                 }
@@ -701,7 +739,6 @@ public class Weather extends GlanceDialogExtension {
     }
 
     private JSONObject getWeatherInfo() {
-        StringBuilder response = new StringBuilder();
         HttpURLConnection connection = null;
 
         try {
@@ -726,7 +763,7 @@ public class Weather extends GlanceDialogExtension {
 
             return null;
         } catch (Exception exception) {
-            Log.e(TAG, "getWeatherInfo: " + exception.getMessage());
+            Log.e(TAG, "getWeatherInfo: ", exception);
 
             return null;
         } finally {

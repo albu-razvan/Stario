@@ -42,7 +42,6 @@ import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.icons.PathCornerTreatmentAlgorithm;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.ImageUtils;
-import com.stario.launcher.utils.ThreadSafeArrayList;
 import com.stario.launcher.utils.Utils;
 
 import org.json.JSONObject;
@@ -53,6 +52,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -355,7 +355,7 @@ public final class IconPackManager {
         private final LauncherApplication application;
         private final HashMap<String, List<String>> exactComponentDrawable;
         private final HashMap<String, List<String>> packageNameDrawables;
-        private final ThreadSafeArrayList<Runnable> completionListeners;
+        private final List<Runnable> completionListeners;
         private CompletableFuture<Boolean> loadTask;
         private Resources resources;
         private boolean cached;
@@ -364,7 +364,7 @@ public final class IconPackManager {
             this.application = application;
             this.exactComponentDrawable = new HashMap<>();
             this.packageNameDrawables = new HashMap<>();
-            this.completionListeners = new ThreadSafeArrayList<>();
+            this.completionListeners = Collections.synchronizedList(new ArrayList<>());
             this.loadTask = null;
             this.cached = false;
         }

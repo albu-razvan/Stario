@@ -35,15 +35,15 @@ import com.stario.launcher.utils.Utils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.List;
 
 public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHolder> {
     private static final int FORECAST_SIZE = 12;
-    private final ArrayList<Weather.Data> data;
+    private final List<Weather.Data> data;
     private final int indexToStart;
     private final SharedPreferences preferences;
 
-    public ForecastAdapter(ThemedActivity activity, ArrayList<Weather.Data> data, int indexToStart) {
+    public ForecastAdapter(ThemedActivity activity, List<Weather.Data> data, int indexToStart) {
         this.preferences = activity.getApplicationContext().getSharedPreferences(Entry.STARIO);
         this.data = data;
         this.indexToStart = indexToStart;

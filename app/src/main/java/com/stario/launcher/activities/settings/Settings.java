@@ -17,6 +17,7 @@
 
 package com.stario.launcher.activities.settings;
 
+import android.Manifest;
 import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -470,8 +471,7 @@ public class Settings extends ThemedActivity {
             }
         });
 
-        locationName.setText(weather.getString(Weather.LOCATION_NAME,
-                resources.getString(R.string.location_ip_based)));
+        locationName.setText(getLocationString(weather, resources));
         location.setOnClickListener(new View.OnClickListener() {
             private LocationDialog dialog;
             private boolean showing = false;
@@ -481,11 +481,9 @@ public class Settings extends ThemedActivity {
                 if (dialog == null) {
                     dialog = new LocationDialog(Settings.this);
 
-                    dialog.setOnDismissListener(dialog -> {
-                        locationName.setText(weather.getString(Weather.LOCATION_NAME,
-                                resources.getString(R.string.location_ip_based)));
-                        showing = false;
-                    });
+                    dialog.setOnLocationUpdateListener(() ->
+                            locationName.setText(getLocationString(weather, resources)));
+                    dialog.setOnDismissListener(dialog -> showing = false);
                 }
 
                 if (!showing) {
@@ -693,6 +691,23 @@ public class Settings extends ThemedActivity {
         handleOrientation();
 
         content.post(() -> content.setLayoutTransition(new LayoutTransition()));
+    }
+
+    private String getLocationString(SharedPreferences weather, Resources resources) {
+        String location = weather.getString(Weather.LOCATION_NAME,
+                resources.getString(R.string.location_ip_based));
+
+        if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && weather.getBoolean(Weather.PRECISE_LOCATION, false)) {
+            location = resources.getString(R.string.precise_location);
+        }
+
+        return location;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults, int deviceId) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId);
     }
 
     private void handleOrientation() {

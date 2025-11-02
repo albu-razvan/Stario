@@ -34,10 +34,7 @@
     <com.stario.launcher.sheet.SheetsFocusController
         android:id="@+id/controller"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:alpha="0"
-        android:scaleX="0.9"
-        android:scaleY="0.9">
+        android:layout_height="match_parent">
 
         <com.stario.launcher.ui.common.lock.LockDetector
             android:id="@+id/detector"
