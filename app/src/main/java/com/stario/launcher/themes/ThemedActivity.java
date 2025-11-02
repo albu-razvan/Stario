@@ -23,6 +23,7 @@ import static com.stario.launcher.themes.Theme.THEME_DYNAMIC;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -49,6 +50,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.compose.animation.core.CubicBezierEasing;
 import androidx.compose.animation.core.Easing;
+import androidx.core.app.ActivityCompat;
 
 import com.stario.launcher.Stario;
 import com.stario.launcher.preferences.Entry;
@@ -57,6 +59,7 @@ import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.utils.Utils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 abstract public class ThemedActivity extends AppCompatActivity {
@@ -64,6 +67,9 @@ abstract public class ThemedActivity extends AppCompatActivity {
     public static final String FORCE_DARK = "com.stario.FORCE_DARK";
 
     private final HashMap<Integer, OnActivityResult> activityResultListeners;
+    private final HashMap<Integer, OnPermissionRequestResult> requestPermissionResultListeners;
+
+    private static int requestCode = 0;
 
     private PaintDrawable roundedCornerBackground;
     private SharedPreferences themePreferences;
@@ -76,6 +82,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
     public ThemedActivity() {
         this.allowTouches = true;
         this.activityResultListeners = new HashMap<>();
+        this.requestPermissionResultListeners = new HashMap<>();
     }
 
     @Override
@@ -321,6 +328,14 @@ abstract public class ThemedActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        activityResultListeners.clear();
+        requestPermissionResultListeners.clear();
+    }
+
+    @Override
     public void onConfigurationChanged(@NonNull Configuration configuration) {
         if (Measurements.wereTaken()) {
             Measurements.remeasure(getRoot());
@@ -435,7 +450,45 @@ abstract public class ThemedActivity extends AppCompatActivity {
         activityResultListeners.remove(configurationCode);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        OnPermissionRequestResult listener =requestPermissionResultListeners.remove(requestCode);
+        if(listener != null) {
+            listener.onResult(grantResults);
+        }
+    }
+
+    public void requestPermissions(String[] permissions,
+                                 OnPermissionRequestResult listener) {
+        boolean granted = true;
+
+        for (String permission: permissions) {
+            if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                granted = false;
+            }
+        }
+
+        if (!granted) {
+            requestCode = (requestCode + 1) % 1_000_000;
+
+            ActivityCompat.requestPermissions(this, permissions, requestCode);
+            requestPermissionResultListeners.put(requestCode, listener);
+        } else {
+            int[] results = new int[permissions.length];
+            Arrays.fill(results, PackageManager.PERMISSION_GRANTED);
+
+            listener.onResult(results);
+        }
+    }
+
     public interface OnActivityResult {
         void onResult(int resultCode, Intent intent);
+    }
+
+    public interface OnPermissionRequestResult {
+        void onResult(int[] grantResults);
     }
 }

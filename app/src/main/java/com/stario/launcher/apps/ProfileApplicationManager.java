@@ -33,10 +33,10 @@ import com.stario.launcher.Stario;
 import com.stario.launcher.apps.interfaces.LauncherApplicationListener;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.utils.UiUtils;
-import com.stario.launcher.utils.ThreadSafeArrayList;
 import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,10 +59,10 @@ public final class ProfileApplicationManager {
     private boolean loaded;
 
     ProfileApplicationManager(Stario stario, UserHandle handle, boolean mainUser) {
-        this.visibleApplicationList = new ThreadSafeArrayList<>();
-        this.applicationList = new ThreadSafeArrayList<>();
+        this.visibleApplicationList = Collections.synchronizedList(new ArrayList<>());
+        this.applicationList = Collections.synchronizedList(new ArrayList<>());
         this.applicationMap = new HashMap<>();
-        this.listeners = new ThreadSafeArrayList<>();
+        this.listeners = Collections.synchronizedList(new ArrayList<>());
         this.applicationLabels = stario.getSharedPreferences(Entry.APPLICATION_LABELS);
         this.hiddenApplications = stario.getSharedPreferences(Entry.HIDDEN_APPS,
                 Integer.toString(handle.hashCode()));

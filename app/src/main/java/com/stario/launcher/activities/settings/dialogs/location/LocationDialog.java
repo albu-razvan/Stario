@@ -38,8 +38,12 @@ import com.stario.launcher.ui.recyclers.DividerItemDecorator;
 import com.stario.launcher.ui.utils.UiUtils;
 
 public class LocationDialog extends ActionDialog {
+    private OnLocationUpdate listener;
+
     public LocationDialog(@NonNull ThemedActivity activity) {
         super(activity);
+
+        this.listener = null;
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -97,6 +101,10 @@ public class LocationDialog extends ActionDialog {
 
                     behavior.setDraggable(true);
                     behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+                    if (listener != null) {
+                        listener.onUpdate();
+                    }
                 });
         recycler.setAdapter(adapter);
 
@@ -126,5 +134,13 @@ public class LocationDialog extends ActionDialog {
     @Override
     protected int getDesiredInitialState() {
         return BottomSheetBehavior.STATE_EXPANDED;
+    }
+
+    public void setOnLocationUpdateListener(OnLocationUpdate listener) {
+        this.listener = listener;
+    }
+
+    public interface OnLocationUpdate {
+        void onUpdate();
     }
 }

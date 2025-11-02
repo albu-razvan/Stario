@@ -127,14 +127,23 @@
 
         </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/forecast"
+        <com.stario.launcher.ui.common.FadingEdgeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:overScrollMode="never"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp" />
+            app:edge="right|left"
+            app:size_left="20dp"
+            app:size_right="20dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/forecast"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp" />
+
+        </com.stario.launcher.ui.common.FadingEdgeLayout>
 
         <TextView
             android:layout_width="match_parent"

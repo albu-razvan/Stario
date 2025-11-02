@@ -20,8 +20,6 @@ package com.stario.launcher.apps;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.stario.launcher.utils.ThreadSafeArrayList;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,13 +30,13 @@ public class Category {
 
     private final CategoryMappings.Comparator<LauncherApplication> comparator;
 
-    final ArrayList<LauncherApplication> applications;
-    final ArrayList<CategoryItemListener> listeners;
+    final List<LauncherApplication> applications;
+    final List<CategoryItemListener> listeners;
 
     public Category(@NonNull UUID identifier) {
         this.identifier = identifier;
-        this.applications = new ThreadSafeArrayList<>();
-        this.listeners = new ThreadSafeArrayList<>();
+        this.applications = Collections.synchronizedList(new ArrayList<>());
+        this.listeners = Collections.synchronizedList(new ArrayList<>());
         this.comparator = CategoryMappings.getCategoryApplicationComparator(this);
     }
 

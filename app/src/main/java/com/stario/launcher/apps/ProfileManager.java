@@ -33,7 +33,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.stario.launcher.Stario;
 import com.stario.launcher.apps.interfaces.LauncherProfileListener;
-import com.stario.launcher.utils.ThreadSafeArrayList;
 import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
@@ -62,7 +61,7 @@ public final class ProfileManager {
         instance = this;
 
         this.iconPacks = IconPackManager.from(stario, this::update);
-        this.listeners = new ThreadSafeArrayList<>();
+        this.listeners = Collections.synchronizedList(new ArrayList<>());
         this.profilesList = new ArrayList<>();
         this.profilesMap = new HashMap<>();
 

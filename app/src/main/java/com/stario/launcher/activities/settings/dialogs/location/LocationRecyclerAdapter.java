@@ -17,14 +17,21 @@
 
 package com.stario.launcher.activities.settings.dialogs.location;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Address;
+import android.net.Uri;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -176,6 +183,44 @@ public class LocationRecyclerAdapter extends RecyclerView.Adapter<LocationRecycl
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
         if (position == 0) {
+            viewHolder.locality.setText(R.string.precise_location);
+            viewHolder.location.setVisibility(View.GONE);
+
+            viewHolder.itemView.setOnClickListener(v -> {
+                activity.requestPermissions(new String[]{
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                }, (granted) -> {
+                    if (granted[0] == PackageManager.PERMISSION_GRANTED) {
+                        preferences.edit()
+                                .remove(Weather.LATITUDE_KEY)
+                                .remove(Weather.LONGITUDE_KEY)
+                                .remove(Weather.LOCATION_NAME)
+                                .putBoolean(Weather.PRECISE_LOCATION, true)
+                                .apply();
+
+                        broadcastManager.sendBroadcastSync(new Intent(Weather.ACTION_REQUEST_UPDATE));
+
+                        if (clickListener != null) {
+                            clickListener.onClick(v);
+                        }
+                    } else {
+                        try {
+                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            Uri uri = Uri.fromParts("package", activity.getPackageName(), null);
+                            intent.setData(uri);
+
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                            activity.startActivity(intent);
+                        } catch (ActivityNotFoundException exception) {
+                            Log.e(TAG, "onBindViewHolder: Settings activity not found.");
+                        }
+
+                        Toast.makeText(activity, R.string.location_reasoning, Toast.LENGTH_LONG).show();
+                    }
+                });
+            });
+        } else if (position == 1) {
             viewHolder.locality.setText(R.string.location_ip_based);
             viewHolder.location.setVisibility(View.GONE);
 
@@ -184,6 +229,7 @@ public class LocationRecyclerAdapter extends RecyclerView.Adapter<LocationRecycl
                         .remove(Weather.LATITUDE_KEY)
                         .remove(Weather.LONGITUDE_KEY)
                         .remove(Weather.LOCATION_NAME)
+                        .putBoolean(Weather.PRECISE_LOCATION, false)
                         .apply();
 
                 broadcastManager.sendBroadcastSync(new Intent(Weather.ACTION_REQUEST_UPDATE));
@@ -193,7 +239,7 @@ public class LocationRecyclerAdapter extends RecyclerView.Adapter<LocationRecycl
                 }
             });
         } else {
-            Address address = addresses.get(position - 1);
+            Address address = addresses.get(position - 2);
 
             String locality = address.getSubLocality();
 
@@ -243,6 +289,7 @@ public class LocationRecyclerAdapter extends RecyclerView.Adapter<LocationRecycl
                     }
                 }
 
+                editor.putBoolean(Weather.PRECISE_LOCATION, false);
                 editor.apply();
 
                 broadcastManager.sendBroadcastSync(new Intent(Weather.ACTION_REQUEST_UPDATE));
@@ -256,7 +303,7 @@ public class LocationRecyclerAdapter extends RecyclerView.Adapter<LocationRecycl
 
     @Override
     public int getItemCount() {
-        return addresses.size() + 1;
+        return addresses.size() + 2;
     }
 
     @NonNull

@@ -27,7 +27,6 @@ import com.stario.launcher.Stario;
 import com.stario.launcher.apps.interfaces.LauncherApplicationListener;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.utils.UiUtils;
-import com.stario.launcher.utils.ThreadSafeArrayList;
 import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
@@ -64,11 +63,11 @@ public final class CategoryManager {
     private final SharedPreferences customCategoryNames;
     private final SharedPreferences remappedCategories;
     private final SharedPreferences hiddenApplications;
-    private final ArrayList<Category> categories;
+    private final List<Category> categories;
 
     private CategoryManager(@NonNull Stario stario, @NonNull ProfileApplicationManager applicationManager) {
         this.applicationManager = applicationManager;
-        this.categories = new ThreadSafeArrayList<>();
+        this.categories = Collections.synchronizedList(new ArrayList<>());
         this.hiddenApplications = stario.getSharedPreferences(Entry.HIDDEN_APPS,
                 Integer.toString(applicationManager.handle.hashCode()));
         this.remappedCategories = stario.getSharedPreferences(Entry.CATEGORIES);

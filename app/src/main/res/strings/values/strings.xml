@@ -63,6 +63,7 @@
     <string name="weather_forecast">Weather forecast</string>
     <string name="weather_location">Location</string>
     <string name="location_ip_based">IP Geolocation (Approximated)</string>
+    <string name="precise_location">Current Location (Exact)</string>
     <string name="system_launcher">Reassign system launcher</string>
     <string name="app_info">App info</string>
 
@@ -81,6 +82,9 @@
     <!-- Notifications pop-up -->
     <string name="read_notifications">Read notifications</string>
     <string name="notifications_access">Stario needs access to notifications for this feature to work.</string>
+
+    <!-- Location pop-up -->
+    <string name="location_reasoning">Allow location access from system settings.</string>
 
     <!-- Accessibility pop-up -->
     <string name="use_accessibility">Use accessibility</string>
