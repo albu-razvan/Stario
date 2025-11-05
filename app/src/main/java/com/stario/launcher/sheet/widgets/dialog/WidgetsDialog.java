@@ -18,6 +18,7 @@
 package com.stario.launcher.sheet.widgets.dialog;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
@@ -27,6 +28,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -293,7 +295,7 @@ public class WidgetsDialog extends SheetDialogFragment {
             } else {
                 getWidgetHost().startAppWidgetConfigureActivityForResult(activity, identifier,
                         Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED,
-                        CONFIGURATION_CODE, null);
+                        CONFIGURATION_CODE, getActivityOptionsBundle());
             }
         } catch (ActivityNotFoundException exception) {
             activity.removeOnActivityResultListener(CONFIGURATION_CODE);
@@ -405,5 +407,18 @@ public class WidgetsDialog extends SheetDialogFragment {
         }
 
         super.onStop();
+    }
+
+    private static Bundle getActivityOptionsBundle() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            ActivityOptions activityOptions = ActivityOptions.makeBasic();
+            activityOptions.setPendingIntentBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED);
+            return activityOptions.toBundle();
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            ActivityOptions activityOptions = ActivityOptions.makeBasic();
+            activityOptions.setPendingIntentBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOW_IF_VISIBLE);
+            return activityOptions.toBundle();
+        } else
+            return null;
     }
 }
