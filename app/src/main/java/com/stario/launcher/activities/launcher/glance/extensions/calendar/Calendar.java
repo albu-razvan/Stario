@@ -34,17 +34,21 @@ import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.Casing;
 
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public final class Calendar implements GlanceViewExtension {
     private View.OnClickListener clickListener;
-    private TextView text;
+    private TextView month;
+    private TextView date;
 
     @Override
     public View inflate(ThemedActivity activity, LinearLayout container) {
         View root = activity.getLayoutInflater()
                 .inflate(R.layout.calendar, container, false);
 
-        text = root.findViewById(R.id.calendar);
+        month = root.findViewById(R.id.month);
+        date = root.findViewById(R.id.date);
+
         clickListener = (view) -> {
             Vibrations.getInstance().vibrate();
 
@@ -69,13 +73,21 @@ public final class Calendar implements GlanceViewExtension {
 
     @Override
     public void update() {
-        if (text != null) {
-            String value = new SimpleDateFormat("EEEE, MMM d",
-                    text.getTextLocale())
-                    .format(android.icu.util.Calendar.getInstance()
-                            .getTime().getTime());
+        if (month != null) {
+            long time = android.icu.util.Calendar.getInstance().getTime().getTime();
+            Locale locale = month.getTextLocale();
 
-            text.post(() -> text.setText(Casing.toTitleCase(value)));
+            month.post(() -> month.setText(
+                            Casing.toTitleCase(
+                                    new SimpleDateFormat("EEEE, ",
+                                            locale).format(time))
+                    )
+            );
+            date.post(() -> date.setText(
+                    Casing.toTitleCase(
+                            new SimpleDateFormat("MMM\u00A0d",
+                                    locale).format(time))
+            ));
         }
     }
 

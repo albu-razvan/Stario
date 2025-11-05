@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -16,24 +15,54 @@
   ~ along with this program. If not, see <http://www.gnu.org/licenses/>
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="0dp"
     android:layout_height="match_parent"
-    android:layout_weight="1">
+    android:layout_weight="1"
+    android:gravity="center"
+    android:padding="10dp">
 
-    <TextView
-        android:id="@+id/calendar"
-        android:layout_width="match_parent"
+    <com.google.android.flexbox.FlexboxLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/dm_sans_medium"
-        android:letterSpacing="-0.02"
-        android:lineHeight="24sp"
-        android:maxLines="1"
-        android:paddingLeft="10dp"
-        android:textColor="?attr/colorOnSurface"
-        android:textSize="22sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:flexWrap="wrap"
+        app:alignItems="center"
+        app:justifyContent="flex_end">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/dm_sans_medium"
+            android:letterSpacing="-0.03"
+            android:lineHeight="18sp"
+            android:maxLines="1"
+            android:paddingRight="20dp"
+            android:singleLine="true"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="20sp" />
+
+        <carbon.widget.TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="-20dp"
+            android:background="?attr/colorPrimary"
+            android:fontFamily="@font/dm_sans_bold"
+            android:letterSpacing="-0.03"
+            android:lineHeight="18sp"
+            android:maxLines="1"
+            android:paddingTop="2sp"
+            android:paddingBottom="2sp"
+            android:paddingLeft="10sp"
+            android:paddingRight="10sp"
+            android:singleLine="true"
+            android:textColor="?attr/colorOnPrimary"
+            android:textSize="20sp"
+            android:translationX="-20dp"
+            app:carbon_cornerRadius="999dp" />
+
+    </com.google.android.flexbox.FlexboxLayout>
+
+</RelativeLayout>
