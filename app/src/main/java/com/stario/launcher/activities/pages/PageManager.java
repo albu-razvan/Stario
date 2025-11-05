@@ -385,55 +385,73 @@ public class PageManager extends ThemedActivity {
         pageContainer.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View v, DragEvent event) {
-                if (event.getAction() == DragEvent.ACTION_DROP) {
-                    ViewParent pageParent = page.getParent();
-                    if (!(pageParent instanceof ViewGroup)) {
-                        return false;
-                    }
+                View draggedPage = (View) event.getLocalState();
 
-                    View draggedPage = (View) event.getLocalState();
-                    ViewParent parent = draggedPage.getParent();
-                    ViewGroup view = (ViewGroup) pageParent;
+                switch (event.getAction()) {
+                    case DragEvent.ACTION_DRAG_STARTED:
+                        return draggedPage != page;
 
-                    if (parent instanceof ViewGroup && !parent.equals(view)) {
-                        ViewGroup group = (ViewGroup) parent;
+                    case DragEvent.ACTION_DRAG_ENTERED:
+                    case DragEvent.ACTION_DRAG_EXITED:
+                    case DragEvent.ACTION_DRAG_LOCATION:
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        return true;
 
-                        View otherPage = view.getChildAt(0);
-                        view.removeView(otherPage);
-                        group.addView(otherPage);
-
-                        for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
-                            if (pair.first.equals(group)) {
-                                preferences.edit()
-                                        .putString(pages.get(otherPage).getName(), pair.second.toString())
-                                        .apply();
-
-                                break;
-                            }
+                    case DragEvent.ACTION_DROP:
+                        ViewParent pageParent = page.getParent();
+                        if (!(pageParent instanceof ViewGroup)) {
+                            return false;
                         }
 
-                        group.removeView(draggedPage);
-                        view.addView(draggedPage);
+                        ViewParent parent = draggedPage.getParent();
+                        ViewGroup view = (ViewGroup) pageParent;
 
-                        for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
-                            if (pair.first.equals(view)) {
-                                preferences.edit()
-                                        .putString(pages.get(draggedPage).getName(), pair.second.toString())
-                                        .apply();
+                        if (parent instanceof ViewGroup && !parent.equals(view)) {
+                            ViewGroup group = (ViewGroup) parent;
 
-                                break;
+                            View otherPage = view.getChildAt(0);
+                            view.removeView(otherPage);
+                            group.addView(otherPage);
+
+                            for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
+                                if (pair.first.equals(group)) {
+                                    Class<?> clazz = pages.get(otherPage);
+
+                                    if(clazz != null) {
+                                        preferences.edit()
+                                                .putString(clazz.getName(), pair.second.toString())
+                                                .apply();
+                                    }
+
+                                    break;
+                                }
                             }
+
+                            group.removeView(draggedPage);
+                            view.addView(draggedPage);
+
+                            for (Pair<ConstraintLayout, SheetType> pair : placeholders) {
+                                if (pair.first.equals(view)) {
+                                    Class<?> clazz = pages.get(draggedPage);
+
+                                    if(clazz != null) {
+                                        preferences.edit()
+                                                .putString(clazz.getName(), pair.second.toString())
+                                                .apply();
+                                    }
+
+                                    break;
+                                }
+                            }
+
+                            Intent intent = new Intent(LauncherSheets.ACTION_MOVE_SHEET);
+                            intent.putExtra(LauncherSheets.INTENT_SHEET_CLASS_EXTRA,
+                                    new Class[]{pages.get(draggedPage), pages.get(otherPage)});
+                            broadcastManager.sendBroadcastSync(intent);
                         }
 
-                        Intent intent = new Intent(LauncherSheets.ACTION_MOVE_SHEET);
-                        intent.putExtra(LauncherSheets.INTENT_SHEET_CLASS_EXTRA,
-                                new Class[]{pages.get(draggedPage), pages.get(otherPage)});
-                        broadcastManager.sendBroadcastSync(intent);
-                    }
-
-                    reset(draggedPage);
-
-                    return true;
+                        reset(draggedPage);
+                        return true;
                 }
 
                 return false;
