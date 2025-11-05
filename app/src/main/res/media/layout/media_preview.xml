@@ -17,8 +17,10 @@
   -->
 
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="40dp"
-    android:layout_height="match_parent"
+    android:layout_width="50dp"
+    android:layout_height="50dp"
     android:padding="10dp"
+    android:layout_margin="10dp"
     android:scaleType="centerInside"
+    android:background="@drawable/music_background"
     android:src="@drawable/ic_music" />
