@@ -123,6 +123,7 @@
     <!-- Widgets -->
     <string name="nothing_here_yet">Nothing here yet!</string>
     <string name="create_a_widget">Add a widget</string>
+    <string name="configure_widget">Configure widget</string>
     <string name="widgets">Widgets</string>
     <string name="widget_one">widget</string>
     <string name="widget_many">widgets</string>

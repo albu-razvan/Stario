@@ -67,11 +67,12 @@ public class WidgetsDialog extends SheetDialogFragment {
     private static final int MAX_COUNT = 15;
     private static final int CONFIGURATION_CODE = 3264614;
     private static int columnSize = 0;
+
     private ActivityResultLauncher<Intent> bindWidgetRequest;
     private WidgetConfigurator configurator;
+    private boolean isConfiguratorVisible;
     private SharedPreferences widgetStore;
     private WidgetSize pendingWidgetSize;
-    private boolean showingConfigurator;
     private AppWidgetManager manager;
     private WidgetScroller scroller;
     private View addWidgetContainer;
@@ -84,13 +85,13 @@ public class WidgetsDialog extends SheetDialogFragment {
     public WidgetsDialog() {
         super();
 
-        this.showingConfigurator = false;
+        this.isConfiguratorVisible = false;
     }
 
     public WidgetsDialog(SheetType type) {
         super(type);
 
-        this.showingConfigurator = false;
+        this.isConfiguratorVisible = false;
     }
 
     public static String getName() {
@@ -116,12 +117,12 @@ public class WidgetsDialog extends SheetDialogFragment {
                             int identifier = data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
 
                             if (identifier != -1 && pendingWidgetSize != null) {
-                                configureWidget(manager, identifier, pendingWidgetSize);
+                                setupWidget(manager, identifier, pendingWidgetSize);
                             }
-
-                            pendingWidgetSize = null;
                         }
                     }
+
+                    pendingWidgetSize = null;
                 });
     }
 
@@ -138,7 +139,7 @@ public class WidgetsDialog extends SheetDialogFragment {
         addWidgetContainer = view.findViewById(R.id.add_widget_container);
         FadingEdgeLayout fader = view.findViewById(R.id.fader);
 
-        View.OnClickListener showConfiguratorListener = (v) -> showConfigurator();
+        View.OnClickListener showConfiguratorListener = (v) -> showWidgetPicker();
 
         placeholder.setOnClickListener(showConfiguratorListener);
         placeholder.findViewById(R.id.add_widget_placeholder)
@@ -147,7 +148,7 @@ public class WidgetsDialog extends SheetDialogFragment {
                 .setOnClickListener(showConfiguratorListener);
 
         content.setOnLongClickListener(v -> {
-            showConfigurator();
+            showWidgetPicker();
 
             return true;
         });
@@ -178,7 +179,7 @@ public class WidgetsDialog extends SheetDialogFragment {
 
         PriorityQueue<Widget> widgets = new PriorityQueue<>();
 
-        for (int identifier : WidgetsDialog.this.getWidgetHost().getAppWidgetIds()) {
+        for (int identifier : WidgetsDialog.this.requireWidgetHost().getAppWidgetIds()) {
             if (widgetStore.contains(String.valueOf(identifier))) {
                 String serial = widgetStore.getString(String.valueOf(identifier), null);
 
@@ -188,13 +189,13 @@ public class WidgetsDialog extends SheetDialogFragment {
                     if (widgets.size() < MAX_COUNT) {
                         widgets.add(widget);
                     } else {
-                        WidgetsDialog.this.getWidgetHost().deleteAppWidgetId(identifier);
+                        WidgetsDialog.this.requireWidgetHost().deleteAppWidgetId(identifier);
                     }
                 } else {
                     widgetStore.edit().remove(String.valueOf(identifier)).apply();
                 }
             } else {
-                WidgetsDialog.this.getWidgetHost()
+                WidgetsDialog.this.requireWidgetHost()
                         .deleteAppWidgetId(identifier);
             }
         }
@@ -204,7 +205,7 @@ public class WidgetsDialog extends SheetDialogFragment {
             Widget widget = widgets.poll();
 
             if (widget != null) {
-                AppWidgetHostView host = createWidget(manager, widget);
+                AppWidgetHostView host = createWidgetView(manager, widget);
                 grid.attach(host, widget);
 
                 updatePlaceholderVisibility(View.GONE);
@@ -231,22 +232,22 @@ public class WidgetsDialog extends SheetDialogFragment {
         return columnSize;
     }
 
-    private void showConfigurator() {
+    private void showWidgetPicker() {
         if (configurator == null) {
             configurator = new WidgetConfigurator(activity, this::addWidget);
 
-            configurator.setOnDismissListener(dialog -> showingConfigurator = false);
+            configurator.setOnDismissListener(dialog -> isConfiguratorVisible = false);
         }
 
-        if (!showingConfigurator) {
+        if (!isConfiguratorVisible) {
             configurator.show();
-            showingConfigurator = true;
+            isConfiguratorVisible = true;
         }
     }
 
     private void addWidget(AppWidgetProviderInfo info, WidgetSize size) {
         if (grid.getChildCount() <= MAX_COUNT) {
-            int identifier = getWidgetHost().allocateAppWidgetId();
+            int identifier = requireWidgetHost().allocateAppWidgetId();
             boolean allowed = manager.bindAppWidgetIdIfAllowed(identifier, info.getProfile(), info.provider, null);
 
             if (!allowed) {
@@ -260,62 +261,64 @@ public class WidgetsDialog extends SheetDialogFragment {
                     bindWidgetRequest.launch(intent);
                 }
             } else {
-                configureWidget(manager, identifier, size);
+                setupWidget(manager, identifier, size);
             }
         }
 
         configurator.dismiss();
     }
 
-    private void configureWidget(AppWidgetManager manager, int identifier, WidgetSize size) {
+    private void setupWidget(AppWidgetManager manager, int identifier, WidgetSize size) {
         Widget widget = new Widget(identifier, grid.allocatePosition(), size);
-        AppWidgetHostView host = createWidget(manager, widget);
+        AppWidgetHostView host = createWidgetView(manager, widget);
 
-        try {
-            boolean result = activity.addOnActivityResultListener(CONFIGURATION_CODE, (resultCode, intent) -> {
-                if (resultCode == Activity.RESULT_OK) {
-                    String serialized = widget.serialize();
+        if (host.getAppWidgetInfo().configure == null) {
+            completeWidgetSetup(widget, host);
+        } else {
+            try {
+                boolean result = activity.addOnActivityResultListener(CONFIGURATION_CODE,
+                        (resultCode, intent) -> {
+                            if (resultCode == Activity.RESULT_OK) {
+                                completeWidgetSetup(widget, host);
+                                host.forceLayout();
+                            } else {
+                                requireWidgetHost().deleteAppWidgetId(host.getAppWidgetId());
+                            }
 
-                    widgetStore.edit()
-                            .putString(String.valueOf(identifier), serialized)
-                            .apply();
+                            activity.removeOnActivityResultListener(CONFIGURATION_CODE);
+                        });
 
-                    grid.attach(host, widget);
-                    updatePlaceholderVisibility(View.GONE);
+                if (!result) {
+                    requireWidgetHost().deleteAppWidgetId(host.getAppWidgetId());
+                    activity.removeOnActivityResultListener(CONFIGURATION_CODE);
                 } else {
-                    getWidgetHost().deleteAppWidgetId(host.getAppWidgetId());
+                    requireWidgetHost().startAppWidgetConfigureActivityForResult(activity, identifier,
+                            Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED,
+                            CONFIGURATION_CODE, getActivityOptionsBundle());
                 }
-
+            } catch (ActivityNotFoundException exception) {
+                completeWidgetSetup(widget, host);
                 activity.removeOnActivityResultListener(CONFIGURATION_CODE);
-            });
 
-            if (!result) {
-                getWidgetHost().deleteAppWidgetId(host.getAppWidgetId());
-                activity.removeOnActivityResultListener(CONFIGURATION_CODE);
-            } else {
-                getWidgetHost().startAppWidgetConfigureActivityForResult(activity, identifier,
-                        Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED,
-                        CONFIGURATION_CODE, getActivityOptionsBundle());
+                Log.w(TAG, "No configure activity found for identifier " + identifier);
             }
-        } catch (ActivityNotFoundException exception) {
-            activity.removeOnActivityResultListener(CONFIGURATION_CODE);
-
-            String serialized = widget.serialize();
-
-            widgetStore.edit()
-                    .putString(String.valueOf(identifier), serialized)
-                    .apply();
-
-            grid.attach(host, widget);
-            updatePlaceholderVisibility(View.GONE);
-
-            Log.w(TAG, "No configure activity found for identifier " + identifier);
         }
     }
 
-    private AppWidgetHostView createWidget(AppWidgetManager manager, Widget widget) {
+    private void completeWidgetSetup(Widget widget, AppWidgetHostView host) {
+        String serialized = widget.serialize();
+
+        widgetStore.edit()
+                .putString(String.valueOf(widget.id), serialized)
+                .apply();
+
+        grid.attach(host, widget);
+        updatePlaceholderVisibility(View.GONE);
+    }
+
+    private AppWidgetHostView createWidgetView(AppWidgetManager manager, Widget widget) {
         AppWidgetProviderInfo info = manager.getAppWidgetInfo(widget.id);
-        AppWidgetHostView host = getWidgetHost()
+        AppWidgetHostView host = requireWidgetHost()
                 .createView(activity.getApplicationContext(), widget.id, info);
 
         host.setOnLongClickListener(v -> {
@@ -331,8 +334,27 @@ public class WidgetsDialog extends SheetDialogFragment {
 
             menu.add(new PopupMenu.Item(resources.getString(R.string.create_a_widget),
                     AppCompatResources.getDrawable(activity, R.drawable.ic_add),
-                    view -> showConfigurator())
+                    view -> showWidgetPicker())
             );
+
+            if (info.configure != null) {
+                menu.add(new PopupMenu.Item(resources.getString(R.string.configure_widget),
+                        AppCompatResources.getDrawable(activity, R.drawable.ic_edit),
+                        view -> {
+                            if (activity.addOnActivityResultListener(CONFIGURATION_CODE,
+                                    (resultCode, intent) -> {
+                                        host.forceLayout();
+                                        activity.removeOnActivityResultListener(CONFIGURATION_CODE);
+                                    })) {
+                                requireWidgetHost()
+                                        .startAppWidgetConfigureActivityForResult(activity, widget.id,
+                                                Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS
+                                                        | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED,
+                                                CONFIGURATION_CODE, getActivityOptionsBundle());
+                            }
+                        })
+                );
+            }
 
             menu.setOnDismissListener(() -> host.animate().scaleY(1)
                     .scaleX(1)
@@ -362,13 +384,13 @@ public class WidgetsDialog extends SheetDialogFragment {
             }
         }
 
-        getWidgetHost().deleteAppWidgetId(host.getAppWidgetId());
+        requireWidgetHost().deleteAppWidgetId(host.getAppWidgetId());
         grid.removeView((View) (host.getParent()));
 
         updatePlaceholderVisibility(grid.getChildCount() == 0 ? View.VISIBLE : View.GONE);
     }
 
-    public @NonNull WidgetHost getWidgetHost() {
+    public @NonNull WidgetHost requireWidgetHost() {
         if (host == null) {
             host = new WidgetHost(activity, HOST_ID);
 
@@ -410,15 +432,14 @@ public class WidgetsDialog extends SheetDialogFragment {
     }
 
     private static Bundle getActivityOptionsBundle() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            ActivityOptions activityOptions = ActivityOptions.makeBasic();
-            activityOptions.setPendingIntentBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED);
-            return activityOptions.toBundle();
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-            ActivityOptions activityOptions = ActivityOptions.makeBasic();
+        ActivityOptions activityOptions = ActivityOptions.makeBasic();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
             activityOptions.setPendingIntentBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOW_IF_VISIBLE);
-            return activityOptions.toBundle();
-        } else
-            return null;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            activityOptions.setPendingIntentBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED);
+        }
+
+        return activityOptions.toBundle();
     }
 }
