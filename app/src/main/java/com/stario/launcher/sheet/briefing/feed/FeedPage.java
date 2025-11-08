@@ -165,7 +165,7 @@ public class FeedPage extends Fragment {
         swipeRefreshLayout.setColorSchemeColors(
                 activity.getAttributeData(com.google.android.material.R.attr.colorSecondary),
                 activity.getAttributeData(com.google.android.material.R.attr.colorTertiary),
-                activity.getAttributeData(com.google.android.material.R.attr.colorPrimary)
+                activity.getAttributeData(androidx.appcompat.R.attr.colorPrimary)
         );
 
         root.findViewById(R.id.refresh_button)
