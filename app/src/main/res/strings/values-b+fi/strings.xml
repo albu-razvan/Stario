@@ -46,6 +46,7 @@
     <string name="vibrations">Värinät</string>
     <string name="theme">Teema</string>
     <string name="pages">Sivujen hallinta</string>
+    <string name="pinned_category">Kiinnitetty luokka</string>
     <string name="search_engine">Hakukone</string>
     <string name="search_results">Hakutulokset</string>
     <string name="kagi_integration">Powered by Kagi</string>
@@ -54,8 +55,10 @@
     <string name="legacy_lock_animation">Vanha lukitusanimaatio</string>
     <string name="icons">Kuvakkeet</string>
     <string name="weather">Sää</string>
+    <string name="weather_forecast">Sääennuste</string>
     <string name="weather_location">Sijainti (sää)</string>
     <string name="location_ip_based">IP-geosijainti (arvioitu)</string>
+    <string name="precise_location">Nykyinen sijainti (tarkka)</string>
     <string name="system_launcher">Määritä järjestelmän käynnistin uudelleen</string>
     <string name="app_info">Sovellustiedot</string>
 
@@ -76,6 +79,7 @@
     <string name="notifications_access">Stario tarvitsee pääsyn ilmoituksiin, jotta tämä ominaisuus toimii.</string>
 
     <!-- Accessibility pop-up -->
+    <string name="location_reasoning">Salli sijainnin käyttö järjestelmäasetuksista.</string>
     <string name="use_accessibility">Käytä helppokäyttöisyyttä</string>
     <string name="accessibility_notice">Stario tarvitsee pääsyn helppokäyttöisyyspalveluihin, jotta tämä ominaisuus toimii.</string>
 
@@ -112,6 +116,7 @@
     <!-- Widgets -->
     <string name="nothing_here_yet">Ei mitään täällä vielä!</string>
     <string name="create_a_widget">Lisää widget</string>
+    <string name="configure_widget">Määritä widget</string>
     <string name="widgets">Widgetit</string>
     <string name="widget_one">widget</string>
     <string name="widget_many">widgetit</string>
@@ -156,6 +161,7 @@
     <string name="invalid_url">Virheellinen URL</string>
     <string name="invalid_rss">Ei syöte</string>
     <string name="link">Syötteen linkki</string>
+    <string name="fetching_feed">Haetaan</string>
     <string name="no_connection">Ei internetyhteyttä</string>
     <string name="already_subscribed">Olet jo tilannut tämän syötteen!</string>
 
@@ -218,4 +224,5 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Palvelun ainoa tarkoitus on mahdollistaa lukitusnäytön eleet aloitusnäytöllä. Se ei kerää tai jaa tietoja kolmansien osapuolten kanssa.</string>
+    <string name="dock">Dock</string>
 </resources>

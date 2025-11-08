@@ -46,6 +46,7 @@
     <string name="vibrations">Vibrācijas</string>
     <string name="theme">Tēma</string>
     <string name="pages">Lapas pārvaldnieks</string>
+    <string name="pinned_category">Piesprausta kategorija</string>
     <string name="search_engine">Meklētājprogramma</string>
     <string name="search_results">Meklēšanas rezultāti</string>
     <string name="kagi_integration">Darbina Kagi</string>
@@ -54,8 +55,10 @@
     <string name="legacy_lock_animation">Mantotā bloķēšanas animācija</string>
     <string name="icons">Ikonas</string>
     <string name="weather">Laikapstākļi</string>
+    <string name="weather_forecast">Laika prognoz</string>
     <string name="weather_location">Laikapstākļu atrašanās vieta</string>
     <string name="location_ip_based">IP ģeogrāfiskā atrašanās vieta (aptuveni)</string>
+    <string name="precise_location">Pašreizējā atrašanās vieta (precīza)</string>
     <string name="system_launcher">Pārslēgt sistēmas palaidēju</string>
     <string name="app_info">Lietotnes informācija</string>
 
@@ -76,6 +79,7 @@
     <string name="notifications_access">Lai šī funkcija darbotos, Stario ir nepieciešama piekļuve paziņojumiem.</string>
 
     <!-- Accessibility pop-up -->
+    <string name="location_reasoning">Atļaut piekļuvi atrašanās vietai sistēmas iestatījumos.</string>
     <string name="use_accessibility">Izmantot pieejamību</string>
     <string name="accessibility_notice">Lai šī funkcija darbotos, Stario ir nepieciešama piekļuve pieejamības pakalpojumiem.</string>
 
@@ -112,6 +116,7 @@
     <!-- Widgets -->
     <string name="nothing_here_yet">Šeit vēl nekā nav!</string>
     <string name="create_a_widget">Pievienot logrīku</string>
+    <string name="configure_widget">Konfigurēt logrīku</string>
     <string name="widgets">Logrīki</string>
     <string name="widget_one">logrīks</string>
     <string name="widget_many">logrīki</string>
@@ -156,6 +161,7 @@
     <string name="invalid_url">Nederīgs URL</string>
     <string name="invalid_rss">Nav plūsma</string>
     <string name="link">Plūsmas saite</string>
+    <string name="fetching_feed">Ielādē</string>
     <string name="no_connection">Nav interneta savienojuma</string>
     <string name="already_subscribed">Jūs jau esat abonējis šo plūsmu!</string>
 
@@ -218,4 +224,5 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Pakalpojuma vienīgais mērķis ir nodrošināt bloķēšanas ekrāna žestu sākuma ekrānā. Tas neapkopo un nesniedz datus trešajām pusēm.</string>
+    <string name="dock">Doks</string>
 </resources>

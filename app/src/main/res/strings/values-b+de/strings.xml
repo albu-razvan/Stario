@@ -46,6 +46,7 @@
     <string name="vibrations">Vibrationen</string>
     <string name="theme">Design</string>
     <string name="pages">Seitenverwaltung</string>
+    <string name="pinned_category">Angeheftete Kategorie</string>
     <string name="search_engine">Suchmaschine</string>
     <string name="search_results">Suchergebnisse</string>
     <string name="kagi_integration">Powered by Kagi</string>
@@ -54,8 +55,10 @@
     <string name="legacy_lock_animation">Legacy-Sperranimation</string>
     <string name="icons">Symbole</string>
     <string name="weather">Wetter</string>
+    <string name="weather_forecast">Wettervorhersage</string>
     <string name="weather_location">Wetterstandort</string>
     <string name="location_ip_based">IP-Geolokalisierung (ungefähr)</string>
+    <string name="precise_location">Aktueller Standort (genau)</string>
     <string name="system_launcher">System-Launcher neu zuweisen</string>
     <string name="app_info">App-Info</string>
 
@@ -76,6 +79,7 @@
     <string name="notifications_access">Stario benötigt Zugriff auf Benachrichtigungen, damit diese Funktion funktioniert.</string>
 
     <!-- Accessibility pop-up -->
+    <string name="location_reasoning">Standortzugriff in den Systemeinstellungen zulassen.</string>
     <string name="use_accessibility">Barrierefreiheit nutzen</string>
     <string name="accessibility_notice">Stario benötigt Zugriff auf Barrierefreiheitsdienste, damit diese Funktion funktioniert.</string>
 
@@ -112,6 +116,7 @@
     <!-- Widgets -->
     <string name="nothing_here_yet">Noch nichts hier!</string>
     <string name="create_a_widget">Widget hinzufügen</string>
+    <string name="configure_widget">Widget konfigurieren</string>
     <string name="widgets">Widgets</string>
     <string name="widget_one">Widget</string>
     <string name="widget_many">Widgets</string>
@@ -156,6 +161,7 @@
     <string name="invalid_url">Ungültige URL</string>
     <string name="invalid_rss">Kein Feed</string>
     <string name="link">Feed-Link</string>
+    <string name="fetching_feed">Wird abgerufen</string>
     <string name="no_connection">Keine Internetverbindung</string>
     <string name="already_subscribed">Sie haben diesen Feed bereits abonniert!</string>
 
@@ -218,4 +224,5 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Der Dienst hat den alleinigen Zweck, die Bildschirmsperrgeste auf dem Startbildschirm zu ermöglichen. Er sammelt oder teilt keine Daten mit Dritten.</string>
+    <string name="dock">Dock</string>
 </resources>

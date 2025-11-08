@@ -46,6 +46,7 @@
     <string name="vibrations">Vibrácie</string>
     <string name="theme">Téma</string>
     <string name="pages">Správca stránok</string>
+    <string name="pinned_category">Pripnutá kategória</string>
     <string name="search_engine">Vyhľadávač</string>
     <string name="search_results">Výsledky vyhľadávania</string>
     <string name="kagi_integration">Poháňané Kagi</string>
@@ -54,8 +55,10 @@
     <string name="legacy_lock_animation">Stará animácia zamknutia</string>
     <string name="icons">Ikony</string>
     <string name="weather">Počasie</string>
+    <string name="weather_forecast">Predpoveď počasia</string>
     <string name="weather_location">Umiestnenie počasia</string>
     <string name="location_ip_based">Geolokácia IP (približná)</string>
+    <string name="precise_location">Aktuálna poloha (presná)</string>
     <string name="system_launcher">Predefinovať systémový spúšťač</string>
     <string name="app_info">Informácie o aplikácii</string>
 
@@ -76,6 +79,7 @@
     <string name="notifications_access">Stario potrebuje prístup k upozorneniam, aby táto funkcia fungovala.</string>
 
     <!-- Accessibility pop-up -->
+    <string name="location_reasoning">Povoľte prístup k polohe v nastaveniach systému.</string>
     <string name="use_accessibility">Použiť prístupnosť</string>
     <string name="accessibility_notice">Stario potrebuje prístup k službám prístupnosti, aby táto funkcia fungovala.</string>
 
@@ -112,6 +116,7 @@
     <!-- Widgets -->
     <string name="nothing_here_yet">Zatiaľ tu nič nie je!</string>
     <string name="create_a_widget">Pridať miniaplikáciu</string>
+    <string name="configure_widget">Konfigurovať miniaplikáciu</string>
     <string name="widgets">Miniaplikácie</string>
     <string name="widget_one">miniaplikácia</string>
     <string name="widget_many">miniaplikácie</string>
@@ -156,6 +161,7 @@
     <string name="invalid_url">Neplatná URL adresa</string>
     <string name="invalid_rss">Nie je to kanál</string>
     <string name="link">Odkaz na kanál</string>
+    <string name="fetching_feed">Načítava sa</string>
     <string name="no_connection">Žiadne internetové pripojenie</string>
     <string name="already_subscribed">Už ste prihlásení na odber tohto kanála!</string>
 
@@ -218,4 +224,5 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Služba má jediný účel, a to povoliť gesto zamknutia obrazovky na domovskej obrazovke. Nezhromažďuje ani nezdieľa žiadne dáta s treťou stranou.</string>
+    <string name="dock">Dok</string>
 </resources>

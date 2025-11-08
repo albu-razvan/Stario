@@ -46,6 +46,7 @@
     <string name="vibrations">Vibrationer</string>
     <string name="theme">Tema</string>
     <string name="pages">Sidor</string>
+    <string name="pinned_category">Fäst kategori</string>
     <string name="search_engine">Sökmotor</string>
     <string name="search_results">Sökresultat</string>
     <string name="kagi_integration">Drivs av Kagi</string>
@@ -54,8 +55,10 @@
     <string name="legacy_lock_animation">Äldre låsanimering</string>
     <string name="icons">Ikoner</string>
     <string name="weather">Väder</string>
+    <string name="weather_forecast">Väderprognos</string>
     <string name="weather_location">Väderplats</string>
     <string name="location_ip_based">IP-geolokalisering (ungefärlig)</string>
+    <string name="precise_location">Aktuell plats (exakt)</string>
     <string name="system_launcher">Tilldela om hemskärm</string>
     <string name="app_info">Appinfo</string>
 
@@ -76,6 +79,7 @@
     <string name="notifications_access">Stario behöver åtkomst till meddelanden för att denna funktion ska fungera.</string>
 
     <!-- Accessibility pop-up -->
+    <string name="location_reasoning">Tillåt platsåtkomst från systeminställningarna.</string>
     <string name="use_accessibility">Använd tillgänglighet</string>
     <string name="accessibility_notice">Stario behöver åtkomst till tillgänglighetstjänster för att denna funktion ska fungera.</string>
 
@@ -112,6 +116,7 @@
     <!-- Widgets -->
     <string name="nothing_here_yet">Inget här än!</string>
     <string name="create_a_widget">Lägg till en widget</string>
+    <string name="configure_widget">Konfigurera widget</string>
     <string name="widgets">Widgets</string>
     <string name="widget_one">widget</string>
     <string name="widget_many">widgets</string>
@@ -156,6 +161,7 @@
     <string name="invalid_url">Ogiltig URL</string>
     <string name="invalid_rss">Inte en feed</string>
     <string name="link">Feedlänk</string>
+    <string name="fetching_feed">Hämtar</string>
     <string name="no_connection">Ingen internetanslutning</string>
     <string name="already_subscribed">Du är redan prenumererad på denna feed!</string>
 
@@ -218,4 +224,5 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Tjänsten har det enda syftet att aktivera låsskärmsgest på startskärmen. Den samlar inte in eller delar data med tredje part.</string>
+    <string name="dock">Dock</string>
 </resources>

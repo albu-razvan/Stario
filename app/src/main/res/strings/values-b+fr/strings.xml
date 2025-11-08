@@ -46,6 +46,7 @@
     <string name="vibrations">Vibrations</string>
     <string name="theme">Thème</string>
     <string name="pages">Gestionnaire de pages</string>
+    <string name="pinned_category">Catégorie épinglée</string>
     <string name="search_engine">Moteur de recherche</string>
     <string name="search_results">Résultats de recherche</string>
     <string name="kagi_integration">Propulsé par Kagi</string>
@@ -54,8 +55,10 @@
     <string name="legacy_lock_animation">Animation de verrouillage héritée</string>
     <string name="icons">Icônes</string>
     <string name="weather">Météo</string>
+    <string name="weather_forecast">Prévisions météo</string>
     <string name="weather_location">Localisation météo</string>
     <string name="location_ip_based">Géolocalisation IP (approximative)</string>
+    <string name="precise_location">Position actuelle (exacte)</string>
     <string name="system_launcher">Réaffecter le lanceur système</string>
     <string name="app_info">Infos de l\'application</string>
 
@@ -76,6 +79,7 @@
     <string name="notifications_access">Stario a besoin d\'accéder aux notifications pour que cette fonction fonctionne.</string>
 
     <!-- Accessibility pop-up -->
+    <string name="location_reasoning">Autorisez l\'accès à la localisation dans les paramètres système.</string>
     <string name="use_accessibility">Utiliser l\'accessibilité</string>
     <string name="accessibility_notice">Stario a besoin d\'accéder aux services d\'accessibilité pour que cette fonction fonctionne.</string>
 
@@ -112,6 +116,7 @@
     <!-- Widgets -->
     <string name="nothing_here_yet">Rien ici pour l\'instant !</string>
     <string name="create_a_widget">Ajouter un widget</string>
+    <string name="configure_widget">Configurer le widget</string>
     <string name="widgets">Widgets</string>
     <string name="widget_one">widget</string>
     <string name="widget_many">widgets</string>
@@ -156,6 +161,7 @@
     <string name="invalid_url">URL invalide</string>
     <string name="invalid_rss">Pas un flux RSS</string>
     <string name="link">Lien du flux</string>
+    <string name="fetching_feed">Récupération</string>
     <string name="no_connection">Aucune connexion internet</string>
     <string name="already_subscribed">Vous êtes déjà abonné à ce flux !</string>
 
@@ -218,4 +224,5 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Le service a pour unique but d\'activer le geste de verrouillage de l\'écran sur l\'écran d\'accueil. Il ne collecte ni ne partage de données avec des tiers.</string>
+    <string name="dock">Dock</string>
 </resources>

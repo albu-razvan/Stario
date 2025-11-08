@@ -46,6 +46,7 @@
     <string name="vibrations">Trillingen</string>
     <string name="theme">Thema</string>
     <string name="pages">Pagina beheer</string>
+    <string name="pinned_category">Vastgezette categorie</string>
     <string name="search_engine">Zoekmachine</string>
     <string name="search_results">Zoekresultaten</string>
     <string name="kagi_integration">Aangedreven door Kagi</string>
@@ -54,8 +55,10 @@
     <string name="legacy_lock_animation">Verouderde vergrendelingsanimatie</string>
     <string name="icons">Pictogrammen</string>
     <string name="weather">Weer</string>
+    <string name="weather_forecast">Weersvoorspelling</string>
     <string name="weather_location">Weerlocatie</string>
     <string name="location_ip_based">IP-geolocatie (benaderd)</string>
+    <string name="precise_location">Huidige locatie (exact)</string>
     <string name="system_launcher">Systeemstarter opnieuw toewijzen</string>
     <string name="app_info">App info</string>
 
@@ -76,6 +79,7 @@
     <string name="notifications_access">Stario heeft toegang tot meldingen nodig om deze functie te laten werken.</string>
 
     <!-- Accessibility pop-up -->
+    <string name="location_reasoning">Sta locatietoegang toe via systeeminstellingen.</string>
     <string name="use_accessibility">Toegankelijkheid gebruiken</string>
     <string name="accessibility_notice">Stario heeft toegang tot toegankelijkheidsservices nodig om deze functie te laten werken.</string>
 
@@ -112,6 +116,7 @@
     <!-- Widgets -->
     <string name="nothing_here_yet">Nog niets hier!</string>
     <string name="create_a_widget">Een widget toevoegen</string>
+    <string name="configure_widget">Widget configureren</string>
     <string name="widgets">Widgets</string>
     <string name="widget_one">widget</string>
     <string name="widget_many">widgets</string>
@@ -156,6 +161,7 @@
     <string name="invalid_url">Ongeldige URL</string>
     <string name="invalid_rss">Geen feed</string>
     <string name="link">Feedlink</string>
+    <string name="fetching_feed">Ophalen</string>
     <string name="no_connection">Geen internetverbinding</string>
     <string name="already_subscribed">U bent al geabonneerd op deze feed!</string>
 
@@ -218,4 +224,5 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">De service heeft als enige doel het inschakelen van het vergrendelschermgebaar op het startscherm. Het verzamelt of deelt geen gegevens met derden.</string>
+    <string name="dock">Dock</string>
 </resources>

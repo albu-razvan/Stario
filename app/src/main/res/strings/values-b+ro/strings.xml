@@ -46,6 +46,7 @@
     <string name="vibrations">Vibrații</string>
     <string name="theme">Temă</string>
     <string name="pages">Manager pagini</string>
+    <string name="pinned_category">Categorie fixată</string>
     <string name="search_engine">Motor de căutare</string>
     <string name="search_results">Rezultate căutare</string>
     <string name="kagi_integration">Susținut de Kagi</string>
@@ -54,8 +55,10 @@
     <string name="legacy_lock_animation">Animație de blocare veche</string>
     <string name="icons">Icoane</string>
     <string name="weather">Vremea</string>
+    <string name="weather_forecast">Prognoză meteo</string>
     <string name="weather_location">Locația vremii</string>
     <string name="location_ip_based">Geolocalizare IP (Aproximată)</string>
+    <string name="precise_location">Locație curentă (exactă)</string>
     <string name="system_launcher">Reatribuie lansatorul de sistem</string>
     <string name="app_info">Informații aplicație</string>
 
@@ -76,6 +79,7 @@
     <string name="notifications_access">Stario are nevoie de acces la notificări pentru ca această funcție să funcționeze.</string>
 
     <!-- Accessibility pop-up -->
+    <string name="location_reasoning">Permiteți accesul la locație din setările de sistem.</string>
     <string name="use_accessibility">Utilizează accesibilitatea</string>
     <string name="accessibility_notice">Stario are nevoie de acces la serviciile de accesibilitate pentru ca această funcție să funcționeze.</string>
 
@@ -112,6 +116,7 @@
     <!-- Widgets -->
     <string name="nothing_here_yet">Nimic aici încă!</string>
     <string name="create_a_widget">Adaugă un widget</string>
+    <string name="configure_widget">Configurare widget</string>
     <string name="widgets">Widget-uri</string>
     <string name="widget_one">widget</string>
     <string name="widget_many">widget-uri</string>
@@ -156,6 +161,7 @@
     <string name="invalid_url">URL invalid</string>
     <string name="invalid_rss">Nu este un feed</string>
     <string name="link">Link feed</string>
+    <string name="fetching_feed">Se preia</string>
     <string name="no_connection">Fără conexiune la internet</string>
     <string name="already_subscribed">Ești deja abonat la acest feed!</string>
 
@@ -218,4 +224,5 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Serviciul are unicul scop de a permite gestul de blocare a ecranului pe ecranul principal. Nu colectează și nu partajează date cu nicio terță parte.</string>
+    <string name="dock">Doc</string>
 </resources>
