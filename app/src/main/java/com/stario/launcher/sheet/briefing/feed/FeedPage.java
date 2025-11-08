@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -33,7 +34,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.apptasticsoftware.rssreader.Item;
 import com.stario.launcher.R;
-import com.stario.launcher.activities.launcher.Launcher;
 import com.stario.launcher.sheet.SheetType;
 import com.stario.launcher.sheet.briefing.BriefingFeedList;
 import com.stario.launcher.sheet.briefing.dialog.BriefingDialog;
@@ -54,7 +54,6 @@ import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
 public class FeedPage extends Fragment {
-    private static final String TAG = "FeedUpdate";
     public static final String FEED_POSITION = "com.stario.FeedTab.FEED_POSITION";
 
     private static final float UPDATE_SCALE = 0.9f;
@@ -64,8 +63,9 @@ public class FeedPage extends Fragment {
     private OverScrollRecyclerView recyclerView;
     private ThemedActivity activity;
     private FeedPageAdapter adapter;
+    private ViewGroup exceptionView;
+    private TextView fetchingView;
     private Future<?> runningTask;
-    private ViewGroup exception;
     private int position;
     private View title;
     private View tabs;
@@ -113,7 +113,8 @@ public class FeedPage extends Fragment {
 
         recyclerView = root.findViewById(R.id.recycler_view);
         swipeRefreshLayout = root.findViewById(R.id.refresh);
-        exception = root.findViewById(R.id.exception);
+        exceptionView = root.findViewById(R.id.exception);
+        fetchingView = root.findViewById(R.id.fetching);
 
         recyclerView.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE |
                 RecyclerItemAnimator.CHANGING, Animation.EXTENDED));
@@ -137,9 +138,7 @@ public class FeedPage extends Fragment {
                         recyclerView.getPaddingRight(), Measurements.getNavHeight()));
 
         if (adapter == null) {
-            adapter = new FeedPageAdapter((Launcher) recyclerView.getContext(), recyclerView);
-        } else {
-            adapter.updateAttributes(recyclerView);
+            adapter = new FeedPageAdapter(activity.getApplicationContext());
         }
 
         manager = new CustomStaggeredGridLayoutManager(0);
@@ -171,10 +170,7 @@ public class FeedPage extends Fragment {
 
         root.findViewById(R.id.refresh_button)
                 .setOnClickListener(v ->
-                        swipeRefreshLayout.post(() -> {
-                            swipeRefreshLayout.setRefreshing(true);
-                            update();
-                        })
+                        UiUtils.runOnUIThread(this::update)
                 );
 
         Measurements.addNavListener(bottomInset ->
@@ -190,7 +186,8 @@ public class FeedPage extends Fragment {
 
         recyclerView.setPadding(recyclerView.getPaddingLeft(), Measurements.dpToPx(15) +
                 titleHeight + tabsHeight, recyclerView.getPaddingRight(), Measurements.getNavHeight());
-        exception.setPadding(0, (titleHeight + tabsHeight) / 2, 0, 0);
+        exceptionView.setPadding(0, (titleHeight + tabsHeight) / 2, 0, 0);
+        fetchingView.setPadding(0, (titleHeight + tabsHeight) / 2, 0, 0);
         swipeRefreshLayout.setProgressViewOffset(true,
                 titleHeight + tabsHeight, (int) ((titleHeight + tabsHeight) * 1.5f));
     }
@@ -206,78 +203,106 @@ public class FeedPage extends Fragment {
     public void onResume() {
         super.onResume();
 
-        swipeRefreshLayout.post(() -> {
-            swipeRefreshLayout.setRefreshing(true);
-            update();
-        });
+        UiUtils.runOnUIThread(this::update);
     }
 
     public void update() {
-        if (runningTask == null || runningTask.isDone()) {
-            if (position >= 0 &&
-                    position < BriefingFeedList.from(activity).size()) {
-                if (adapter.shouldUpdate()) {
-                    manager.setScrollEnabled(false);
-
-                    exception.setVisibility(View.GONE);
-                    recyclerView.animate()
-                            .alpha(0)
-                            .scaleX(UPDATE_SCALE)
-                            .scaleY(UPDATE_SCALE)
-                            .setDuration(Animation.MEDIUM.getDuration())
-                            .setInterpolator(new FastOutSlowInInterpolator());
-
-                    runningTask = Utils.submitTask(() -> {
-                        Stream<Item> stream = RssParser
-                                .parse(BriefingFeedList.getInstance()
-                                        .get(position).getRSSLink());
-
-                        if (stream != null) {
-                            Item[] items = stream.toArray(Item[]::new);
-
-                            UiUtils.runOnUIThread(() -> {
-                                adapter.update(items);
-
-                                if (adapter.getItemCount() == 0) {
-                                    exception.setVisibility(View.VISIBLE);
-                                } else {
-                                    recyclerView.animate()
-                                            .alpha(1)
-                                            .scaleX(1f)
-                                            .scaleY(1f);
-
-                                    manager.setScrollEnabled(true);
-                                }
-
-                                swipeRefreshLayout.setRefreshing(false);
-                            });
-                        } else {
-                            UiUtils.runOnUIThread(() -> {
-                                exception.setVisibility(View.VISIBLE);
-
-                                swipeRefreshLayout.setRefreshing(false);
-                            });
-                        }
-                    });
-                } else {
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            } else {
-                exception.setVisibility(View.VISIBLE);
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        } else {
+        if (runningTask != null && !runningTask.isDone()) {
             swipeRefreshLayout.setRefreshing(false);
+
+            return;
+        }
+
+        if (adapter == null || position < 0 ||
+                position >= BriefingFeedList.from(activity).size()) {
+            showErrorState();
+
+            return;
+        }
+
+        if (!adapter.shouldUpdate()) {
+            if (adapter.getItemCount() == 0) {
+                showErrorState();
+            } else {
+                showContentState(false);
+            }
+
+            return;
+        }
+
+        manager.setScrollEnabled(false);
+        exceptionView.setVisibility(View.GONE);
+        recyclerView.clearAnimation();
+
+        if (adapter.getItemCount() == 0) {
+            fetchingView.setVisibility(View.VISIBLE);
+            swipeRefreshLayout.setVisibility(View.INVISIBLE);
+            recyclerView.setAlpha(0f);
+        } else {
+            fetchingView.setVisibility(View.GONE);
+            swipeRefreshLayout.setRefreshing(true);
+        }
+
+        runningTask = Utils.submitTask(() -> {
+            Stream<Item> stream = RssParser
+                    .parse(BriefingFeedList.getInstance()
+                            .get(position).getRSSLink());
+
+            final Item[] items = (stream != null) ? stream.toArray(Item[]::new) : null;
+
+            UiUtils.runOnUIThread(() -> {
+                if (items != null) {
+                    adapter.update(items);
+
+                    if (adapter.getItemCount() == 0) {
+                        showErrorState();
+                    } else {
+                        showContentState(true);
+                    }
+                } else {
+                    showErrorState();
+                }
+            });
+        });
+    }
+
+    private void showContentState(boolean animate) {
+        exceptionView.setVisibility(View.GONE);
+        fetchingView.setVisibility(View.GONE);
+        swipeRefreshLayout.setVisibility(View.VISIBLE);
+
+        manager.setScrollEnabled(true);
+        swipeRefreshLayout.setRefreshing(false);
+
+        if (recyclerView.getAlpha() == 0f) {
+            recyclerView.setAlpha(1f);
+            recyclerView.setScaleX(UPDATE_SCALE);
+            recyclerView.setScaleY(UPDATE_SCALE);
+
+            recyclerView.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(animate ? Animation.MEDIUM.getDuration() : 0)
+                    .setInterpolator(new FastOutSlowInInterpolator())
+                    .start();
         }
     }
 
-    public RecyclerView getRecycler() {
-        return recyclerView;
+    private void showErrorState() {
+        exceptionView.setVisibility(View.VISIBLE);
+        fetchingView.setVisibility(View.GONE);
+        swipeRefreshLayout.setVisibility(View.INVISIBLE);
+        recyclerView.setAlpha(0f);
+
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     public void reset() {
         swipeRefreshLayout.setRefreshing(false);
-
         recyclerView.post(() -> recyclerView.scrollBy(0, -Integer.MAX_VALUE));
+    }
+
+    public RecyclerView getRecycler() {
+        return recyclerView;
     }
 }

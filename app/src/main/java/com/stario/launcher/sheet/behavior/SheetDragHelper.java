@@ -66,48 +66,6 @@ public class SheetDragHelper {
      */
     public static final int STATE_SETTLING = 2;
 
-    /**
-     * Edge flag indicating that the left edge should be affected.
-     */
-    public static final int EDGE_LEFT = 1;
-
-    /**
-     * Edge flag indicating that the right edge should be affected.
-     */
-    public static final int EDGE_RIGHT = 1 << 1;
-
-    /**
-     * Edge flag indicating that the top edge should be affected.
-     */
-    public static final int EDGE_TOP = 1 << 2;
-
-    /**
-     * Edge flag indicating that the bottom edge should be affected.
-     */
-    public static final int EDGE_BOTTOM = 1 << 3;
-
-    /**
-     * Edge flag set indicating all edges should be affected.
-     */
-    public static final int EDGE_ALL = EDGE_LEFT | EDGE_TOP | EDGE_RIGHT | EDGE_BOTTOM;
-
-    /**
-     * Indicates that a check should occur along the horizontal axis
-     */
-    public static final int DIRECTION_HORIZONTAL = 1;
-
-    /**
-     * Indicates that a check should occur along the vertical axis
-     */
-    public static final int DIRECTION_VERTICAL = 1 << 1;
-
-    /**
-     * Indicates that a check should occur along all axes
-     */
-    public static final int DIRECTION_ALL = DIRECTION_HORIZONTAL | DIRECTION_VERTICAL;
-
-    private static final int EDGE_SIZE = 20; // dp
-
     private static final int BASE_SETTLE_DURATION = 256; // ms
     private static final int MAX_SETTLE_DURATION = 600; // ms
 
@@ -129,12 +87,11 @@ public class SheetDragHelper {
     private final float mMaxVelocity;
     private final float mMinVelocity;
 
-    private OverScroller mScroller;
+    private final OverScroller mScroller;
 
     private final Callback mCallback;
 
     private View mCapturedView;
-    private boolean mReleaseInProgress;
 
     private final ViewGroup mParentView;
 
@@ -201,47 +158,6 @@ public class SheetDragHelper {
          * @param yvel          Y velocity of the pointer as it left the screen in pixels per second.
          */
         public void onViewReleased(@NonNull View releasedChild, float xvel, float yvel) {
-        }
-
-        /**
-         * Called when one of the subscribed edges in the parent view has been touched
-         * by the user while no child view is currently captured.
-         *
-         * @param edgeFlags A combination of edge flags describing the edge(s) currently touched
-         * @param pointerId ID of the pointer touching the described edge(s)
-         * @see #EDGE_LEFT
-         * @see #EDGE_TOP
-         * @see #EDGE_RIGHT
-         * @see #EDGE_BOTTOM
-         */
-        public void onEdgeTouched(int edgeFlags, int pointerId) {
-        }
-
-        /**
-         * Called when the given edge may become locked. This can happen if an edge drag
-         * was preliminarily rejected before beginning, but after {@link #onEdgeTouched(int, int)}
-         * was called. This method should return true to lock this edge or false to leave it
-         * unlocked. The default behavior is to leave edges unlocked.
-         *
-         * @param edgeFlags A combination of edge flags describing the edge(s) locked
-         * @return true to lock the edge, false to leave it unlocked
-         */
-        public boolean onEdgeLock(int edgeFlags) {
-            return false;
-        }
-
-        /**
-         * Called when the user has started a deliberate drag away from one
-         * of the subscribed edges in the parent view while no child view is currently captured.
-         *
-         * @param edgeFlags A combination of edge flags describing the edge(s) dragged
-         * @param pointerId ID of the pointer touching the described edge(s)
-         * @see #EDGE_LEFT
-         * @see #EDGE_TOP
-         * @see #EDGE_RIGHT
-         * @see #EDGE_BOTTOM
-         */
-        public void onEdgeDragStarted(int edgeFlags, int pointerId) {
         }
 
         /**
@@ -358,7 +274,6 @@ public class SheetDragHelper {
         mCallback = cb;
 
         final ViewConfiguration vc = ViewConfiguration.get(context);
-        final float density = context.getResources().getDisplayMetrics().density;
 
         mTouchSlop = vc.getScaledTouchSlop();
         mMaxVelocity = vc.getScaledMaximumFlingVelocity();
@@ -639,9 +554,7 @@ public class SheetDragHelper {
      * involves some extra semantics.
      */
     private void dispatchViewReleased(float xvel, float yvel) {
-        mReleaseInProgress = true;
         mCallback.onViewReleased(mCapturedView, xvel, yvel);
-        mReleaseInProgress = false;
 
         if (mDragState == STATE_DRAGGING) {
             // onViewReleased didn't call a method that would have changed this. Go idle.
@@ -726,6 +639,7 @@ public class SheetDragHelper {
      *
      * @param pointerId pointer ID to check; corresponds to IDs provided by MotionEvent
      * @return true if the pointer with the given ID is still down
+     * @noinspection BooleanMethodIsAlwaysInverted
      */
     public boolean isPointerDown(int pointerId) {
         return (mPointersDown & 1 << pointerId) != 0;
@@ -1157,6 +1071,7 @@ public class SheetDragHelper {
         return null;
     }
 
+    /** @noinspection BooleanMethodIsAlwaysInverted*/
     private boolean isValidPointerForActionMove(int pointerId) {
         if (!isPointerDown(pointerId)) {
             Log.e(TAG, "Ignoring pointerId=" + pointerId + " because ACTION_DOWN was not received "

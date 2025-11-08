@@ -206,7 +206,7 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
                 if (state != STATE_SETTLING) {
                     View scroll = nestedScrollingChildRef != null ? nestedScrollingChildRef.get() : null;
 
-                    if (scroll != null && parent.isPointInChildBounds(scroll, initial, initialY)) {
+                    if (scroll == null || parent.isPointInChildBounds(scroll, initial, initialY)) {
                         activePointerId = event.getPointerId(event.getActionIndex());
                     }
                 }
@@ -237,6 +237,7 @@ public class LeftSheetBehavior<V extends View> extends SheetBehavior<V> {
     @Override
     protected SheetDragHelper.Callback instantiateDragCallback() {
         return new SheetDragHelper.Callback() {
+
             @Override
             public boolean tryCaptureView(@NonNull View child, int pointerId) {
                 if (capture) {

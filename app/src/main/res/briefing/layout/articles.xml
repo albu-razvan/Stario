@@ -58,9 +58,21 @@
 
     </LinearLayout>
 
+    <com.stario.launcher.ui.common.text.PulsingTextView
+        android:id="@+id/fetching"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:layout_margin="5dp"
+        android:fontFamily="@font/dm_sans_regular"
+        android:text="@string/fetching_feed"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="20sp" />
+
     <com.stario.launcher.ui.common.scrollers.CustomSwipeRefreshLayout
         android:id="@+id/refresh"
         android:layout_width="match_parent"
+        android:visibility="invisible"
         android:layout_height="match_parent">
 
         <com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView
@@ -69,8 +81,7 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:visibility="invisible" />
+            android:paddingRight="10dp" />
 
     </com.stario.launcher.ui.common.scrollers.CustomSwipeRefreshLayout>
 

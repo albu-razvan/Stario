@@ -168,6 +168,7 @@
     <string name="invalid_url">Invalid URL</string>
     <string name="invalid_rss">Not a feed</string>
     <string name="link">Feed link</string>
+    <string name="fetching_feed">Fetching</string>
     <string name="no_connection">No internet connection</string>
     <string name="already_subscribed">You are already subscribed to this feed!</string>
 

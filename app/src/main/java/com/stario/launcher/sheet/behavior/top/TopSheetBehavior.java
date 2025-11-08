@@ -205,7 +205,7 @@ public class TopSheetBehavior<V extends View> extends SheetBehavior<V> {
                 if (state != STATE_SETTLING) {
                     View scroll = nestedScrollingChildRef != null ? nestedScrollingChildRef.get() : null;
 
-                    if (scroll != null && parent.isPointInChildBounds(scroll, initialX, initial)) {
+                    if (scroll == null || parent.isPointInChildBounds(scroll, initialX, initial)) {
                         activePointerId = event.getPointerId(event.getActionIndex());
                     }
                 }

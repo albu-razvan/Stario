@@ -22,7 +22,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -414,11 +413,7 @@ public class ApplicationsDialog extends SheetDialogFragment {
         LocalBroadcastManager.getInstance(activity)
                 .registerReceiver(popStackReceiver, new IntentFilter(Categories.FOLDER_STACK_ID));
 
-        swipeDrawable =
-                AppCompatResources.getDrawable(activity, R.drawable.ic_swipe_animated);
-        if (swipeDrawable != null) {
-            ((Animatable) swipeDrawable).start();
-        }
+        swipeDrawable = AppCompatResources.getDrawable(activity, R.drawable.ic_swipe);
     }
 
     @Override
@@ -440,7 +435,7 @@ public class ApplicationsDialog extends SheetDialogFragment {
                             FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
             SheetBehavior<?> behavior = getBehavior();
-            if(behavior != null) {
+            if (behavior != null) {
                 behavior.setDraggable(true);
             }
         }
