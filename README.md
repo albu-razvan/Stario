@@ -3,10 +3,9 @@
 <img src="docs/representative.png" alt="Stario representative">
 
 [![Build](https://img.shields.io/github/actions/workflow/status/albu-razvan/Stario/build.yml?label=Build)](https://github.com/albu-razvan/Stario/actions/workflows/build.yml)
-[![Discord](https://img.shields.io/discord/1110537583726964820?label=Discord&logo=discord&logoColor=white)](https://discord.gg/WuVapMt9gY)
-[![Latest release](https://img.shields.io/github/downloads/albu-razvan/Stario/total?label=Download&logo=android&logoColor=white)](https://github.com/albu-razvan/Stario/releases/latest)
-[![Last commit](https://custom-icon-badges.demolab.com/github/last-commit/albu-razvan/Stario?logo=history&logoColor=white&label=Latest%20commit)](https://github.com/albu-razvan/Stario/commit)
 [<img src="https://shields.rbtlog.dev/simple/com.stario.launcher" alt="RB shield">](https://shields.rbtlog.dev/com.stario.launcher)
+[![Latest release](https://img.shields.io/github/downloads/albu-razvan/Stario/total?label=Download&logo=android&logoColor=white)](https://github.com/albu-razvan/Stario/releases/latest)
+[![Discord](https://img.shields.io/discord/1110537583726964820?label=Discord&logo=discord&logoColor=white)](https://discord.gg/WuVapMt9gY)
 
 ## Overview
 
@@ -16,8 +15,10 @@ their peak in a simple and elegant format.
 This repository contains the complete codebase for Stario, a full rewrite of the previous
 Stario Launcher. This version offers significant improvements in both performance and usability.
 
-> **Note:** This version supersedes the old Stario Launcher. The old Play Store version no longer
-> supported and this repository represents the latest and actively maintained version.
+> **Note:** This repository replaces all previous Play Store versions of the app. If you’d like to 
+> use an older release, you can download it from the [archive ↗](./archive/Stario-v1.41.apk). Please 
+> note that **Stario v1.X is no longer supported**, and no further updates or maintenance will be 
+> provided.
 
 ## Features
 
