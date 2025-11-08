@@ -10,6 +10,6 @@
 <li>Page Sorting</li>
 </ul>
 <p><b>PRIVACY</b></p>
-<p><i>Stario fully respects your privacy. It does not collect app usage or personal data, and it may very well protect your data better than yourself!</p>
+<p><i>Stario</i> fully respects your privacy. It does not collect app usage or personal data, and it may very well protect your data better than yourself!</p>
 <p><br><b>ACCESSIBILITY SERVICE</b></p>
 <p>Stario’s Accessibility Service is used exclusively to let you turn off your phone’s screen with a gesture. It is optional, disabled by default and doesn’t collect or share any data.</p>
