@@ -17,15 +17,16 @@
 
 package com.stario.launcher.utils;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class ComparableDiffUtil<G extends Comparable<?>> extends DiffUtil.Callback {
-    private final ArrayList<G> oldList;
-    private final ArrayList<G> newList;
+    private final List<G> oldList;
+    private final List<G> newList;
 
-    public ComparableDiffUtil(ArrayList<G> oldList, ArrayList<G> newList) {
+    public ComparableDiffUtil(@NonNull List<G> oldList, @NonNull List<G> newList) {
         this.oldList = oldList;
         this.newList = newList;
     }

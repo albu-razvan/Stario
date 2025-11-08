@@ -40,27 +40,28 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.stario.launcher.R;
-import com.stario.launcher.activities.launcher.Launcher;
+import com.stario.launcher.Stario;
 import com.stario.launcher.preferences.Vibrations;
-import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.utils.ComparableDiffUtil;
+import com.stario.launcher.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
     private static final long UPDATE_TIME_THRESHOLD = 900_000;
-    private final Launcher activity;
-    private ArrayList<Item> items;
-    private long lastUpdate = -1;
-    private RecyclerView recyclerView;
 
-    public FeedPageAdapter(Launcher activity, RecyclerView recyclerView) {
-        this.activity = activity;
-        this.recyclerView = recyclerView;
+    private final Stario context;
+    private List<Item> items;
 
-        this.items = new ArrayList<>();
+    private volatile long lastUpdate = -1;
+
+    public FeedPageAdapter(Stario context) {
+        this.context = context;
+        this.items = Collections.synchronizedList(new ArrayList<>());
     }
 
     public void update(@NonNull Item[] items) {
@@ -78,21 +79,17 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
             DiffUtil.DiffResult diffResult =
                     DiffUtil.calculateDiff(new ComparableDiffUtil<>(this.items, filteredList));
 
-            this.items = filteredList;
+            this.items = Collections.synchronizedList(filteredList);
 
             diffResult.dispatchUpdatesTo(this);
-            getItemCount();
 
             lastUpdate = System.currentTimeMillis();
         }
     }
 
     public boolean shouldUpdate() {
-        return items == null || System.currentTimeMillis() - lastUpdate > UPDATE_TIME_THRESHOLD;
-    }
-
-    public void updateAttributes(RecyclerView recyclerView) {
-        this.recyclerView = recyclerView;
+        return (items == null || System.currentTimeMillis() - lastUpdate > UPDATE_TIME_THRESHOLD)
+                && Utils.isNetworkAvailable(context);
     }
 
     protected class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -120,7 +117,7 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
         @Override
         public void onClick(View view) {
             int index = getBindingAdapterPosition();
-            if(index == RecyclerView.NO_POSITION) {
+            if (index == RecyclerView.NO_POSITION) {
                 return;
             }
 
@@ -132,12 +129,12 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
                 Intent intent = new Intent(new Intent(Intent.ACTION_VIEW,
                         Uri.parse(item.getLink().get())));
 
-                activity.startActivity(intent);
+                context.startActivity(intent);
             } else if (item.getGuid().isPresent()) {
                 Intent intent = new Intent(new Intent(Intent.ACTION_VIEW,
                         Uri.parse(item.getGuid().get())));
 
-                activity.startActivity(intent);
+                context.startActivity(intent);
             }
         }
     }
@@ -153,11 +150,11 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
 
         Optional<Enclosure> optionalEnclosure = item.getEnclosure();
 
-        if (optionalEnclosure.isPresent() && !activity.isDestroyed()) {
+        if (optionalEnclosure.isPresent()) {
             viewHolder.representative.setVisibility(View.VISIBLE);
             Enclosure enclosure = optionalEnclosure.get();
 
-            Glide.with(activity)
+            Glide.with(context)
                     .load(enclosure.getUrl())
                     .listener(new RequestListener<>() {
                         @Override
@@ -224,14 +221,6 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        if (!items.isEmpty()) {
-            if (recyclerView.getVisibility() == View.INVISIBLE) {
-                UiUtils.runOnUIThread(() -> recyclerView.setVisibility(View.VISIBLE));
-            }
-        } else if (recyclerView.getVisibility() != View.INVISIBLE) {
-            UiUtils.runOnUIThread(() -> recyclerView.setVisibility(View.INVISIBLE));
-        }
-
-        return items.size();
+        return items != null ? items.size() : 0;
     }
 }

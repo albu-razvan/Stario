@@ -176,7 +176,9 @@ public class RightSheetBehavior<V extends View> extends SheetBehavior<V> {
 
     @Override
     protected void touchEventLogic(View child, MotionEvent event) {
-        if (dragHelper != null && Math.abs(initial - event.getX()) > dragHelper.getTouchSlop()) {
+        float delta = initial - event.getX();
+
+        if (dragHelper != null && Math.abs(delta) > dragHelper.getTouchSlop()) {
             dragHelper.captureChildView(child, event.getPointerId(event.getActionIndex()));
         }
     }
@@ -207,7 +209,7 @@ public class RightSheetBehavior<V extends View> extends SheetBehavior<V> {
                 if (state != STATE_SETTLING) {
                     View scroll = nestedScrollingChildRef != null ? nestedScrollingChildRef.get() : null;
 
-                    if (scroll != null && parent.isPointInChildBounds(scroll, initial, initialY)) {
+                    if (scroll == null || parent.isPointInChildBounds(scroll, initial, initialY)) {
                         activePointerId = event.getPointerId(event.getActionIndex());
                     }
                 }
