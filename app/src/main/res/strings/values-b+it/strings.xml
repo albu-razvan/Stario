@@ -46,6 +46,7 @@
     <string name="vibrations">Vibrazioni</string>
     <string name="theme">Tema</string>
     <string name="pages">Gestore pagine</string>
+    <string name="pinned_category">Categoria aggiunta</string>
     <string name="search_engine">Motore di ricerca</string>
     <string name="search_results">Risultati di ricerca</string>
     <string name="kagi_integration">Fornito da Kagi</string>
@@ -54,8 +55,10 @@
     <string name="legacy_lock_animation">Animazione di blocco legacy</string>
     <string name="icons">Icone</string>
     <string name="weather">Meteo</string>
+    <string name="weather_forecast">Previsioni meteo</string>
     <string name="weather_location">Posizione meteo</string>
     <string name="location_ip_based">Geolocalizzazione IP (Approssimata)</string>
+    <string name="precise_location">Posizioneattuale (esatta)</string>
     <string name="system_launcher">Riassegna launcher di sistema</string>
     <string name="app_info">Info app</string>
 
@@ -76,6 +79,7 @@
     <string name="notifications_access">Stario necessita dell\'accesso alle notifiche affinché questa funzione possa funzionare.</string>
 
     <!-- Accessibility pop-up -->
+    <string name="location_reasoning">Consenti l\'accesso alla posizione dalle impostazioni di sistema.</string>
     <string name="use_accessibility">Usa accessibilità</string>
     <string name="accessibility_notice">Stario necessita dell\'accesso ai servizi di accessibilità affinché questa funzione possa funzionare.</string>
 
@@ -112,6 +116,7 @@
     <!-- Widgets -->
     <string name="nothing_here_yet">Niente qui ancora!</string>
     <string name="create_a_widget">Aggiungi un widget</string>
+    <string name="configure_widget">Configura widget</string>
     <string name="widgets">Widget</string>
     <string name="widget_one">widget</string>
     <string name="widget_many">widget</string>
@@ -156,6 +161,7 @@
     <string name="invalid_url">URL non valido</string>
     <string name="invalid_rss">Non è un feed</string>
     <string name="link">Link del feed</string>
+    <string name="fetching_feed">Caricamento</string>
     <string name="no_connection">Nessuna connessione internet</string>
     <string name="already_subscribed">Sei già iscritto a questo feed!</string>
 
@@ -218,4 +224,5 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Il servizio ha l\'unico scopo di abilitare il gesto di blocco schermo sulla schermata iniziale. Non raccoglie né condivide dati con terze parti.</string>
+    <string name="dock">Dock</string>
 </resources>

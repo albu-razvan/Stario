@@ -46,6 +46,7 @@
     <string name="vibrations">Rezgések</string>
     <string name="theme">Téma</string>
     <string name="pages">Oldal kezelő</string>
+    <string name="pinned_category">Rögzített kategória</string>
     <string name="search_engine">Keresőmotor</string>
     <string name="search_results">Keresési eredmények</string>
     <string name="kagi_integration">Powered by Kagi</string>
@@ -54,8 +55,10 @@
     <string name="legacy_lock_animation">Régi zárolási animáció</string>
     <string name="icons">Ikonok</string>
     <string name="weather">Időjárás</string>
+    <string name="weather_forecast">Időjárás-előrejelzés</string>
     <string name="weather_location">Időjárás helye</string>
     <string name="location_ip_based">IP-alapú helymeghatározás (hozzávetőleges)</string>
+    <string name="precise_location">Jelenlegi hely (pontos)</string>
     <string name="system_launcher">Rendszerindító újrahozzárendelése</string>
     <string name="app_info">App infó</string>
 
@@ -76,6 +79,7 @@
     <string name="notifications_access">A Stario-nak hozzáférésre van szüksége az értesítésekhez, hogy ez a funkció működjön.</string>
 
     <!-- Accessibility pop-up -->
+    <string name="location_reasoning">Engedélyezze a helyhozzáférést a rendszerbeállításokban.</string>
     <string name="use_accessibility">Kisegítő lehetőségek használata</string>
     <string name="accessibility_notice">A Stario-nak hozzáférésre van szüksége a kisegítő szolgáltatásokhoz, hogy ez a funkció működjön.</string>
 
@@ -112,6 +116,7 @@
     <!-- Widgets -->
     <string name="nothing_here_yet">Még semmi sincs itt!</string>
     <string name="create_a_widget">Widget hozzáadása</string>
+    <string name="configure_widget">Widget beállítása</string>
     <string name="widgets">Widgetek</string>
     <string name="widget_one">widget</string>
     <string name="widget_many">widgetek</string>
@@ -156,6 +161,7 @@
     <string name="invalid_url">Érvénytelen URL</string>
     <string name="invalid_rss">Nem feed</string>
     <string name="link">Feed link</string>
+    <string name="fetching_feed">Betöltés</string>
     <string name="no_connection">Nincs internetkapcsolat</string>
     <string name="already_subscribed">Már feliratkozott erre a feedre!</string>
 
@@ -219,4 +225,5 @@
     <!-- Accessibility service -->
 
     <string name="accessibility_service_description">A szolgáltatás egyetlen célja, hogy engedélyezze a zárolási képernyő gesztust a kezdőképernyőn. Nem gyűjt és nem oszt meg adatokat harmadik féllel.</string>
+    <string name="dock">Dock</string>
 </resources>

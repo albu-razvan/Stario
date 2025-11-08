@@ -46,6 +46,7 @@
     <string name="vibrations">振動</string>
     <string name="theme">主題</string>
     <string name="pages">頁面管理員</string>
+    <string name="pinned_category">已釘選的類別</string>
     <string name="search_engine">搜尋引擎</string>
     <string name="search_results">搜尋結果</string>
     <string name="kagi_integration">資料來源：Kagi</string>
@@ -54,8 +55,10 @@
     <string name="legacy_lock_animation">舊式鎖定動畫</string>
     <string name="icons">圖示</string>
     <string name="weather">天氣</string>
+    <string name="weather_forecast">天氣預報</string>
     <string name="weather_location">天氣位置</string>
     <string name="location_ip_based">大致 IP 地理位置</string>
+    <string name="precise_location">目前位置 (精確)</string>
     <string name="system_launcher">重新設定預設啟動器</string>
     <string name="app_info">應用程式資訊</string>
 
@@ -76,6 +79,7 @@
     <string name="notifications_access">Stario 需要讀取通知權限以啟用此功能。</string>
 
     <!-- Accessibility pop-up -->
+    <string name="location_reasoning">請從系統設定允許位置存取權限。</string>
     <string name="use_accessibility">使用無障礙服務</string>
     <string name="accessibility_notice">Stario 需要無障礙服務以啟用此功能。</string>
 
@@ -112,6 +116,7 @@
     <!-- Widgets -->
     <string name="nothing_here_yet">敬請期待</string>
     <string name="create_a_widget">新增小工具</string>
+    <string name="configure_widget">設定小工具</string>
     <string name="widgets">小工具</string>
     <string name="widget_one">小工具</string>
     <string name="widget_many">小工具</string>
@@ -156,6 +161,7 @@
     <string name="invalid_url">無效網址</string>
     <string name="invalid_rss">不是新聞來源</string>
     <string name="link">新聞來源連結</string>
+    <string name="fetching_feed">讀取中</string>
     <string name="no_connection">沒有網路連結</string>
     <string name="already_subscribed">您已訂閱此新聞來源！</string>
 
@@ -218,4 +224,5 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">此服務僅用於主畫面啟用鎖定畫面手勢並未將此資料搜集或分享給其他第三方服務。</string>
+    <string name="dock">固定欄</string>
 </resources>

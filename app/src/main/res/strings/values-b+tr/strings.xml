@@ -46,6 +46,7 @@
     <string name="vibrations">Titreşimler</string>
     <string name="theme">Tema</string>
     <string name="pages">Sayfa yöneticisi</string>
+    <string name="pinned_category">Sabitlenmiş kategori</string>
     <string name="search_engine">Arama motoru</string>
     <string name="search_results">Arama sonuçları</string>
     <string name="kagi_integration">Kagi tarafından desteklenmektedir</string>
@@ -54,8 +55,10 @@
     <string name="legacy_lock_animation">Eski kilit animasyonu</string>
     <string name="icons">Simgeler</string>
     <string name="weather">Hava Durumu</string>
+    <string name="weather_forecast">Hava durumu tahmini</string>
     <string name="weather_location">Hava durumu konumu</string>
     <string name="location_ip_based">IP Coğrafi Konum (Yaklaşık)</string>
+    <string name="precise_location">Mevcut Konum (Tam)</string>
     <string name="system_launcher">Sistem başlatıcısını yeniden ata</string>
     <string name="app_info">Uygulama bilgisi</string>
 
@@ -76,6 +79,7 @@
     <string name="notifications_access">Bu özelliğin çalışması için Stario\'nun bildirimlere erişmesi gerekiyor.</string>
 
     <!-- Accessibility pop-up -->
+    <string name="location_reasoning">Sistem ayarlarından konum erişimine izin verin.</string>
     <string name="use_accessibility">Erişilebilirliği kullan</string>
     <string name="accessibility_notice">Bu özelliğin çalışması için Stario\'nun erişilebilirlik hizmetlerine erişmesi gerekiyor.</string>
 
@@ -112,6 +116,7 @@
     <!-- Widgets -->
     <string name="nothing_here_yet">Henüz burada bir şey yok!</string>
     <string name="create_a_widget">Bir pencere öğesi ekle</string>
+    <string name="configure_widget">Widget\'ı yapılandır</string>
     <string name="widgets">Pencere öğeleri</string>
     <string name="widget_one">pencere öğesi</string>
     <string name="widget_many">pencere öğeleri</string>
@@ -156,6 +161,7 @@
     <string name="invalid_url">Geçersiz URL</string>
     <string name="invalid_rss">Besleme değil</string>
     <string name="link">Besleme bağlantısı</string>
+    <string name="fetching_feed">Alınıyor</string>
     <string name="no_connection">İnternet bağlantısı yok</string>
     <string name="already_subscribed">Bu beslemeye zaten abone oldunuz!</string>
 
@@ -218,4 +224,5 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Hizmetin tek amacı ana ekranda kilit ekranı hareketini etkinleştirmektir. Herhangi bir üçüncü tarafla veri toplamaz veya paylaşmaz.</string>
+    <string name="dock">Dock</string>
 </resources>

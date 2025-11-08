@@ -29,6 +29,7 @@
     <string name="vibrations">Вибрация</string>
     <string name="theme">Тема</string>
     <string name="pages">Менеджер страниц</string>
+    <string name="pinned_category">Закрепленная категория</string>
     <string name="search_engine">Поисковая система</string>
     <string name="search_results">Результаты поиска</string>
     <string name="kagi_integration">На базе Kagi</string>
@@ -37,8 +38,10 @@
     <string name="legacy_lock_animation">Старая анимация блокировки</string>
     <string name="icons">Иконки</string>
     <string name="weather">Погода</string>
+    <string name="weather_forecast">Прогноз погоды</string>
     <string name="weather_location">Местоположение для погоды</string>
     <string name="location_ip_based">IP-геолокация (приблизительно)</string>
+    <string name="precise_location">Текущее местоположение (точное)</string>
     <string name="system_launcher">Переназначить системный лаунчер</string>
     <string name="app_info">Информация о приложении</string>
 
@@ -59,6 +62,7 @@
     <string name="notifications_access">Stario нужен доступ к уведомлениям для работы этой функции.</string>
 
     <!-- Accessibility pop-up -->
+    <string name="location_reasoning">Разрешите доступ к местоположению в настройках системы.</string>
     <string name="use_accessibility">Использовать доступность</string>
     <string name="accessibility_notice">Stario нужен доступ к службам доступности для работы этой функции.</string>
 
@@ -95,6 +99,7 @@
     <!-- Widgets -->
     <string name="nothing_here_yet">Здесь пока ничего нет!</string>
     <string name="create_a_widget">Добавить виджет</string>
+    <string name="configure_widget">Настроить виджет</string>
     <string name="widgets">Виджеты</string>
     <string name="widget_one">виджет</string>
     <string name="widget_many">виджета</string>
@@ -139,6 +144,7 @@
     <string name="invalid_url">Неверный URL</string>
     <string name="invalid_rss">Не является лентой</string>
     <string name="link">Ссылка на ленту</string>
+    <string name="fetching_feed">Загрузка</string>
     <string name="no_connection">Нет подключения к интернету</string>
     <string name="already_subscribed">Вы уже подписаны на эту ленту!</string>
 
@@ -201,4 +207,5 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Служба используется исключительно для включения жеста блокировки на главном экране. Она не собирает и не передаёт данные третьим лицам.</string>
+    <string name="dock">Док</string>
 </resources>
