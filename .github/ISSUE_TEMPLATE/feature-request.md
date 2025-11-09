@@ -1,8 +1,8 @@
 ---
 name: Feature Request
 about: Suggest an idea
-title: ''
-labels: ''
+title: "[REQUEST]"
+labels: pending
 assignees: ''
 
 ---
