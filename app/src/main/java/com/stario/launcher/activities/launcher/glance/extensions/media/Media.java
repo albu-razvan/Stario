@@ -522,7 +522,15 @@ public class Media extends GlanceDialogExtension {
             return;
         }
 
-        if (bitmap != null) {
+        if(bitmap != null) {
+            Bitmap.Config config = bitmap.getConfig();
+
+            if (config == null) {
+                config = Bitmap.Config.ARGB_8888;
+            }
+
+            bitmap = bitmap.copy(config, false);
+
             DrawableCrossFadeFactory factory =
                     new DrawableCrossFadeFactory.Builder()
                             .setCrossFadeEnabled(true).build();
@@ -539,9 +547,11 @@ public class Media extends GlanceDialogExtension {
                         .transition(DrawableTransitionOptions.withCrossFade(factory))
                         .into(cover);
             }
-        }
 
-        lastCover = bitmap;
+            lastCover = bitmap;
+        } else {
+            lastCover = null;
+        }
     }
 
     private void updateSlider(MediaMetadata metadata) {
