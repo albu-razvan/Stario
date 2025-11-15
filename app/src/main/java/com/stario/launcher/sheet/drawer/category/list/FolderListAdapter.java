@@ -73,7 +73,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
                 int index = categoryManager.indexOf(category);
 
                 if (index >= 0) {
-                    UiUtils.runOnUIThread(() -> notifyItemInserted(index));
+                    UiUtils.post(() -> notifyItemInserted(index));
                 }
             }
 
@@ -82,7 +82,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
                 int index = categoryManager.indexOf(category);
 
                 if (index >= 0) {
-                    UiUtils.runOnUIThread(() -> notifyItemChanged(index));
+                    UiUtils.post(() -> notifyItemChanged(index));
                 }
             }
 
@@ -96,12 +96,12 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
             @Override
             public void onRemoved(Category category) {
                 if (preparedRemovalIndex >= 0) {
-                    UiUtils.runOnUIThread(() -> notifyItemRemoved(preparedRemovalIndex));
+                    UiUtils.post(() -> notifyItemRemoved(preparedRemovalIndex));
 
                     preparedRemovalIndex = -1;
                 } else {
                     //noinspection NotifyDataSetChanged
-                    UiUtils.runOnUIThread(() -> notifyDataSetChanged());
+                    UiUtils.post(() -> notifyDataSetChanged());
                 }
             }
         };

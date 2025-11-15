@@ -17,13 +17,13 @@
 
 package com.stario.launcher.ui.utils.animation;
 
-import android.transition.Fade;
-import android.transition.TransitionSet;
 import android.view.View;
 
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import androidx.transition.Fade;
+import androidx.transition.TransitionSet;
 
-import com.google.android.material.transition.platform.MaterialElevationScale;
+import com.google.android.material.transition.MaterialElevationScale;
 
 import java.util.List;
 

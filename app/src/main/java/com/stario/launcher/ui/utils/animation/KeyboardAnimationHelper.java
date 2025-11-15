@@ -38,6 +38,7 @@ import java.util.Queue;
 
 @RequiresApi(Build.VERSION_CODES.R)
 public class KeyboardAnimationHelper {
+    private static final int DEBOUNCED_KEYBOARD_RESIZE_DELAY = 50;
     private static final int CONTROLLER_DISALLOW_DELAY = 50;
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -58,14 +59,12 @@ public class KeyboardAnimationHelper {
             private final Queue<Float> queue;
 
             private WindowInsetsAnimationCompat imeAnimation;
-            private boolean pendingTransition;
+            private Runnable debouncedResize;
             private float startBottom;
             private float endBottom;
             private boolean running;
 
             {
-                this.running = false;
-                this.pendingTransition = true;
                 this.startBottom = 0;
                 this.endBottom = 0;
                 this.queue = new LinkedList<>();
@@ -81,9 +80,27 @@ public class KeyboardAnimationHelper {
                     if (Measurements.getAnimatorDurationScale() == 0) {
                         listener.translate(-height);
                     } else {
+                        if (!running) {
+                            if (debouncedResize != null) {
+                                UiUtils.removeUICallback(debouncedResize);
+                            }
+
+                            debouncedResize = () -> listener.translate(-height);
+                            UiUtils.postDelayed(debouncedResize, DEBOUNCED_KEYBOARD_RESIZE_DELAY);
+                        }
+
                         endBottom = height;
                     }
                 });
+            }
+
+            @Override
+            public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
+                running = true;
+
+                if (debouncedResize != null) {
+                    UiUtils.removeUICallback(debouncedResize);
+                }
             }
 
             @NonNull
@@ -92,8 +109,6 @@ public class KeyboardAnimationHelper {
                 startBottom = UiUtils.isKeyboardVisible(root) ? 0 : heightProvider.getKeyboardHeight();
                 endBottom = startBottom > 0 ? 0 : heightProvider.getKeyboardHeight();
                 imeAnimation = null;
-                pendingTransition = false;
-                running = true;
 
                 return bounds;
             }
@@ -124,7 +139,7 @@ public class KeyboardAnimationHelper {
                 if (imeAnimation != null && (imeAnimation.getDurationMillis() < 0 ||
                         Measurements.getAnimatorDurationScale() > 0)) {
                     if (allowControllerAnimation != null) {
-                        UiUtils.removeOnUIThreadCallback(allowControllerAnimation);
+                        UiUtils.removeUICallback(allowControllerAnimation);
                     }
 
                     if (controller != null) {
@@ -168,7 +183,7 @@ public class KeyboardAnimationHelper {
                 queue.clear();
 
                 if (allowControllerAnimation != null) {
-                    UiUtils.runOnUIThreadDelayed(allowControllerAnimation, CONTROLLER_DISALLOW_DELAY);
+                    UiUtils.postDelayed(allowControllerAnimation, CONTROLLER_DISALLOW_DELAY);
                 }
             }
         });

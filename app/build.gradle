@@ -63,7 +63,6 @@ android {
                            'src/main/res/page_manager',
                            'src/main/res/page_manager_dialogs',
                            'src/main/res/briefing',
-                           'src/main/res/briefing_configurator',
                            'src/main/res/settings',
                            'src/main/res/settings_dialogs',
                            'src/main/res/search',

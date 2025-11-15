@@ -15,15 +15,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.sheet.briefing;
+package com.stario.launcher.sheet.briefing.dialog.page.feed;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.stario.launcher.preferences.Entry;
-import com.stario.launcher.sheet.briefing.feed.Feed;
 import com.stario.launcher.themes.ThemedActivity;
 
 import org.json.JSONArray;
@@ -105,14 +105,7 @@ public class BriefingFeedList {
         }
 
         items.add(feed);
-
-        ArrayList<String> serials = new ArrayList<>();
-        for (Feed item : items) {
-            serials.add(item.serialize());
-        }
-
-        state.edit().putString(FEEDS_KEY,
-                new JSONArray(serials).toString()).apply();
+        serialize();
 
         for (FeedListener listener : listeners) {
             listener.onInserted(size() - 1);
@@ -121,26 +114,49 @@ public class BriefingFeedList {
         return true;
     }
 
-    public void remove(int position) {
-        items.remove(position);
+    public void updateName(Feed feed, String name) {
+        updateName(items.indexOf(feed), name);
+    }
 
-        ArrayList<String> serials = new ArrayList<>();
-        for (Feed item : items) {
-            serials.add(item.serialize());
+    public void updateName(int position, String name) {
+        if (position < 0 || position >= items.size() || name == null) {
+            return;
         }
 
-        state.edit().putString(FEEDS_KEY,
-                new JSONArray(serials).toString()).apply();
+        items.get(position).title = name;
+        serialize();
+
+        for (FeedListener listener : listeners) {
+            listener.onUpdated(position);
+        }
+    }
+
+    public void remove(Feed feed) {
+        remove(items.indexOf(feed));
+    }
+
+    public void remove(int position) {
+        if (position < 0 || position >= items.size()) {
+            return;
+        }
+
+        items.remove(position);
+        serialize();
 
         for (FeedListener listener : listeners) {
             listener.onRemoved(position);
         }
     }
 
-    public void remove(Feed feed) {
-        int index = items.indexOf(feed);
+    @SuppressLint("ApplySharedPref")
+    private void serialize() {
+        ArrayList<String> serials = new ArrayList<>();
+        for (Feed item : items) {
+            serials.add(item.serialize());
+        }
 
-        remove(index);
+        state.edit().putString(FEEDS_KEY,
+                new JSONArray(serials).toString()).commit();
     }
 
     public void addOnFeedUpdateListener(FeedListener listener) {
@@ -157,6 +173,9 @@ public class BriefingFeedList {
 
     public interface FeedListener {
         default void onInserted(int index) {
+        }
+
+        default void onUpdated(int index) {
         }
 
         default void onRemoved(int index) {

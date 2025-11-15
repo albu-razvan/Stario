@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.sheet.briefing.feed;
+package com.stario.launcher.sheet.briefing.dialog.page;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -35,7 +35,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.apptasticsoftware.rssreader.Item;
 import com.stario.launcher.R;
 import com.stario.launcher.sheet.SheetType;
-import com.stario.launcher.sheet.briefing.BriefingFeedList;
+import com.stario.launcher.sheet.briefing.dialog.page.feed.BriefingFeedList;
 import com.stario.launcher.sheet.briefing.dialog.BriefingDialog;
 import com.stario.launcher.sheet.briefing.rss.RssParser;
 import com.stario.launcher.themes.ThemedActivity;
@@ -170,7 +170,7 @@ public class FeedPage extends Fragment {
 
         root.findViewById(R.id.refresh_button)
                 .setOnClickListener(v ->
-                        UiUtils.runOnUIThread(this::update)
+                        UiUtils.post(this::update)
                 );
 
         Measurements.addNavListener(bottomInset ->
@@ -203,7 +203,7 @@ public class FeedPage extends Fragment {
     public void onResume() {
         super.onResume();
 
-        UiUtils.runOnUIThread(this::update);
+        UiUtils.post(this::update);
     }
 
     public void update() {
@@ -250,7 +250,7 @@ public class FeedPage extends Fragment {
 
             final Item[] items = (stream != null) ? stream.toArray(Item[]::new) : null;
 
-            UiUtils.runOnUIThread(() -> {
+            UiUtils.post(() -> {
                 if (items != null) {
                     adapter.update(items);
 

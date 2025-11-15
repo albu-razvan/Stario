@@ -320,7 +320,7 @@ public final class CategoryManager {
 
     public synchronized void addApplication(LauncherApplication application) {
         if (!hiddenApplications.contains(application.getInfo().packageName)) {
-            UiUtils.runOnUIThread(() -> {
+            UiUtils.post(() -> {
                 int index = indexOf(application.getCategory());
 
                 if (index == NO_CATEGORY) {
@@ -337,7 +337,7 @@ public final class CategoryManager {
         int index = indexOf(application.getCategory());
 
         if (index != NO_CATEGORY) {
-            UiUtils.runOnUIThread(() -> {
+            UiUtils.post(() -> {
                 Category category = get(index);
 
                 category.removeApplication(application.getInfo().packageName);

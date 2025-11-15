@@ -76,6 +76,7 @@ public class PopupMenu {
     private static final int MAX_SHORTCUT_COUNT = 4;
     private static final float INSET_FRACTION = 0.2f;
     private static final int ICON_SIZE = 64;
+    private static final int SCREEN_MARGIN_DP = 20;
     private static final int PADDING = 9;
     private static final int WIDTH = 220;
 
@@ -373,7 +374,7 @@ public class PopupMenu {
 
         root.post(() -> root.setPadding(0, 0, 0, 0));
 
-        return showAtLocation(parent, location, 0, gravity, pivotAxis, interceptTouches);
+        return showAtLocation(parent, location, gravity, pivotAxis, interceptTouches);
     }
 
     public PopupWindow showAtLocation(Activity activity, View parent,
@@ -420,11 +421,10 @@ public class PopupMenu {
                     location[1] - (int) y;
         }
 
-        return showAtLocation(parent, location, Measurements.dpToPx(PADDING * 2),
-                gravity, pivotAxis, interceptTouches);
+        return showAtLocation(parent, location, gravity, pivotAxis, interceptTouches);
     }
 
-    private PopupWindow showAtLocation(View parent, @Size(2) int[] location, int padding,
+    private PopupWindow showAtLocation(View parent, @Size(2) int[] location,
                                        int gravity, short pivotAxis, boolean interceptTouches) {
         for (Map.Entry<RecyclerView, RecyclerAdapter> entry : recyclers.values()) {
             if ((gravity & Gravity.TOP) == Gravity.TOP) { // flip options when popup expands upwards
@@ -457,9 +457,18 @@ public class PopupMenu {
                 }
             });
 
+            int padding = Measurements.dpToPx(SCREEN_MARGIN_DP);
+
             popupWindow.setWidth(Measurements.dpToPx(WIDTH) + padding * 2);
-            popupWindow.showAtLocation(parent, gravity, location[0], location[1]);
-            root.setPadding(padding, padding, padding, padding);
+            popupWindow.showAtLocation(parent, gravity,
+                    location[0] - padding, location[1] - padding);
+
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) root.getLayoutParams();
+            params.leftMargin = padding;
+            params.topMargin = padding;
+            params.rightMargin = padding;
+            params.bottomMargin = padding;
+
 
             oldOrientationFlags = activity.getRequestedOrientation();
 

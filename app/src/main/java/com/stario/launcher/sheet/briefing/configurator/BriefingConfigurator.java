@@ -22,8 +22,6 @@ import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.Resources;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -42,8 +40,8 @@ import com.apptasticsoftware.rssreader.Channel;
 import com.apptasticsoftware.rssreader.Item;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.stario.launcher.R;
-import com.stario.launcher.sheet.briefing.BriefingFeedList;
-import com.stario.launcher.sheet.briefing.feed.Feed;
+import com.stario.launcher.sheet.briefing.dialog.page.feed.BriefingFeedList;
+import com.stario.launcher.sheet.briefing.dialog.page.feed.Feed;
 import com.stario.launcher.sheet.briefing.rss.RssParser;
 import com.stario.launcher.sheet.briefing.rss.WoodstoxAbstractRssReader;
 import com.stario.launcher.themes.ThemedActivity;
@@ -62,18 +60,23 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import carbon.view.SimpleTextWatcher;
+
 public class BriefingConfigurator extends ActionDialog {
     private static final String TAG = "BriefingConfigurator";
+    private static final long DEBOUNCE_DELAY = 300;
+
     private final BriefingFeedList list;
 
-    private WoodstoxAbstractRssReader.CancellableStreamFuture<Item> lastStreamFuture;
-    private Future<?> runningTask;
+    private volatile Future<?> currentSearchTask;
+
+    private Runnable debounceRunnable;
     private ViewGroup contentView;
     private PulsingTextView limit;
     private LinearLayout preview;
+    private Feed validatedFeed;
     private TextView title;
     private EditText query;
-    private Feed feed;
 
     public BriefingConfigurator(@NonNull ThemedActivity activity) {
         super(activity);
@@ -90,29 +93,57 @@ public class BriefingConfigurator extends ActionDialog {
         title = contentView.findViewById(R.id.title);
         limit = contentView.findViewById(R.id.limit);
 
-        query.addTextChangedListener(new TextWatcher() {
+        query.addTextChangedListener(new SimpleTextWatcher() {
             @Override
-            public void afterTextChanged(Editable sequence) {
-            }
+            public void onTextChanged(@NonNull CharSequence sequence,
+                                      int start, int before, int count) {
+                String text = sequence.toString();
 
-            @Override
-            public void beforeTextChanged(CharSequence sequence, int arg1,
-                                          int arg2, int arg3) {
-            }
+                if (debounceRunnable != null) {
+                    UiUtils.removeUICallback(debounceRunnable);
+                }
 
-            @Override
-            public void onTextChanged(CharSequence sequence, int start, int before,
-                                      int count) {
-                update(sequence);
+                if (text.isEmpty()) {
+                    showStatus(null, false);
+
+                    return;
+                }
+
+                String validUrl = null;
+                if (isValidUrl(text)) {
+                    validUrl = text;
+                } else {
+                    String potentialUrl = "https://" + text;
+
+                    if (isValidUrl(potentialUrl)) {
+                        validUrl = potentialUrl;
+                    }
+                }
+
+                if (validUrl == null) {
+                    showStatus(R.string.invalid_url, false);
+
+                    return;
+                }
+
+                if (!Utils.isNetworkAvailable(activity)) {
+                    showStatus(R.string.no_connection, false);
+
+                    return;
+                }
+
+                final String finalValidUrl = validUrl;
+                debounceRunnable = () -> startSearch(finalValidUrl);
+                UiUtils.postDelayed(debounceRunnable, DEBOUNCE_DELAY);
             }
         });
 
         contentView.findViewById(R.id.add).setOnClickListener((view) -> {
             view.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.bounce_small));
 
-            if (feed != null && feed.getTitle() != null &&
-                    !feed.getTitle().isEmpty()) {
-                boolean added = list.add(feed);
+            if (validatedFeed != null && validatedFeed.getTitle() != null &&
+                    !validatedFeed.getTitle().isEmpty()) {
+                boolean added = list.add(validatedFeed);
 
                 if (added) {
                     BottomSheetBehavior<?> behavior = getBehavior();
@@ -159,126 +190,135 @@ public class BriefingConfigurator extends ActionDialog {
         super.show();
     }
 
-    private void update(CharSequence sequence) {
-        preview.setVisibility(View.GONE);
-
-        limit.setPulsating(true);
-        limit.setText(R.string.searching);
-        limit.setVisibility(View.VISIBLE);
-
-        Resources resources = activity.getResources();
-
-        if (sequence.length() == 0) {
-            checkFeed(null);
-        } else if (!Utils.isNetworkAvailable(activity)) {
-            limit.setPulsating(false);
-            limit.setText(resources.getString(R.string.no_connection));
-            limit.setVisibility(View.VISIBLE);
-        } else {
-            if (sequence.length() > 0) {
-                if (URLUtil.isValidUrl(sequence.toString()) &&
-                        Patterns.WEB_URL.matcher(sequence).matches()) {
-
-                    checkFeed(sequence.toString());
-                } else {
-                    sequence = "https://" + sequence;
-
-                    if (URLUtil.isValidUrl(sequence.toString()) &&
-                            Patterns.WEB_URL.matcher(sequence).matches()) {
-
-                        checkFeed(sequence.toString());
-                    } else {
-                        limit.setPulsating(false);
-                        limit.setText(resources.getString(R.string.invalid_url));
-                        limit.setVisibility(View.VISIBLE);
-                    }
-                }
-            }
+    private void startSearch(String query) {
+        if (currentSearchTask != null && !currentSearchTask.isDone()) {
+            currentSearchTask.cancel(true);
         }
+
+        showStatus(R.string.searching, true);
+        currentSearchTask = Utils.submitTask(new FeedDiscoveryTask(query));
     }
 
-    private void checkFeed(String query) {
-        if (lastStreamFuture != null && !lastStreamFuture.isDone()) {
-            lastStreamFuture.cancel(true);
+    private boolean isValidUrl(String url) {
+        return URLUtil.isValidUrl(url) && Patterns.WEB_URL.matcher(url).matches();
+    }
+
+    private void showStatus(Integer messageRes, boolean pulsating) {
+        Resources resources = activity.getResources();
+
+        if (preview != null) {
+            preview.setVisibility(View.GONE);
         }
 
-        if (runningTask != null && !runningTask.isDone()) {
-            runningTask.cancel(true);
+        if (limit != null) {
+            if (messageRes != null) {
+                limit.setText(resources.getString(messageRes));
+                limit.setPulsating(pulsating);
+                limit.setVisibility(View.VISIBLE);
+            } else {
+                limit.setVisibility(View.GONE);
+            }
         }
 
-        if (query != null) {
-            runningTask = Utils.submitTask(() -> {
-                try {
-                    lastStreamFuture = RssParser.futureParse(query);
+        validatedFeed = null;
+    }
 
-                    if (lastStreamFuture != null) {
-                        Stream<Item> stream = lastStreamFuture
-                                .get(10, TimeUnit.SECONDS);
+    private void showPreview(@NonNull Feed feed) {
+        validatedFeed = feed;
 
-                        if (stream != null) {
-                            Optional<Item> target = stream.findFirst();
+        title.setText(feed.getTitle());
+        preview.setVisibility(View.VISIBLE);
+        limit.setVisibility(View.GONE);
+    }
 
-                            if (target.isPresent()) {
-                                Channel channel = target.get().getChannel();
+    private class FeedDiscoveryTask implements Runnable {
+        private final String initialUrl;
 
-                                if (channel != null &&
-                                        channel.getLink() != null) {
-                                    feed = new Feed(channel.getTitle(), query);
+        private FeedDiscoveryTask(String url) {
+            this.initialUrl = url;
+        }
 
-                                    contentView.post(() -> {
-                                        title.setText(feed.getTitle());
-                                        preview.setVisibility(View.VISIBLE);
+        @Override
+        public void run() {
+            try {
+                Feed feed = attemptParse(initialUrl);
 
-                                        limit.setVisibility(View.GONE);
-                                    });
+                if (feed != null) {
+                    contentView.post(() -> showPreview(feed));
 
-                                    return;
-                                }
-                            }
-                        }
-                    }
-
-                    Document document = Jsoup.connect(query)
-                            .userAgent(Utils.USER_AGENT)
-                            .get();
-                    Elements nodes = document.getElementsByTag("atom:link");
-                    nodes.addAll(document.getElementsByTag("atom:link"));
-                    nodes.addAll(document.getElementsByTag("link"));
-
-                    for (Element node : nodes) {
-                        if (node.hasAttr("type") && node.hasAttr("href") &&
-                                (node.attr("type").contains("rss") || node.attr("type").contains("atom"))) {
-                            checkFeed(node.attr("href"));
-
-                            return;
-                        }
-                    }
-
-                    Log.e(TAG, "checkFeed: Could not get feed from: " + query);
-
-                    contentView.post(() -> {
-                        limit.setPulsating(false);
-                        limit.setText(activity.getResources().getString(R.string.invalid_rss));
-                        limit.setVisibility(View.VISIBLE);
-                    });
-                } catch (InterruptedException exception) {
-                    Log.i(TAG, "checkFeed: Parsing interrupted for: " + query);
-                } catch (Exception exception) {
-                    Log.e(TAG, "checkFeed: Could not get feed from: " + query);
-
-                    contentView.post(() -> {
-                        limit.setPulsating(false);
-                        limit.setText(activity.getResources().getString(R.string.invalid_rss));
-                        limit.setVisibility(View.VISIBLE);
-                    });
+                    return;
                 }
-            });
-        } else {
-            feed = null;
 
-            limit.setPulsating(false);
-            limit.setText(activity.getResources().getString(R.string.invalid_rss));
-            limit.setVisibility(View.VISIBLE);
+                // after a network task, check for interruption
+                if (Thread.currentThread().isInterrupted()) {
+                    return;
+                }
+
+                String discoveredFeedUrl = discoverFeedUrl(initialUrl);
+
+                if (discoveredFeedUrl != null) {
+                    if (Thread.currentThread().isInterrupted()) {
+                        return;
+                    }
+
+                    Feed discoveredFeed = attemptParse(discoveredFeedUrl);
+                    if (discoveredFeed != null) {
+                        contentView.post(() -> showPreview(discoveredFeed));
+
+                        return;
+                    }
+                }
+
+                contentView.post(() -> showStatus(R.string.invalid_rss, false));
+
+            } catch (Exception exception) {
+                Log.e(TAG, "Failed for: " + initialUrl, exception);
+
+                contentView.post(() -> showStatus(R.string.invalid_rss, false));
+            }
+        }
+
+        private Feed attemptParse(String url) {
+            WoodstoxAbstractRssReader.CancellableStreamFuture<Item> streamFuture = null;
+
+            try {
+                streamFuture = RssParser.futureParse(url);
+                Stream<Item> stream = streamFuture.get(10, TimeUnit.SECONDS);
+
+                if (stream != null) {
+                    Optional<Item> target = stream.findFirst();
+
+                    if (target.isPresent()) {
+                        Channel channel = target.get().getChannel();
+
+                        if (channel != null && channel.getTitle() != null) {
+                            return new Feed(channel.getTitle(), url);
+                        }
+                    }
+                }
+            } catch (Exception exception) {
+                if (streamFuture != null) {
+                    streamFuture.cancel(true);
+                }
+            }
+
+            return null;
+        }
+
+        private String discoverFeedUrl(String url) throws Exception {
+            Document document = Jsoup.connect(url)
+                    .userAgent(Utils.USER_AGENT)
+                    .get();
+
+            Elements nodes = document.select("link[type*=\"rss\"], link[type*=\"atom\"]");
+
+            for (Element node : nodes) {
+                if (node.hasAttr("href")) {
+                    return node.attr("abs:href");
+                }
+            }
+
+            return null;
         }
     }
 

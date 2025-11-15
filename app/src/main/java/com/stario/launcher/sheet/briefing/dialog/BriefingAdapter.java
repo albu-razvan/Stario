@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.sheet.briefing.feed;
+package com.stario.launcher.sheet.briefing.dialog;
 
 import android.util.SparseArray;
 import android.view.ViewGroup;
@@ -27,7 +27,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.PagerAdapter;
 
-import com.stario.launcher.sheet.briefing.BriefingFeedList;
+import com.stario.launcher.sheet.briefing.dialog.page.feed.BriefingFeedList;
+import com.stario.launcher.sheet.briefing.dialog.page.FeedPage;
 import com.stario.launcher.themes.ThemedActivity;
 
 import java.lang.ref.WeakReference;

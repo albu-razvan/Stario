@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.sheet.briefing.feed;
+package com.stario.launcher.sheet.briefing.dialog.page;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;

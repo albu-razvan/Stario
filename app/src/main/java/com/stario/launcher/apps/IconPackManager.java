@@ -223,7 +223,7 @@ public final class IconPackManager {
                     }
 
                     final Drawable drawable = icon;
-                    UiUtils.runOnUIThread(() ->
+                    UiUtils.post(() ->
                             ProfileManager.getInstance().updateIcon(packageName, drawable));
                 });
             } else {
@@ -596,7 +596,7 @@ public final class IconPackManager {
         public CompletableFuture<Integer> getComponentCount() {
             CompletableFuture<Integer> future = new CompletableFuture<>();
 
-            UiUtils.runOnUIThread(() -> {
+            UiUtils.post(() -> {
                 if (cached) {
                     future.complete(exactComponentDrawable.size());
                 } else {

@@ -75,7 +75,7 @@ public class IconsRecyclerAdapter extends RecyclerView.Adapter<IconsRecyclerAdap
 
             CompletableFuture<Integer> future = pack.getComponentCount();
             future.thenAccept(integer ->
-                    UiUtils.runOnUIThread(() ->
+                    UiUtils.post(() ->
                             viewHolder.count.setText(String.format("%,d", integer) + " " +
                                     activity.getResources().getString(R.string.components))));
 

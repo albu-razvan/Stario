@@ -225,7 +225,7 @@ public final class ProfileApplicationManager {
         }
 
         loaded = true;
-        UiUtils.runOnUIThread(() -> {
+        UiUtils.post(() -> {
             for (OnLoadReadyListener listener : readyListeners) {
                 listener.onReady(this);
             }

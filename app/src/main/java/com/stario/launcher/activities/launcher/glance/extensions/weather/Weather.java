@@ -566,7 +566,7 @@ public class Weather extends GlanceDialogExtension {
                     int index = getFirstIndexInTime();
 
                     if (index > 0) {
-                        UiUtils.runOnUIThread(() -> preview.update(this.weatherData.get(index)));
+                        UiUtils.post(() -> preview.update(this.weatherData.get(index)));
                     }
 
                     String addressName = weatherPreferences.getString(LOCATION_NAME, null);

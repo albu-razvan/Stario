@@ -19,7 +19,6 @@ package com.stario.launcher.ui.keyboard.extract;
 
 import android.app.Dialog;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -44,7 +43,6 @@ import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.keyboard.InlineAutocompleteEditText;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
 import com.stario.launcher.ui.utils.UiUtils;
-import com.stario.launcher.utils.Utils;
 
 public class ExtractDialog extends DialogFragment {
     private final KeyboardHeightProvider heightProvider;
@@ -198,12 +196,12 @@ public class ExtractDialog extends DialogFragment {
             view.requestLayout();
         });
 
-        UiUtils.runOnUIThread(new Runnable() {
+        UiUtils.post(new Runnable() {
             @Override
             public void run() {
                 if (!shown) {
                     UiUtils.showKeyboard(extractedEditText);
-                    UiUtils.runOnUIThreadDelayed(this, 50);
+                    UiUtils.postDelayed(this, 50);
                 }
             }
         });
