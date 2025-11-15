@@ -320,7 +320,7 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
             window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         }
 
-        UiUtils.runOnUIThread(() -> recyclerContainer.animate()
+        UiUtils.post(() -> recyclerContainer.animate()
                 .scaleX(1)
                 .scaleY(1)
                 .alpha(1)

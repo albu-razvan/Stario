@@ -56,7 +56,7 @@ public class IconsRecyclerAdapter extends RecyclerView.Adapter<IconsRecyclerAdap
         manager.getIcons(application).thenAccept(iconList -> {
             icons = iconList;
 
-            UiUtils.runOnUIThread(this::notifyDataSetChanged);
+            UiUtils.post(this::notifyDataSetChanged);
         });
     }
 

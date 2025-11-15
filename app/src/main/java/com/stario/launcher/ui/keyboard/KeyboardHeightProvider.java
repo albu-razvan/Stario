@@ -80,7 +80,7 @@ public class KeyboardHeightProvider extends PopupWindow {
             parentView.getViewTreeObserver()
                     .addOnGlobalLayoutListener(listener);
 
-            notifyKeyboardHeightChanged(getKeyboardHeight());
+            notifyKeyboardHeightChanged(getKeyboardHeight(), true);
         }
     }
 
@@ -104,7 +104,11 @@ public class KeyboardHeightProvider extends PopupWindow {
     }
 
     private void notifyKeyboardHeightChanged(int height) {
-        if(oldHeight == height) {
+        notifyKeyboardHeightChanged(height, false);
+    }
+
+    private void notifyKeyboardHeightChanged(int height, boolean force) {
+        if (oldHeight == height && !force) {
             return;
         }
 
@@ -123,7 +127,7 @@ public class KeyboardHeightProvider extends PopupWindow {
         if (Utils.isMinimumSDK(Build.VERSION_CODES.R)) {
             WindowInsets windowInsets = parentView.getRootWindowInsets();
 
-            if(windowInsets != null) {
+            if (windowInsets != null) {
                 Insets insets = windowInsets.getInsets(WindowInsets.Type.ime());
 
                 return Math.max(0, insets.bottom - Measurements.getNavHeight());

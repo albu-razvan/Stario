@@ -148,7 +148,7 @@ public class LocationRecyclerAdapter extends RecyclerView.Adapter<LocationRecycl
                 List<Address> addressList = geocoder.getFromLocationName(query, MAX_LOCALITIES);
 
                 if (query.equals(LocationRecyclerAdapter.this.query)) {
-                    UiUtils.runOnUIThread(() -> {
+                    UiUtils.post(() -> {
                         addresses.clear();
 
                         if (addressList != null) {

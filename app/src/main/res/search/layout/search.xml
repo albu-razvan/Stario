@@ -117,10 +117,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
-                            android:fontFamily="@font/dm_sans_medium"
+                            android:fontFamily="@font/dm_sans_regular"
                             android:text="@string/searching"
                             android:textColor="?attr/colorOnSurface"
-                            android:textSize="18sp"
+                            android:textSize="20sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent" />

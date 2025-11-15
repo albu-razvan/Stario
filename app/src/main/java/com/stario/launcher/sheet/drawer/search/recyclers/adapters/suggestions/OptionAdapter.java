@@ -119,7 +119,7 @@ public class OptionAdapter extends SuggestionSearchAdapter {
                 }
             }
 
-            UiUtils.runOnUIThread(this::notifyInternal);
+            UiUtils.post(this::notifyInternal);
         });
 
         listener = new LauncherApplicationListener() {

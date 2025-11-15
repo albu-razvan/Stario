@@ -146,15 +146,15 @@ public class UiUtils {
         inputMethodManager.showSoftInput(view, 0);
     }
 
-    public static void runOnUIThread(Runnable runnable) {
+    public static void post(Runnable runnable) {
         UIHandler.post(runnable);
     }
 
-    public static void removeOnUIThreadCallback(Runnable runnable) {
+    public static void removeUICallback(Runnable runnable) {
         UIHandler.removeCallbacks(runnable);
     }
 
-    public static void runOnUIThreadDelayed(Runnable runnable, long delay) {
+    public static void postDelayed(Runnable runnable, long delay) {
         UIHandler.postDelayed(runnable, delay);
     }
 

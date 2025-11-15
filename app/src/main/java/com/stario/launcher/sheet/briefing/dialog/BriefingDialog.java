@@ -37,28 +37,33 @@ import com.stario.launcher.R;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.SheetDialogFragment;
 import com.stario.launcher.sheet.SheetType;
-import com.stario.launcher.sheet.briefing.BriefingFeedList;
+import com.stario.launcher.sheet.briefing.dialog.page.feed.BriefingFeedList;
 import com.stario.launcher.sheet.briefing.configurator.BriefingConfigurator;
-import com.stario.launcher.sheet.briefing.feed.BriefingAdapter;
-import com.stario.launcher.sheet.briefing.feed.FeedPage;
+import com.stario.launcher.sheet.briefing.configurator.FeedConfigurator;
+import com.stario.launcher.sheet.briefing.dialog.page.feed.Feed;
+import com.stario.launcher.sheet.briefing.dialog.page.FeedPage;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.pager.CustomDurationViewPager;
 import com.stario.launcher.ui.common.tabs.LeftTabLayout;
 import com.stario.launcher.ui.popup.PopupMenu;
 
+import java.util.Objects;
+
 public class BriefingDialog extends SheetDialogFragment {
     private RecyclerView.OnScrollListener scrollListener;
     private View.OnLayoutChangeListener layoutListener;
+    private BriefingFeedList.FeedListener feedListener;
     private BriefingDialogPageListener listener;
     private RecyclerView recyclerToBeObserved;
     private CustomDurationViewPager pager;
     private ThemedActivity activity;
     private BriefingAdapter adapter;
+    private BriefingFeedList list;
     private ViewGroup placeholder;
     private View tabsContainer;
-    private ViewGroup main;
     private LeftTabLayout tabs;
+    private ViewGroup main;
     private View title;
     private View root;
 
@@ -89,6 +94,44 @@ public class BriefingDialog extends SheetDialogFragment {
         this.layoutListener = (v, left, top, right, bottom, oldLeft, oldTop,
                                oldRight, oldBottom) -> {
             updateHeader(recyclerToBeObserved);
+        };
+        this.feedListener = new BriefingFeedList.FeedListener() {
+            private void notifyUpdate() {
+                adapter.notifyDataSetChanged();
+                tabs.setViewPager(pager);
+
+                if (adapter.getCount() > 0) {
+                    pager.setCurrentItem(0, true);
+                    observePageRecycler(0);
+                } else {
+                    observePageRecycler(null);
+                }
+
+                updateHeader(recyclerToBeObserved);
+
+                if (adapter.getCount() > 0) {
+                    placeholder.setVisibility(View.GONE);
+                    main.setVisibility(View.VISIBLE);
+                } else {
+                    placeholder.setVisibility(View.VISIBLE);
+                    main.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onInserted(int index) {
+                notifyUpdate();
+            }
+
+            @Override
+            public void onRemoved(int index) {
+                notifyUpdate();
+            }
+
+            @Override
+            public void onUpdated(int index) {
+                notifyUpdate();
+            }
         };
     }
 
@@ -130,51 +173,26 @@ public class BriefingDialog extends SheetDialogFragment {
             }
         });
 
-        BriefingFeedList list = BriefingFeedList.from(activity);
-        list.addOnFeedUpdateListener(new BriefingFeedList.FeedListener() {
-            private void notifyUpdate() {
-                adapter.notifyDataSetChanged();
-                tabs.setViewPager(pager);
-
-                if (adapter.getCount() > 0) {
-                    observePageRecycler(pager.getCurrentItem());
-                } else {
-                    observePageRecycler(null);
-                }
-
-                updateHeader(recyclerToBeObserved);
-
-                if (adapter.getCount() > 0) {
-                    placeholder.setVisibility(View.GONE);
-                    main.setVisibility(View.VISIBLE);
-                } else {
-                    placeholder.setVisibility(View.VISIBLE);
-                    main.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void onInserted(int index) {
-                notifyUpdate();
-            }
-
-            @Override
-            public void onRemoved(int index) {
-                notifyUpdate();
-            }
-        });
+        list = BriefingFeedList.from(activity);
+        list.addOnFeedUpdateListener(feedListener);
 
         tabs.setOverScrollMode(View.OVER_SCROLL_NEVER);
         tabs.setOnTabLongClickListener((tab, position) -> {
             Vibrations.getInstance().vibrate();
+            Resources resources = activity.getResources();
 
             PopupMenu menu = new PopupMenu(activity);
-
-            Resources resources = activity.getResources();
 
             menu.add(new PopupMenu.Item(resources.getString(R.string.remove),
                     ResourcesCompat.getDrawable(resources, R.drawable.ic_delete, activity.getTheme()),
                     view -> list.remove(position)));
+
+            Feed feed = list.get(position);
+            if (feed != null) {
+                menu.add(new PopupMenu.Item(resources.getString(R.string.rename_feed),
+                        ResourcesCompat.getDrawable(resources, R.drawable.ic_edit, activity.getTheme()),
+                        view -> new FeedConfigurator(activity, feed).show()));
+            }
 
             menu.show(activity, tab, PopupMenu.PIVOT_CENTER_HORIZONTAL);
         });
@@ -214,8 +232,9 @@ public class BriefingDialog extends SheetDialogFragment {
 
         title.setOnLongClickListener(view -> false);
         title.setOnTouchListener((v, event) -> {
-            getBehavior().interceptTouches(event.getAction() != MotionEvent.ACTION_CANCEL &&
-                    event.getAction() != MotionEvent.ACTION_UP);
+            Objects.requireNonNull(getBehavior())
+                    .interceptTouches(event.getAction() != MotionEvent.ACTION_CANCEL &&
+                            event.getAction() != MotionEvent.ACTION_UP);
 
             return false;
         });
@@ -224,6 +243,15 @@ public class BriefingDialog extends SheetDialogFragment {
         Measurements.addNavListener(value -> placeholder.setPadding(0, 0, 0, value));
 
         return root;
+    }
+
+    @Override
+    public void onDestroy() {
+        if (list != null) {
+            list.removeOnFeedUpdateListener(feedListener);
+        }
+
+        super.onDestroy();
     }
 
     private void observePageRecycler(Integer position) {

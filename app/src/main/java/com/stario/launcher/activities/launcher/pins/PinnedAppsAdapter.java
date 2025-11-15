@@ -129,7 +129,7 @@ class PinnedAppsAdapter extends RecyclerApplicationAdapter {
             resetSharedPreferences();
         }
 
-        UiUtils.runOnUIThread(this::notifyDataSetChanged);
+        UiUtils.post(this::notifyDataSetChanged);
     }
 
     private void resetSharedPreferences() {

@@ -32,7 +32,6 @@ import com.stario.launcher.R;
 import com.stario.launcher.sheet.drawer.category.list.FolderList;
 
 public class Categories extends Fragment {
-    public static final String REQUEST_POP_FOLDER_STACK = "com.stario.REQUEST_POP_FOLDER_STACK";
     public static final String FOLDER_STACK_ID = "com.stario.CATEGORIES_FRAGMENTS";
 
     private static final String RESTORE_IDENTIFIER = "Categories.RESTORE";

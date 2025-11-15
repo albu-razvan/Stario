@@ -25,8 +25,6 @@ import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.transition.Transition;
-import android.transition.TransitionListenerAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +40,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.transition.Transition;
+import androidx.transition.TransitionListenerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.stario.launcher.R;
@@ -264,7 +264,7 @@ public class ApplicationsDialog extends SheetDialogFragment {
 
                 transition.addListener(new TransitionListenerAdapter() {
                     @Override
-                    public void onTransitionStart(Transition transition) {
+                    public void onTransitionStart(@NonNull Transition transition) {
                         if (search.getVisibility() == View.VISIBLE) {
                             fader.animate().cancel();
                             fader.setTranslationY(0);

@@ -131,7 +131,7 @@ public class WebAdapter extends AbstractSearchListAdapter<WebAdapter.ViewHolder>
                 try {
                     object = getData(constraint, apiKey);
                 } catch (Unauthorized exception) {
-                    UiUtils.runOnUIThread(() -> {
+                    UiUtils.post(() -> {
                         if (listener != null) {
                             listener.onDenied();
                         }
@@ -192,7 +192,7 @@ public class WebAdapter extends AbstractSearchListAdapter<WebAdapter.ViewHolder>
             });
 
             runningTask.thenApply(results -> {
-                UiUtils.runOnUIThread(() -> {
+                UiUtils.post(() -> {
                     searchResults.clear();
 
                     for (WebEntry entry : results) {

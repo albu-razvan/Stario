@@ -116,7 +116,7 @@ public class AutosuggestAdapter extends SuggestionSearchAdapter {
             });
 
             runningTask.thenApply(results -> {
-                UiUtils.runOnUIThread(() -> {
+                UiUtils.post(() -> {
                     if (currentQuery.equals(constraint)) {
                         suggestionResults.clear();
 

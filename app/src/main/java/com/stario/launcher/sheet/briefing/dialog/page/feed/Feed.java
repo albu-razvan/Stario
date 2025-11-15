@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.sheet.briefing.feed;
+package com.stario.launcher.sheet.briefing.dialog.page.feed;
 
 import android.util.Log;
 
@@ -30,8 +30,10 @@ public class Feed implements Serializable {
     private static final String TAG = "com.stario.FeedItem";
     private static final String FEED_TITLE = "com.stario.FEED_TITLE";
     private static final String FEED_RSS = "com.stario.FEED_RSS";
-    private final String title;
+
     private final String rss;
+
+    String title;
 
     public Feed(@NonNull String title, @NonNull String rss) {
         this.title = title;
