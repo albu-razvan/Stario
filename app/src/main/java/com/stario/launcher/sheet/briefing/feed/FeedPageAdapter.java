@@ -122,18 +122,19 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
             }
 
             Item item = items.get(index);
-
             Vibrations.getInstance().vibrate();
 
+            Intent intent = null;
             if (item.getLink().isPresent()) {
-                Intent intent = new Intent(new Intent(Intent.ACTION_VIEW,
+                intent = new Intent(new Intent(Intent.ACTION_VIEW,
                         Uri.parse(item.getLink().get())));
-
-                context.startActivity(intent);
             } else if (item.getGuid().isPresent()) {
-                Intent intent = new Intent(new Intent(Intent.ACTION_VIEW,
+                intent = new Intent(new Intent(Intent.ACTION_VIEW,
                         Uri.parse(item.getGuid().get())));
+            }
 
+            if (intent != null) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             }
         }
