@@ -27,8 +27,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.PagerAdapter;
 
-import com.stario.launcher.sheet.briefing.dialog.page.feed.BriefingFeedList;
 import com.stario.launcher.sheet.briefing.dialog.page.FeedPage;
+import com.stario.launcher.sheet.briefing.dialog.page.feed.BriefingFeedList;
+import com.stario.launcher.sheet.briefing.dialog.page.feed.Feed;
 import com.stario.launcher.themes.ThemedActivity;
 
 import java.lang.ref.WeakReference;
@@ -67,6 +68,13 @@ public class BriefingAdapter extends FragmentPagerAdapter {
         registeredFragments.put(position, new WeakReference<>(fragment));
 
         return fragment;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        Feed feed = list.get(position);
+
+        return feed != null ? feed.getRSSLink().hashCode() : position;
     }
 
     @Override
