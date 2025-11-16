@@ -52,7 +52,7 @@ public class RssItemDiffUtil extends DiffUtil.Callback {
     @Override
     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
         RssItem first = oldList.get(oldItemPosition);
-        RssItem second = oldList.get(newItemPosition);
+        RssItem second = newList.get(newItemPosition);
 
         return Objects.equals(first.getTitle(), second.getTitle())
                 && Objects.equals(first.getDescription(), second.getDescription())
