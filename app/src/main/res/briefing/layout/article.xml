@@ -43,9 +43,9 @@
             android:layout_width="600dp"
             android:layout_height="250dp"
             app:edge="bottom"
-            app:size_bottom="250dp"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:size_bottom="250dp">
 
             <ImageView
                 android:id="@+id/display"
@@ -109,12 +109,16 @@
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="20dp"
             android:alpha="0.7"
+            android:clickable="false"
             android:ellipsize="end"
+            android:focusable="false"
             android:fontFamily="@font/dm_sans_regular"
             android:gravity="left"
             android:letterSpacing="-0.01"
             android:maxLines="20"
+            android:linksClickable="true"
             android:textColor="?attr/colorOnSurface"
+            android:textColorLink="?attr/colorPrimary"
             android:textSize="16sp"
             android:visibility="gone" />
 

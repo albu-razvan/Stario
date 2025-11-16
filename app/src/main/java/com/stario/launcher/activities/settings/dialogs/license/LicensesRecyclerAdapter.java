@@ -49,7 +49,6 @@ public class LicensesRecyclerAdapter extends RecyclerView.Adapter<LicensesRecycl
             {"Squiggly Slider", "Saket Narayan", "Apache 2.0"},
             {"Sunrise Sunset Calculator", "Mike Reedell", "Apache 2.0"},
             {"Weather Data", "MET Norway", "NLOD 2.0 and CC 4.0"},
-            {"Woodstox", "FasterXML", "Apache 2.0"},
     };
 
     private final LayoutInflater inflater;

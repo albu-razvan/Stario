@@ -17,7 +17,6 @@
 
 package com.stario.launcher.sheet.briefing.dialog;
 
-import android.util.SparseArray;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -33,15 +32,17 @@ import com.stario.launcher.sheet.briefing.dialog.page.feed.Feed;
 import com.stario.launcher.themes.ThemedActivity;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BriefingAdapter extends FragmentPagerAdapter {
-    private final SparseArray<WeakReference<FeedPage>> registeredFragments;
+    private final Map<Integer, WeakReference<FeedPage>> registeredFragments;
     private final BriefingFeedList list;
 
     public BriefingAdapter(ThemedActivity activity, FragmentManager fragmentManager) {
         super(fragmentManager);
 
-        this.registeredFragments = new SparseArray<>();
+        this.registeredFragments = new HashMap<>();
         this.list = BriefingFeedList.from(activity);
     }
 
@@ -101,11 +102,11 @@ public class BriefingAdapter extends FragmentPagerAdapter {
     }
 
     public void reset(int... skipPositions) {
-        for (int index = 0; index < registeredFragments.size(); index++) {
+        for (Map.Entry<Integer, WeakReference<FeedPage>> entry: registeredFragments.entrySet()) {
             boolean skipped = false;
 
             for (int skippedPosition : skipPositions) {
-                if (index == skippedPosition) {
+                if (entry.getKey() == skippedPosition) {
                     skipped = true;
 
                     break;
@@ -113,7 +114,7 @@ public class BriefingAdapter extends FragmentPagerAdapter {
             }
 
             if (!skipped) {
-                WeakReference<FeedPage> fragmentReference = registeredFragments.get(index);
+                WeakReference<FeedPage> fragmentReference = entry.getValue();
 
                 if (fragmentReference != null &&
                         fragmentReference.get() != null) {

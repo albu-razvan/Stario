@@ -20,6 +20,7 @@ package com.stario.launcher.sheet.briefing.dialog.page;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,30 +33,41 @@ import androidx.core.text.HtmlCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.apptasticsoftware.rssreader.Enclosure;
-import com.apptasticsoftware.rssreader.Item;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.prof18.rssparser.model.RssItem;
 import com.stario.launcher.R;
 import com.stario.launcher.Stario;
 import com.stario.launcher.preferences.Vibrations;
+import com.stario.launcher.ui.common.text.LinkMovementMethodWithFallback;
 import com.stario.launcher.ui.utils.animation.Animation;
-import com.stario.launcher.utils.ComparableDiffUtil;
 import com.stario.launcher.utils.Utils;
+
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
+    private static final Safelist CONTENT_SAFELIST = new Safelist() {
+        {
+            addTags(
+                    "p", "br", "b", "strong", "i", "em", "u", "strike",
+                    "del", "a", "ul", "ol", "li", "h1", "h2", "h3", "h4"
+            );
+            addAttributes("a", "href");
+        }
+    };
+
     private static final long UPDATE_TIME_THRESHOLD = 900_000;
 
     private final Stario context;
-    private List<Item> items;
+    private List<RssItem> items;
 
     private volatile long lastUpdate = -1;
 
@@ -64,20 +76,20 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
         this.items = Collections.synchronizedList(new ArrayList<>());
     }
 
-    public void update(@NonNull Item[] items) {
-        ArrayList<Item> filteredList = new ArrayList<>();
+    public void update(@NonNull List<RssItem> items) {
+        List<RssItem> filteredList = new ArrayList<>();
 
-        for (Item item : items) {
-            Optional<String> title = item.getTitle();
+        for (RssItem item : items) {
+            String title = item.getTitle();
 
-            if (title.isPresent() && !title.get().isBlank()) {
+            if (title != null && !title.isBlank()) {
                 filteredList.add(item);
             }
         }
 
         if (!filteredList.isEmpty()) {
             DiffUtil.DiffResult diffResult =
-                    DiffUtil.calculateDiff(new ComparableDiffUtil<>(this.items, filteredList));
+                    DiffUtil.calculateDiff(new RssItemDiffUtil(this.items, filteredList));
 
             this.items = Collections.synchronizedList(filteredList);
 
@@ -112,6 +124,13 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
 
             itemView.setClipToOutline(true);
             itemView.setOnClickListener(this);
+
+            description.setMovementMethod(new LinkMovementMethodWithFallback() {
+                @Override
+                public void onClickFallback(View widget) {
+                    itemView.performClick();
+                }
+            });
         }
 
         @Override
@@ -121,16 +140,16 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
                 return;
             }
 
-            Item item = items.get(index);
+            RssItem item = items.get(index);
             Vibrations.getInstance().vibrate();
 
             Intent intent = null;
-            if (item.getLink().isPresent()) {
+            if (item.getLink() != null) {
                 intent = new Intent(new Intent(Intent.ACTION_VIEW,
-                        Uri.parse(item.getLink().get())));
-            } else if (item.getGuid().isPresent()) {
+                        Uri.parse(item.getLink())));
+            } else if (item.getGuid() != null) {
                 intent = new Intent(new Intent(Intent.ACTION_VIEW,
-                        Uri.parse(item.getGuid().get())));
+                        Uri.parse(item.getGuid())));
             }
 
             if (intent != null) {
@@ -142,21 +161,20 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
-        Item item = items.get(position);
+        RssItem item = items.get(position);
 
         viewHolder.title.setVisibility(View.GONE);
         viewHolder.author.setVisibility(View.GONE);
         viewHolder.category.setVisibility(View.GONE);
+        viewHolder.description.setVisibility(View.GONE);
         viewHolder.display.setAlpha(0f);
 
-        Optional<Enclosure> optionalEnclosure = item.getEnclosure();
-
-        if (optionalEnclosure.isPresent()) {
+        String image = item.getImage();
+        if (image != null) {
             viewHolder.representative.setVisibility(View.VISIBLE);
-            Enclosure enclosure = optionalEnclosure.get();
 
             Glide.with(context)
-                    .load(enclosure.getUrl())
+                    .load(image)
                     .listener(new RequestListener<>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException exception, Object model,
@@ -191,25 +209,50 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
             viewHolder.representative.setVisibility(View.GONE);
         }
 
-        if (item.getTitle().isPresent() && !item.getTitle().get().isEmpty()) {
-            viewHolder.title.setText(item.getTitle().get());
-            viewHolder.title.setVisibility(View.VISIBLE);
+        if (item.getTitle() != null && !item.getTitle().isEmpty()) {
+            Spanned title = cleanHtml(item.getTitle());
+
+            if (!title.toString().isEmpty()) {
+                viewHolder.title.setText(title);
+                viewHolder.title.setVisibility(View.VISIBLE);
+            }
         }
 
-        if (item.getDescription().isPresent() && !item.getDescription().get().isEmpty()) {
-            viewHolder.description.setText(HtmlCompat.fromHtml(
-                    HtmlCompat.fromHtml(item.getDescription().get(),
-                                    HtmlCompat.FROM_HTML_MODE_LEGACY)
-                            .toString(),
-                    HtmlCompat.FROM_HTML_MODE_LEGACY
-            ));
-            viewHolder.description.setVisibility(View.VISIBLE);
+        String content = null;
+        if (item.getDescription() != null && !item.getDescription().isEmpty()) {
+            content = item.getDescription();
+        } else if (item.getContent() != null && !item.getContent().isEmpty()) {
+            content = item.getContent();
         }
 
-        if (item.getAuthor().isPresent() && !item.getAuthor().get().isEmpty()) {
-            viewHolder.author.setText(item.getAuthor().get());
-            viewHolder.author.setVisibility(View.VISIBLE);
+        if (content != null) {
+            Spanned description = cleanHtml(content);
+
+            if (!description.toString().isEmpty()) {
+                viewHolder.description.setText(description);
+                viewHolder.description.setVisibility(View.VISIBLE);
+            }
         }
+
+        if (item.getAuthor() != null && !item.getAuthor().isEmpty()) {
+            Spanned author = cleanHtml(item.getAuthor());
+
+            if (!author.toString().isEmpty()) {
+                viewHolder.author.setText(author);
+                viewHolder.author.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    private Spanned cleanHtml(String html) {
+        if (html == null) {
+            return null;
+        }
+
+        return HtmlCompat.fromHtml(
+                Jsoup.clean(html, CONTENT_SAFELIST),
+                HtmlCompat.FROM_HTML_MODE_LEGACY
+        );
     }
 
     @NonNull

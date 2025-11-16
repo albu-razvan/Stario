@@ -36,45 +36,47 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.apptasticsoftware.rssreader.Channel;
-import com.apptasticsoftware.rssreader.Item;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.prof18.rssparser.model.RssChannel;
 import com.stario.launcher.R;
+import com.stario.launcher.Stario;
 import com.stario.launcher.sheet.briefing.dialog.page.feed.BriefingFeedList;
 import com.stario.launcher.sheet.briefing.dialog.page.feed.Feed;
-import com.stario.launcher.sheet.briefing.rss.RssParser;
-import com.stario.launcher.sheet.briefing.rss.WoodstoxAbstractRssReader;
+import com.stario.launcher.sheet.briefing.rss.RSSHelper;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.common.text.PulsingTextView;
 import com.stario.launcher.ui.dialogs.ActionDialog;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.Utils;
 
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.Optional;
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
+import java.util.concurrent.TimeoutException;
 
 import carbon.view.SimpleTextWatcher;
 
 public class BriefingConfigurator extends ActionDialog {
     private static final String TAG = "BriefingConfigurator";
     private static final long DEBOUNCE_DELAY = 300;
+    private static final int JSOUP_TIMEOUT = 5000;
 
     private final BriefingFeedList list;
 
     private volatile Future<?> currentSearchTask;
+    private volatile Feed validatedFeed;
 
     private Runnable debounceRunnable;
     private ViewGroup contentView;
     private PulsingTextView limit;
     private LinearLayout preview;
-    private Feed validatedFeed;
     private TextView title;
     private EditText query;
 
@@ -97,11 +99,15 @@ public class BriefingConfigurator extends ActionDialog {
             @Override
             public void onTextChanged(@NonNull CharSequence sequence,
                                       int start, int before, int count) {
-                String text = sequence.toString();
-
                 if (debounceRunnable != null) {
                     UiUtils.removeUICallback(debounceRunnable);
                 }
+
+                if (currentSearchTask != null && !currentSearchTask.isDone()) {
+                    currentSearchTask.cancel(true);
+                }
+
+                String text = sequence.toString();
 
                 if (text.isEmpty()) {
                     showStatus(null, false);
@@ -132,8 +138,18 @@ public class BriefingConfigurator extends ActionDialog {
                     return;
                 }
 
-                final String finalValidUrl = validUrl;
-                debounceRunnable = () -> startSearch(finalValidUrl);
+                String finalValidUrl = validUrl;
+                debounceRunnable = () -> {
+                    showStatus(R.string.searching, true);
+                    currentSearchTask = Utils.submitTask(
+                            new FeedDiscoveryTask(activity.getApplicationContext(),
+                                    new String[]{
+                                            finalValidUrl,
+                                            finalValidUrl.replaceAll("/$", "") + ".rss"
+                                    })
+                    );
+                };
+
                 UiUtils.postDelayed(debounceRunnable, DEBOUNCE_DELAY);
             }
         });
@@ -190,15 +206,6 @@ public class BriefingConfigurator extends ActionDialog {
         super.show();
     }
 
-    private void startSearch(String query) {
-        if (currentSearchTask != null && !currentSearchTask.isDone()) {
-            currentSearchTask.cancel(true);
-        }
-
-        showStatus(R.string.searching, true);
-        currentSearchTask = Utils.submitTask(new FeedDiscoveryTask(query));
-    }
-
     private boolean isValidUrl(String url) {
         return URLUtil.isValidUrl(url) && Patterns.WEB_URL.matcher(url).matches();
     }
@@ -232,69 +239,79 @@ public class BriefingConfigurator extends ActionDialog {
     }
 
     private class FeedDiscoveryTask implements Runnable {
-        private final String initialUrl;
+        private final Stario context;
+        private final String[] urls;
 
-        private FeedDiscoveryTask(String url) {
-            this.initialUrl = url;
+        private FeedDiscoveryTask(Stario context, String[] urls) {
+            this.context = context;
+            this.urls = urls;
         }
 
         @Override
         public void run() {
-            try {
-                Feed feed = attemptParse(initialUrl);
+            if (Thread.currentThread().isInterrupted()) {
+                return;
+            }
 
-                if (feed != null) {
-                    contentView.post(() -> showPreview(feed));
+            for (String url : urls) {
+                try {
+                    Feed feed = attemptParse(url);
 
-                    return;
-                }
-
-                // after a network task, check for interruption
-                if (Thread.currentThread().isInterrupted()) {
-                    return;
-                }
-
-                String discoveredFeedUrl = discoverFeedUrl(initialUrl);
-
-                if (discoveredFeedUrl != null) {
+                    // after a network task, check for interruption
                     if (Thread.currentThread().isInterrupted()) {
                         return;
                     }
 
-                    Feed discoveredFeed = attemptParse(discoveredFeedUrl);
-                    if (discoveredFeed != null) {
-                        contentView.post(() -> showPreview(discoveredFeed));
+                    if (feed != null) {
+                        contentView.post(() -> showPreview(feed));
 
                         return;
                     }
+
+                    String discoveredFeedUrl = discoverFeedUrl(url);
+
+                    if (Thread.currentThread().isInterrupted()) {
+                        return;
+                    }
+
+                    if (discoveredFeedUrl != null) {
+                        Feed discoveredFeed = attemptParse(discoveredFeedUrl);
+
+                        if (Thread.currentThread().isInterrupted()) {
+                            return;
+                        }
+
+                        if (discoveredFeed != null) {
+                            contentView.post(() -> showPreview(discoveredFeed));
+
+                            return;
+                        }
+                    }
+                } catch (IOException exception) {
+                    Log.e(TAG, "IOException: " + exception.getMessage());
                 }
-
-                contentView.post(() -> showStatus(R.string.invalid_rss, false));
-
-            } catch (Exception exception) {
-                Log.e(TAG, "Failed for: " + initialUrl, exception);
-
-                contentView.post(() -> showStatus(R.string.invalid_rss, false));
             }
+
+            contentView.post(() -> showStatus(R.string.invalid_rss, false));
         }
 
         private Feed attemptParse(String url) {
-            WoodstoxAbstractRssReader.CancellableStreamFuture<Item> streamFuture = null;
+            CompletableFuture<@NotNull RssChannel> streamFuture = null;
 
             try {
-                streamFuture = RssParser.futureParse(url);
-                Stream<Item> stream = streamFuture.get(10, TimeUnit.SECONDS);
+                streamFuture = RSSHelper.futureParse(url);
+                String title = streamFuture.get(10, TimeUnit.SECONDS).getTitle();
 
-                if (stream != null) {
-                    Optional<Item> target = stream.findFirst();
+                if (title == null) {
+                    title = context.getString(R.string.unknown_feed);
+                }
 
-                    if (target.isPresent()) {
-                        Channel channel = target.get().getChannel();
+                return new Feed(title, url);
+            } catch (InterruptedException | TimeoutException exception) {
+                streamFuture.cancel(true);
 
-                        if (channel != null && channel.getTitle() != null) {
-                            return new Feed(channel.getTitle(), url);
-                        }
-                    }
+                if (exception instanceof InterruptedException) {
+                    Thread.currentThread().interrupt();
                 }
             } catch (Exception exception) {
                 if (streamFuture != null) {
@@ -305,9 +322,10 @@ public class BriefingConfigurator extends ActionDialog {
             return null;
         }
 
-        private String discoverFeedUrl(String url) throws Exception {
+        private String discoverFeedUrl(String url) throws IOException {
             Document document = Jsoup.connect(url)
                     .userAgent(Utils.USER_AGENT)
+                    .timeout(JSOUP_TIMEOUT)
                     .get();
 
             Elements nodes = document.select("link[type*=\"rss\"], link[type*=\"atom\"]");

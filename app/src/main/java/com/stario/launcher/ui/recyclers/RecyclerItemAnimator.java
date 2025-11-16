@@ -29,16 +29,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 public class RecyclerItemAnimator extends DefaultItemAnimator {
     public static int APPEARANCE = 0b100;
     public static int DISAPPEARANCE = 0b010;
     public static int CHANGING = 0b001;
 
-    private final ArrayList<RecyclerView.ViewHolder> pendingRemovals;
-    private final ArrayList<RecyclerView.ViewHolder> pendingAdditions;
-    private final ArrayList<RecyclerView.ViewHolder> removeAnimations;
-    private final ArrayList<RecyclerView.ViewHolder> addAnimations;
+    private final List<RecyclerView.ViewHolder> pendingRemovals;
+    private final List<RecyclerView.ViewHolder> pendingAdditions;
+    private final List<RecyclerView.ViewHolder> removeAnimations;
+    private final List<RecyclerView.ViewHolder> addAnimations;
     private final Animation animation;
     private final int flags;
 
@@ -47,10 +50,10 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
 
         this.animation = animation;
 
-        this.pendingRemovals = new ArrayList<>();
-        this.pendingAdditions = new ArrayList<>();
-        this.removeAnimations = new ArrayList<>();
-        this.addAnimations = new ArrayList<>();
+        this.pendingRemovals = Collections.synchronizedList(new ArrayList<>());
+        this.pendingAdditions = Collections.synchronizedList(new ArrayList<>());
+        this.removeAnimations = Collections.synchronizedList(new ArrayList<>());
+        this.addAnimations = Collections.synchronizedList(new ArrayList<>());
 
         if ((flags & CHANGING) != CHANGING) {
             setChangeDuration(0);
@@ -106,24 +109,27 @@ public class RecyclerItemAnimator extends DefaultItemAnimator {
 
     @Override
     public void endAnimations() {
-        for (RecyclerView.ViewHolder holder : removeAnimations) {
+        Iterator<RecyclerView.ViewHolder> removeIterator = removeAnimations.iterator();
+        while (removeIterator.hasNext()) {
+            RecyclerView.ViewHolder holder = removeIterator.next();
+
             holder.itemView.setAlpha(getTargetAlpha());
             holder.itemView.setScaleX(getTargetScaleX());
             holder.itemView.setScaleY(getTargetScaleY());
 
             dispatchAddFinished(holder);
-
-            removeAnimations.remove(holder);
+            removeIterator.remove();
         }
 
-        for (RecyclerView.ViewHolder holder : addAnimations) {
+        Iterator<RecyclerView.ViewHolder> addIterator = addAnimations.iterator();
+        while (addIterator.hasNext()) {
+            RecyclerView.ViewHolder holder = addIterator.next();
             holder.itemView.setAlpha(getTargetAlpha());
             holder.itemView.setScaleX(getTargetScaleX());
             holder.itemView.setScaleY(getTargetScaleY());
 
             dispatchRemoveFinished(holder);
-
-            addAnimations.remove(holder);
+            addIterator.remove();
         }
 
         super.endAnimations();
