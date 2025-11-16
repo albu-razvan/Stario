@@ -15,15 +15,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.ui.recyclers;
+package com.stario.launcher.ui.recyclers.managers;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-public class CustomStaggeredGridLayoutManager extends StaggeredGridLayoutManager {
+public class ScrollControlStaggeredGridLayoutManager extends StaggeredGridLayoutManager {
     private boolean canScroll;
 
-    public CustomStaggeredGridLayoutManager(int spanCount) {
+    public ScrollControlStaggeredGridLayoutManager(int spanCount) {
         super(spanCount, RecyclerView.VERTICAL);
 
         this.canScroll = true;

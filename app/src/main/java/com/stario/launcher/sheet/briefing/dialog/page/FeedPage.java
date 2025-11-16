@@ -41,7 +41,7 @@ import com.stario.launcher.sheet.briefing.rss.RssParser;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.scrollers.CustomSwipeRefreshLayout;
-import com.stario.launcher.ui.recyclers.CustomStaggeredGridLayoutManager;
+import com.stario.launcher.ui.recyclers.managers.ScrollControlStaggeredGridLayoutManager;
 import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
@@ -59,7 +59,7 @@ public class FeedPage extends Fragment {
     private static final float UPDATE_SCALE = 0.9f;
 
     private CustomSwipeRefreshLayout swipeRefreshLayout;
-    private CustomStaggeredGridLayoutManager manager;
+    private ScrollControlStaggeredGridLayoutManager manager;
     private OverScrollRecyclerView recyclerView;
     private ThemedActivity activity;
     private FeedPageAdapter adapter;
@@ -116,8 +116,7 @@ public class FeedPage extends Fragment {
         exceptionView = root.findViewById(R.id.exception);
         fetchingView = root.findViewById(R.id.fetching);
 
-        recyclerView.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE |
-                RecyclerItemAnimator.CHANGING, Animation.EXTENDED));
+        recyclerView.setItemAnimator(new RecyclerItemAnimator(RecyclerItemAnimator.APPEARANCE, Animation.EXTENDED));
 
         SheetType type = SheetType.getSheetTypeForSheetDialogFragment(activity, BriefingDialog.class);
         if (type.getAxes() == View.SCROLL_AXIS_HORIZONTAL) {
@@ -141,7 +140,7 @@ public class FeedPage extends Fragment {
             adapter = new FeedPageAdapter(activity.getApplicationContext());
         }
 
-        manager = new CustomStaggeredGridLayoutManager(0);
+        manager = new ScrollControlStaggeredGridLayoutManager(0);
         LayoutSizeObserver.attach(root, LayoutSizeObserver.WIDTH, new LayoutSizeObserver.OnChange() {
             @Override
             public void onChange(View view, int watchFlags, Rect rect) {

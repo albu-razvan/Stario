@@ -464,11 +464,12 @@ public class PopupMenu {
                     location[0] - padding, location[1] - padding);
 
             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) root.getLayoutParams();
-            params.leftMargin = padding;
-            params.topMargin = padding;
-            params.rightMargin = padding;
-            params.bottomMargin = padding;
-
+            if (params != null) {
+                params.leftMargin = padding;
+                params.topMargin = padding;
+                params.rightMargin = padding;
+                params.bottomMargin = padding;
+            }
 
             oldOrientationFlags = activity.getRequestedOrientation();
 

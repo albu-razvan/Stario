@@ -88,7 +88,7 @@ public class BriefingDialog extends SheetDialogFragment {
         this.scrollListener = new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                updateHeader(recyclerView.computeVerticalScrollOffset());
+                updateHeader(recyclerView);
             }
         };
         this.layoutListener = (v, left, top, right, bottom, oldLeft, oldTop,
@@ -278,10 +278,28 @@ public class BriefingDialog extends SheetDialogFragment {
     }
 
     private void updateHeader(RecyclerView recycler) {
-        if (recycler != null) {
-            updateHeader(recycler.computeVerticalScrollOffset());
-        } else {
+        if (recycler == null) {
             updateHeader(0);
+        } else {
+            RecyclerView.LayoutManager layoutManager = recycler.getLayoutManager();
+
+            if (layoutManager == null) {
+                updateHeader(0);
+            } else {
+                View firstView = layoutManager.findViewByPosition(0);
+                int offset = 0;
+
+                if (firstView != null) {
+                    int padding = recycler.getPaddingTop()
+                            // Margin of the first elements in the grid
+                            + Measurements.dpToPx(10);
+                    offset = Math.max(0, padding - firstView.getTop());
+                } else if (layoutManager.getItemCount() > 0) {
+                    offset = title.getMeasuredHeight();
+                }
+
+                updateHeader(offset);
+            }
         }
     }
 
