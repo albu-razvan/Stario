@@ -15,18 +15,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.utils;
+package com.stario.launcher.sheet.briefing.dialog.page;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 
+import com.prof18.rssparser.model.RssItem;
+
 import java.util.List;
+import java.util.Objects;
 
-public class ComparableDiffUtil<G extends Comparable<?>> extends DiffUtil.Callback {
-    private final List<G> oldList;
-    private final List<G> newList;
+public class RssItemDiffUtil extends DiffUtil.Callback {
+    private final List<RssItem> oldList;
+    private final List<RssItem> newList;
 
-    public ComparableDiffUtil(@NonNull List<G> oldList, @NonNull List<G> newList) {
+    public RssItemDiffUtil(@NonNull List<RssItem> oldList, @NonNull List<RssItem> newList) {
         this.oldList = oldList;
         this.newList = newList;
     }
@@ -43,11 +46,17 @@ public class ComparableDiffUtil<G extends Comparable<?>> extends DiffUtil.Callba
 
     @Override
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-        return oldList.get(oldItemPosition).equals(newList.get(newItemPosition));
+        return areContentsTheSame(oldItemPosition, newItemPosition);
     }
 
     @Override
     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-        return oldList.get(oldItemPosition).equals(newList.get(newItemPosition));
+        RssItem first = oldList.get(oldItemPosition);
+        RssItem second = oldList.get(newItemPosition);
+
+        return Objects.equals(first.getTitle(), second.getTitle())
+                && Objects.equals(first.getDescription(), second.getDescription())
+                && Objects.equals(first.getAuthor(), second.getAuthor())
+                && Objects.equals(first.getCategories(), second.getCategories());
     }
 }

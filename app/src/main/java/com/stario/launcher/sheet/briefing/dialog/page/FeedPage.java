@@ -32,17 +32,17 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.apptasticsoftware.rssreader.Item;
+import com.prof18.rssparser.model.RssItem;
 import com.stario.launcher.R;
 import com.stario.launcher.sheet.SheetType;
-import com.stario.launcher.sheet.briefing.dialog.page.feed.BriefingFeedList;
 import com.stario.launcher.sheet.briefing.dialog.BriefingDialog;
-import com.stario.launcher.sheet.briefing.rss.RssParser;
+import com.stario.launcher.sheet.briefing.dialog.page.feed.BriefingFeedList;
+import com.stario.launcher.sheet.briefing.rss.RSSHelper;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.scrollers.CustomSwipeRefreshLayout;
-import com.stario.launcher.ui.recyclers.managers.ScrollControlStaggeredGridLayoutManager;
 import com.stario.launcher.ui.recyclers.RecyclerItemAnimator;
+import com.stario.launcher.ui.recyclers.managers.ScrollControlStaggeredGridLayoutManager;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollEffect;
 import com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView;
 import com.stario.launcher.ui.utils.LayoutSizeObserver;
@@ -50,8 +50,8 @@ import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.utils.Utils;
 
+import java.util.List;
 import java.util.concurrent.Future;
-import java.util.stream.Stream;
 
 public class FeedPage extends Fragment {
     public static final String FEED_POSITION = "com.stario.FeedTab.FEED_POSITION";
@@ -192,15 +192,9 @@ public class FeedPage extends Fragment {
     }
 
     @Override
-    public void onStop() {
-        reset();
-
-        super.onStop();
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
+        reset();
 
         UiUtils.post(this::update);
     }
@@ -243,11 +237,9 @@ public class FeedPage extends Fragment {
         }
 
         runningTask = Utils.submitTask(() -> {
-            Stream<Item> stream = RssParser
+            List<RssItem> items = RSSHelper
                     .parse(BriefingFeedList.getInstance()
                             .get(position).getRSSLink());
-
-            final Item[] items = (stream != null) ? stream.toArray(Item[]::new) : null;
 
             UiUtils.post(() -> {
                 if (items != null) {
@@ -298,7 +290,7 @@ public class FeedPage extends Fragment {
 
     public void reset() {
         swipeRefreshLayout.setRefreshing(false);
-        recyclerView.post(() -> recyclerView.scrollBy(0, -Integer.MAX_VALUE));
+        recyclerView.scrollBy(0, -Integer.MAX_VALUE);
     }
 
     public RecyclerView getRecycler() {

@@ -165,6 +165,7 @@
     <string name="briefing_configurator">Briefing</string>
     <string name="import_feed">Import a feed</string>
     <string name="link_feed">Import</string>
+    <string name="unknown_feed">Unknown Feed</string>
     <string name="invalid_url">Invalid URL</string>
     <string name="invalid_rss">Not a feed</string>
     <string name="rename_feed">Rename</string>

@@ -15,25 +15,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.sheet.briefing.rss;
+package com.stario.launcher.sheet.briefing.rss
 
-import com.apptasticsoftware.rssreader.Channel;
-import com.apptasticsoftware.rssreader.DateTimeParser;
-import com.apptasticsoftware.rssreader.Item;
+import com.prof18.rssparser.RssParser
+import com.prof18.rssparser.model.RssChannel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.future.future
+import java.util.concurrent.CompletableFuture
 
-class RssReader extends WoodstoxAbstractRssReader<Channel, Item> {
-    public RssReader() {
-        super();
+class RSSHelperKt {
+    companion object {
+        @JvmStatic
+        @OptIn(DelicateCoroutinesApi::class)
+        fun parseFeed(parser: RssParser, url: String): CompletableFuture<RssChannel> =
+            GlobalScope.future {
+                parser.getRssChannel(url)
+            }
     }
-
-    @Override
-    protected Channel createChannel(DateTimeParser dateTimeParser) {
-        return new Channel(dateTimeParser);
-    }
-
-    @Override
-    protected Item createItem(DateTimeParser dateTimeParser) {
-        return new Item(dateTimeParser);
-    }
-
 }
