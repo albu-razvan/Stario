@@ -18,7 +18,7 @@
 package com.stario.launcher.ui.utils.animation;
 
 import android.graphics.Path;
-import android.transition.PathMotion;
+import androidx.transition.PathMotion;
 
 import androidx.annotation.NonNull;
 

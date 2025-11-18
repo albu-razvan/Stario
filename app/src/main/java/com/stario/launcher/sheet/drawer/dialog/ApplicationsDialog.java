@@ -106,24 +106,20 @@ public class ApplicationsDialog extends SheetDialogFragment {
         FadingEdgeLayout fader = root.findViewById(R.id.fader);
 
         setOnBackPressed(() -> {
-            if (!adapter.isTransitioning()) {
-                if (getChildFragmentManager()
-                        .popBackStackImmediate(SearchFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE) ||
-                        (pager.getCurrentItem() == DrawerAdapter.CATEGORIES_POSITION && adapter.collapse())) {
-                    return false;
-                } else {
-                    SheetBehavior<?> behavior = getBehavior();
-
-                    if (behavior != null) {
-                        hide(true);
-                        behavior.setDraggable(true);
-                    }
-
-                    return true;
-                }
-            } else {
+            if (getChildFragmentManager()
+                    .popBackStackImmediate(SearchFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE) ||
+                    (pager.getCurrentItem() == DrawerAdapter.CATEGORIES_POSITION && adapter.collapse())) {
                 return false;
             }
+
+            SheetBehavior<?> behavior = getBehavior();
+
+            if (behavior != null) {
+                hide(true);
+                behavior.setDraggable(true);
+            }
+
+            return true;
         });
 
         addOnShowListener(() -> {
@@ -155,16 +151,14 @@ public class ApplicationsDialog extends SheetDialogFragment {
                     @Override
                     public void onStateChanged(@NonNull View sheet, int newState) {
                         if (newState == SheetBehavior.STATE_COLLAPSED) {
-                            if (!adapter.isTransitioning()) {
-                                try {
-                                    getChildFragmentManager()
-                                            .popBackStackImmediate(SearchFragment.TAG,
-                                                    FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                                    Objects.requireNonNull(getBehavior()).setDraggable(true);
-                                } catch (Exception exception) {
-                                    Log.e("ApplicationsDialog",
-                                            "onStateChanged: " + exception.getMessage());
-                                }
+                            try {
+                                getChildFragmentManager()
+                                        .popBackStackImmediate(SearchFragment.TAG,
+                                                FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                                Objects.requireNonNull(getBehavior()).setDraggable(true);
+                            } catch (Exception exception) {
+                                Log.e("ApplicationsDialog",
+                                        "onStateChanged: " + exception.getMessage());
                             }
 
                             try {
@@ -429,15 +423,13 @@ public class ApplicationsDialog extends SheetDialogFragment {
 
         updateSearchBarCompoundDrawables();
 
-        if (!adapter.isTransitioning()) {
-            getChildFragmentManager()
-                    .popBackStackImmediate(SearchFragment.TAG,
-                            FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        getChildFragmentManager()
+                .popBackStackImmediate(SearchFragment.TAG,
+                        FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
-            SheetBehavior<?> behavior = getBehavior();
-            if (behavior != null) {
-                behavior.setDraggable(true);
-            }
+        SheetBehavior<?> behavior = getBehavior();
+        if (behavior != null) {
+            behavior.setDraggable(true);
         }
 
         if (listener != null) {

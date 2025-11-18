@@ -17,7 +17,6 @@
 
 package com.stario.launcher.sheet.drawer.category.list;
 
-import android.transition.Transition;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -170,13 +169,22 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
         @Override
         protected void onInflated() {
-            itemView.setHapticFeedbackEnabled(false);
-
             category = itemView.findViewById(R.id.category);
             recycler = itemView.findViewById(R.id.items);
 
+            recycler.setLayoutManager(createManager());
             recycler.setItemAnimator(null);
 
+            adapter = new FolderListItemAdapter(activity);
+
+            recycler.setAdapter(adapter);
+
+            itemView.setHapticFeedbackEnabled(false);
+            recycler.setHapticFeedbackEnabled(false);
+        }
+
+        @NonNull
+        private GridLayoutManager createManager() {
             GridLayoutManager gridLayoutManager = new GridLayoutManager(activity, 4) {
                 @Override
                 public boolean supportsPredictiveItemAnimations() {
@@ -196,12 +204,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
                 }
             });
 
-            recycler.setLayoutManager(gridLayoutManager);
-            recycler.setItemAnimator(null);
-
-            adapter = new FolderListItemAdapter(activity);
-
-            recycler.setAdapter(adapter);
+            return gridLayoutManager;
         }
 
         public void updateCategory(Category category) {
@@ -238,7 +241,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
 
             @Override
             public void onClick(View view) {
-                if (!folderList.isTransitioning()) {
+                if (!folder.isAdded() && !folder.isRemoving()) {
                     Vibrations.getInstance().vibrate();
 
                     List<View> excluded = new ArrayList<>();
@@ -265,10 +268,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
                         }
 
                         if (UiUtils.areTransitionsOn(activity)) {
-                            Transition transition = new SharedElementTransition.SharedAppFolderTransition();
-                            transition.setDuration(Animation.LONG.getDuration());
-
-                            folder.setSharedElementEnterTransition(transition);
+                            folder.setSharedElementEnterTransition(new SharedElementTransition(excluded));
                             folder.setEnterTransition(new FragmentTransition(true, excluded));
 
                             folderList.setExitTransition(new FragmentTransition(false, excluded));

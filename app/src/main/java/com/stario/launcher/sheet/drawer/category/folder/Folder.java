@@ -17,12 +17,10 @@
 
 package com.stario.launcher.sheet.drawer.category.folder;
 
-import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.transition.Transition;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +31,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.Transition;
 
 import com.stario.launcher.R;
 import com.stario.launcher.apps.Category;
@@ -91,7 +90,6 @@ public class Folder extends ListDrawerPage {
             private Method method = null;
             private boolean valid = true;
 
-            @SuppressLint("SoonBlockedPrivateApi")
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 Object tester = getEnterTransition();
@@ -103,7 +101,6 @@ public class Folder extends ListDrawerPage {
                         }
 
                         if (method == null) {
-                            //noinspection JavaReflectionMemberAccess
                             method = Transition.class
                                     .getDeclaredMethod("forceToEnd", ViewGroup.class);
                             method.setAccessible(true);
@@ -208,7 +205,6 @@ public class Folder extends ListDrawerPage {
             this.identifier = identifier;
 
             adapter = new FolderAdapter(activity, identifier, itemTouchHelper);
-
             drawer.setAdapter(adapter);
 
             drawer.post(() -> {

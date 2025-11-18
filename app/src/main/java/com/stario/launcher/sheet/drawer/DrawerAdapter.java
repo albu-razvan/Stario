@@ -194,7 +194,7 @@ public class DrawerAdapter extends FragmentPagerAdapter {
 
                         @Override
                         public void onResume(@NonNull LifecycleOwner owner) {
-                            if(transaction != null) {
+                            if (transaction != null) {
                                 transaction.commitNow();
                                 transaction = null;
                             }
@@ -242,27 +242,11 @@ public class DrawerAdapter extends FragmentPagerAdapter {
     }
 
     public boolean collapse() {
-        if (!fragmentManager.isDestroyed() && !isTransitioning()) {
+        if (!fragmentManager.isDestroyed()) {
             return fragmentManager.popBackStackImmediate(Categories.FOLDER_STACK_ID,
                     FragmentManager.POP_BACK_STACK_INCLUSIVE);
         } else {
             return false;
         }
-    }
-
-    /**
-     * @noinspection BooleanMethodIsAlwaysInverted
-     */
-    public boolean isTransitioning() {
-        if (!fragmentManager.isDestroyed()) {
-            for (Fragment fragment : fragmentManager.getFragments()) {
-                if (fragment instanceof DrawerPage &&
-                        ((DrawerPage) fragment).isTransitioning()) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 }

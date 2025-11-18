@@ -15,13 +15,14 @@
   ~ along with this program. If not, see <http://www.gnu.org/licenses/>
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/folder"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="bottom">
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <com.stario.launcher.ui.recyclers.autogrid.AutoGridRecyclerView
         android:id="@+id/drawer"
@@ -31,13 +32,15 @@
         android:clipToPadding="false"
         android:nestedScrollingEnabled="true"
         android:paddingStart="20dp"
-        android:paddingEnd="20dp" />
+        android:paddingEnd="20dp"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <RelativeLayout
         android:id="@+id/title_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center">
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="@id/drawer">
 
         <com.stario.launcher.ui.common.text.WaveUnderlineTextView
             android:id="@+id/title"
@@ -56,4 +59,4 @@
 
     </RelativeLayout>
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
