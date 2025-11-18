@@ -17,29 +17,96 @@
 
 package com.stario.launcher.ui.utils.animation;
 
-import android.transition.ChangeBounds;
-import android.transition.ChangeTransform;
-import android.transition.TransitionSet;
+import android.util.Pair;
+import android.view.View;
 import android.view.animation.PathInterpolator;
 
-import com.stario.launcher.ui.icons.AdaptiveIconView;
+import androidx.transition.ChangeBounds;
+import androidx.transition.ChangeTransform;
+import androidx.transition.Transition;
+import androidx.transition.TransitionSet;
 
-public abstract class SharedElementTransition extends TransitionSet {
-    public SharedElementTransition() {
+import org.jspecify.annotations.NonNull;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+public class SharedElementTransition extends TransitionSet {
+    public SharedElementTransition(List<View> targets) {
         setOrdering(ORDERING_TOGETHER);
 
         ChangeBounds iconChangeBounds = new ChangeBounds();
         iconChangeBounds.setResizeClip(true);
-        iconChangeBounds.addTarget(AdaptiveIconView.class);
 
         addTransition(iconChangeBounds);
-        addTransition(new ChangeTransform());
+
+        // https://issuetracker.google.com/issues/339169168
+        // It has not been fixed...
+        ChangeTransform changeTransform = new ChangeTransform();
+        // This has to be false to avoid the issue
+        changeTransform.setReparentWithOverlay(false);
+        changeTransform.addListener(new TransitionListener() {
+            private final Map<Transition, Set<Pair<@NonNull View, @NonNull Integer>>> startingVisibility;
+
+            {
+                this.startingVisibility = new HashMap<>();
+            }
+
+            private void reset(Transition transition) {
+                Set<Pair<View, Integer>> startingVisibilityForTransition = startingVisibility.remove(transition);
+
+                if (startingVisibilityForTransition != null) {
+                    for (Pair<View, Integer> pair : startingVisibilityForTransition) {
+                        pair.first.setVisibility(pair.second);
+                    }
+                }
+            }
+
+            @Override
+            public void onTransitionStart(@NonNull Transition transition) {
+                for (View target : targets) {
+                    Set<Pair<View, Integer>> startingVisibilityForTransition =
+                            startingVisibility.computeIfAbsent(transition, k -> new HashSet<>());
+                    startingVisibilityForTransition.add(new Pair<>(target, target.getVisibility()));
+
+                    target.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void onTransitionEnd(@NonNull Transition transition) {
+                reset(transition);
+            }
+
+            @Override
+            public void onTransitionCancel(@NonNull Transition transition) {
+                reset(transition);
+            }
+
+            @Override
+            public void onTransitionPause(@NonNull Transition transition) {
+            }
+
+            @Override
+            public void onTransitionResume(@NonNull Transition transition) {
+            }
+        });
+
+        addTransition(changeTransform);
+
+        setPathMotion(new SharedElementMotion());
+        setInterpolator(new PathInterpolator(0.3f,
+                0.9f, 0.3f, 0.95f));
+
+        setDuration(Animation.LONG.getDuration());
     }
 
-    public static class SharedAppFolderTransition extends SharedElementTransition {
-        public SharedAppFolderTransition() {
-            setPathMotion(new SharedElementMotion());
-            setInterpolator(new PathInterpolator(0.3f, 0.9f, 0.3f, 0.95f));
-        }
+    @Override
+    public boolean isSeekingSupported() {
+        // ChangeTransform is not seekable, suppress the logcat warning
+        return true;
     }
 }

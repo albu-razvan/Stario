@@ -443,12 +443,14 @@ public abstract class RecyclerApplicationAdapter
 
             // TODO: notification dots
             if (viewHolder.notification != null) {
-                viewHolder.notification.setVisibility(false ? View.VISIBLE : View.GONE);
+                viewHolder.notification.setVisibility(View.GONE);
             }
 
             viewHolder.icon.setApplication(application);
             viewHolder.icon.setTransitionName(application.getInfo().packageName);
         }
+
+        viewHolder.icon.setTag(R.id.stagger_order_tag, index);
     }
 
     @Override
