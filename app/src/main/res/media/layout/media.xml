@@ -68,15 +68,11 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <TextView
+                <com.stario.launcher.ui.common.text.DelayedMarqueeTextView
                     android:id="@+id/song"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:ellipsize="marquee"
                     android:fontFamily="@font/dm_sans_bold"
-                    android:marqueeRepeatLimit="marquee_forever"
-                    android:scrollHorizontally="true"
-                    android:singleLine="true"
                     android:letterSpacing="-0.03"
                     android:textColor="@color/light"
                     android:textSize="20sp" />

@@ -52,6 +52,8 @@ import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.utils.Utils;
 
+import java.util.Objects;
+
 public abstract class GlanceDialogExtension extends DialogFragment
         implements GlanceExtension {
     private static final float X1 = 0.2f;
@@ -138,7 +140,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
         background = new ColorDrawable(
                 activity.getAttributeData(com.google.android.material.R.attr.colorSurfaceContainer));
         Window window = dialog.getWindow();
-        if(window != null) {
+        if (window != null) {
             window.setBackgroundDrawable(background);
         }
 
@@ -183,7 +185,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
                 params.leftToLeft = ConstraintLayout.LayoutParams.PARENT_ID;
                 params.topToTop = ConstraintLayout.LayoutParams.UNSET;
 
-                params.bottomMargin = dialog.getWindow()
+                params.bottomMargin = Objects.requireNonNull(dialog.getWindow())
                         .getDecorView().getMeasuredHeight() - location[1] - height;
                 params.rightMargin = 0;
                 params.leftMargin = location[0];
@@ -258,7 +260,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
             } else {
                 updateScalingInternal(0);
 
-                dialog.hide();
+                container.post(() -> dialog.hide());
             }
 
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -284,14 +286,14 @@ public abstract class GlanceDialogExtension extends DialogFragment
                         public void onAnimationCancel(Animator animation) {
                             updateScalingInternal(0);
 
-                            dialog.hide();
+                            container.post(() -> dialog.hide());
                         }
 
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             updateScalingInternal(0);
 
-                            dialog.hide();
+                            container.post(() -> dialog.hide());
                         }
                     });
 
@@ -313,7 +315,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
         if (window != null) {
             int step = (int) (STEP_COUNT * fraction);
 
-            if(background != null) {
+            if (background != null) {
                 background.setAlpha((int) (fraction * Launcher.MAX_BACKGROUND_ALPHA));
             }
 
