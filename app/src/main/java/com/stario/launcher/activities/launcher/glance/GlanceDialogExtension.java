@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Răzvan Albu
+ * Copyright (C) 2026 Răzvan Albu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.activities.launcher.glance.extensions;
+package com.stario.launcher.activities.launcher.glance;
 
 import static com.stario.launcher.ui.dialogs.PersistentFullscreenDialog.BLUR_STEP;
 import static com.stario.launcher.ui.dialogs.PersistentFullscreenDialog.STEP_COUNT;
@@ -43,7 +43,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 
 import com.stario.launcher.activities.launcher.Launcher;
-import com.stario.launcher.activities.launcher.glance.Glance;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
@@ -52,7 +51,9 @@ import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.utils.Utils;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class GlanceDialogExtension extends DialogFragment
         implements GlanceExtension {
@@ -61,18 +62,23 @@ public abstract class GlanceDialogExtension extends DialogFragment
     private static final float X2 = 0.4f;
     private static final float Y2 = 1f;
 
+    private final List<TransitionListener> listeners;
+
     protected ThemedActivity activity;
 
     private PersistentFullscreenDialog dialog;
     private GlanceConstraintLayout container;
-    private TransitionListener listener;
     private HomeWatcher homeWatcher;
     private Drawable background;
+    private boolean isHiding;
     private Glance glance;
     private int gravity;
 
     protected GlanceDialogExtension() {
         super();
+
+        this.listeners = new CopyOnWriteArrayList<>();
+        this.isHiding = false;
     }
 
     @Nullable
@@ -81,10 +87,9 @@ public abstract class GlanceDialogExtension extends DialogFragment
         return dialog;
     }
 
-    public void attach(Glance glance, int gravity, TransitionListener listener) {
+    public void attach(Glance glance, int gravity) {
         this.glance = glance;
         this.gravity = gravity;
-        this.listener = listener;
 
         show(glance.getActivity().getSupportFragmentManager(), getTag());
         glance.attachViewExtension(getViewExtensionPreview(), v -> show());
@@ -170,7 +175,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
         return root;
     }
 
-    public void updateLayout(int[] location, int width, int height) {
+    void updateLayout(int[] location, int width, int height) {
         ConstraintLayout.LayoutParams params =
                 ((ConstraintLayout.LayoutParams) container.getLayoutParams());
         Window window = dialog.getWindow();
@@ -214,9 +219,15 @@ public abstract class GlanceDialogExtension extends DialogFragment
                 !dialog.isShowing() && dialog.showDialog()) {
             Vibrations.getInstance().vibrate();
 
+            isHiding = false;
+
             container.post(new Runnable() {
                 @Override
                 public void run() {
+                    if (isHiding || !isAdded()) {
+                        return;
+                    }
+
                     float scale = glance.getHeight() /
                             container.getMeasuredHeight();
 
@@ -233,14 +244,18 @@ public abstract class GlanceDialogExtension extends DialogFragment
                                     updateScalingInternal(fraction);
                                 })
                                 .setListener(new AnimatorListenerAdapter() {
+                                    private boolean canceled = false;
+
                                     @Override
                                     public void onAnimationCancel(Animator animation) {
-                                        updateScalingInternal(1);
+                                        canceled = true;
                                     }
 
                                     @Override
                                     public void onAnimationEnd(Animator animation) {
-                                        updateScalingInternal(1);
+                                        if (!canceled) {
+                                            updateScalingInternal(1);
+                                        }
                                     }
                                 }));
                     } else {
@@ -268,8 +283,25 @@ public abstract class GlanceDialogExtension extends DialogFragment
     }
 
     protected void hide() {
-        if (dialog != null && dialog.isShowing() &&
-                container.getScaleY() == 1) {
+        hideInternal(false);
+    }
+
+    protected void urgentHide() {
+        hideInternal(true);
+    }
+
+    protected boolean isShowing() {
+        return dialog != null && dialog.isShowing();
+    }
+
+    private void hideInternal(boolean force) {
+        if (!isShowing()) {
+            return;
+        }
+
+        isHiding = true;
+
+        if (container.getScaleY() == 1 || force) {
             float targetScale = glance.getHeight() /
                     container.getMeasuredHeight();
 
@@ -278,7 +310,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
                     .setInterpolator(new PathInterpolator(X1, Y1, X2, Y2))
                     .setDuration(Animation.MEDIUM.getDuration())
                     .setUpdateListener(animation -> {
-                        float fraction = 1f - animation.getAnimatedFraction();
+                        float fraction = 1f - (float) animation.getAnimatedValue();
 
                         updateScalingInternal(fraction);
                     }).setListener(new AnimatorListenerAdapter() {
@@ -324,7 +356,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
             }
         }
 
-        if (listener != null) {
+        for (TransitionListener listener : listeners) {
             listener.onProgressFraction(fraction);
         }
 
@@ -337,7 +369,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
         container.invalidate();
     }
 
-    public void updateSheetSystemUI(boolean lightMode) {
+    void updateSheetSystemUI(boolean lightMode) {
         if (dialog == null) {
             return;
         }
@@ -357,6 +389,16 @@ public abstract class GlanceDialogExtension extends DialogFragment
                         | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR));
             }
         }
+    }
+
+    public void addTransitionListener(TransitionListener listener) {
+        if (listener != null) {
+            listeners.add(listener);
+        }
+    }
+
+    public void removeTransitionListener(TransitionListener listener) {
+        listeners.remove(listener);
     }
 
     public interface TransitionListener {

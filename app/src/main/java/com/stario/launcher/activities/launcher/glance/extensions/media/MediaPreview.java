@@ -21,7 +21,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import com.stario.launcher.R;
-import com.stario.launcher.activities.launcher.glance.extensions.GlanceViewExtension;
+import com.stario.launcher.activities.launcher.glance.GlanceViewExtension;
 import com.stario.launcher.themes.ThemedActivity;
 
 public final class MediaPreview implements GlanceViewExtension {
