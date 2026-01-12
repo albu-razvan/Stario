@@ -28,7 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.stario.launcher.R;
-import com.stario.launcher.activities.launcher.glance.extensions.GlanceViewExtension;
+import com.stario.launcher.activities.launcher.glance.GlanceViewExtension;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.Casing;

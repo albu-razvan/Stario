@@ -28,9 +28,6 @@ import android.widget.LinearLayout;
 import androidx.fragment.app.FragmentActivity;
 
 import com.stario.launcher.R;
-import com.stario.launcher.activities.launcher.glance.extensions.GlanceDialogExtension;
-import com.stario.launcher.activities.launcher.glance.extensions.GlanceExtension;
-import com.stario.launcher.activities.launcher.glance.extensions.GlanceViewExtension;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
 import com.stario.launcher.ui.utils.animation.Animation;
@@ -130,7 +127,7 @@ public class Glance {
             throw new RuntimeException("Glance should attach itself first before attaching extensions.");
         }
 
-        extension.attach(this, gravity, progress -> {
+        extension.addTransitionListener(progress -> {
             // hide the blur
             root.setAlpha(1f - progress);
 
@@ -148,6 +145,7 @@ public class Glance {
             }
         });
 
+        extension.attach(this, gravity);
         extensions.add(extension);
 
         root.getViewTreeObserver().addOnPreDrawListener(() -> {
@@ -196,7 +194,7 @@ public class Glance {
             if (extension instanceof GlanceDialogExtension) {
                 Dialog dialog = ((GlanceDialogExtension) extension).getDialog();
 
-                if(dialog != null && dialog.isShowing()) {
+                if (dialog != null && dialog.isShowing()) {
                     return true;
                 }
             }

@@ -19,7 +19,6 @@ package com.stario.launcher.activities.launcher.glance.extensions.media;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -60,8 +59,8 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory;
 import com.stario.launcher.BuildConfig;
 import com.stario.launcher.R;
-import com.stario.launcher.activities.launcher.glance.extensions.GlanceDialogExtension;
-import com.stario.launcher.activities.launcher.glance.extensions.GlanceViewExtension;
+import com.stario.launcher.activities.launcher.glance.GlanceDialogExtension;
+import com.stario.launcher.activities.launcher.glance.GlanceViewExtension;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.services.NotificationService;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
@@ -317,18 +316,16 @@ public class Media extends GlanceDialogExtension {
         if (session == null) {
             disable();
         } else {
-            MediaMetadata metadata = session.getMetadata();
-
-            if (metadata == null) {
-                disable();
+            if (!isShowing()) {
+                reset();
 
                 return;
             }
 
-            Dialog dialog = getDialog();
+            MediaMetadata metadata = session.getMetadata();
 
-            if (dialog == null || !dialog.isShowing()) {
-                reset();
+            if (metadata == null) {
+                disable();
 
                 return;
             }
@@ -655,10 +652,21 @@ public class Media extends GlanceDialogExtension {
 
     public void disable() {
         session = null;
-
         preview.setEnabled(isEnabled());
-        reset();
 
-        hide();
+        if (isShowing()) {
+            addTransitionListener(new TransitionListener() {
+                @Override
+                public void onProgressFraction(float fraction) {
+                    if (fraction == 0) {
+                        reset();
+                    }
+
+                    removeTransitionListener(this);
+                }
+            });
+
+            urgentHide();
+        }
     }
 }

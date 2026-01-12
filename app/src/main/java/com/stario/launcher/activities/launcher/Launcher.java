@@ -41,7 +41,7 @@ import androidx.core.math.MathUtils;
 
 import com.stario.launcher.R;
 import com.stario.launcher.activities.launcher.glance.Glance;
-import com.stario.launcher.activities.launcher.glance.extensions.GlanceDialogExtension;
+import com.stario.launcher.activities.launcher.glance.GlanceDialogExtension;
 import com.stario.launcher.activities.launcher.glance.extensions.calendar.Calendar;
 import com.stario.launcher.activities.launcher.glance.extensions.media.Media;
 import com.stario.launcher.activities.launcher.glance.extensions.weather.Weather;
