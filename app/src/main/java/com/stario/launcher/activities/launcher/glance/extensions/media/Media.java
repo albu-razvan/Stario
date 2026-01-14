@@ -35,6 +35,7 @@ import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -72,7 +73,10 @@ import com.stario.launcher.utils.media.BlurBitmapTransformation;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import jp.wasabeef.glide.transformations.CropSquareTransformation;
 
@@ -84,12 +88,13 @@ public class Media extends GlanceDialogExtension {
     private static final Integer PLAYING = 1;
     private static final Integer PAUSED = 0;
 
-    private final MediaController.Callback callback;
     private final MediaPreview preview;
     private final Handler handler;
 
+    private final MediaSessionManager.OnActiveSessionsChangedListener sessionsChangedListener;
+    private final Map<MediaController, MediaController.Callback> controllerCallbacks;
+
     private MediaSessionManager mediaSessionManager;
-    private List<MediaController> controllers;
     private ConstraintLayout coverParent;
     private SliderComposeView slider;
     private MediaController session;
@@ -112,37 +117,11 @@ public class Media extends GlanceDialogExtension {
         this.session = null;
         this.lastSong = "";
         this.lastArtist = "";
-        this.handler = new Handler();
+        this.handler = new Handler(Looper.getMainLooper());
+        this.controllerCallbacks = new HashMap<>();
 
-        this.callback = new MediaController.Callback() {
-            @Override
-            public void onSessionDestroyed() {
-                update();
-
-                super.onSessionDestroyed();
-            }
-
-            @Override
-            public void onPlaybackStateChanged(@Nullable PlaybackState state) {
-                if (session == null ||
-                        (controllers.get(0) != null &&
-                                !controllers.get(0).getPackageName()
-                                        .equals(session.getPackageName()))) {
-                    update();
-                }
-
-                skipUpdate = false;
-                updatePlaybackState();
-
-                super.onPlaybackStateChanged(state);
-            }
-
-            @Override
-            public void onMetadataChanged(@Nullable MediaMetadata metadata) {
-                updateSession();
-
-                super.onMetadataChanged(metadata);
-            }
+        this.sessionsChangedListener = controllers -> {
+            handler.post(this::update);
         };
 
         this.preview = new MediaPreview();
@@ -179,6 +158,11 @@ public class Media extends GlanceDialogExtension {
 
         mediaSessionManager =
                 (MediaSessionManager) activity.getSystemService(Context.MEDIA_SESSION_SERVICE);
+
+        if (mediaSessionManager != null) {
+            mediaSessionManager.addOnActiveSessionsChangedListener(sessionsChangedListener,
+                    new ComponentName(activity, NotificationService.class));
+        }
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -255,15 +239,16 @@ public class Media extends GlanceDialogExtension {
 
     @Override
     public void onDestroy() {
-        if (callback != null && NotificationManagerCompat
-                .getEnabledListenerPackages(activity).contains(BuildConfig.APPLICATION_ID)) {
-            List<MediaController> controllers = mediaSessionManager.getActiveSessions(
-                    new ComponentName(activity, NotificationService.class));
-
-            for (MediaController controller : controllers) {
-                controller.unregisterCallback(callback);
-            }
+        if (mediaSessionManager != null) {
+            mediaSessionManager.removeOnActiveSessionsChangedListener(sessionsChangedListener);
         }
+
+        for (Map.Entry<MediaController, MediaController.Callback> entry : controllerCallbacks.entrySet()) {
+            entry.getKey().unregisterCallback(entry.getValue());
+        }
+
+        controllerCallbacks.clear();
+        handler.removeCallbacksAndMessages(null);
 
         super.onDestroy();
     }
@@ -281,27 +266,92 @@ public class Media extends GlanceDialogExtension {
             return;
         }
 
-        List<MediaController> controllers = mediaSessionManager.getActiveSessions(
+        List<MediaController> activeSessions = mediaSessionManager.getActiveSessions(
                 new ComponentName(activity, NotificationService.class));
 
-        if (!controllers.isEmpty()) {
-            for (MediaController controller : controllers) {
-                if (this.controllers == null ||
-                        !this.controllers.contains(controller)) {
-                    controller.registerCallback(callback);
+        List<MediaController> inactiveControllers = new ArrayList<>();
+        for (MediaController trackedController : controllerCallbacks.keySet()) {
+            boolean stillActive = false;
+            for (MediaController active : activeSessions) {
+                if (active.getSessionToken().equals(trackedController.getSessionToken())) {
+                    stillActive = true;
+                    break;
                 }
             }
 
-            session = controllers.get(0);
-
-            updateSession();
-        } else {
-            disable();
+            if (!stillActive) {
+                inactiveControllers.add(trackedController);
+            }
         }
 
-        preview.setEnabled(isEnabled());
+        for (MediaController controller : inactiveControllers) {
+            MediaController.Callback callback = controllerCallbacks.remove(controller);
 
-        this.controllers = controllers;
+            if (callback != null) {
+                controller.unregisterCallback(callback);
+            }
+        }
+
+        for (MediaController controller : activeSessions) {
+            boolean isNew = true;
+            for (MediaController tracked : controllerCallbacks.keySet()) {
+                if (tracked.getSessionToken().equals(controller.getSessionToken())) {
+                    isNew = false;
+                    break;
+                }
+            }
+
+            if (isNew) {
+                MediaControllerCallback callback = new MediaControllerCallback(controller);
+                controller.registerCallback(callback);
+
+                controllerCallbacks.put(controller, callback);
+            }
+        }
+
+        updateActiveSession(activeSessions);
+        preview.setEnabled(isEnabled());
+    }
+
+    private void updateActiveSession(List<MediaController> controllers) {
+        if (controllers.isEmpty()) {
+            disable();
+
+            return;
+        }
+
+        MediaController activeSessionCandidate = null;
+
+        for (MediaController controller : controllers) {
+            PlaybackState state = controller.getPlaybackState();
+
+            if (state != null && state.getState() == PlaybackState.STATE_PLAYING) {
+                activeSessionCandidate = controller;
+                break;
+            }
+        }
+
+        if (activeSessionCandidate == null && session != null) {
+            for (MediaController controller : controllers) {
+                if (controller.getSessionToken().equals(session.getSessionToken())) {
+                    activeSessionCandidate = controller;
+                    break;
+                }
+            }
+        }
+
+        // should not happen, but rather safe than sorry
+        // fallback to the first controller
+        if (activeSessionCandidate == null) {
+            activeSessionCandidate = controllers.get(0);
+        }
+
+        if (session != activeSessionCandidate) {
+            session = activeSessionCandidate;
+            handler.removeCallbacksAndMessages(null);
+        }
+
+        updateSession();
     }
 
     @Override
@@ -315,197 +365,173 @@ public class Media extends GlanceDialogExtension {
     public void updateSession() {
         if (session == null) {
             disable();
-        } else {
-            if (!isShowing()) {
-                reset();
+        } else if (!isShowing()) {
+            reset();
 
-                return;
-            }
-
-            MediaMetadata metadata = session.getMetadata();
-
-            if (metadata == null) {
-                disable();
-
-                return;
-            }
-
-            playPause.setOnClickListener(view -> {
-                if (session != null) {
-                    Vibrations.getInstance().vibrate();
-
-                    PlaybackState playbackState = session.getPlaybackState();
-
-                    if (playbackState != null) {
-                        if (playbackState.getState() == PlaybackState.STATE_PLAYING) {
-                            session.getTransportControls().pause();
-                        } else {
-                            session.getTransportControls().play();
-                        }
-
-                        view.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.bounce));
-                    }
-                }
-            });
-
-            rewind.setOnClickListener(view -> {
-                if (session != null) {
-                    Vibrations.getInstance().vibrate();
-
-                    MediaController.TransportControls transportControls = session.getTransportControls();
-
-                    transportControls.skipToPrevious();
-
-                    skipUpdate = true;
-
-                    view.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.bounce_left));
-                }
-            });
-
-            skip.setOnClickListener(view -> {
-                if (session != null) {
-                    Vibrations.getInstance().vibrate();
-
-                    MediaController.TransportControls controls = session.getTransportControls();
-
-                    controls.skipToNext();
-
-                    skipUpdate = true;
-
-                    view.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.bounce_right));
-                }
-            });
-
-            forward.setOnClickListener(view -> {
-                if (session != null) {
-                    Vibrations.getInstance().vibrate();
-
-                    MediaController.TransportControls controls = session.getTransportControls();
-                    PlaybackState state = session.getPlaybackState();
-
-                    if (state != null) {
-                        long position = state.getPosition() + SEEK_TIME;
-
-                        if (position < metadata.getLong(MediaMetadata.METADATA_KEY_DURATION)) {
-                            controls.seekTo(position);
-                        } else {
-                            controls.skipToNext();
-                        }
-                    } else {
-                        controls.skipToNext();
-                    }
-
-                    skipUpdate = true;
-
-                    view.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.rotate_small));
-                }
-            });
-
-            String title = metadata.getString(MediaMetadata.METADATA_KEY_TITLE);
-
-            if (title == null) {
-                title = "";
-            } else {
-                title = title.trim();
-            }
-
-            if (!title.contentEquals(lastSong)) {
-                lastSong = title;
-                String finalTitle = title;
-
-                song.animate().alpha(0)
-                        .setDuration(Animation.MEDIUM.getDuration())
-                        .withEndAction(() -> {
-                            song.setText(finalTitle);
-
-                            song.post(() -> song.animate()
-                                    .alpha(1)
-                                    .setDuration(Animation.MEDIUM.getDuration())
-                            );
-                        });
-            }
-
-            String artist = metadata.getString(MediaMetadata.METADATA_KEY_ARTIST);
-
-            if (artist == null) {
-                artist = activity.getResources()
-                        .getString(R.string.unknown_artist);
-            } else {
-                artist = artist.trim();
-            }
-
-            if (!artist.contentEquals(lastArtist)) {
-                lastArtist = artist;
-                String finalArtist = artist.trim();
-
-                this.artist.animate().alpha(0)
-                        .setDuration(Animation.MEDIUM.getDuration())
-                        .withEndAction(() -> {
-                            this.artist.setText(finalArtist);
-
-                            this.artist.post(() -> this.artist.animate()
-                                    .alpha(0.85f)
-                                    .setDuration(Animation.MEDIUM.getDuration())
-                            );
-                        });
-            }
-
-            handler.removeCallbacksAndMessages(null);
-            updateSlider(metadata);
-
-            slider.setListener(new SliderComposeView.OnProgressChanged() {
-                @Override
-                public void changing() {
-                    skipUpdate = true;
-                }
-
-                @Override
-                public void progressChanged(float progress) {
-                    if (session != null) {
-                        long position = (long) (progress *
-                                metadata.getLong(MediaMetadata.METADATA_KEY_DURATION));
-
-                        session.getTransportControls().seekTo(position);
-                    }
-                }
-            });
-
-            String coverUri = metadata.getString(MediaMetadata.METADATA_KEY_ART_URI);
-
-            if (coverUri == null || coverUri.isBlank()) {
-                coverUri = metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ART_URI);
-            }
-
-            if (coverUri == null || coverUri.isBlank()) {
-                coverUri = metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI);
-            }
-
-            boolean result = false;
-
-            if (coverUri != null && !coverUri.isBlank()) {
-                result = updateCover(coverUri);
-            }
-
-            if (!result) {
-                Bitmap cover = metadata.getBitmap(MediaMetadata.METADATA_KEY_ART);
-
-                if (cover == null ||
-                        cover.getWidth() < MIN_BITMAP_SIZE ||
-                        cover.getHeight() < MIN_BITMAP_SIZE) {
-                    cover = metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART);
-                }
-
-                if (cover == null ||
-                        cover.getWidth() < MIN_BITMAP_SIZE ||
-                        cover.getHeight() < MIN_BITMAP_SIZE) {
-                    cover = metadata.getBitmap(MediaMetadata.METADATA_KEY_DISPLAY_ICON);
-                }
-
-                updateCover(cover);
-            }
-
-            updatePlaybackState();
+            return;
         }
+
+        MediaMetadata metadata = session.getMetadata();
+        if (metadata == null) {
+            return;
+        }
+
+        playPause.setOnClickListener(view -> {
+            if (session != null) {
+                Vibrations.getInstance().vibrate();
+
+                PlaybackState playbackState = session.getPlaybackState();
+
+                if (playbackState != null) {
+                    if (playbackState.getState() == PlaybackState.STATE_PLAYING) {
+                        session.getTransportControls().pause();
+                    } else {
+                        session.getTransportControls().play();
+                    }
+
+                    view.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.bounce));
+                }
+            }
+        });
+
+        rewind.setOnClickListener(view -> {
+            if (session != null) {
+                Vibrations.getInstance().vibrate();
+
+                session.getTransportControls().skipToPrevious();
+                skipUpdate = true;
+
+                view.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.bounce_left));
+            }
+        });
+
+        skip.setOnClickListener(view -> {
+            if (session != null) {
+                Vibrations.getInstance().vibrate();
+
+                session.getTransportControls().skipToNext();
+                skipUpdate = true;
+
+                view.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.bounce_right));
+            }
+        });
+
+        forward.setOnClickListener(view -> {
+            if (session != null) {
+                Vibrations.getInstance().vibrate();
+
+                PlaybackState state = session.getPlaybackState();
+                if (state != null) {
+                    long position = state.getPosition() + SEEK_TIME;
+
+                    if (position < metadata.getLong(MediaMetadata.METADATA_KEY_DURATION)) {
+                        session.getTransportControls().seekTo(position);
+                    } else {
+                        session.getTransportControls().skipToNext();
+                    }
+                } else {
+                    session.getTransportControls().skipToNext();
+                }
+
+                skipUpdate = true;
+
+                view.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.rotate_small));
+            }
+        });
+
+        String title = metadata.getString(MediaMetadata.METADATA_KEY_TITLE);
+
+        if (title == null) {
+            title = "";
+        } else {
+            title = title.trim();
+        }
+
+        if (!title.contentEquals(lastSong)) {
+            lastSong = title;
+            String finalTitle = title;
+
+            song.animate().alpha(0)
+                    .setDuration(Animation.MEDIUM.getDuration())
+                    .withEndAction(() -> {
+                        song.setText(finalTitle);
+                        song.post(() -> song.animate().alpha(1).setDuration(Animation.MEDIUM.getDuration()));
+                    });
+        }
+
+        String artistStr = metadata.getString(MediaMetadata.METADATA_KEY_ARTIST);
+
+        if (artistStr == null) {
+            artistStr = activity.getResources().getString(R.string.unknown_artist);
+        } else {
+            artistStr = artistStr.trim();
+        }
+
+        if (!artistStr.contentEquals(lastArtist)) {
+            lastArtist = artistStr;
+            String finalArtist = artistStr;
+
+            artist.animate().alpha(0)
+                    .setDuration(Animation.MEDIUM.getDuration())
+                    .withEndAction(() -> {
+                        artist.setText(finalArtist);
+                        artist.post(() -> artist.animate()
+                                .alpha(0.85f)
+                                .setDuration(Animation.MEDIUM.getDuration())
+                        );
+                    });
+        }
+
+        handler.removeCallbacksAndMessages(null);
+        updateSlider(metadata);
+
+        slider.setListener(new SliderComposeView.OnProgressChanged() {
+            @Override
+            public void changing() {
+                skipUpdate = true;
+            }
+
+            @Override
+            public void progressChanged(float progress) {
+                if (session != null) {
+                    long position = (long) (progress *
+                            metadata.getLong(MediaMetadata.METADATA_KEY_DURATION));
+
+                    session.getTransportControls().seekTo(position);
+                }
+            }
+        });
+
+        String coverUri = metadata.getString(MediaMetadata.METADATA_KEY_ART_URI);
+
+        if (coverUri == null || coverUri.isBlank()) {
+            coverUri = metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ART_URI);
+        }
+
+        if (coverUri == null || coverUri.isBlank()) {
+            coverUri = metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI);
+        }
+
+        boolean result = false;
+        if (coverUri != null && !coverUri.isBlank()) {
+            result = updateCover(coverUri);
+        }
+
+        if (!result) {
+            Bitmap coverBmp = metadata.getBitmap(MediaMetadata.METADATA_KEY_ART);
+
+            if (coverBmp == null || coverBmp.getWidth() < MIN_BITMAP_SIZE || coverBmp.getHeight() < MIN_BITMAP_SIZE) {
+                coverBmp = metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART);
+            }
+
+            if (coverBmp == null || coverBmp.getWidth() < MIN_BITMAP_SIZE || coverBmp.getHeight() < MIN_BITMAP_SIZE) {
+                coverBmp = metadata.getBitmap(MediaMetadata.METADATA_KEY_DISPLAY_ICON);
+            }
+
+            updateCover(coverBmp);
+        }
+
+        updatePlaybackState();
     }
 
     private void reset() {
@@ -526,14 +552,12 @@ public class Media extends GlanceDialogExtension {
 
     public boolean updateCover(String stringUri) {
         if (stringUri != null) {
-            InputStream inputStream;
-
             try {
+                InputStream inputStream;
                 Uri uri = Uri.parse(stringUri);
 
                 if (uri != null && "content".equals(uri.getScheme())) {
-                    inputStream = activity.getContentResolver()
-                            .openInputStream(uri);
+                    inputStream = activity.getContentResolver().openInputStream(uri);
                 } else {
                     inputStream = new FileInputStream(stringUri);
                 }
@@ -561,7 +585,6 @@ public class Media extends GlanceDialogExtension {
 
         if (bitmap != null) {
             Bitmap.Config config = bitmap.getConfig();
-
             if (config == null) {
                 config = Bitmap.Config.ARGB_8888;
             }
@@ -596,8 +619,8 @@ public class Media extends GlanceDialogExtension {
             PlaybackState playbackState = session.getPlaybackState();
 
             if (playbackState != null && !skipUpdate) {
-                float progress = (float) playbackState.getPosition() /
-                        metadata.getLong(MediaMetadata.METADATA_KEY_DURATION);
+                long duration = metadata.getLong(MediaMetadata.METADATA_KEY_DURATION);
+                float progress = (duration > 0) ? (float) playbackState.getPosition() / duration : 0;
 
                 if (Float.isNaN(progress) || Float.isInfinite(progress)) {
                     progress = 0;
@@ -627,7 +650,6 @@ public class Media extends GlanceDialogExtension {
                         }
 
                         playPause.setTag(PLAYING);
-
                         slider.isPlaying().setValue(true);
                     }
                 } else {
@@ -642,7 +664,6 @@ public class Media extends GlanceDialogExtension {
                         }
 
                         playPause.setTag(PAUSED);
-
                         slider.isPlaying().setValue(false);
                     }
                 }
@@ -667,6 +688,51 @@ public class Media extends GlanceDialogExtension {
             });
 
             urgentHide();
+        }
+    }
+
+    private class MediaControllerCallback extends MediaController.Callback {
+        private final MediaController controller;
+
+        MediaControllerCallback(MediaController controller) {
+            this.controller = controller;
+        }
+
+        @Override
+        public void onSessionDestroyed() {
+            update();
+
+            super.onSessionDestroyed();
+        }
+
+        @Override
+        public void onPlaybackStateChanged(@Nullable PlaybackState state) {
+            skipUpdate = false;
+
+            if (state == null) {
+                return;
+            }
+
+            boolean isCurrentSession = session != null &&
+                    session.getSessionToken().equals(controller.getSessionToken());
+
+            if (state.getState() == PlaybackState.STATE_PLAYING && !isCurrentSession) {
+                update();
+            } else if (isCurrentSession) {
+                updatePlaybackState();
+            }
+
+            super.onPlaybackStateChanged(state);
+        }
+
+        @Override
+        public void onMetadataChanged(@Nullable MediaMetadata metadata) {
+            if (session != null && session.getSessionToken()
+                    .equals(controller.getSessionToken())) {
+                updateSession();
+            }
+
+            super.onMetadataChanged(metadata);
         }
     }
 }
