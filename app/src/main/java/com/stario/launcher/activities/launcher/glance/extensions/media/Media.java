@@ -28,6 +28,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimatedVectorDrawable;
+import android.media.AudioAttributes;
 import android.media.MediaMetadata;
 import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
@@ -95,6 +96,7 @@ public class Media extends GlanceDialogExtension {
     private final Map<MediaController, MediaController.Callback> controllerCallbacks;
 
     private MediaSessionManager mediaSessionManager;
+    private boolean sessionsListenerRegistered;
     private ConstraintLayout coverParent;
     private SliderComposeView slider;
     private MediaController session;
@@ -117,8 +119,9 @@ public class Media extends GlanceDialogExtension {
         this.session = null;
         this.lastSong = "";
         this.lastArtist = "";
-        this.handler = new Handler(Looper.getMainLooper());
+        this.sessionsListenerRegistered = false;
         this.controllerCallbacks = new HashMap<>();
+        this.handler = new Handler(Looper.getMainLooper());
 
         this.sessionsChangedListener = controllers -> {
             handler.post(this::update);
@@ -159,10 +162,7 @@ public class Media extends GlanceDialogExtension {
         mediaSessionManager =
                 (MediaSessionManager) activity.getSystemService(Context.MEDIA_SESSION_SERVICE);
 
-        if (mediaSessionManager != null) {
-            mediaSessionManager.addOnActiveSessionsChangedListener(sessionsChangedListener,
-                    new ComponentName(activity, NotificationService.class));
-        }
+        attemptSessionListenerRegistration();
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -238,9 +238,32 @@ public class Media extends GlanceDialogExtension {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+        attemptSessionListenerRegistration();
+    }
+
+    private void attemptSessionListenerRegistration() {
+        if (mediaSessionManager == null) {
+            return;
+        }
+
+        try {
+            mediaSessionManager.addOnActiveSessionsChangedListener(sessionsChangedListener,
+                    new ComponentName(activity, NotificationService.class));
+
+            sessionsListenerRegistered = true;
+        } catch (SecurityException exception) {
+            Log.e(TAG, "Cannot register media session listener");
+        }
+    }
+
+    @Override
     public void onDestroy() {
-        if (mediaSessionManager != null) {
+        if (mediaSessionManager != null && sessionsListenerRegistered) {
             mediaSessionManager.removeOnActiveSessionsChangedListener(sessionsChangedListener);
+            sessionsListenerRegistered = false;
         }
 
         for (Map.Entry<MediaController, MediaController.Callback> entry : controllerCallbacks.entrySet()) {
@@ -255,9 +278,10 @@ public class Media extends GlanceDialogExtension {
 
     @SuppressLint("ClickableViewAccessibility")
     public void update() {
-        if (activity == null || !NotificationManagerCompat
-                .getEnabledListenerPackages(activity)
-                .contains(BuildConfig.APPLICATION_ID) ||
+        if (activity == null ||
+                !NotificationManagerCompat
+                        .getEnabledListenerPackages(activity)
+                        .contains(BuildConfig.APPLICATION_ID) ||
                 !activity.getApplicationContext()
                         .getSettings()
                         .getBoolean(PREFERENCE_ENTRY, false)) {
@@ -266,8 +290,15 @@ public class Media extends GlanceDialogExtension {
             return;
         }
 
-        List<MediaController> activeSessions = mediaSessionManager.getActiveSessions(
-                new ComponentName(activity, NotificationService.class));
+        List<MediaController> activeSessions;
+        try {
+            activeSessions = mediaSessionManager.getActiveSessions(
+                    new ComponentName(activity, NotificationService.class));
+        } catch (SecurityException exception) {
+            Log.e(TAG, "Cannot get active media sessions");
+
+            return;
+        }
 
         List<MediaController> inactiveControllers = new ArrayList<>();
         for (MediaController trackedController : controllerCallbacks.keySet()) {
@@ -324,8 +355,12 @@ public class Media extends GlanceDialogExtension {
 
         for (MediaController controller : controllers) {
             PlaybackState state = controller.getPlaybackState();
+            MediaController.PlaybackInfo info = controller.getPlaybackInfo();
+            AudioAttributes attrs = info.getAudioAttributes();
 
-            if (state != null && state.getState() == PlaybackState.STATE_PLAYING) {
+            if (attrs != null &&
+                    attrs.getUsage() == AudioAttributes.USAGE_MEDIA &&
+                    state != null && state.getState() == PlaybackState.STATE_PLAYING) {
                 activeSessionCandidate = controller;
                 break;
             }
@@ -333,7 +368,11 @@ public class Media extends GlanceDialogExtension {
 
         if (activeSessionCandidate == null && session != null) {
             for (MediaController controller : controllers) {
-                if (controller.getSessionToken().equals(session.getSessionToken())) {
+                AudioAttributes attrs = controller.getPlaybackInfo().getAudioAttributes();
+
+                if (attrs != null &&
+                        attrs.getUsage() == AudioAttributes.USAGE_MEDIA &&
+                        controller.getSessionToken().equals(session.getSessionToken())) {
                     activeSessionCandidate = controller;
                     break;
                 }
@@ -343,7 +382,15 @@ public class Media extends GlanceDialogExtension {
         // should not happen, but rather safe than sorry
         // fallback to the first controller
         if (activeSessionCandidate == null) {
-            activeSessionCandidate = controllers.get(0);
+            for (MediaController controller : controllers) {
+                AudioAttributes attrs = controller.getPlaybackInfo().getAudioAttributes();
+
+                if (attrs != null &&
+                        attrs.getUsage() == AudioAttributes.USAGE_MEDIA) {
+                    activeSessionCandidate = controller;
+                    break;
+                }
+            }
         }
 
         if (session != activeSessionCandidate) {

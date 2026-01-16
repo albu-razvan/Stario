@@ -17,8 +17,8 @@ android {
         applicationId 'com.stario.launcher'
         minSdkVersion 29
         targetSdkVersion 36
-        versionCode 93
-        versionName '2.12'
+        versionCode 94
+        versionName '2.13'
     }
 
     signingConfigs {
