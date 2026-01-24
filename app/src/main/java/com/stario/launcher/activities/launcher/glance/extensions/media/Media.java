@@ -355,12 +355,12 @@ public class Media extends GlanceDialogExtension {
 
         for (MediaController controller : controllers) {
             PlaybackState state = controller.getPlaybackState();
-            MediaController.PlaybackInfo info = controller.getPlaybackInfo();
-            AudioAttributes attrs = info.getAudioAttributes();
+            AudioAttributes attrs = controller.getPlaybackInfo().getAudioAttributes();
 
             if (attrs != null &&
                     attrs.getUsage() == AudioAttributes.USAGE_MEDIA &&
-                    state != null && state.getState() == PlaybackState.STATE_PLAYING) {
+                    state != null && state.getState() == PlaybackState.STATE_PLAYING &&
+                    validateMetadata(controller.getMetadata())) {
                 activeSessionCandidate = controller;
                 break;
             }
@@ -372,7 +372,8 @@ public class Media extends GlanceDialogExtension {
 
                 if (attrs != null &&
                         attrs.getUsage() == AudioAttributes.USAGE_MEDIA &&
-                        controller.getSessionToken().equals(session.getSessionToken())) {
+                        controller.getSessionToken().equals(session.getSessionToken()) &&
+                        validateMetadata(controller.getMetadata())) {
                     activeSessionCandidate = controller;
                     break;
                 }
@@ -386,7 +387,8 @@ public class Media extends GlanceDialogExtension {
                 AudioAttributes attrs = controller.getPlaybackInfo().getAudioAttributes();
 
                 if (attrs != null &&
-                        attrs.getUsage() == AudioAttributes.USAGE_MEDIA) {
+                        attrs.getUsage() == AudioAttributes.USAGE_MEDIA &&
+                        validateMetadata(controller.getMetadata())) {
                     activeSessionCandidate = controller;
                     break;
                 }
@@ -401,6 +403,20 @@ public class Media extends GlanceDialogExtension {
         updateSession();
     }
 
+    private boolean validateMetadata(MediaMetadata metadata) {
+        if (metadata == null) {
+            return false;
+        }
+
+        String title = metadata.getString(MediaMetadata.METADATA_KEY_TITLE);
+        //noinspection RedundantIfStatement
+        if (title == null || title.isEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
+
     @Override
     protected void show() {
         super.show();
@@ -412,7 +428,11 @@ public class Media extends GlanceDialogExtension {
     public void updateSession() {
         if (session == null) {
             disable();
-        } else if (!isShowing()) {
+
+            return;
+        }
+
+        if (!isShowing()) {
             reset();
 
             return;
@@ -502,13 +522,15 @@ public class Media extends GlanceDialogExtension {
                     .setDuration(Animation.MEDIUM.getDuration())
                     .withEndAction(() -> {
                         song.setText(finalTitle);
-                        song.post(() -> song.animate().alpha(1).setDuration(Animation.MEDIUM.getDuration()));
+                        song.post(() -> song.animate()
+                                .alpha(1)
+                                .setDuration(Animation.MEDIUM.getDuration()));
                     });
         }
 
         String artistStr = metadata.getString(MediaMetadata.METADATA_KEY_ARTIST);
 
-        if (artistStr == null) {
+        if (artistStr == null || artistStr.isEmpty()) {
             artistStr = activity.getResources().getString(R.string.unknown_artist);
         } else {
             artistStr = artistStr.trim();
@@ -567,11 +589,15 @@ public class Media extends GlanceDialogExtension {
         if (!result) {
             Bitmap coverBmp = metadata.getBitmap(MediaMetadata.METADATA_KEY_ART);
 
-            if (coverBmp == null || coverBmp.getWidth() < MIN_BITMAP_SIZE || coverBmp.getHeight() < MIN_BITMAP_SIZE) {
+            if (coverBmp == null ||
+                    coverBmp.getWidth() < MIN_BITMAP_SIZE ||
+                    coverBmp.getHeight() < MIN_BITMAP_SIZE) {
                 coverBmp = metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART);
             }
 
-            if (coverBmp == null || coverBmp.getWidth() < MIN_BITMAP_SIZE || coverBmp.getHeight() < MIN_BITMAP_SIZE) {
+            if (coverBmp == null ||
+                    coverBmp.getWidth() < MIN_BITMAP_SIZE ||
+                    coverBmp.getHeight() < MIN_BITMAP_SIZE) {
                 coverBmp = metadata.getBitmap(MediaMetadata.METADATA_KEY_DISPLAY_ICON);
             }
 
