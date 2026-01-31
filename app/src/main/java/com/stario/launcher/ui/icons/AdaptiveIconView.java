@@ -183,6 +183,11 @@ public class AdaptiveIconView extends View {
 
         localBroadcastManager.unregisterReceiver(radiusReceiver);
         localBroadcastManager.unregisterReceiver(squircleReceiver);
+
+        if (pausedReceiver != null) {
+            localBroadcastManager.unregisterReceiver(pausedReceiver);
+            pausedReceiver = null;
+        }
     }
 
     public static int getMaxIconSize() {
