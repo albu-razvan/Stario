@@ -26,7 +26,9 @@ import com.stario.launcher.Stario;
 import com.stario.launcher.exceptions.NoExistingInstanceException;
 import com.stario.launcher.preferences.Entry;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CategoryMappings {
     private static CategoryMappings instance;
@@ -79,31 +81,37 @@ public class CategoryMappings {
     }
 
     private static class ApplicationComparator extends Comparator<LauncherApplication> {
+        private final Map<String, Integer> indexCache;
         private final SharedPreferences categoryMap;
         private final Category category;
 
-        private ApplicationComparator(SharedPreferencesProvider provider, Category category) {
+        private ApplicationComparator(
+                SharedPreferencesProvider provider,
+                Category category
+        ) {
             this.category = category;
+            this.indexCache = new HashMap<>();
             this.categoryMap = provider.provide(category.identifier.toString());
+
+            for (Map.Entry<String, ?> entry : categoryMap.getAll().entrySet()) {
+                Object value = entry.getValue();
+
+                if (value instanceof Integer) {
+                    indexCache.put(entry.getKey(), (Integer) value);
+                }
+            }
         }
 
         @Override
-        public int compare(LauncherApplication application, LauncherApplication otherApplication) {
-            int applicationIndex = categoryMap.getInt(
-                    application.getInfo().packageName, -1
-            );
+        public int compare(LauncherApplication a, LauncherApplication b) {
+            Integer aIndex = indexCache.get(a.getInfo().packageName);
+            Integer bIndex = indexCache.get(b.getInfo().packageName);
 
-            if (applicationIndex >= 0) {
-                int otherApplicationIndex = categoryMap.getInt(
-                        otherApplication.getInfo().packageName, -1
-                );
-
-                if (otherApplicationIndex >= 0) {
-                    return Integer.compare(applicationIndex, otherApplicationIndex);
-                }
+            if (aIndex != null && bIndex != null) {
+                return Integer.compare(aIndex, bIndex);
             }
 
-            return application.getLabel().compareTo(otherApplication.getLabel());
+            return a.getLabel().compareTo(b.getLabel());
         }
 
         @Override
@@ -112,42 +120,52 @@ public class CategoryMappings {
 
             SharedPreferences.Editor editor = categoryMap.edit();
             editor.clear();
+            indexCache.clear();
 
             for (int index = 0; index < applications.size(); index++) {
-                LauncherApplication application = applications.get(index);
+                LauncherApplication application =
+                        applications.get(index);
 
-                editor.putInt(application.getInfo().packageName,
-                        category.indexOf(application));
+                String packageName =
+                        application.getInfo().packageName;
+
+                editor.putInt(packageName, index);
+                indexCache.put(packageName, index);
             }
 
             editor.apply();
         }
     }
 
-    private static class MapComparator extends Comparator<Category> {
+    private static class MapComparator
+            extends Comparator<Category> {
+
+        private final Map<String, Integer> indexCache;
         private final SharedPreferences categoryMap;
 
         private MapComparator(SharedPreferencesProvider provider) {
+            this.indexCache = new HashMap<>();
             this.categoryMap = provider.provide("CATEGORIES");
+
+            for (Map.Entry<String, ?> entry : categoryMap.getAll().entrySet()) {
+                Object value = entry.getValue();
+
+                if (value instanceof Integer) {
+                    indexCache.put(entry.getKey(), (Integer) value);
+                }
+            }
         }
 
         @Override
-        public int compare(Category category, Category otherCategory) {
-            int categoryIndex = categoryMap.getInt(
-                    category.identifier.toString(), -1
-            );
+        public int compare(Category a, Category b) {
+            Integer aIndex = indexCache.get(a.identifier.toString());
+            Integer bIndex = indexCache.get(b.identifier.toString());
 
-            if (categoryIndex >= 0) {
-                int otherCategoryIndex = categoryMap.getInt(
-                        otherCategory.identifier.toString(), -1
-                );
-
-                if (otherCategoryIndex >= 0) {
-                    return Integer.compare(categoryIndex, otherCategoryIndex);
-                }
+            if (aIndex != null && bIndex != null) {
+                return Integer.compare(aIndex, bIndex);
             }
 
-            return category.identifier.compareTo(otherCategory.identifier);
+            return a.identifier.compareTo(b.identifier);
         }
 
         @Override
@@ -156,11 +174,14 @@ public class CategoryMappings {
 
             SharedPreferences.Editor editor = categoryMap.edit();
             editor.clear();
+            indexCache.clear();
 
             for (int index = 0; index < categories.size(); index++) {
                 Category category = categories.get(index);
+                String key = category.identifier.toString();
 
-                editor.putInt(category.identifier.toString(), index);
+                editor.putInt(key, index);
+                indexCache.put(key, index);
             }
 
             editor.apply();
