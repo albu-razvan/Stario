@@ -31,6 +31,7 @@ public class OverScrollRecyclerView extends RecyclerView implements OverScroll {
     private ArrayList<OverScrollEffect<OverScrollRecyclerView>> edgeEffects;
     private ArrayList<OnScrollListener> onScrollListeners;
     private ArrayList<OverScrollContract> contracts;
+    private OverScrollEffect<?> overScrollOwner;
     @OverScrollEffect.Edge
     private int pullEdges;
 
@@ -57,6 +58,7 @@ public class OverScrollRecyclerView extends RecyclerView implements OverScroll {
         this.overScrollListeners = new ArrayList<>();
         this.onScrollListeners = new ArrayList<>();
         this.edgeEffects = new ArrayList<>();
+        this.overScrollOwner = null;
         this.pullEdges = OverScrollEffect.PULL_EDGE_BOTTOM | OverScrollEffect.PULL_EDGE_TOP;
 
         super.setEdgeEffectFactory(new EdgeEffectFactory() {
@@ -64,8 +66,17 @@ public class OverScrollRecyclerView extends RecyclerView implements OverScroll {
             @Override
             protected EdgeEffect createEdgeEffect(@NonNull RecyclerView view, int direction) {
                 if (view instanceof OverScroll) {
-                    OverScrollEffect<OverScrollRecyclerView> effect =
-                            new OverScrollEffect<>(OverScrollRecyclerView.this, pullEdges);
+                    OverScrollEffect<OverScrollRecyclerView> effect;
+
+                    if (direction == RecyclerView.EdgeEffectFactory.DIRECTION_TOP) {
+                        effect = new OverScrollEffect<>(OverScrollRecyclerView.this,
+                                pullEdges, OverScrollEffect.PIVOT_TOP);
+                    } else if (direction == RecyclerView.EdgeEffectFactory.DIRECTION_BOTTOM) {
+                        effect = new OverScrollEffect<>(OverScrollRecyclerView.this,
+                                pullEdges, OverScrollEffect.PIVOT_BOTTOM);
+                    } else {
+                        effect = new OverScrollEffect<>(OverScrollRecyclerView.this, pullEdges);
+                    }
 
                     for (OverScrollEffect.OnOverScrollListener listener : overScrollListeners) {
                         effect.addOnOverScrollListener(listener);
@@ -79,6 +90,24 @@ public class OverScrollRecyclerView extends RecyclerView implements OverScroll {
                 return new EdgeEffect(view.getContext());
             }
         });
+    }
+
+    @Override
+    public boolean tryCaptureOverScroll(@NonNull OverScrollEffect<?> effect) {
+        if (overScrollOwner == null || overScrollOwner.equals(effect)) {
+            overScrollOwner = effect;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public void releaseOverScroll(@NonNull OverScrollEffect<?> effect) {
+        if (overScrollOwner != null && overScrollOwner.equals(effect)) {
+            overScrollOwner = null;
+        }
     }
 
     public void addOnOverScrollListener(OverScrollEffect.OnOverScrollListener listener) {

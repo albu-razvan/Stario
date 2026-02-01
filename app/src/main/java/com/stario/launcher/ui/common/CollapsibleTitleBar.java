@@ -35,8 +35,6 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import com.stario.launcher.ui.utils.animation.Animation;
 
 public class CollapsibleTitleBar extends RelativeLayout {
-    private static final float EXPAND_DAMPENING_FACTOR = 0.2f;
-
     private OffsetListener offsetListener;
     private ViewPropertyAnimator animator;
     private int collapsedHeight;
@@ -81,9 +79,13 @@ public class CollapsibleTitleBar extends RelativeLayout {
         super.addView(child, index, params);
 
         child.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-            collapsedHeight = child.getMeasuredHeight();
+            int newHeight = child.getMeasuredHeight();
 
-            updateLayout();
+            if (collapsedHeight != newHeight) {
+                collapsedHeight = newHeight;
+
+                post(this::updateLayout);
+            }
         });
     }
 
