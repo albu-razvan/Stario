@@ -22,6 +22,10 @@ import android.graphics.Canvas;
 import androidx.annotation.NonNull;
 
 public interface OverScroll {
+    boolean tryCaptureOverScroll(@NonNull OverScrollEffect<?> effect);
+
+    void releaseOverScroll(@NonNull OverScrollEffect<?> effect);
+
     void addOverScrollContract(@NonNull OverScrollContract contract);
 
     interface OverScrollContract {
