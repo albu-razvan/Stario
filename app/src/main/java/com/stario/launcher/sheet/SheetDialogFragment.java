@@ -142,6 +142,7 @@ public abstract class SheetDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         dialog = SheetDialogFactory.forType(type, activity, getTheme());
+        assert dialog != null;
 
         if (slideListener != null) {
             dialog.setOnSlideListener(slideListener);

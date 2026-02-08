@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2025 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -16,11 +15,29 @@
   ~ along with this program. If not, see <http://www.gnu.org/licenses/>
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid
-        android:color="?attr/colorSurfaceContainer" />
-    <corners
-        android:topLeftRadius="30dp"
-        android:topRightRadius="30dp" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <stroke
+                android:width="1dp"
+                android:color="?attr/colorOutlineVariant" />
+            <corners
+                android:topLeftRadius="30dp"
+                android:topRightRadius="30dp" />
+        </shape>
+    </item>
+
+    <item
+        android:bottom="0dp"
+        android:left="1dp"
+        android:right="1dp"
+        android:top="1dp">
+
+        <shape android:shape="rectangle">
+            <solid android:color="?attr/colorSurfaceContainer" />
+            <corners
+                android:topLeftRadius="29.5dp"
+                android:topRightRadius="29.5dp" />
+        </shape>
+    </item>
+</layer-list>

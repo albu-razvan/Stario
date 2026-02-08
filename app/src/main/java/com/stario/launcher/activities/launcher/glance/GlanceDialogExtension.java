@@ -17,17 +17,11 @@
 
 package com.stario.launcher.activities.launcher.glance;
 
-import static com.stario.launcher.ui.dialogs.PersistentFullscreenDialog.BLUR_STEP;
-import static com.stario.launcher.ui.dialogs.PersistentFullscreenDialog.STEP_COUNT;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -42,14 +36,12 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 
-import com.stario.launcher.activities.launcher.Launcher;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
 import com.stario.launcher.ui.dialogs.PersistentFullscreenDialog;
 import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.ui.utils.animation.Animation;
-import com.stario.launcher.utils.Utils;
 
 import java.util.List;
 import java.util.Objects;
@@ -69,7 +61,6 @@ public abstract class GlanceDialogExtension extends DialogFragment
     private PersistentFullscreenDialog dialog;
     private GlanceConstraintLayout container;
     private HomeWatcher homeWatcher;
-    private Drawable background;
     private boolean isHiding;
     private Glance glance;
     private int gravity;
@@ -142,13 +133,6 @@ public abstract class GlanceDialogExtension extends DialogFragment
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         dialog = new PersistentFullscreenDialog(activity, getTheme(), true);
-        background = new ColorDrawable(
-                activity.getAttributeData(com.google.android.material.R.attr.colorSurfaceContainer));
-        Window window = dialog.getWindow();
-        if (window != null) {
-            window.setBackgroundDrawable(background);
-        }
-
         dialog.setOnBackPressed(() -> {
             hide();
 
@@ -341,20 +325,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
         }
 
         container.setRadiusPercentage(1f - fraction);
-
-        Window window = dialog.getWindow();
-
-        if (window != null) {
-            int step = (int) (STEP_COUNT * fraction);
-
-            if (background != null) {
-                background.setAlpha((int) (fraction * Launcher.MAX_BACKGROUND_ALPHA));
-            }
-
-            if (Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
-                window.setBackgroundBlurRadius((int) (step * BLUR_STEP));
-            }
-        }
+        dialog.setDimmingFactor(fraction);
 
         for (TransitionListener listener : listeners) {
             listener.onProgressFraction(fraction);

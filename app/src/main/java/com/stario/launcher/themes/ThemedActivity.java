@@ -195,8 +195,8 @@ abstract public class ThemedActivity extends AppCompatActivity {
                                 root.setTranslationY((root.getHeight() / 10f) * progress);
                                 root.setScaleY(1f - progress * 0.15f);
 
-                                roundedCornerBackground.setCornerRadius(Measurements.dpToPx(10) +
-                                        progress * Measurements.dpToPx(20));
+                                roundedCornerBackground.setCornerRadius((float) (Measurements.dpToPx(10) +
+                                        Math.pow(progress, 0.3f) * Measurements.dpToPx(20)));
                             }
                         }
                     }
@@ -455,17 +455,17 @@ abstract public class ThemedActivity extends AppCompatActivity {
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        OnPermissionRequestResult listener =requestPermissionResultListeners.remove(requestCode);
-        if(listener != null) {
+        OnPermissionRequestResult listener = requestPermissionResultListeners.remove(requestCode);
+        if (listener != null) {
             listener.onResult(grantResults);
         }
     }
 
     public void requestPermissions(String[] permissions,
-                                 OnPermissionRequestResult listener) {
+                                   OnPermissionRequestResult listener) {
         boolean granted = true;
 
-        for (String permission: permissions) {
+        for (String permission : permissions) {
             if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
                 granted = false;
             }

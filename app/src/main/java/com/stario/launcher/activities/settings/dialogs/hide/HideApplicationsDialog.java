@@ -24,7 +24,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewConfiguration;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,7 +45,6 @@ import com.stario.launcher.ui.utils.animation.Animation;
 public class HideApplicationsDialog extends DialogFragment {
     private OnHideListener hideListener;
     private ThemedActivity activity;
-    private float moveSlop;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -55,7 +53,6 @@ public class HideApplicationsDialog extends DialogFragment {
         }
 
         activity = (ThemedActivity) context;
-        moveSlop = ViewConfiguration.get(activity).getScaledTouchSlop();
 
         super.onAttach(context);
     }
@@ -87,8 +84,6 @@ public class HideApplicationsDialog extends DialogFragment {
                         this.scrollListener = new RecyclerView.OnScrollListener() {
                             @Override
                             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                                getBehavior().setDraggable(recyclerView.computeVerticalScrollOffset() == 0);
-
                                 if (dy > 0 && !recyclerView.canScrollVertically(1)) {
                                     showTooltip(false);
                                 } else if (dy < 0) {
@@ -125,12 +120,10 @@ public class HideApplicationsDialog extends DialogFragment {
                             }
 
                             this.recyclerView.removeOnScrollListener(scrollListener);
-                            this.recyclerView.setOnTouchListener(null);
                         }
 
                         recyclerView.addOnScrollListener(scrollListener);
 
-                        getBehavior().setDraggable(recyclerView.computeVerticalScrollOffset() == 0);
                         this.recyclerView = recyclerView;
                     }
 
@@ -213,8 +206,9 @@ public class HideApplicationsDialog extends DialogFragment {
     }
 
     public void show() {
-        if (getDialog() != null) {
-            getDialog().show();
+        Dialog dialog = getDialog();
+        if (dialog != null) {
+            dialog.show();
         }
     }
 

@@ -19,9 +19,6 @@ package com.stario.launcher.sheet;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -34,7 +31,6 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
-import com.stario.launcher.activities.launcher.Launcher;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
 import com.stario.launcher.themes.ThemedActivity;
@@ -44,8 +40,6 @@ import com.stario.launcher.utils.Utils;
 
 public abstract class SheetDialog extends PersistentFullscreenDialog {
     private static final String TAG = "SheetDialog";
-
-    private final Drawable background;
 
     private boolean dispatchedMotionEventToCoordinator;
     private boolean shouldDispatchMotionEventsToParent;
@@ -64,10 +58,6 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
         this.shouldDispatchMotionEventsToParent = false;
         this.dispatchMotionEventsToParent = false;
         this.receivedMoveEvent = false;
-
-        this.background = new ColorDrawable(
-                activity.getAttributeData(com.google.android.material.R.attr.colorSurface, false)
-        );
     }
 
     @Override
@@ -111,17 +101,12 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
         Window window = getWindow();
         if (window != null) {
             UiUtils.enforceLightSystemUI(window);
-
-            background.setAlpha(0);
-            window.setBackgroundDrawable(background);
         }
 
         behavior.addSheetCallback(new SheetBehavior.SheetCallback() {
-            private int lastBlurStep;
             boolean wasCollapsed;
 
             {
-                this.lastBlurStep = -1;
                 this.wasCollapsed = true;
             }
 
@@ -174,23 +159,7 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
                         behavior.invalidate();
                     }
                 } else {
-                    Window window = getWindow();
-                    if (window != null) {
-                        double offsetSemi = Utils.getGenericInterpolatedValue(slideOffset);
-
-                        background.setAlpha((int) (Launcher.MAX_BACKGROUND_ALPHA * offsetSemi));
-                        window.setBackgroundDrawable(background);
-
-                        // only STEP_COUNT states for performance
-                        int step = (int) (STEP_COUNT * offsetSemi);
-
-                        if (Utils.isMinimumSDK(Build.VERSION_CODES.S) && lastBlurStep != step) {
-                            window.setBackgroundBlurRadius((int) (step * BLUR_STEP));
-
-                            this.lastBlurStep = step;
-                        }
-                    }
-
+                    setDimmingFactor((float) Utils.getGenericInterpolatedValue(slideOffset));
                     float alpha = slideOffset * 2 - 1f;
 
                     if (alpha > 0) {

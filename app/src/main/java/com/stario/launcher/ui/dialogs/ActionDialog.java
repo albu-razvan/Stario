@@ -51,10 +51,13 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 
 public abstract class ActionDialog extends BottomSheetDialog {
+    private static final float DIMMING_MULTIPLIER = 0.5f;
+
     protected final ThemedActivity activity;
 
     private final HomeWatcher homeWatcher;
 
+    private DialogBackgroundDimmingController.DimmingController dimmingController;
     private KeyboardHeightProvider heightProvider;
     private boolean canCollapse;
     private View root;
@@ -108,7 +111,6 @@ public abstract class ActionDialog extends BottomSheetDialog {
         BottomSheetBehavior<?> behavior = getBehavior();
 
         behavior.setSkipCollapsed(true);
-        behavior.setPeekHeight(100_000_000);
 
         LayoutInflater inflater = activity.getLayoutInflater();
 
@@ -173,16 +175,8 @@ public abstract class ActionDialog extends BottomSheetDialog {
                     root.setScaleX(1 + slideOffset * 0.08f);
                     root.setScaleY(1 + slideOffset * 0.08f);
 
-                    window.setDimAmount((1 + slideOffset) * 0.5f);
-
-                    if (blurBehind() && Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
-                        WindowManager.LayoutParams attributes = window.getAttributes();
-
-                        attributes.setBlurBehindRadius(
-                                (int) ((1 + slideOffset) * PersistentFullscreenDialog.STEP_COUNT / 2 *
-                                        PersistentFullscreenDialog.BLUR_STEP));
-
-                        window.setAttributes(attributes);
+                    if (dimmingController != null) {
+                        dimmingController.setFactor(1 + slideOffset);
                     }
                 }
             }
@@ -196,15 +190,12 @@ public abstract class ActionDialog extends BottomSheetDialog {
         if (window != null) {
             WindowCompat.setDecorFitsSystemWindows(window, false);
 
-            window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-
-            if (blurBehind()) {
-                window.setDimAmount(0);
-
-                window.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-            } else {
-                window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            if (blurBehind() && dimmingController == null) {
+                dimmingController = DialogBackgroundDimmingController.attach(activity,
+                        this, blurBehind(), DIMMING_MULTIPLIER);
             }
+
+            window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 
             window.setWindowAnimations(R.style.ActionDialogAnimations);
             window.getDecorView().setVisibility(View.INVISIBLE);

@@ -19,7 +19,6 @@ package com.stario.launcher.ui.dialogs;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -27,17 +26,15 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialog;
 
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.utils.UiUtils;
-import com.stario.launcher.utils.Utils;
 
 public class PersistentFullscreenDialog extends AppCompatDialog {
-    public final static float BLUR_STEP = 1.3f;
-    public final static int STEP_COUNT = 50;
-
+    private DialogBackgroundDimmingController.DimmingController dimmingController;
 
     protected OnBackPressed listener;
 
@@ -61,15 +58,10 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
         Window window = getWindow();
 
         if (window != null) {
+            dimmingController = DialogBackgroundDimmingController.attach(activity, this, blur);
+
             window.setWindowAnimations(0);
-
-            if (blur && Utils.isMinimumSDK(Build.VERSION_CODES.S)) {
-                window.setDimAmount(0.001f); // some devices do not blur if the dim value is equal to 0
-                window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            } else {
-                window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            }
-
+            window.setFormat(android.graphics.PixelFormat.TRANSLUCENT);
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT);
 
@@ -93,8 +85,14 @@ public class PersistentFullscreenDialog extends AppCompatDialog {
         return themeId;
     }
 
-    @SuppressLint("GestureBackNavigation")
+    public void setDimmingFactor(@FloatRange(from = 0, to = 1) float factor) {
+        if (dimmingController != null) {
+            dimmingController.setFactor(factor);
+        }
+    }
+
     @Override
+    @SuppressLint("GestureBackNavigation")
     public void onBackPressed() {
         if (listener == null || listener.onPressed()) {
             super.onBackPressed();

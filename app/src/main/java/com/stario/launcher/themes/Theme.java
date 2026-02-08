@@ -24,6 +24,8 @@ import com.stario.launcher.R;
 public enum Theme {
     THEME_DYNAMIC("com.stario.THEME_DYNAMIC", R.string.dynamic,
             R.style.Theme_Light_Dynamic, R.style.Theme_Dark_Dynamic),
+    THEME_MONOCHROME("com.stario.THEME_MONOCHROME", R.string.monochrome,
+            R.style.Theme_Light_Monochrome, R.style.Theme_Dark_Monochrome),
     THEME_RED("com.stario.THEME_RED", R.string.red,
             R.style.Theme_Light_Red, R.style.Theme_Dark_Red),
     THEME_ORANGE("com.stario.THEME_ORANGE", R.string.orange,
@@ -61,6 +63,8 @@ public enum Theme {
     public static Theme from(String theme) {
         if (theme.equals(THEME_DYNAMIC.themeIdentifier)) {
             return THEME_DYNAMIC;
+        } else if (theme.equals(THEME_MONOCHROME.themeIdentifier)) {
+            return THEME_MONOCHROME;
         } else if (theme.equals(THEME_RED.themeIdentifier)) {
             return THEME_RED;
         } else if (theme.equals(THEME_ORANGE.themeIdentifier)) {

@@ -18,9 +18,6 @@
 package com.stario.launcher.activities.launcher.pins.dialog;
 
 import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +36,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
-import com.stario.launcher.activities.launcher.Launcher;
 import com.stario.launcher.apps.Category;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.themes.ThemedActivity;
@@ -48,7 +44,6 @@ import com.stario.launcher.ui.dialogs.PersistentFullscreenDialog;
 import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.ui.utils.animation.Animation;
-import com.stario.launcher.utils.Utils;
 
 public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
     private static final float SCALE_FACTOR = 0.75f;
@@ -61,19 +56,17 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
     private final GridLayoutManager manager;
     private final ThemedActivity activity;
     private final HomeWatcher homeWatcher;
-    private final Drawable background;
 
     private RelativeLayout recyclerContainer;
     private RelativeLayout container;
     private boolean allowDismissal;
     private RecyclerView recycler;
     private Category category;
-    private int lastDimStep;
     private View source;
     private int skip;
 
     public PinnedAppsGroupDialog(@NonNull ThemedActivity activity, TransitionListener listener) {
-        super(activity, activity.getThemeResourceId(), false);
+        super(activity, activity.getThemeResourceId(), true);
 
         this.activity = activity;
         this.listener = listener;
@@ -119,9 +112,6 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
                                            i3, i4, i5, i6, i7) ->
                 updateRecyclerPositionInContainer(view);
 
-        this.background = new ColorDrawable(
-                activity.getAttributeData(com.google.android.material.R.attr.colorSurfaceContainer));
-        this.lastDimStep = 0;
         this.allowDismissal = false;
         this.category = null;
         this.skip = 0;
@@ -145,12 +135,6 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Window window = getWindow();
-        if (window != null) {
-            background.setAlpha(1);
-            window.setBackgroundDrawable(background);
-        }
 
         setContentView(R.layout.pinned_apps_dialog);
 
@@ -326,7 +310,7 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
                 .alpha(1)
                 .setDuration(Animation.MEDIUM.getDuration())
                 .setUpdateListener(valueAnimator ->
-                        updateWindowDim(valueAnimator.getAnimatedFraction()))
+                        setDimmingFactor(valueAnimator.getAnimatedFraction()))
                 .setInterpolator(new DecelerateInterpolator(2)));
     }
 
@@ -353,7 +337,7 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
                         .setDuration(Animation.MEDIUM.getDuration())
                         .setInterpolator(new AccelerateInterpolator(2))
                         .setUpdateListener(valueAnimator ->
-                                updateWindowDim(1f - valueAnimator.getAnimatedFraction()))
+                                setDimmingFactor(1f - valueAnimator.getAnimatedFraction()))
                         .withEndAction(() -> {
                             if (!allowDismissal) {
                                 window.getDecorView().post(() -> {
@@ -372,7 +356,7 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
                 recyclerContainer.setScaleY(SCALE_FACTOR);
                 recyclerContainer.setAlpha(0);
 
-                updateWindowDim(0);
+                setDimmingFactor(0);
 
                 if (!activity.isDestroyed()) {
                     super.dismiss();
@@ -385,22 +369,12 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
         }
     }
 
-    private void updateWindowDim(float factor) {
-        Window window = getWindow();
+    @Override
+    public void setDimmingFactor(float factor) {
+        super.setDimmingFactor(factor);
 
-        if (window != null) {
-            background.setAlpha((int) (Launcher.MAX_BACKGROUND_ALPHA * factor));
-
-            int step = (int) (STEP_COUNT * factor);
-            if (Utils.isMinimumSDK(Build.VERSION_CODES.S) && lastDimStep != step) {
-                window.setBackgroundBlurRadius((int) (step * BLUR_STEP));
-
-                this.lastDimStep = step;
-            }
-
-            if (listener != null) {
-                listener.onProgressFraction(factor);
-            }
+        if (listener != null) {
+            listener.onProgressFraction(factor);
         }
     }
 

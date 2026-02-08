@@ -61,7 +61,6 @@ import com.stario.launcher.ui.utils.animation.WallpaperAnimator;
 import com.stario.launcher.utils.Utils;
 
 public class Launcher extends ThemedActivity {
-    public static final int MAX_BACKGROUND_ALPHA = 230;
     public static final String INTENT_KILL_TASK_ID_EXTRA = "com.stario.launcher.INTENT_KILL_TASK_ID_EXTRA";
     public static final String ACTION_KILL_TASK = "com.stario.launcher.ACTION_KILL_TASK";
 

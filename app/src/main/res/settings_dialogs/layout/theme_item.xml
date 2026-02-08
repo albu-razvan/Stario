@@ -27,7 +27,10 @@
     android:drawablePadding="4dp"
     android:fontFamily="@font/dm_sans_medium"
     android:gravity="center"
-    android:padding="15dp"
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
     android:textSize="18sp"
     app:carbon_cornerRadius="9999px"
     tools:ignore="PxUsage" />
