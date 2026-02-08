@@ -17,7 +17,7 @@
 
 <resources>
 
-    <style name="Theme.Light.Black" parent="Theme.Material3.DynamicColors.DayNight">
+    <style name="Theme.Light.Monochrome" parent="Theme.Material3.DynamicColors.DayNight">
         <item name="colorPrimary">#565656</item>
         <item name="colorOnPrimary">#FFFFFF</item>
         <item name="colorPrimaryContainer">#E5E5E5</item>
@@ -74,12 +74,12 @@
         <item name="android:navigationBarColor">#00000000</item>
         <item name="android:navigationBarDividerColor">#00000000</item>
         <item name="android:statusBarColor">#00000000</item>
-        <item name="materialAlertDialogTheme">@style/Theme.Light.Black.Dialog</item>
-        <item name="bottomSheetDialogTheme">@style/Theme.Light.Black.Sheet</item>
+        <item name="materialAlertDialogTheme">@style/Theme.Light.Monochrome.Dialog</item>
+        <item name="bottomSheetDialogTheme">@style/Theme.Light.Monochrome.Sheet</item>
         <item name="android:forceDarkAllowed">false</item>
     </style>
 
-    <style name="Theme.Light.Black.Opaque" parent="Theme.Light.Black">
+    <style name="Theme.Light.Monochrome.Opaque" parent="Theme.Light.Monochrome">
         <item name="android:windowShowWallpaper">false</item>
         <item name="android:windowTranslucentNavigation">false</item>
         <item name="android:windowIsTranslucent">true</item>
@@ -87,7 +87,7 @@
         <item name="android:forceDarkAllowed">false</item>
     </style>
 
-    <style name="Theme.Light.Black.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+    <style name="Theme.Light.Monochrome.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="colorPrimary">#565656</item>
         <item name="colorOnPrimary">#FFFFFF</item>
         <item name="colorPrimaryContainer">#E5E5E5</item>
@@ -147,7 +147,7 @@
         <item name="android:forceDarkAllowed">false</item>
     </style>
 
-    <style name="Theme.Light.Black.Sheet" parent="Theme.Material3.DayNight.BottomSheetDialog">
+    <style name="Theme.Light.Monochrome.Sheet" parent="Theme.Material3.DayNight.BottomSheetDialog">
         <item name="colorPrimary">#565656</item>
         <item name="colorOnPrimary">#FFFFFF</item>
         <item name="colorPrimaryContainer">#E5E5E5</item>

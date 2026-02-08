@@ -57,6 +57,8 @@
     <string name="kagi_integration">Powered by Kagi</string>
     <string name="hide_applications">Hide applications</string>
     <string name="hide_applications_hint">Click to hide or show</string>
+    <string name="low_spec">Low spec mode</string>
+    <string name="low_spec_description">Enabled by default when battery saver is on.</string>
     <string name="legacy_lock_animation">Legacy lock animation</string>
     <string name="icons">Icons</string>
     <string name="weather">Weather</string>
@@ -92,6 +94,7 @@
 
     <!-- Theme pop-up -->
     <string name="dynamic">Dynamic</string>
+    <string name="monochrome">Monochrome</string>
     <string name="red">Red</string>
     <string name="orange">Orange</string>
     <string name="yellow">Yellow</string>
