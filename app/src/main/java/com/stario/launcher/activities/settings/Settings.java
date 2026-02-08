@@ -787,24 +787,16 @@ public class Settings extends ThemedActivity {
             titleMeasurePlaceholder.setVisibility(View.GONE);
             titleLandscape.setVisibility(View.VISIBLE);
             titleBar.setVisibility(View.GONE);
-
-            fader.setTranslationY(0);
         } else {
             titleBar.getLayoutParams().height = Measurements.dpToPx(Measurements.HEADER_SIZE_DP);
             titleBar.requestLayout();
 
             titleMeasurePlaceholder.setVisibility(View.INVISIBLE);
             titleLandscape.setVisibility(View.GONE);
-
-            scroller.post(() -> {
-                if (scroller.canScrollVertically(-1)) {
-                    titleBar.collapse();
-                    fader.setTranslationY(0);
-                }
-
-                titleBar.setVisibility(View.VISIBLE);
-            });
+            titleBar.setVisibility(View.VISIBLE);
         }
+
+        scroller.scrollTo(0, 0);
     }
 
     private void restart() {

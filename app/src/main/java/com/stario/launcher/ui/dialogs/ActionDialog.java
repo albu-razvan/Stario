@@ -144,6 +144,10 @@ public abstract class ActionDialog extends BottomSheetDialog {
         setContentView(root);
 
         ((View) root.getParent()).setBackgroundColor(Color.TRANSPARENT);
+        Measurements.addStatusBarListener(value -> {
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) root.getLayoutParams();
+            params.topMargin = value;
+        });
 
         behavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
@@ -195,7 +199,7 @@ public abstract class ActionDialog extends BottomSheetDialog {
                         this, blurBehind(), DIMMING_MULTIPLIER);
             }
 
-            window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
             window.setWindowAnimations(R.style.ActionDialogAnimations);
             window.getDecorView().setVisibility(View.INVISIBLE);
@@ -274,7 +278,7 @@ public abstract class ActionDialog extends BottomSheetDialog {
         BottomSheetBehavior<?> behavior = getBehavior();
         behavior.setDraggable(heightProvider.getKeyboardHeight() == 0);
 
-        root.post(() -> UiUtils.Notch.applyNotchMargin(root, UiUtils.Notch.Treatment.INVERSE));
+        root.post(() -> UiUtils.Notch.applyNotchMargin(root, UiUtils.Notch.Treatment.CENTER));
 
         if (heightProvider != null) {
             heightProvider.start();

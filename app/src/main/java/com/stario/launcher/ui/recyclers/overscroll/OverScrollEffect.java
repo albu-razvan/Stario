@@ -212,16 +212,27 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
 
     @Override
     public float getDistance() {
-        if (!receivedMoveEvent || pivot == PIVOT_UNSPECIFIED) {
+        if (!receivedMoveEvent || !isPullAllowed()) {
             return 0f;
         }
 
         return factor.getValue();
     }
 
+    /** @noinspection BooleanMethodIsAlwaysInverted*/
+    private boolean isPullAllowed() {
+        if (pivot == PIVOT_TOP) {
+            return (edges & PULL_EDGE_TOP) == PULL_EDGE_TOP;
+        } else if (pivot == PIVOT_BOTTOM) {
+            return (edges & PULL_EDGE_BOTTOM) == PULL_EDGE_BOTTOM;
+        }
+
+        return false;
+    }
+
     @Override
     public float onPullDistance(float deltaDistance, float displacement) {
-        if (!receivedMoveEvent || pivot == PIVOT_UNSPECIFIED) {
+        if (!receivedMoveEvent || !isPullAllowed()) {
             return 0;
         }
 
@@ -244,7 +255,7 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
 
     @Override
     public void onPull(float deltaDistance) {
-        if (!receivedMoveEvent || pivot == PIVOT_UNSPECIFIED) {
+        if (!receivedMoveEvent || !isPullAllowed()) {
             return;
         }
 
@@ -309,7 +320,7 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
     }
 
     private void notifyStateChange(OverScrollState state) {
-        if (oldState == state || pivot == PIVOT_UNSPECIFIED) {
+        if (oldState == state || !isPullAllowed()) {
             return;
         }
 
