@@ -54,7 +54,6 @@
     <string name="hide_applications_hint">Kattintson a elrejtéshez vagy a megjelenítéshez</string>
     <string name="legacy_lock_animation">Régi zárolási animáció</string>
     <string name="icons">Ikonok</string>
-    <string name="weather">Időjárás</string>
     <string name="weather_forecast">Időjárás-előrejelzés</string>
     <string name="weather_location">Időjárás helye</string>
     <string name="location_ip_based">IP-alapú helymeghatározás (hozzávetőleges)</string>
@@ -225,5 +224,4 @@
     <!-- Accessibility service -->
 
     <string name="accessibility_service_description">A szolgáltatás egyetlen célja, hogy engedélyezze a zárolási képernyő gesztust a kezdőképernyőn. Nem gyűjt és nem oszt meg adatokat harmadik féllel.</string>
-    <string name="dock">Dock</string>
 </resources>

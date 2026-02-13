@@ -54,7 +54,6 @@
     <string name="hide_applications_hint">Piilota tai näytä napsauttamalla</string>
     <string name="legacy_lock_animation">Vanha lukitusanimaatio</string>
     <string name="icons">Kuvakkeet</string>
-    <string name="weather">Sää</string>
     <string name="weather_forecast">Sääennuste</string>
     <string name="weather_location">Sijainti (sää)</string>
     <string name="location_ip_based">IP-geosijainti (arvioitu)</string>
@@ -224,5 +223,4 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Palvelun ainoa tarkoitus on mahdollistaa lukitusnäytön eleet aloitusnäytöllä. Se ei kerää tai jaa tietoja kolmansien osapuolten kanssa.</string>
-    <string name="dock">Dock</string>
 </resources>

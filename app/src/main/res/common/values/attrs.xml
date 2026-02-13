@@ -36,6 +36,14 @@
         <attr name="grid_layout_template" format="reference" />
     </declare-styleable>
 
+    <declare-styleable name="StylizedClockView">
+        <attr name="clockTextColor" format="color" />
+        <attr name="clockBackgroundColor" format="color" />
+        <attr name="clockOutlineColor" format="color" />
+        <attr name="clockPillBackgroundColor" format="color" />
+        <attr name="clockPillForegroundColor" format="color" />
+    </declare-styleable>
+
     <declare-styleable name="FadingEdgeLayout">
         <attr name="edge" format="integer">
             <flag name="top" value="1" />

@@ -29,7 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
-import com.stario.launcher.activities.launcher.pins.PinnedCategory;
+import com.stario.launcher.activities.launcher.widgets.pins.PinnedCategory;
 import com.stario.launcher.apps.Category;
 import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.preferences.Entry;

@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.activities.launcher.glance;
+package com.stario.launcher.activities.launcher.widgets.glance;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

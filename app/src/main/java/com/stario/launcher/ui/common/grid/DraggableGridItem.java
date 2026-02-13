@@ -92,6 +92,9 @@ public class DraggableGridItem extends FrameLayout {
         handlePaint.setStrokeWidth(Measurements.dpToPx(HANDLE_STROKE_WIDTH_DP));
 
         setWillNotDraw(false);
+
+        int padding = Measurements.dpToPx(PADDING_DP);
+        setPadding(padding, padding, padding, padding);
     }
 
     void setResizingActive(boolean active) {
@@ -177,14 +180,6 @@ public class DraggableGridItem extends FrameLayout {
         float height = isVisualResizeEnabled ? visualHeight : getHeight();
 
         return x > width - handleSize && y > height - handleSize;
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-        int padding = Measurements.dpToPx(PADDING_DP);
-        setPadding(padding, padding, padding, padding);
     }
 
     @Override

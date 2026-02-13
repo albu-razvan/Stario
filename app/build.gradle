@@ -72,6 +72,7 @@ android {
                            'src/main/res/notes',
                            'src/main/res/editor',
                            'src/main/res/interactions',
+                           'src/main/res/home_clock',
                            'src/main/res/widgets',
                            'src/main/res/media',
                            'src/main/res/weather',

@@ -54,7 +54,6 @@
     <string name="hide_applications_hint">Noklikšķiniet, lai paslēptu vai parādītu</string>
     <string name="legacy_lock_animation">Mantotā bloķēšanas animācija</string>
     <string name="icons">Ikonas</string>
-    <string name="weather">Laikapstākļi</string>
     <string name="weather_forecast">Laika prognoz</string>
     <string name="weather_location">Laikapstākļu atrašanās vieta</string>
     <string name="location_ip_based">IP ģeogrāfiskā atrašanās vieta (aptuveni)</string>
@@ -224,5 +223,4 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Pakalpojuma vienīgais mērķis ir nodrošināt bloķēšanas ekrāna žestu sākuma ekrānā. Tas neapkopo un nesniedz datus trešajām pusēm.</string>
-    <string name="dock">Doks</string>
 </resources>

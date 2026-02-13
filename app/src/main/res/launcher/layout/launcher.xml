@@ -40,7 +40,6 @@
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="bottom"
             android:orientation="vertical"
             app:grid_preference_key="homescreen"
             app:grid_layout_template="@raw/grid_template_homescreen">

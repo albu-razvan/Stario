@@ -54,7 +54,6 @@
     <string name="hide_applications_hint">Faceți clic pentru a ascunde sau a afișa</string>
     <string name="legacy_lock_animation">Animație de blocare veche</string>
     <string name="icons">Icoane</string>
-    <string name="weather">Vremea</string>
     <string name="weather_forecast">Prognoză meteo</string>
     <string name="weather_location">Locația vremii</string>
     <string name="location_ip_based">Geolocalizare IP (Aproximată)</string>
@@ -224,5 +223,4 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Serviciul are unicul scop de a permite gestul de blocare a ecranului pe ecranul principal. Nu colectează și nu partajează date cu nicio terță parte.</string>
-    <string name="dock">Doc</string>
 </resources>

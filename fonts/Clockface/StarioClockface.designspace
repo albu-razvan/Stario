@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<designspace format="5.0">
+  <axes>
+    <axis tag="VTCL" name="VerticalScale" minimum="0" maximum="100" default="0" />
+  </axes>
+  <sources>
+    <source filename="StarioClockface.ufo" name="normal">
+      <location>
+        <dimension name="VerticalScale" xvalue="0" />
+      </location>
+    </source>
+    <source filename="StarioClockfaceNarrow.ufo" name="tall">
+      <location>
+        <dimension name="VerticalScale" xvalue="100" />
+      </location>
+    </source>
+  </sources>
+</designspace>

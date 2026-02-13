@@ -54,7 +54,6 @@
     <string name="hide_applications_hint">Clic para ocultar o mostrar</string>
     <string name="legacy_lock_animation">Animación de bloqueo antigua</string>
     <string name="icons">Iconos</string>
-    <string name="weather">Clima</string>
     <string name="weather_forecast">Previsión del tiempo</string>
     <string name="weather_location">Ubicación del clima</string>
     <string name="location_ip_based">Geolocalización por IP (aproximada)</string>
@@ -224,5 +223,4 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">El servicio tiene el único propósito de habilitar el gesto de bloqueo de pantalla en la pantalla de inicio. No recopila ni comparte datos con terceros.</string>
-    <string name="dock">Dock</string>
 </resources>

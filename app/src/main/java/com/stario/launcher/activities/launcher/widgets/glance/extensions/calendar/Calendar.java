@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Răzvan Albu
+ * Copyright (C) 2026 Răzvan Albu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.activities.launcher.glance.extensions.calendar;
+package com.stario.launcher.activities.launcher.widgets.glance.extensions.calendar;
 
 import android.app.ActivityOptions;
 import android.content.ContentUris;
@@ -28,7 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.stario.launcher.R;
-import com.stario.launcher.activities.launcher.glance.GlanceViewExtension;
+import com.stario.launcher.activities.launcher.widgets.glance.GlanceViewExtension;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.Casing;

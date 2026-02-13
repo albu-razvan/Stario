@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Răzvan Albu
+ * Copyright (C) 2026 Răzvan Albu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +15,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.activities.launcher.glance.extensions.media;
+package com.stario.launcher.activities.launcher.widgets.glance.extensions.media;
 
 import android.view.View;
 import android.widget.LinearLayout;
 
 import com.stario.launcher.R;
-import com.stario.launcher.activities.launcher.glance.GlanceViewExtension;
+import com.stario.launcher.activities.launcher.widgets.glance.GlanceViewExtension;
 import com.stario.launcher.themes.ThemedActivity;
 
 public final class MediaPreview implements GlanceViewExtension {

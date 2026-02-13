@@ -51,7 +51,8 @@
     <string name="vibrations">Vibrations</string>
     <string name="theme">Theme</string>
     <string name="pages">Page manager</string>
-    <string name="dock">Dock</string>
+    <string name="home">Home</string>
+    <string name="clock">Clock</string>
     <string name="pinned_category">Pinned category</string>
     <string name="search_engine">Search engine</string>
     <string name="search_results">Search results</string>
@@ -62,7 +63,6 @@
     <string name="low_spec_description">Enabled by default when battery saver is on.</string>
     <string name="legacy_lock_animation">Legacy lock animation</string>
     <string name="icons">Icons</string>
-    <string name="weather">Weather</string>
     <string name="weather_forecast">Weather forecast</string>
     <string name="weather_location">Location</string>
     <string name="location_ip_based">IP Geolocation (Approximated)</string>

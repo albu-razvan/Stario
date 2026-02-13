@@ -54,7 +54,6 @@
     <string name="hide_applications_hint">按此顯示或隱藏</string>
     <string name="legacy_lock_animation">舊式鎖定動畫</string>
     <string name="icons">圖示</string>
-    <string name="weather">天氣</string>
     <string name="weather_forecast">天氣預報</string>
     <string name="weather_location">天氣位置</string>
     <string name="location_ip_based">大致 IP 地理位置</string>
@@ -224,5 +223,4 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">此服務僅用於主畫面啟用鎖定畫面手勢並未將此資料搜集或分享給其他第三方服務。</string>
-    <string name="dock">固定欄</string>
 </resources>
