@@ -38,8 +38,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
-import com.stario.launcher.activities.launcher.glance.extensions.weather.GeocoderFallback;
-import com.stario.launcher.activities.launcher.glance.extensions.weather.Weather;
+import com.stario.launcher.activities.launcher.widgets.glance.extensions.weather.GeocoderFallback;
+import com.stario.launcher.activities.launcher.widgets.glance.extensions.weather.Weather;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.utils.UiUtils;

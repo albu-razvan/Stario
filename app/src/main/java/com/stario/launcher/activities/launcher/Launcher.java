@@ -37,13 +37,14 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.math.MathUtils;
 
 import com.stario.launcher.R;
-import com.stario.launcher.activities.launcher.glance.Glance;
-import com.stario.launcher.activities.launcher.glance.GlanceDialogExtension;
-import com.stario.launcher.activities.launcher.glance.extensions.calendar.Calendar;
-import com.stario.launcher.activities.launcher.glance.extensions.media.Media;
-import com.stario.launcher.activities.launcher.glance.extensions.weather.Weather;
-import com.stario.launcher.activities.launcher.pins.PinnedCategory;
 import com.stario.launcher.activities.launcher.sheets.LauncherSheets;
+import com.stario.launcher.activities.launcher.widgets.ClockWidget;
+import com.stario.launcher.activities.launcher.widgets.glance.Glance;
+import com.stario.launcher.activities.launcher.widgets.glance.GlanceDialogExtension;
+import com.stario.launcher.activities.launcher.widgets.glance.extensions.calendar.Calendar;
+import com.stario.launcher.activities.launcher.widgets.glance.extensions.media.Media;
+import com.stario.launcher.activities.launcher.widgets.glance.extensions.weather.Weather;
+import com.stario.launcher.activities.launcher.widgets.pins.PinnedCategory;
 import com.stario.launcher.activities.settings.Settings;
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.SheetsFocusController;
@@ -65,10 +66,11 @@ public class Launcher extends ThemedActivity {
     private BroadcastReceiver screenOnReceiver;
     private SheetsFocusController controller;
     private BroadcastReceiver killReceiver;
-    private ClosingAnimationView main;
-    private HomeWatcher homeWatcher;
     private PinnedCategory pinnedCategory;
     private DynamicGridLayout container;
+    private ClosingAnimationView main;
+    private ClockWidget clockWidget;
+    private HomeWatcher homeWatcher;
     private boolean showWhenLocked;
     private View statusBarContrast;
     private View navBarContrast;
@@ -189,6 +191,7 @@ public class Launcher extends ThemedActivity {
         LauncherSheets.attach(this, this::animateSheet);
         attachPinnedCategory(container);
         attachGlance(container);
+        attachClock(container);
     }
 
     private void attachPinnedCategory(DynamicGridLayout container) {
@@ -198,6 +201,11 @@ public class Launcher extends ThemedActivity {
                 slideOffset ->
                         animateSheet(slideOffset, false, false)
         );
+    }
+
+    private void attachClock(DynamicGridLayout container) {
+        clockWidget = new ClockWidget(this);
+        clockWidget.attach(container);
     }
 
     private void attachGlance(DynamicGridLayout container) {
@@ -319,6 +327,7 @@ public class Launcher extends ThemedActivity {
         }
 
         pinnedCategory.detach();
+        clockWidget.detach();
 
         super.onDestroy();
     }

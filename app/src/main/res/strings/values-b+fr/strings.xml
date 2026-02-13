@@ -54,7 +54,6 @@
     <string name="hide_applications_hint">Cliquer pour masquer ou afficher</string>
     <string name="legacy_lock_animation">Animation de verrouillage héritée</string>
     <string name="icons">Icônes</string>
-    <string name="weather">Météo</string>
     <string name="weather_forecast">Prévisions météo</string>
     <string name="weather_location">Localisation météo</string>
     <string name="location_ip_based">Géolocalisation IP (approximative)</string>
@@ -224,5 +223,4 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Le service a pour unique but d\'activer le geste de verrouillage de l\'écran sur l\'écran d\'accueil. Il ne collecte ni ne partage de données avec des tiers.</string>
-    <string name="dock">Dock</string>
 </resources>

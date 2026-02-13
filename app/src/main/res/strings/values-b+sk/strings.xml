@@ -54,7 +54,6 @@
     <string name="hide_applications_hint">Kliknutím skryjete alebo zobrazíte</string>
     <string name="legacy_lock_animation">Stará animácia zamknutia</string>
     <string name="icons">Ikony</string>
-    <string name="weather">Počasie</string>
     <string name="weather_forecast">Predpoveď počasia</string>
     <string name="weather_location">Umiestnenie počasia</string>
     <string name="location_ip_based">Geolokácia IP (približná)</string>
@@ -224,5 +223,4 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Služba má jediný účel, a to povoliť gesto zamknutia obrazovky na domovskej obrazovke. Nezhromažďuje ani nezdieľa žiadne dáta s treťou stranou.</string>
-    <string name="dock">Dok</string>
 </resources>

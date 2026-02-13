@@ -54,7 +54,6 @@
     <string name="hide_applications_hint">Fai clic per nascondere o mostrare</string>
     <string name="legacy_lock_animation">Animazione di blocco legacy</string>
     <string name="icons">Icone</string>
-    <string name="weather">Meteo</string>
     <string name="weather_forecast">Previsioni meteo</string>
     <string name="weather_location">Posizione meteo</string>
     <string name="location_ip_based">Geolocalizzazione IP (Approssimata)</string>
@@ -224,5 +223,4 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Il servizio ha l\'unico scopo di abilitare il gesto di blocco schermo sulla schermata iniziale. Non raccoglie né condivide dati con terze parti.</string>
-    <string name="dock">Dock</string>
 </resources>

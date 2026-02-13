@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Răzvan Albu
+ * Copyright (C) 2026 Răzvan Albu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.stario.launcher.activities.launcher.pins;
+package com.stario.launcher.activities.launcher.widgets.pins;
 
 import android.content.SharedPreferences;
 import android.graphics.Rect;
@@ -26,7 +26,7 @@ import androidx.core.math.MathUtils;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
-import com.stario.launcher.activities.launcher.pins.dialog.PinnedAppsGroupDialog;
+import com.stario.launcher.activities.launcher.widgets.pins.dialog.PinnedAppsGroupDialog;
 import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;

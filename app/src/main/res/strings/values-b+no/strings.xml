@@ -54,7 +54,6 @@
     <string name="hide_applications_hint">Klikk for å skjule eller vise</string>
     <string name="legacy_lock_animation">Gammel låseanimasjon</string>
     <string name="icons">Ikoner</string>
-    <string name="weather">Vær</string>
     <string name="weather_forecast">Værmelding</string>
     <string name="weather_location">Værlokasjon</string>
     <string name="location_ip_based">IP Geolocation (omtrentlig)</string>
@@ -224,5 +223,4 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Tjenesten har som eneste formål å aktivere låseskjermbevegelser på startskjermen. Den samler ikke inn eller deler data med tredjeparter.</string>
-    <string name="dock">Dokk</string>
 </resources>

@@ -53,9 +53,10 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import com.stario.launcher.BuildConfig;
 import com.stario.launcher.R;
 import com.stario.launcher.Stario;
-import com.stario.launcher.activities.launcher.glance.extensions.media.Media;
-import com.stario.launcher.activities.launcher.glance.extensions.weather.Weather;
-import com.stario.launcher.activities.launcher.pins.PinnedCategory;
+import com.stario.launcher.activities.launcher.widgets.ClockWidget;
+import com.stario.launcher.activities.launcher.widgets.glance.extensions.media.Media;
+import com.stario.launcher.activities.launcher.widgets.glance.extensions.weather.Weather;
+import com.stario.launcher.activities.launcher.widgets.pins.PinnedCategory;
 import com.stario.launcher.activities.pages.PageManager;
 import com.stario.launcher.activities.settings.dialogs.AccessibilityConfigurator;
 import com.stario.launcher.activities.settings.dialogs.NotificationConfigurator;
@@ -145,7 +146,7 @@ public class Settings extends ThemedActivity {
         initGeneralSection();
         initDisplaySection();
         initSearchSection();
-        initWeatherSection();
+        initHomeSection();
         initAnimationSection();
         initMiscSection();
         initFooterLinks();
@@ -331,52 +332,6 @@ public class Settings extends ThemedActivity {
     }
 
     private void initDisplaySection() {
-        // Pinned Category
-        View pinnedCategoryContainer = findViewById(R.id.pinned_category_container);
-
-        updatePinnedCategoryName();
-        pinnedCategorySwitch.setChecked(
-                pinsPrefs.getBoolean(PinnedCategory.PINNED_CATEGORY_VISIBLE, false));
-        pinnedCategorySwitch.jumpDrawablesToCurrentState();
-
-        pinnedCategorySwitch.setOnCheckedChangeListener((button, isChecked) -> {
-            if (isChecked && !isPinnedCategoryValid()) {
-                pinnedCategorySwitch.setChecked(false);
-                pinnedCategoryContainer.performClick();
-            } else {
-                pinsPrefs.edit()
-                        .putBoolean(PinnedCategory.PINNED_CATEGORY_VISIBLE, isChecked)
-                        .apply();
-            }
-        });
-
-        pinnedCategoryContainer.setOnClickListener(new View.OnClickListener() {
-            private PinnedCategoryDialog dialog;
-            private boolean showing = false;
-
-            @Override
-            public void onClick(View view) {
-                if (dialog == null) {
-                    dialog = new PinnedCategoryDialog(Settings.this, pinsPrefs,
-                            (isChecked) -> {
-                                pinnedCategorySwitch.setChecked(isChecked);
-
-                                return isPinnedCategoryValid() && isChecked;
-                            });
-
-                    dialog.setOnDismissListener(dialog -> {
-                        updatePinnedCategoryName();
-                        showing = false;
-                    });
-                }
-
-                if (!showing) {
-                    dialog.show();
-                    showing = true;
-                }
-            }
-        });
-
         // Hidden Apps
         updateHiddenAppsCount();
         findViewById(R.id.hidden_apps).setOnClickListener(new View.OnClickListener() {
@@ -496,7 +451,62 @@ public class Settings extends ThemedActivity {
                                 .apply());
     }
 
-    private void initWeatherSection() {
+    private void initHomeSection() {
+        // Clock
+        setupSwitch(findViewById(R.id.clock), findViewById(R.id.clock_container),
+                settingsPrefs.getBoolean(ClockWidget.CLOCK_WIDGET_KEY, true),
+                (button, checked) ->
+                        settingsPrefs.edit()
+                                .putBoolean(ClockWidget.CLOCK_WIDGET_KEY, checked)
+                                .apply());
+
+        // Pinned Category
+        View pinnedCategoryContainer = findViewById(R.id.pinned_category_container);
+
+        updatePinnedCategoryName();
+        pinnedCategorySwitch.setChecked(
+                pinsPrefs.getBoolean(PinnedCategory.PINNED_CATEGORY_VISIBLE, false));
+        pinnedCategorySwitch.jumpDrawablesToCurrentState();
+
+        pinnedCategorySwitch.setOnCheckedChangeListener((button, isChecked) -> {
+            if (isChecked && !isPinnedCategoryValid()) {
+                pinnedCategorySwitch.setChecked(false);
+                pinnedCategoryContainer.performClick();
+            } else {
+                pinsPrefs.edit()
+                        .putBoolean(PinnedCategory.PINNED_CATEGORY_VISIBLE, isChecked)
+                        .apply();
+            }
+        });
+
+        pinnedCategoryContainer.setOnClickListener(new View.OnClickListener() {
+            private PinnedCategoryDialog dialog;
+            private boolean showing = false;
+
+            @Override
+            public void onClick(View view) {
+                if (dialog == null) {
+                    dialog = new PinnedCategoryDialog(Settings.this, pinsPrefs,
+                            (isChecked) -> {
+                                pinnedCategorySwitch.setChecked(isChecked);
+
+                                return isPinnedCategoryValid() && isChecked;
+                            });
+
+                    dialog.setOnDismissListener(dialog -> {
+                        updatePinnedCategoryName();
+                        showing = false;
+                    });
+                }
+
+                if (!showing) {
+                    dialog.show();
+                    showing = true;
+                }
+            }
+        });
+
+        // Weather
         setupSwitch(findViewById(R.id.weather), findViewById(R.id.weather_container),
                 weatherPrefs.getBoolean(Weather.FORECAST_KEY, true),
                 (button, checked) -> {

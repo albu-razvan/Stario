@@ -37,7 +37,6 @@
     <string name="hide_applications_hint">Нажмите, чтобы скрыть или показать</string>
     <string name="legacy_lock_animation">Старая анимация блокировки</string>
     <string name="icons">Иконки</string>
-    <string name="weather">Погода</string>
     <string name="weather_forecast">Прогноз погоды</string>
     <string name="weather_location">Местоположение для погоды</string>
     <string name="location_ip_based">IP-геолокация (приблизительно)</string>
@@ -207,5 +206,4 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Служба используется исключительно для включения жеста блокировки на главном экране. Она не собирает и не передаёт данные третьим лицам.</string>
-    <string name="dock">Док</string>
 </resources>

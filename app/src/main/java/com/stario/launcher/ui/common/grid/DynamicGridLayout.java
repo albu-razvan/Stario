@@ -38,9 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/*
- * Used Gemini 3 for the nudge and item move logic
- */
+// Used Gemini 3 for the nudge and item move logic
 public class DynamicGridLayout extends ViewGroup {
     public static final String TAG = "DynamicGridLayout";
 

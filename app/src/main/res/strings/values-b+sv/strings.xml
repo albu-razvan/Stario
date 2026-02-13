@@ -54,7 +54,6 @@
     <string name="hide_applications_hint">Klicka för att dölja eller visa</string>
     <string name="legacy_lock_animation">Äldre låsanimering</string>
     <string name="icons">Ikoner</string>
-    <string name="weather">Väder</string>
     <string name="weather_forecast">Väderprognos</string>
     <string name="weather_location">Väderplats</string>
     <string name="location_ip_based">IP-geolokalisering (ungefärlig)</string>
@@ -224,5 +223,4 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Tjänsten har det enda syftet att aktivera låsskärmsgest på startskärmen. Den samlar inte in eller delar data med tredje part.</string>
-    <string name="dock">Dock</string>
 </resources>

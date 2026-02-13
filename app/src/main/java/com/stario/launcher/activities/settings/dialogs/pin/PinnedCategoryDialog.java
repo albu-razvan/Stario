@@ -30,7 +30,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.stario.launcher.R;
-import com.stario.launcher.activities.launcher.pins.PinnedCategory;
+import com.stario.launcher.activities.launcher.widgets.pins.PinnedCategory;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.dialogs.ActionDialog;
 import com.stario.launcher.ui.recyclers.DividerItemDecorator;

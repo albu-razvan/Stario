@@ -54,7 +54,6 @@
     <string name="hide_applications_hint">Zum Ein- oder Ausblenden klicken</string>
     <string name="legacy_lock_animation">Legacy-Sperranimation</string>
     <string name="icons">Symbole</string>
-    <string name="weather">Wetter</string>
     <string name="weather_forecast">Wettervorhersage</string>
     <string name="weather_location">Wetterstandort</string>
     <string name="location_ip_based">IP-Geolokalisierung (ungefähr)</string>
@@ -224,5 +223,4 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Der Dienst hat den alleinigen Zweck, die Bildschirmsperrgeste auf dem Startbildschirm zu ermöglichen. Er sammelt oder teilt keine Daten mit Dritten.</string>
-    <string name="dock">Dock</string>
 </resources>

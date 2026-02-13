@@ -54,7 +54,6 @@
     <string name="hide_applications_hint">Klik om te verbergen of te tonen</string>
     <string name="legacy_lock_animation">Verouderde vergrendelingsanimatie</string>
     <string name="icons">Pictogrammen</string>
-    <string name="weather">Weer</string>
     <string name="weather_forecast">Weersvoorspelling</string>
     <string name="weather_location">Weerlocatie</string>
     <string name="location_ip_based">IP-geolocatie (benaderd)</string>
@@ -224,5 +223,4 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">De service heeft als enige doel het inschakelen van het vergrendelschermgebaar op het startscherm. Het verzamelt of deelt geen gegevens met derden.</string>
-    <string name="dock">Dock</string>
 </resources>

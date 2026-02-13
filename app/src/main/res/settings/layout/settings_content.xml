@@ -183,67 +183,179 @@
         android:layout_marginBottom="10dp"
         android:fontFamily="@font/dm_sans_regular"
         android:paddingTop="40dp"
-        android:text="@string/dock"
+        android:text="@string/home"
         android:textColor="?attr/colorSecondary"
         android:textSize="16sp" />
 
     <carbon.widget.LinearLayout
-        android:id="@+id/pinned_category_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/ripple"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="15dp"
-        android:paddingTop="7dp"
-        android:paddingEnd="15dp"
-        android:paddingBottom="7dp"
+        android:divider="@drawable/transparent_divider_small"
+        android:orientation="vertical"
+        android:showDividers="middle"
+        android:transitionGroup="true"
         app:carbon_cornerRadius="20dp">
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_pin" />
-
-        <Space
-            android:layout_width="10dp"
-            android:layout_height="0px" />
-
-        <LinearLayout
-            android:layout_width="0px"
+        <carbon.widget.RelativeLayout
+            android:id="@+id/clock_container"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp">
+            android:background="@drawable/ripple"
+            android:padding="7dp"
+            app:carbon_cornerRadius="5dp">
 
-            <TextView
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/clock"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clickable="false"
+                android:drawableStart="@drawable/ic_watch"
+                android:drawablePadding="10dp"
                 android:fontFamily="@font/dm_sans_medium"
                 android:letterSpacing="-0.03"
-                android:text="@string/pinned_category"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/clock"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp" />
 
-            <TextView
-                android:id="@+id/pinned_category_name"
+        </carbon.widget.RelativeLayout>
+
+        <carbon.widget.LinearLayout
+            android:id="@+id/pinned_category_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="15dp"
+            android:paddingTop="7dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="7dp"
+            app:carbon_cornerRadius="5dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_pin" />
+
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="0px" />
+
+            <LinearLayout
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:letterSpacing="-0.03"
+                    android:text="@string/pinned_category"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/pinned_category_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="0px" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/pinned_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </carbon.widget.LinearLayout>
+
+        <carbon.widget.RelativeLayout
+            android:id="@+id/weather_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:padding="7dp"
+            app:carbon_cornerRadius="5dp">
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/weather"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_regular"
+                android:clickable="false"
+                android:drawableStart="@drawable/ic_weather"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/dm_sans_medium"
+                android:letterSpacing="-0.03"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/weather_forecast"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp" />
+                android:textSize="20sp" />
 
-        </LinearLayout>
+        </carbon.widget.RelativeLayout>
 
-        <Space
-            android:layout_width="10dp"
-            android:layout_height="0px" />
+        <carbon.widget.LinearLayout
+            android:id="@+id/location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="15dp"
+            android:paddingTop="7dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="7dp"
+            android:transitionGroup="true"
+            app:carbon_cornerRadius="5dp">
 
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/pinned_category"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_location" />
+
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="0px" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:letterSpacing="-0.03"
+                    android:paddingTop="10dp"
+                    android:text="@string/weather_location"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/location_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_regular"
+                    android:paddingBottom="10dp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+        </carbon.widget.LinearLayout>
 
     </carbon.widget.LinearLayout>
 
@@ -523,104 +635,6 @@
                 android:textSize="20sp" />
 
         </carbon.widget.RelativeLayout>
-
-    </carbon.widget.LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginBottom="10dp"
-        android:fontFamily="@font/dm_sans_regular"
-        android:paddingTop="40dp"
-        android:text="@string/weather"
-        android:textColor="?attr/colorSecondary"
-        android:textSize="16sp" />
-
-    <carbon.widget.LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:divider="@drawable/transparent_divider_small"
-        android:orientation="vertical"
-        android:showDividers="middle"
-        android:transitionGroup="true"
-        app:carbon_cornerRadius="20dp">
-
-        <carbon.widget.RelativeLayout
-            android:id="@+id/weather_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ripple"
-            android:padding="7dp"
-            app:carbon_cornerRadius="5dp">
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/weather"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:drawableStart="@drawable/ic_weather"
-                android:drawablePadding="10dp"
-                android:fontFamily="@font/dm_sans_medium"
-                android:letterSpacing="-0.03"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:text="@string/weather_forecast"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="20sp" />
-
-        </carbon.widget.RelativeLayout>
-
-        <carbon.widget.LinearLayout
-            android:id="@+id/location"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ripple"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="15dp"
-            android:paddingTop="7dp"
-            android:paddingEnd="15dp"
-            android:paddingBottom="7dp"
-            android:transitionGroup="true"
-            app:carbon_cornerRadius="5dp">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_location" />
-
-            <Space
-                android:layout_width="10dp"
-                android:layout_height="0px" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/dm_sans_medium"
-                    android:letterSpacing="-0.03"
-                    android:paddingTop="10dp"
-                    android:text="@string/weather_location"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/location_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/dm_sans_regular"
-                    android:paddingBottom="10dp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
-
-        </carbon.widget.LinearLayout>
 
     </carbon.widget.LinearLayout>
 

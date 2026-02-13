@@ -54,7 +54,6 @@
     <string name="hide_applications_hint">Gizlemek veya göstermek için tıklayın</string>
     <string name="legacy_lock_animation">Eski kilit animasyonu</string>
     <string name="icons">Simgeler</string>
-    <string name="weather">Hava Durumu</string>
     <string name="weather_forecast">Hava durumu tahmini</string>
     <string name="weather_location">Hava durumu konumu</string>
     <string name="location_ip_based">IP Coğrafi Konum (Yaklaşık)</string>
@@ -224,5 +223,4 @@
 
     <!-- Accessibility service -->
     <string name="accessibility_service_description">Hizmetin tek amacı ana ekranda kilit ekranı hareketini etkinleştirmektir. Herhangi bir üçüncü tarafla veri toplamaz veya paylaşmaz.</string>
-    <string name="dock">Dock</string>
 </resources>

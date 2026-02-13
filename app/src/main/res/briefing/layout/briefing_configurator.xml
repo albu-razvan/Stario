@@ -20,7 +20,6 @@
     android:id="@+id/scroller"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/background_sheet"
     android:paddingTop="15dp"
     android:paddingBottom="20dp">
 
