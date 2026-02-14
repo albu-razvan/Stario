@@ -18,6 +18,7 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:forceDarkAllowed="false"
@@ -117,6 +118,32 @@
                     android:includeFontPadding="false"
                     android:padding="5dp"
                     android:text="L"
+                    android:textColor="?attr/colorOnTertiary"
+                    android:textSize="20sp"
+                    app:carbon_cornerRadius="500dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="H,1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/xlarge"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <carbon.widget.TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/colorTertiary"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:gravity="center_horizontal"
+                    android:includeFontPadding="false"
+                    android:padding="5dp"
+                    android:text="XL"
                     android:textColor="?attr/colorOnTertiary"
                     android:textSize="20sp"
                     app:carbon_cornerRadius="500dp"

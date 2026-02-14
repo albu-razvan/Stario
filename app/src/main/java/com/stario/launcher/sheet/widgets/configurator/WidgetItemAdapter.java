@@ -74,6 +74,7 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
         private final View small;
         private final View medium;
         private final View large;
+        private final View xlarge;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -84,6 +85,7 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
             small = itemView.findViewById(R.id.small);
             medium = itemView.findViewById(R.id.medium);
             large = itemView.findViewById(R.id.large);
+            xlarge = itemView.findViewById(R.id.xlarge);
         }
     }
 
@@ -129,6 +131,12 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
                         }
                     });
 
+                    holder.xlarge.setOnClickListener(v -> {
+                        if (requestListener != null) {
+                            requestListener.requestAddition(info, WidgetSize.XLARGE);
+                        }
+                    });
+
                     if (!holder.equals(targetHolder)) {
                         reset();
                     }
@@ -145,6 +153,7 @@ public class WidgetItemAdapter extends RecyclerView.Adapter<WidgetItemAdapter.Vi
             holder.small.setVisibility(View.VISIBLE);
             holder.medium.setVisibility(View.VISIBLE);
             holder.large.setVisibility(View.VISIBLE);
+            holder.xlarge.setVisibility(View.VISIBLE);
 
             if (Utils.isMinimumSDK(Build.VERSION_CODES.S) &&
                     info.targetCellHeight > 0 &&
