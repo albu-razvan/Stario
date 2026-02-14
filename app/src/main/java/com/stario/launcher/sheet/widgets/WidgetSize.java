@@ -20,7 +20,8 @@ package com.stario.launcher.sheet.widgets;
 public enum WidgetSize {
     SMALL(1, 1),
     MEDIUM(2, 1),
-    LARGE(2, 2);
+    LARGE(2, 2),
+    XLARGE(2, 3);
 
     public final int width;
     public final int height;
