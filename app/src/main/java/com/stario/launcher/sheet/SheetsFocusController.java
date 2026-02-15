@@ -19,14 +19,18 @@ package com.stario.launcher.sheet;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.WindowInsets;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.graphics.Insets;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
 
 import com.stario.launcher.activities.launcher.Launcher;
@@ -38,12 +42,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SheetsFocusController extends ConstraintLayout {
+
     private CheckForLongPress pendingCheckForLongPress;
     private View.OnLongClickListener longClickListener;
     private SheetDialog.OnSlideListener slideListener;
     private boolean hasPerformedLongPress;
     private List<Integer> targetPointers;
     private boolean dispatchedMoveEvent;
+    private boolean isControllerEnabled;
+    private Rect systemGestureInsets;
     private SheetWrapper[] wrappers;
     private float deltaX, deltaY;
     private SheetType sheetType;
@@ -74,14 +81,35 @@ public class SheetsFocusController extends ConstraintLayout {
         this.wrappers = new SheetWrapper[SheetType.values().length];
         this.targetPointers = new ArrayList<>();
         this.dispatchedMoveEvent = false;
+        this.systemGestureInsets = new Rect();
+        this.isControllerEnabled = true;
         this.sheetType = null;
+    }
+
+    public void setControllerEnabled(boolean enabled) {
+        this.isControllerEnabled = enabled;
+    }
+
+    private boolean isTouchInSystemInsets(float x, float y) {
+        return x < systemGestureInsets.left ||
+                x > (getWidth() - systemGestureInsets.right) ||
+                y < systemGestureInsets.top ||
+                y > (getHeight() - systemGestureInsets.bottom);
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (!isControllerEnabled) {
+            return super.onInterceptTouchEvent(ev);
+        }
+
         int action = ev.getAction();
 
         if (action == MotionEvent.ACTION_DOWN) {
+            if (isTouchInSystemInsets(ev.getRawX(), ev.getRawY())) {
+                return false;
+            }
+
             targetPointers.add(0, 0);
 
             X = ev.getX(getPointer(ev));
@@ -128,6 +156,10 @@ public class SheetsFocusController extends ConstraintLayout {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
+        if (!isControllerEnabled) {
+            return super.onTouchEvent(ev);
+        }
+
         int action = ev.getAction();
 
         if (action == MotionEvent.ACTION_UP ||
@@ -140,6 +172,10 @@ public class SheetsFocusController extends ConstraintLayout {
             targetPointers.clear();
         } else {
             if (action == MotionEvent.ACTION_DOWN) {
+                if (isTouchInSystemInsets(ev.getRawX(), ev.getRawY())) {
+                    return false;
+                }
+
                 targetPointers.add(0, 0);
 
                 X = ev.getX(getPointer(ev));
@@ -183,6 +219,21 @@ public class SheetsFocusController extends ConstraintLayout {
         }
 
         return true;
+    }
+
+    @Override
+    public WindowInsets dispatchApplyWindowInsets(WindowInsets insets) {
+        WindowInsetsCompat compat = WindowInsetsCompat.toWindowInsetsCompat(insets);
+        Insets gestureInsets = compat.getInsets(WindowInsetsCompat.Type.systemGestures());
+
+        systemGestureInsets.set(
+                gestureInsets.left,
+                gestureInsets.top,
+                gestureInsets.right,
+                gestureInsets.bottom
+        );
+
+        return super.dispatchApplyWindowInsets(insets);
     }
 
     private int getPointer(MotionEvent event) {

@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 
 public enum Entry {
     CATEGORY_APPLICATION_MAP("CATEGORY_APPLICATION_MAP"),
+    GRID_TEMPLATE_MANAGER("GRID_TEMPLATE_MANAGER"),
     APPLICATION_LABELS("APPLICATION_LABELS"),
     PINNED_CATEGORY("PINNED_CATEGORY"),
     CATEGORY_NAMES("CATEGORY_NAMES"),
@@ -62,6 +63,6 @@ public enum Entry {
     }
 
     public String toSubPreference(String name) {
-        return toString() + "." + name;
+        return this + "." + name;
     }
 }

@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.FloatRange;
+import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 import com.stario.launcher.BuildConfig;
@@ -80,7 +81,7 @@ public class Utils {
         }, executorPool);
     }
 
-    public static Gson getGsonInstance() {
+    public static @NonNull Gson getGsonInstance() {
         if (gson == null) {
             gson = new Gson();
         }

@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (C) 2025 Răzvan Albu
+<!--
+  ~ Copyright (C) 2026 Răzvan Albu
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -15,7 +15,12 @@
   ~ along with this program. If not, see <http://www.gnu.org/licenses/>
   -->
 
-<resources>
-    <item name="stagger_order_tag" type="id" />
-    <item name="is_dragging_tag" type="id" />
-</resources>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+  <path
+      android:pathData="M480,880 L310,710l57,-57 73,73v-206L235,520l73,72 -58,58L80,480l169,-169 57,57 -72,72h206v-206l-73,73 -57,-57 170,-170 170,170 -57,57 -73,-73v206h205l-73,-72 58,-58 170,170 -170,170 -57,-57 73,-73L520,520v205l72,-73 58,58L480,880Z"
+      android:fillColor="?attr/colorSecondary"/>
+</vector>

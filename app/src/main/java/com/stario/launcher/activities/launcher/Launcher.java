@@ -23,7 +23,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,9 +32,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.LinearLayout;
 
-import androidx.annotation.NonNull;
+import androidx.activity.OnBackPressedCallback;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.math.MathUtils;
 
@@ -52,6 +50,8 @@ import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.SheetsFocusController;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.common.grid.DraggableGridItem;
+import com.stario.launcher.ui.common.grid.DynamicGridLayout;
 import com.stario.launcher.ui.common.lock.ClosingAnimationView;
 import com.stario.launcher.ui.popup.PopupMenu;
 import com.stario.launcher.ui.utils.HomeWatcher;
@@ -64,15 +64,18 @@ public class Launcher extends ThemedActivity {
     public static final String INTENT_KILL_TASK_ID_EXTRA = "com.stario.launcher.INTENT_KILL_TASK_ID_EXTRA";
     public static final String ACTION_KILL_TASK = "com.stario.launcher.ACTION_KILL_TASK";
 
+    private static final String CATEGORY_TAG = "CategoryGlance";
+    private static final String GLANCE_TAG = "GridGlance";
+
     private BroadcastReceiver screenOnReceiver;
     private SheetsFocusController controller;
     private BroadcastReceiver killReceiver;
     private ClosingAnimationView main;
     private HomeWatcher homeWatcher;
     private PinnedCategory pinnedCategory;
+    private DynamicGridLayout container;
     private boolean showWhenLocked;
     private View statusBarContrast;
-    private LinearLayout container;
     private View navBarContrast;
     private View decorView;
     private Glance glance;
@@ -125,11 +128,29 @@ public class Launcher extends ThemedActivity {
         decorView = window.getDecorView();
 
         Measurements.measure(getRoot(), (insets) -> {
-            controller.setPadding(0, Measurements.getSysUIHeight(), 0,
-                    Measurements.getNavHeight() + Measurements.dpToPx(20));
+            if (Measurements.isLandscape()) {
+                container.setPadding(0, Measurements.getSysUIHeight(),
+                        0, Measurements.getNavHeight());
+            } else {
+                container.setPadding(Measurements.getDefaultPadding(),
+                        Measurements.getSysUIHeight() + Measurements.getDefaultPadding(),
+                        Measurements.getDefaultPadding(),
+                        Measurements.getNavHeight() + Measurements.getDefaultPadding());
+            }
 
             return insets;
         });
+
+        if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+            getOnBackPressedDispatcher()
+                    .addCallback(this, new OnBackPressedCallback(true) {
+                        @Override
+                        public void handleOnBackPressed() {
+                            container.setRearrangeable(false);
+                            controller.setControllerEnabled(true);
+                        }
+                    });
+        }
 
         statusBarContrast = findViewById(R.id.status_bar_contrast);
         navBarContrast = findViewById(R.id.navigation_bar_contrast);
@@ -170,26 +191,36 @@ public class Launcher extends ThemedActivity {
             registerReceiver(screenOnReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
         }
 
-        container.setOrientation(Measurements.isLandscape() ?
-                LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
-
         LauncherSheets.attach(this, this::animateSheet);
         attachPinnedCategory(container);
         attachGlance(container);
     }
 
-    private void attachPinnedCategory(LinearLayout container) {
+    private void attachPinnedCategory(DynamicGridLayout container) {
+        DraggableGridItem gridItem = new DraggableGridItem(this);
+        gridItem.itemId = CATEGORY_TAG;
+
         pinnedCategory = new PinnedCategory(this);
-        pinnedCategory.attach(container,
+        pinnedCategory.attach(gridItem,
                 () -> controller.hideAllSheets(),
                 slideOffset ->
                         animateSheet(slideOffset, false, false)
         );
+
+        DynamicGridLayout.ItemLayoutData defaultLayoutData =
+                new DynamicGridLayout.ItemLayoutData(GLANCE_TAG, 0, 0, 4, 1);
+        defaultLayoutData.minColSpan = 1;
+        defaultLayoutData.maxRowSpan = 1;
+
+        container.addItem(gridItem, defaultLayoutData);
     }
 
-    private void attachGlance(LinearLayout container) {
+    private void attachGlance(DynamicGridLayout container) {
+        DraggableGridItem gridItem = new DraggableGridItem(this);
+        gridItem.itemId = GLANCE_TAG;
+
         glance = new Glance(this);
-        glance.attach(container);
+        glance.attach(gridItem);
 
         GlanceDialogExtension.TransitionListener listener =
                 slideOffset -> animateSheet(slideOffset, false, false);
@@ -198,6 +229,13 @@ public class Launcher extends ThemedActivity {
         glance.attachViewExtension(calendar);
         glance.attachDialogExtension(new Media(), Gravity.BOTTOM, listener);
         glance.attachDialogExtension(new Weather(), Gravity.BOTTOM, listener);
+
+        DynamicGridLayout.ItemLayoutData defaultLayoutData =
+                new DynamicGridLayout.ItemLayoutData(GLANCE_TAG, 0, 0, 4, 1);
+        defaultLayoutData.minColSpan = 4;
+        defaultLayoutData.maxRowSpan = 1;
+
+        container.addItem(gridItem, defaultLayoutData);
     }
 
     public void displayLauncherOptions(Launcher activity, SheetsFocusController controller) {
@@ -213,6 +251,14 @@ public class Launcher extends ThemedActivity {
 
                     activity.startActivity(intent,
                             ActivityOptions.makeSceneTransitionAnimation(activity).toBundle());
+                })));
+
+        menu.add(new PopupMenu.Item(resources.getString(R.string.rearrange),
+                ResourcesCompat.getDrawable(resources, R.drawable.ic_move, activity.getTheme()),
+                view -> view.post(() -> {
+                    container.setRearrangeable(true);
+                    controller.setControllerEnabled(false);
+                    menu.dismiss();
                 })));
 
         menu.add(new PopupMenu.Item(resources.getString(R.string.wallpaper),
@@ -318,14 +364,6 @@ public class Launcher extends ThemedActivity {
     }
 
     @Override
-    public void onConfigurationChanged(@NonNull Configuration configuration) {
-        super.onConfigurationChanged(configuration);
-
-        container.setOrientation(Measurements.isLandscape() ?
-                LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
-    }
-
-    @Override
     public void onEnterAnimationComplete() {
         super.onEnterAnimationComplete();
 
@@ -354,6 +392,9 @@ public class Launcher extends ThemedActivity {
     @Override
     protected void onStop() {
         setContrastVisibility(View.GONE);
+
+        container.setRearrangeable(false);
+        controller.setControllerEnabled(true);
         homeWatcher.stopWatch();
 
         if (showWhenLocked) {
@@ -413,9 +454,9 @@ public class Launcher extends ThemedActivity {
         return false;
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     @SuppressLint({"MissingSuperCall", "GestureBackNavigation"})
-    @Override
     public void onBackPressed() {
     }
 }

@@ -29,41 +29,22 @@ import android.view.ViewConfiguration;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
-import android.widget.LinearLayout;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.stario.launcher.BuildConfig;
 import com.stario.launcher.activities.launcher.Launcher;
 import com.stario.launcher.services.AccessibilityService;
+import com.stario.launcher.ui.common.grid.DynamicGridLayout;
 
-public class LockDetector extends LinearLayout {
+public class LockDetector extends DynamicGridLayout {
     public static final String PREFERENCE_ENTRY = "com.stario.LockDetector.LOCK";
     public static final String LEGACY_ANIMATION = "com.stario.LockDetector.LEGACY_LOCK_ANIMATION";
 
-    private DoubleTapDetector detector;
+    private final DoubleTapDetector detector;
     private boolean shouldIntercept;
 
-    public LockDetector(@NonNull Context context) {
-        super(context);
-
-        init(context);
-    }
-
-    public LockDetector(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public LockDetector(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        init(context);
-    }
-
-    public LockDetector(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-
-        init(context);
-    }
-
-    private void init(Context context) {
         if (!(context instanceof Launcher)) {
             throw new RuntimeException("LockDetector needs the Launcher context. (Is this view used in an activity other than Launcher.java?)");
         }

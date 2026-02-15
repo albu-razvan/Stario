@@ -7,6 +7,8 @@
 -keep class com.stario.launcher.sheet.widgets.dialog.WidgetsDialog { *; }
 -keep class com.stario.launcher.sheet.briefing.dialog.BriefingDialog { *; }
 
+-keepattributes Signature
+
 -dontwarn aQute.bnd.annotation.spi.ServiceProvider
 -dontwarn org.osgi.util.tracker.ServiceTracker
 -dontwarn org.apache.geronimo.osgi.registry.api.ProviderRegistry

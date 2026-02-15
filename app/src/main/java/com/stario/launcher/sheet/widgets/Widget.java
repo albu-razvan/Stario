@@ -20,12 +20,18 @@ package com.stario.launcher.sheet.widgets;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.gson.annotations.SerializedName;
 import com.stario.launcher.utils.Utils;
 
 public class Widget implements Comparable<Widget> {
-    public final int id;
-    public int position; // up-down
+    @SerializedName("size")
     public WidgetSize size;
+
+    @SerializedName("id")
+    public final int id;
+
+    @SerializedName("position")
+    public int position; // up-down
 
     public Widget(int id, int position, WidgetSize size) {
         this.id = id;
@@ -35,8 +41,7 @@ public class Widget implements Comparable<Widget> {
 
     public static Widget deserialize(String data) {
         try {
-            Widget holder = Utils.getGsonInstance()
-                    .fromJson(data, Widget.class);
+            Widget holder = Utils.getGsonInstance().fromJson(data, Widget.class);
 
             if (holder.size == null || holder.id == -1 || holder.position == -1) {
                 return null;

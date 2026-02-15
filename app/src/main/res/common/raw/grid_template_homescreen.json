@@ -1,0 +1,982 @@
+[
+  {
+    "cols": 4,
+    "rows": 6,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 4,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 4,
+    "rows": 7,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 4,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 4,
+    "rows": 8,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 4,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 4,
+    "rows": 9,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 4,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 4,
+    "rows": 10,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 4,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 5,
+    "rows": 3,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 2,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 2,
+        "row": 2,
+        "colSpan": 3,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 5,
+    "rows": 4,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 2,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 2,
+        "row": 3,
+        "colSpan": 3,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 5,
+    "rows": 8,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 5,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 5,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 5,
+    "rows": 9,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 5,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 5,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 5,
+    "rows": 10,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 5,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 5,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 5,
+    "rows": 11,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 5,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 5,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 6,
+    "rows": 3,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 3,
+        "row": 2,
+        "colSpan": 3,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 6,
+    "rows": 4,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 3,
+        "row": 3,
+        "colSpan": 3,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 6,
+    "rows": 5,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 3,
+        "row": 4,
+        "colSpan": 3,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 6,
+    "rows": 10,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 6,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 6,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 6,
+    "rows": 11,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 6,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 6,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 6,
+    "rows": 12,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 6,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 6,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 4,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 3,
+        "row": 3,
+        "colSpan": 4,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 5,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 3,
+        "row": 4,
+        "colSpan": 4,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 6,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 3,
+        "row": 5,
+        "colSpan": 4,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 10,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 7,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 7,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 11,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 7,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 7,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 12,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 7,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 7,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 13,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 7,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 7,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 8,
+    "rows": 3,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 4,
+        "row": 2,
+        "colSpan": 4,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 8,
+    "rows": 4,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 4,
+        "row": 3,
+        "colSpan": 4,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 8,
+    "rows": 5,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 4,
+        "row": 4,
+        "colSpan": 4,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 8,
+    "rows": 6,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 4,
+        "row": 5,
+        "colSpan": 4,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 8,
+    "rows": 11,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 8,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 8,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 8,
+    "rows": 12,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 8,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 8,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 8,
+    "rows": 13,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 8,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 8,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 8,
+    "rows": 14,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 8,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 8,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 9,
+    "rows": 4,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 4,
+        "row": 3,
+        "colSpan": 5,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 9,
+    "rows": 5,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 4,
+        "row": 4,
+        "colSpan": 5,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 9,
+    "rows": 6,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 4,
+        "row": 5,
+        "colSpan": 5,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 9,
+    "rows": 7,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 4,
+        "row": 6,
+        "colSpan": 5,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 9,
+    "rows": 12,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 9,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 9,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 10,
+    "rows": 5,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 5,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 5,
+        "row": 4,
+        "colSpan": 5,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 10,
+    "rows": 6,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 5,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 5,
+        "row": 5,
+        "colSpan": 5,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 10,
+    "rows": 7,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 5,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 5,
+        "row": 6,
+        "colSpan": 5,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 10,
+    "rows": 13,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 10,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 10,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 12,
+    "rows": 6,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 6,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 6,
+        "row": 5,
+        "colSpan": 6,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 12,
+    "rows": 7,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 6,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 6,
+        "row": 6,
+        "colSpan": 6,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 12,
+    "rows": 8,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 6,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 6,
+        "row": 7,
+        "colSpan": 6,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 14,
+    "rows": 6,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 7,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 7,
+        "row": 5,
+        "colSpan": 7,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 14,
+    "rows": 7,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 7,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 7,
+        "row": 6,
+        "colSpan": 7,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 14,
+    "rows": 8,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 7,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 7,
+        "row": 7,
+        "colSpan": 7,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 16,
+    "rows": 8,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 8,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 8,
+        "row": 7,
+        "colSpan": 8,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 16,
+    "rows": 10,
+    "items": [
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 8,
+        "rowSpan": 1
+      },
+      {
+        "id": "GridGlance",
+        "col": 8,
+        "row": 9,
+        "colSpan": 8,
+        "rowSpan": 1
+      }
+    ]
+  }
+]

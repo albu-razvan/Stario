@@ -16,17 +16,26 @@
   -->
 
 <resources>
+
     <declare-styleable name="AdaptiveIconView">
         <attr name="sizeRestricted" format="boolean" />
         <attr name="looseClipping" format="boolean" />
     </declare-styleable>
+
     <declare-styleable name="WaveUnderlineTextView">
         <attr name="waveColor" format="color" />
     </declare-styleable>
+
     <declare-styleable name="GlanceConstraintLayout">
         <attr name="strokeColor" format="color" />
         <attr name="strokeWidth" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="DynamicGridLayout">
+        <attr name="grid_preference_key" format="string" />
+        <attr name="grid_layout_template" format="reference" />
+    </declare-styleable>
+
     <declare-styleable name="FadingEdgeLayout">
         <attr name="edge" format="integer">
             <flag name="top" value="1" />
@@ -40,4 +49,5 @@
         <attr name="size_right" format="dimension" />
         <attr name="is_rounded" format="boolean" />
     </declare-styleable>
+
 </resources>

@@ -40,6 +40,7 @@
     <!-- Home pop-up -->
     <string name="settings">Home Settings</string>
     <string name="wallpaper">Wallpaper &amp; Style</string>
+    <string name="rearrange">Rearrange</string>
 
     <!-- Settings -->
     <string name="preferences">Preferences</string>

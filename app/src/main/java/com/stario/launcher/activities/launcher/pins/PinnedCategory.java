@@ -18,15 +18,12 @@
 package com.stario.launcher.activities.launcher.pins;
 
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import androidx.core.math.MathUtils;
-import androidx.core.util.Consumer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.R;
@@ -50,7 +47,6 @@ public class PinnedCategory {
     private final ThemedActivity activity;
 
     private SharedPreferences.OnSharedPreferenceChangeListener listener;
-    private Consumer<Configuration> landscapeObserver;
     private RecyclerView recycler;
 
     public PinnedCategory(ThemedActivity activity) {
@@ -109,37 +105,6 @@ public class PinnedCategory {
             }
         });
 
-        landscapeObserver = new Consumer<>() {
-            {
-                updateLayout();
-            }
-
-            private void updateLayout() {
-                manager.setCenterItems(!Measurements.isLandscape());
-
-                if (Measurements.isLandscape()) {
-                    root.setLayoutParams(new LinearLayout.LayoutParams(
-                            0,
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            1.0f
-                    ));
-                } else {
-                    root.setLayoutParams(new LinearLayout.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT
-                    ));
-                }
-
-                root.forceLayout();
-            }
-
-            @Override
-            public void accept(Configuration configuration) {
-                updateLayout();
-            }
-        };
-        activity.addOnConfigurationChangedListener(landscapeObserver);
-
         recycler.setItemAnimator(null);
         recycler.setLayoutManager(manager);
 
@@ -165,10 +130,6 @@ public class PinnedCategory {
 
         if (listener != null) {
             preferences.unregisterOnSharedPreferenceChangeListener(listener);
-        }
-
-        if (landscapeObserver != null) {
-            activity.removeOnConfigurationChangedListener(landscapeObserver);
         }
     }
 }
