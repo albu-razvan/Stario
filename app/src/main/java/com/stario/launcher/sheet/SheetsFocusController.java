@@ -143,6 +143,10 @@ public class SheetsFocusController extends ConstraintLayout {
                     return false;
                 }
 
+                if (targetPointers.isEmpty()) {
+                    return super.onInterceptTouchEvent(ev);
+                }
+
                 deltaY = Y - ev.getY(getPointer(ev));
                 deltaX = X - ev.getX(getPointer(ev));
 
@@ -237,8 +241,14 @@ public class SheetsFocusController extends ConstraintLayout {
     }
 
     private int getPointer(MotionEvent event) {
-        return Math.max(0, Math.min(event.getPointerCount() - 1,
-                event.findPointerIndex(targetPointers.get(0))));
+        if (targetPointers.isEmpty()) {
+            return 0;
+        }
+
+        int pointerId = targetPointers.get(0);
+        int pointerIndex = event.findPointerIndex(pointerId);
+
+        return Math.max(0, Math.min(event.getPointerCount() - 1, pointerIndex));
     }
 
     private void removeCheck() {

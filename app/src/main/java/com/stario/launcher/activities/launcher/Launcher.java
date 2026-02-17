@@ -27,7 +27,6 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -227,8 +226,8 @@ public class Launcher extends ThemedActivity {
 
         Calendar calendar = new Calendar();
         glance.attachViewExtension(calendar);
-        glance.attachDialogExtension(new Media(), Gravity.BOTTOM, listener);
-        glance.attachDialogExtension(new Weather(), Gravity.BOTTOM, listener);
+        glance.attachDialogExtension(new Media(), listener);
+        glance.attachDialogExtension(new Weather(), listener);
 
         DynamicGridLayout.ItemLayoutData defaultLayoutData =
                 new DynamicGridLayout.ItemLayoutData(GLANCE_TAG, 0, 0, 4, 1);

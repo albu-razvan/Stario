@@ -17,6 +17,8 @@
 
 package com.stario.launcher.activities.launcher.glance;
 
+import android.animation.LayoutTransition;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.view.MotionEvent;
@@ -51,6 +53,17 @@ public class Glance {
                 .inflate(R.layout.glance, container, false);
 
         extensionContainer = root.findViewById(R.id.extensions);
+
+        LayoutTransition transition = new LayoutTransition();
+
+        ObjectAnimator changeIn = ObjectAnimator.ofFloat(null, "alpha", 0f, 1f);
+        ObjectAnimator changeOut = ObjectAnimator.ofFloat(null, "alpha", 1f, 0f);
+
+        transition.setAnimator(LayoutTransition.APPEARING, changeIn);
+        transition.setAnimator(LayoutTransition.DISAPPEARING, changeOut);
+        transition.setAnimator(LayoutTransition.CHANGE_APPEARING, changeIn);
+        transition.setAnimator(LayoutTransition.CHANGE_DISAPPEARING, changeOut);
+        transition.setAnimator(LayoutTransition.CHANGING, changeIn);
 
         container.addView(root);
     }
@@ -121,7 +134,7 @@ public class Glance {
         attachViewExtension(extension, null);
     }
 
-    public void attachDialogExtension(GlanceDialogExtension extension, int gravity,
+    public void attachDialogExtension(GlanceDialogExtension extension,
                                       GlanceDialogExtension.TransitionListener listener) {
         if (root == null) {
             throw new RuntimeException("Glance should attach itself first before attaching extensions.");
@@ -145,18 +158,12 @@ public class Glance {
             }
         });
 
-        extension.attach(this, gravity);
+        extension.attach(this);
         extensions.add(extension);
+    }
 
-        root.getViewTreeObserver().addOnPreDrawListener(() -> {
-            int[] location = new int[2];
-            root.getLocationInWindow(location);
-
-            extension.updateLayout(location, root.getMeasuredWidth(),
-                    root.getMeasuredHeight());
-
-            return true;
-        });
+    View getRootView() {
+        return root;
     }
 
     public void updateSheetSystemUI(boolean value) {

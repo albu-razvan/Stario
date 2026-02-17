@@ -38,13 +38,13 @@ import androidx.fragment.app.DialogFragment;
 
 import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
 import com.stario.launcher.ui.dialogs.PersistentFullscreenDialog;
 import com.stario.launcher.ui.utils.HomeWatcher;
 import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class GlanceDialogExtension extends DialogFragment
@@ -54,22 +54,31 @@ public abstract class GlanceDialogExtension extends DialogFragment
     private static final float X2 = 0.4f;
     private static final float Y2 = 1f;
 
+    private final View.OnLayoutChangeListener layoutChangeListener;
     private final List<TransitionListener> listeners;
 
     protected ThemedActivity activity;
 
     private PersistentFullscreenDialog dialog;
     private GlanceConstraintLayout container;
+    private float targetTranslationY;
     private HomeWatcher homeWatcher;
     private boolean isHiding;
     private Glance glance;
-    private int gravity;
 
     protected GlanceDialogExtension() {
         super();
 
         this.listeners = new CopyOnWriteArrayList<>();
+        this.targetTranslationY = 0;
         this.isHiding = false;
+
+        this.layoutChangeListener = (v, left, top, right, bottom,
+                                     oldLeft, oldTop, oldRight, oldBottom) -> {
+            if (left != oldLeft || top != oldTop || right != oldRight || bottom != oldBottom) {
+                recalculatePosition();
+            }
+        };
     }
 
     @Nullable
@@ -78,9 +87,8 @@ public abstract class GlanceDialogExtension extends DialogFragment
         return dialog;
     }
 
-    public void attach(Glance glance, int gravity) {
+    public void attach(Glance glance) {
         this.glance = glance;
-        this.gravity = gravity;
 
         show(glance.getActivity().getSupportFragmentManager(), getTag());
         glance.attachViewExtension(getViewExtensionPreview(), v -> show());
@@ -151,6 +159,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
         this.container = inflateExpanded(inflater, root);
+        this.container.addOnLayoutChangeListener(layoutChangeListener);
         root.addView(this.container);
 
         updateScalingInternal(0);
@@ -159,39 +168,80 @@ public abstract class GlanceDialogExtension extends DialogFragment
         return root;
     }
 
+    @Override
+    public void onDestroyView() {
+        if (container != null) {
+            container.removeOnLayoutChangeListener(layoutChangeListener);
+        }
+
+        super.onDestroyView();
+    }
+
+    private void recalculatePosition() {
+        View anchor = glance.getRootView();
+
+        if (anchor != null && dialog != null && dialog.isShowing()) {
+            int[] location = new int[2];
+            anchor.getLocationInWindow(location);
+            updateLayout(location, anchor.getWidth(), anchor.getHeight());
+
+            if (!isHiding && container.getScaleY() == 1f) {
+                container.setTranslationY(targetTranslationY);
+            }
+        }
+    }
+
     void updateLayout(int[] location, int width, int height) {
         ConstraintLayout.LayoutParams params =
                 ((ConstraintLayout.LayoutParams) container.getLayoutParams());
         Window window = dialog.getWindow();
 
+        if (window == null) {
+            return;
+        }
+
+        View decorView = window.getDecorView();
+        int screenHeight = decorView.getMeasuredHeight();
+        int expandedHeight = container.getMeasuredHeight();
+
+        int sysUIHeight = Measurements.getSysUIHeight();
+        int navHeight = Measurements.getNavHeight();
+        int safeAreaBottom = screenHeight - navHeight;
+
         container.setMaxRadius(height / 2f);
+        params.width = width;
+        targetTranslationY = 0f;
 
-        if (window != null) {
-            params.width = width;
+        int gravity = Gravity.BOTTOM;
+        if (expandedHeight > (location[1] - sysUIHeight)) {
+            gravity = Gravity.TOP;
+        }
 
-            if (gravity == Gravity.BOTTOM) {
-                params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
-                params.leftToLeft = ConstraintLayout.LayoutParams.PARENT_ID;
-                params.topToTop = ConstraintLayout.LayoutParams.UNSET;
+        if (gravity == Gravity.BOTTOM) {
+            params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+            params.topToTop = ConstraintLayout.LayoutParams.UNSET;
+            params.leftToLeft = ConstraintLayout.LayoutParams.PARENT_ID;
 
-                params.bottomMargin = Objects.requireNonNull(dialog.getWindow())
-                        .getDecorView().getMeasuredHeight() - location[1] - height;
-                params.rightMargin = 0;
-                params.leftMargin = location[0];
-                params.topMargin = 0;
+            params.bottomMargin = screenHeight - location[1] - height;
+            params.leftMargin = location[0];
+            container.setPivotY(expandedHeight);
 
-                container.setPivotY(container.getMeasuredHeight());
-            } else if (gravity == Gravity.TOP) {
-                params.bottomToBottom = ConstraintLayout.LayoutParams.UNSET;
-                params.leftToLeft = ConstraintLayout.LayoutParams.PARENT_ID;
-                params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+            int topEdge = location[1] + height - expandedHeight;
+            if (topEdge < sysUIHeight) {
+                targetTranslationY = sysUIHeight - topEdge;
+            }
+        } else {
+            params.bottomToBottom = ConstraintLayout.LayoutParams.UNSET;
+            params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+            params.leftToLeft = ConstraintLayout.LayoutParams.PARENT_ID;
 
-                params.bottomMargin = 0;
-                params.rightMargin = 0;
-                params.leftMargin = location[0];
-                params.topMargin = location[1];
+            params.topMargin = location[1];
+            params.leftMargin = location[0];
+            container.setPivotY(0);
 
-                container.setPivotY(0);
+            int bottomEdge = location[1] + expandedHeight;
+            if (bottomEdge > safeAreaBottom) {
+                targetTranslationY = -(bottomEdge - safeAreaBottom);
             }
         }
 
@@ -202,7 +252,6 @@ public abstract class GlanceDialogExtension extends DialogFragment
         if (dialog != null && isEnabled() &&
                 !dialog.isShowing() && dialog.showDialog()) {
             Vibrations.getInstance().vibrate();
-
             isHiding = false;
 
             container.post(new Runnable() {
@@ -212,14 +261,18 @@ public abstract class GlanceDialogExtension extends DialogFragment
                         return;
                     }
 
+                    recalculatePosition();
+
                     float scale = glance.getHeight() /
                             container.getMeasuredHeight();
 
                     if (scale >= 0 && !Float.isInfinite(scale)) {
                         container.setScaleY(scale);
+                        container.setTranslationY(0);
 
                         container.post(() -> container.animate()
                                 .scaleY(1)
+                                .translationY(targetTranslationY)
                                 .setInterpolator(new PathInterpolator(X1, Y1, X2, Y2))
                                 .setDuration(Animation.LONG.getDuration())
                                 .setUpdateListener(animation -> {
@@ -291,6 +344,7 @@ public abstract class GlanceDialogExtension extends DialogFragment
 
             container.animate()
                     .scaleY(targetScale)
+                    .translationY(0)
                     .setInterpolator(new PathInterpolator(X1, Y1, X2, Y2))
                     .setDuration(Animation.MEDIUM.getDuration())
                     .setUpdateListener(animation -> {
