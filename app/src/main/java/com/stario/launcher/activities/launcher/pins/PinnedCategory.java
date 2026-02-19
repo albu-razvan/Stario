@@ -20,7 +20,6 @@ package com.stario.launcher.activities.launcher.pins;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import androidx.core.math.MathUtils;
@@ -32,15 +31,17 @@ import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.common.grid.DraggableGridItem;
+import com.stario.launcher.ui.common.grid.DynamicGridLayout;
 import com.stario.launcher.ui.icons.AdaptiveIconView;
 import com.stario.launcher.ui.recyclers.autogrid.AutoGridLayoutManager;
 import com.stario.launcher.ui.utils.LayoutSizeObserver;
-import com.stario.launcher.ui.utils.animation.Animation;
-import com.stario.launcher.utils.objects.ObjectDelegate;
+import com.stario.launcher.ui.utils.UiUtils;
 
 public class PinnedCategory {
     public static final String PINNED_CATEGORY_VISIBLE = "com.stario.IS_PINNED_CATEGORY_VISIBLE";
     public static final String PINNED_CATEGORY = "com.stario.PINNED_CATEGORY";
+    private static final String CATEGORY_TAG = "CategoryGlance";
 
     private final CategoryManager categoryManager;
     private final SharedPreferences preferences;
@@ -49,41 +50,42 @@ public class PinnedCategory {
     private SharedPreferences.OnSharedPreferenceChangeListener listener;
     private RecyclerView recycler;
 
+    private DynamicGridLayout.ItemLayoutData layoutData;
+    private DraggableGridItem gridItem;
+    private boolean isAttached;
+
     public PinnedCategory(ThemedActivity activity) {
+        this.isAttached = false;
         this.activity = activity;
         this.categoryManager = CategoryManager.getInstance();
         this.preferences = activity.getApplicationContext()
                 .getSharedPreferences(Entry.PINNED_CATEGORY);
     }
 
-    public void attach(ViewGroup container,
+    public void attach(DynamicGridLayout container,
                        PinnedAppsAdapter.OnPopUpShowListener popUpShowListener,
                        PinnedAppsGroupDialog.TransitionListener transitionListener) {
-        RelativeLayout root = (RelativeLayout) activity.getLayoutInflater()
-                .inflate(R.layout.pinned_apps, container, false);
-        recycler = root.findViewById(R.id.recycler);
-
-        ObjectDelegate<Boolean> visible = new ObjectDelegate<>(
-                preferences.getBoolean(PINNED_CATEGORY_VISIBLE, false), value -> {
-            root.post(() -> {
-                if (value && categoryManager.isReady()) {
-                    root.setVisibility(View.VISIBLE);
-                } else {
-                    root.setVisibility(View.GONE);
-                }
-            });
-        });
-
-        if (visible.getValue()) {
-            root.setVisibility(View.VISIBLE);
-        } else {
-            root.setVisibility(View.GONE);
+        if (gridItem != null) {
+            return;
         }
+
+        gridItem = new DraggableGridItem(activity);
+        gridItem.itemId = CATEGORY_TAG;
+
+        layoutData = new DynamicGridLayout.ItemLayoutData(CATEGORY_TAG,
+                0, 0, 4, 1);
+        layoutData.minColSpan = 1;
+        layoutData.maxRowSpan = 1;
+
+        RelativeLayout root = (RelativeLayout) activity.getLayoutInflater()
+                .inflate(R.layout.pinned_apps, gridItem, false);
+        recycler = root.findViewById(R.id.recycler);
+        gridItem.addView(root);
 
         listener = (sharedPreferences, key) -> {
             if (PINNED_CATEGORY_VISIBLE.equals(key)) {
-                visible.setValue(sharedPreferences
-                        .getBoolean(PINNED_CATEGORY_VISIBLE, false));
+                updateContainerState(container,
+                        sharedPreferences.getBoolean(PINNED_CATEGORY_VISIBLE, false));
             }
         };
         preferences.registerOnSharedPreferenceChangeListener(listener);
@@ -113,14 +115,22 @@ public class PinnedCategory {
                 return;
             }
 
-            root.post(() -> {
-                recycler.setAdapter(adapter);
-                recycler.animate().alpha(1)
-                        .setDuration(Animation.LONG.getDuration());
-            });
+            recycler.setAdapter(adapter);
         });
 
-        container.addView(root);
+        updateContainerState(container, preferences.getBoolean(PINNED_CATEGORY_VISIBLE, false));
+    }
+
+    private void updateContainerState(DynamicGridLayout container, boolean shouldBeVisible) {
+        UiUtils.post(() -> {
+            if (shouldBeVisible && !isAttached) {
+                container.addItem(gridItem, layoutData);
+                isAttached = true;
+            } else if (!shouldBeVisible && isAttached) {
+                container.removeItem(gridItem);
+                isAttached = false;
+            }
+        });
     }
 
     public void detach() {

@@ -24,7 +24,6 @@ import android.app.Dialog;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import androidx.fragment.app.FragmentActivity;
@@ -32,11 +31,15 @@ import androidx.fragment.app.FragmentActivity;
 import com.stario.launcher.R;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
+import com.stario.launcher.ui.common.grid.DraggableGridItem;
+import com.stario.launcher.ui.common.grid.DynamicGridLayout;
 import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.util.ArrayList;
 
 public class Glance {
+    private static final String GLANCE_TAG = "GridGlance";
+
     private final ArrayList<GlanceExtension> extensions;
     private final ThemedActivity activity;
 
@@ -48,9 +51,12 @@ public class Glance {
         this.extensions = new ArrayList<>();
     }
 
-    public void attach(ViewGroup container) {
+    public void attach(DynamicGridLayout container) {
+        DraggableGridItem gridItem = new DraggableGridItem(activity);
+        gridItem.itemId = GLANCE_TAG;
+
         root = (GlanceConstraintLayout) activity.getLayoutInflater()
-                .inflate(R.layout.glance, container, false);
+                .inflate(R.layout.glance, gridItem, false);
 
         extensionContainer = root.findViewById(R.id.extensions);
 
@@ -65,7 +71,14 @@ public class Glance {
         transition.setAnimator(LayoutTransition.CHANGE_DISAPPEARING, changeOut);
         transition.setAnimator(LayoutTransition.CHANGING, changeIn);
 
-        container.addView(root);
+        gridItem.addView(root);
+
+        DynamicGridLayout.ItemLayoutData defaultLayoutData =
+                new DynamicGridLayout.ItemLayoutData(GLANCE_TAG, 0, 0, 4, 1);
+        defaultLayoutData.minColSpan = 4;
+        defaultLayoutData.maxRowSpan = 1;
+
+        container.addItem(gridItem, defaultLayoutData);
     }
 
     public GlanceViewExtension attachViewExtension(GlanceViewExtension extension,

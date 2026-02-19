@@ -49,7 +49,6 @@ import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.SheetsFocusController;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
-import com.stario.launcher.ui.common.grid.DraggableGridItem;
 import com.stario.launcher.ui.common.grid.DynamicGridLayout;
 import com.stario.launcher.ui.common.lock.ClosingAnimationView;
 import com.stario.launcher.ui.popup.PopupMenu;
@@ -62,9 +61,6 @@ import com.stario.launcher.utils.Utils;
 public class Launcher extends ThemedActivity {
     public static final String INTENT_KILL_TASK_ID_EXTRA = "com.stario.launcher.INTENT_KILL_TASK_ID_EXTRA";
     public static final String ACTION_KILL_TASK = "com.stario.launcher.ACTION_KILL_TASK";
-
-    private static final String CATEGORY_TAG = "CategoryGlance";
-    private static final String GLANCE_TAG = "GridGlance";
 
     private BroadcastReceiver screenOnReceiver;
     private SheetsFocusController controller;
@@ -196,30 +192,17 @@ public class Launcher extends ThemedActivity {
     }
 
     private void attachPinnedCategory(DynamicGridLayout container) {
-        DraggableGridItem gridItem = new DraggableGridItem(this);
-        gridItem.itemId = CATEGORY_TAG;
-
         pinnedCategory = new PinnedCategory(this);
-        pinnedCategory.attach(gridItem,
+        pinnedCategory.attach(container,
                 () -> controller.hideAllSheets(),
                 slideOffset ->
                         animateSheet(slideOffset, false, false)
         );
-
-        DynamicGridLayout.ItemLayoutData defaultLayoutData =
-                new DynamicGridLayout.ItemLayoutData(GLANCE_TAG, 0, 0, 4, 1);
-        defaultLayoutData.minColSpan = 1;
-        defaultLayoutData.maxRowSpan = 1;
-
-        container.addItem(gridItem, defaultLayoutData);
     }
 
     private void attachGlance(DynamicGridLayout container) {
-        DraggableGridItem gridItem = new DraggableGridItem(this);
-        gridItem.itemId = GLANCE_TAG;
-
         glance = new Glance(this);
-        glance.attach(gridItem);
+        glance.attach(container);
 
         GlanceDialogExtension.TransitionListener listener =
                 slideOffset -> animateSheet(slideOffset, false, false);
@@ -228,13 +211,6 @@ public class Launcher extends ThemedActivity {
         glance.attachViewExtension(calendar);
         glance.attachDialogExtension(new Media(), listener);
         glance.attachDialogExtension(new Weather(), listener);
-
-        DynamicGridLayout.ItemLayoutData defaultLayoutData =
-                new DynamicGridLayout.ItemLayoutData(GLANCE_TAG, 0, 0, 4, 1);
-        defaultLayoutData.minColSpan = 4;
-        defaultLayoutData.maxRowSpan = 1;
-
-        container.addItem(gridItem, defaultLayoutData);
     }
 
     public void displayLauncherOptions(Launcher activity, SheetsFocusController controller) {

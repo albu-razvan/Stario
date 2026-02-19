@@ -122,13 +122,22 @@ public class DynamicGridLayout extends ViewGroup {
         setClipToPadding(false);
     }
 
+    @Override
+    public void onViewAdded(View child) {
+        super.onViewAdded(child);
+
+        if (!(child instanceof DraggableGridItem)) {
+            throw new IllegalStateException("DraggableGridLayout can host only DraggableGridItem children.");
+        }
+    }
+
     public void setRearrangeable(boolean rearrangeable) {
         this.isRearrangeable = rearrangeable;
 
         for (int index = 0; index < getChildCount(); index++) {
             View child = getChildAt(index);
 
-            if (child instanceof DraggableGridItem) {
+            if (child != null) {
                 ((DraggableGridItem) child).setResizingActive(rearrangeable);
             }
         }
@@ -176,6 +185,26 @@ public class DynamicGridLayout extends ViewGroup {
         }
 
         addView(view);
+        saveLayoutState();
+    }
+
+    public void removeItem(DraggableGridItem view) {
+        if (view == null) {
+            return;
+        }
+
+        removeView(view);
+        preAnimVisualPos.remove(view);
+
+        if (activeItem == view) {
+            activeItem = null;
+            resetHoverState();
+        }
+
+        if (currentHoverTarget == view) {
+            currentHoverTarget = null;
+        }
+
         saveLayoutState();
     }
 
@@ -239,26 +268,57 @@ public class DynamicGridLayout extends ViewGroup {
 
     private void reloadLayoutForCurrentSize() {
         Map<String, ItemLayoutData> newConfig = templateManager.getLayoutForSize(colCount, rowCount);
+        if (newConfig == null) {
+            return;
+        }
 
         boolean changed = false;
         for (int index = 0; index < getChildCount(); index++) {
             View child = getChildAt(index);
 
-            if (child instanceof DraggableGridItem) {
+            if (child != null) {
                 ItemLayoutData data = newConfig.get(((DraggableGridItem) child).itemId);
 
                 if (data != null) {
                     LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
 
-                    if (layoutParams.col != data.col || layoutParams.row != data.row ||
-                            layoutParams.colSpan != data.colSpan || layoutParams.rowSpan != data.rowSpan) {
-                        layoutParams.col = data.col;
-                        layoutParams.row = data.row;
-                        layoutParams.colSpan = data.colSpan;
-                        layoutParams.rowSpan = data.rowSpan;
+                    Rect targetRect = new Rect(
+                            data.col,
+                            data.row,
+                            data.col + data.colSpan,
+                            data.row + data.rowSpan
+                    );
 
-                        changed = true;
+                    layoutParams.col = data.col;
+                    layoutParams.row = data.row;
+                    layoutParams.colSpan = data.colSpan;
+                    layoutParams.rowSpan = data.rowSpan;
+
+                    List<View> collisions = getCollisions(targetRect, child);
+
+                    if (!collisions.isEmpty()) {
+                        boolean shifted = shiftItemsToFreeSpace(collisions, child);
+
+                        if (!shifted) {
+                            Rect freeSpot = findClosestFreeSpot(
+                                    layoutParams.colSpan,
+                                    layoutParams.rowSpan,
+                                    layoutParams.col,
+                                    layoutParams.row,
+                                    child
+                            );
+
+                            if (freeSpot != null) {
+                                layoutParams.col = freeSpot.left;
+                                layoutParams.row = freeSpot.top;
+                            } else {
+                                layoutParams.col = 0;
+                                layoutParams.row = getNextBottomRow();
+                            }
+                        }
                     }
+
+                    changed = true;
                 }
             }
         }
@@ -368,7 +428,7 @@ public class DynamicGridLayout extends ViewGroup {
                     for (int index = 0; index < getChildCount(); index++) {
                         View child = getChildAt(index);
 
-                        if (child instanceof DraggableGridItem) {
+                        if (child != null) {
                             DraggableGridItem item = (DraggableGridItem) child;
 
                             if (item == activeItem) {
@@ -413,7 +473,7 @@ public class DynamicGridLayout extends ViewGroup {
                     for (int index = 0; index < getChildCount(); index++) {
                         View child = getChildAt(index);
 
-                        if (child instanceof DraggableGridItem) {
+                        if (child != null) {
                             ((DraggableGridItem) child).animateToState(DraggableGridItem.STATE_IDLE);
                         }
                     }
@@ -929,26 +989,34 @@ public class DynamicGridLayout extends ViewGroup {
     }
 
     private void saveLayoutState() {
-        Map<String, ItemLayoutData> currentMap = new HashMap<>();
-        for (int index = 0; index < getChildCount(); index++) {
-            View child = getChildAt(index);
+        Map<String, ItemLayoutData> existing =
+                templateManager.getLayoutForSize(colCount, rowCount);
 
-            if (child instanceof DraggableGridItem) {
-                DraggableGridItem childItem = (DraggableGridItem) child;
-
-                LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
-                ItemLayoutData data = new ItemLayoutData(childItem.itemId,
-                        layoutParams.col, layoutParams.row, layoutParams.colSpan, layoutParams.rowSpan);
-                data.minColSpan = childItem.minColSpan;
-                data.minRowSpan = childItem.minRowSpan;
-                data.maxColSpan = childItem.maxColSpan;
-                data.maxRowSpan = childItem.maxRowSpan;
-
-                currentMap.put(childItem.itemId, data);
-            }
+        if (existing == null) {
+            existing = new HashMap<>();
         }
 
-        templateManager.saveUserLayout(colCount, rowCount, currentMap);
+        for (int index = 0; index < getChildCount(); index++) {
+            DraggableGridItem childItem = (DraggableGridItem) getChildAt(index);
+            LayoutParams layoutParams = (LayoutParams) childItem.getLayoutParams();
+
+            ItemLayoutData data = new ItemLayoutData(
+                    childItem.itemId,
+                    layoutParams.col,
+                    layoutParams.row,
+                    layoutParams.colSpan,
+                    layoutParams.rowSpan
+            );
+
+            data.minColSpan = childItem.minColSpan;
+            data.minRowSpan = childItem.minRowSpan;
+            data.maxColSpan = childItem.maxColSpan;
+            data.maxRowSpan = childItem.maxRowSpan;
+
+            existing.put(childItem.itemId, data);
+        }
+
+        templateManager.saveUserLayout(colCount, rowCount, existing);
     }
 
     private static class LayoutParams extends ViewGroup.LayoutParams {

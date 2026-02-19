@@ -25,6 +25,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -184,6 +185,15 @@ public class DraggableGridItem extends FrameLayout {
 
         int padding = Measurements.dpToPx(PADDING_DP);
         setPadding(padding, padding, padding, padding);
+    }
+
+    @Override
+    public void onViewAdded(View child) {
+        super.onViewAdded(child);
+
+        if (getChildCount() > 1) {
+            throw new IllegalStateException("DraggableGridItem can host only one direct child.");
+        }
     }
 
     @Override
