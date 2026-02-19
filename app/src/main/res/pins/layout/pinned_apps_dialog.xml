@@ -16,10 +16,10 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="bottom|right">
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:id="@+id/recycler_container"
@@ -28,7 +28,8 @@
         android:alpha="0"
         android:background="@drawable/background_large_corners"
         android:scaleX="0.75"
-        android:scaleY="0.75">
+        android:scaleY="0.75"
+        tools:ignore="UselessParent">
 
         <com.stario.launcher.ui.recyclers.overscroll.OverScrollRecyclerView
             android:id="@+id/recycler"

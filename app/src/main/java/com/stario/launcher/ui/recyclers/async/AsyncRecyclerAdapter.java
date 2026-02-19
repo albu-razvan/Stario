@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
 import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
@@ -111,20 +112,29 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
         private void postInflate() {
             onInflated();
 
-            itemView.post(() -> {
-                if (holderHeight == HEIGHT_UNMEASURED) {
-                    holderHeight = itemView.getMeasuredHeight();
+            itemView.getViewTreeObserver()
+                    .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            itemView.getViewTreeObserver()
+                                    .removeOnGlobalLayoutListener(this);
 
-                    approximateRecyclerHeight();
-                } else if (holderHeight != itemView.getMeasuredHeight()) {
-                    holderHeight = itemView.getMeasuredHeight();
+                            if (holderHeight == HEIGHT_UNMEASURED) {
+                                holderHeight = itemView.getMeasuredHeight();
 
-                    Log.w(TAG, "Holder height estimation for " + AsyncRecyclerAdapter.this.getClass() +
-                            "async holders changed. New estimation: " + holderHeight);
+                                approximateRecyclerHeight();
+                            } else if (holderHeight != itemView.getMeasuredHeight()) {
+                                holderHeight = itemView.getMeasuredHeight();
 
-                    approximateRecyclerHeight();
-                }
-            });
+                                Log.w(TAG, "Holder height estimation for "
+                                        + AsyncRecyclerAdapter.this.getClass()
+                                        + "async holders changed. New estimation: "
+                                        + holderHeight);
+
+                                approximateRecyclerHeight();
+                            }
+                        }
+                    });
 
             if (inflationListener != null) {
                 inflationListener.onInflated();
@@ -165,15 +175,12 @@ public abstract class AsyncRecyclerAdapter<AVH extends AsyncRecyclerAdapter.Asyn
             newApproximation = holderHeight * size;
         }
 
-        if (approximatedRecyclerHeight == AsyncViewHolder.HEIGHT_UNMEASURED) {
+        if (approximatedRecyclerHeight == AsyncViewHolder.HEIGHT_UNMEASURED
+                || approximatedRecyclerHeight != newApproximation) {
             approximatedRecyclerHeight = newApproximation;
 
             if (listener != null) {
-                listener.onNewApproximation(approximatedRecyclerHeight);
-            }
-        } else if (approximatedRecyclerHeight != newApproximation) {
-            if (listener != null) {
-                listener.onNewApproximation(approximatedRecyclerHeight);
+                listener.onNewApproximation(newApproximation);
             }
         }
 

@@ -17,10 +17,10 @@
 
 package com.stario.launcher.activities.launcher.pins.dialog;
 
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
@@ -46,6 +46,7 @@ import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.ui.utils.animation.Animation;
 
 public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
+    private static final float CENTER_PIVOT_WEIGHT = 0.2f;
     private static final float SCALE_FACTOR = 0.75f;
     private static final float ITEM_SIZE_DP = 90;
 
@@ -109,8 +110,9 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
             }
         };
         this.sourceLayoutChangeListener = (view, i, i1, i2,
-                                           i3, i4, i5, i6, i7) ->
-                updateRecyclerPositionInContainer(view);
+                                           i3, i4, i5, i6, i7) -> {
+            updateRecyclerPositionInContainer(view);
+        };
 
         this.allowDismissal = false;
         this.category = null;
@@ -140,8 +142,8 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
 
         container = findViewById(R.id.container);
         if (container != null) {
-            UiUtils.Notch.applyNotchMargin(container, UiUtils.Notch.Treatment.CENTER,
-                    () -> updateRecyclerPositionInContainer(source));
+            UiUtils.Notch.applyNotchMargin(container, UiUtils.Notch.Treatment.CENTER);
+            container.setOnClickListener((v) -> dismiss());
             Measurements.addNavListener(value -> {
                 ViewGroup.MarginLayoutParams params =
                         (ViewGroup.MarginLayoutParams) container.getLayoutParams();
@@ -161,27 +163,22 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
             recycler = container.findViewById(R.id.recycler);
 
             recyclerContainer.setClipToOutline(true);
-            recyclerContainer.addOnLayoutChangeListener((view, i, i1, i2,
-                                                         i3, i4, i5, i6, i7) -> {
-                recyclerContainer.setPivotX(recycler.getMeasuredWidth());
-                recyclerContainer.setPivotY(recycler.getMeasuredHeight());
 
-                updateRecyclerPositionInContainer(source);
-            });
-
-            if (source != null) {
-                source.forceLayout();
-            }
-
-            adapter.setRecyclerHeightApproximationListener(height -> invalidateRecycler());
+            // this will always update the approximation when we show the dialog,
+            // no need for another call
+            adapter.setRecyclerHeightApproximationListener(
+                    height -> invalidateRecycler());
 
             recycler.setLayoutManager(manager);
-            recycler.setAdapter(adapter);
-
-            invalidateRecycler();
-            updateRecyclerPositionInContainer(source);
-
-            container.setOnClickListener((v) -> dismiss());
+            recycler.getViewTreeObserver().addOnGlobalLayoutListener(
+                    new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            recycler.getViewTreeObserver()
+                                    .removeOnGlobalLayoutListener(this);
+                            recycler.setAdapter(adapter);
+                        }
+                    });
         } else {
             dismiss();
         }
@@ -237,18 +234,15 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
         if (recycler != null) {
             int recyclerWidth = size * Measurements.dpToPx(ITEM_SIZE_DP) +
                     recycler.getPaddingLeft() + recycler.getPaddingRight();
-            int recyclerHeight = size < 3
-                    ? ViewGroup.LayoutParams.WRAP_CONTENT
-                    : Math.max(Measurements.dpToPx(Measurements.HEADER_SIZE_DP),
-                    adapter.approximateRecyclerHeight() * 2 /
-                            Math.max(1, (int) Math.ceil(getItemCount() / (float) size))) +
-                    recycler.getPaddingBottom() + recycler.getPaddingTop();
+            int recyclerHeight = Math.min(
+                    Measurements.dpToPx(Measurements.HEADER_SIZE_DP),
+                    adapter.approximateRecyclerHeight()
+            ) + recycler.getPaddingBottom() + recycler.getPaddingTop();
 
             ViewGroup.LayoutParams params = recycler.getLayoutParams();
             params.width = recyclerWidth;
             params.height = recyclerHeight;
 
-            recycler.forceLayout();
             updateRecyclerPositionInContainer(source);
         }
 
@@ -260,23 +254,52 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
     }
 
     private void updateRecyclerPositionInContainer(View view) {
-        if (recycler != null && view != null) {
-            Rect rect = new Rect();
-            view.getGlobalVisibleRect(rect);
+        if (recyclerContainer == null || recycler == null
+                || container == null || view == null) {
+            return;
+        }
 
-            ViewGroup.MarginLayoutParams recyclerParams =
-                    (ViewGroup.MarginLayoutParams) recyclerContainer.getLayoutParams();
-            ViewGroup.MarginLayoutParams containerParams =
-                    (ViewGroup.MarginLayoutParams) container.getLayoutParams();
+        int[] sourceLoc = new int[2];
+        int[] containerLoc = new int[2];
+        view.getLocationOnScreen(sourceLoc);
+        container.getLocationOnScreen(containerLoc);
 
-            recyclerParams.rightMargin = Measurements.getWidth() -
-                    recycler.getPaddingRight() -
-                    containerParams.rightMargin -
-                    rect.right;
-            recyclerParams.bottomMargin = Measurements.getHeight() -
-                    recycler.getPaddingBottom() -
-                    containerParams.bottomMargin -
-                    rect.bottom;
+        int relativeSourceX = sourceLoc[0] - containerLoc[0];
+        int relativeSourceY = sourceLoc[1] - containerLoc[1];
+
+        int sourceCenterX = relativeSourceX + view.getWidth() / 2;
+        int sourceCenterY = relativeSourceY + view.getHeight() / 2;
+
+        int containerWidth = container.getWidth() > 0 ? container.getWidth() : Measurements.getWidth();
+        int containerHeight = container.getHeight() > 0 ? container.getHeight() : Measurements.getHeight();
+
+        int recyclerWidth = recycler.getLayoutParams().width;
+        int recyclerHeight = recycler.getLayoutParams().height;
+
+        int targetX = (int) (sourceCenterX * (1 - CENTER_PIVOT_WEIGHT)
+                + containerWidth / 2f * CENTER_PIVOT_WEIGHT);
+        int targetY = (int) (sourceCenterY * (1 - CENTER_PIVOT_WEIGHT)
+                + containerHeight / 2f * CENTER_PIVOT_WEIGHT);
+
+        int finalLeft = targetX - recyclerWidth / 2;
+        int finalTop = targetY - recyclerHeight / 2;
+
+        int padding = Measurements.getDefaultPadding();
+        finalLeft = Math.max(padding, Math.min(finalLeft, containerWidth - recyclerWidth - padding));
+        finalTop = Math.max(padding, Math.min(finalTop, containerHeight - recyclerHeight - padding));
+
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) recyclerContainer.getLayoutParams();
+        if (params.leftMargin != finalLeft || params.topMargin != finalTop) {
+            params.leftMargin = finalLeft;
+            params.topMargin = finalTop;
+
+            recyclerContainer.setPivotX(
+                    Math.max(0, Math.min(sourceCenterX - finalLeft, recyclerWidth))
+            );
+            recyclerContainer.setPivotY(
+                    Math.max(0, Math.min(sourceCenterY - finalTop, recyclerHeight))
+            );
+            recyclerContainer.setLayoutParams(params);
         }
     }
 
@@ -311,7 +334,7 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
                 .setDuration(Animation.MEDIUM.getDuration())
                 .setUpdateListener(valueAnimator ->
                         setDimmingFactor(valueAnimator.getAnimatedFraction()))
-                .setInterpolator(new DecelerateInterpolator(2)));
+                .setInterpolator(new DecelerateInterpolator(2.5f)));
     }
 
     @Override
