@@ -26,7 +26,6 @@ import android.os.UserHandle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.Utils;
 
@@ -57,8 +56,6 @@ public class LauncherApplication {
     }
 
     public void launch(ThemedActivity activity) {
-        Vibrations.getInstance().vibrate();
-
         LauncherActivityInfo info = Utils.getMainActivity(activity, getInfo().packageName, handle);
 
         if (info != null) {

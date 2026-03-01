@@ -218,8 +218,7 @@ public class UiUtils {
 
         public static void applyNotchMargin(@NonNull View view,
                                             Treatment treatment, OnNotchMarginApplied listener) {
-            view.setOnApplyWindowInsetsListener((v, insets) -> {
-                WindowInsetsCompat compatInset = WindowInsetsCompat.toWindowInsetsCompat(insets);
+            ViewCompat.setOnApplyWindowInsetsListener(view, (v, compatInset) -> {
                 Insets cutoutInsets = compatInset.getInsets(WindowInsetsCompat.Type.displayCutout());
                 Insets navigationInsets = compatInset.getInsets(WindowInsetsCompat.Type.navigationBars());
 
@@ -250,7 +249,7 @@ public class UiUtils {
                     listener.onApplied();
                 }
 
-                return view.onApplyWindowInsets(insets);
+                return compatInset;
             });
 
             if (view.isAttachedToWindow()) {

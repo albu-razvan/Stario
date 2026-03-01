@@ -35,14 +35,18 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.stario.launcher.R;
 import com.stario.launcher.Stario;
-import com.stario.launcher.activities.launcher.widgets.glance.extensions.weather.Weather;
+import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.utils.Utils;
 
 import java.util.Calendar;
 import java.util.Locale;
 
 // Used Gemini 3 Pro for refining the layout logic
 public class StylizedClockView extends View implements SensorEventListener {
+    public static final String BACKGROUND_ALPHA_KEY = "com.stario.BACKGROUND_ALPHA";
+    public static final String IMPERIAL_KEY = "com.stario.IMPERIAL";
+
     private static final float MIN_SCALING_RATIO_THRESHOLD = 0.3f;
     private static final float LYING_ON_TABLE_THRESHOLD = 8.5f;
     private static final float TILT_DEADZONE = 1.2f;
@@ -76,6 +80,7 @@ public class StylizedClockView extends View implements SensorEventListener {
     private Sensor accelerometer;
     private float gravityAngle;
 
+    private SharedPreferences preferences;
     private Calendar calendar;
     private Stario stario;
 
@@ -99,6 +104,7 @@ public class StylizedClockView extends View implements SensorEventListener {
 
     private void init(Context context, @Nullable AttributeSet attrs) {
         this.stario = (Stario) context.getApplicationContext();
+        this.preferences = stario.getSharedPreferences(Entry.CLOCK);
         this.calendar = Calendar.getInstance();
 
         contentRect = new RectF();
@@ -372,7 +378,8 @@ public class StylizedClockView extends View implements SensorEventListener {
         // takes just a bit less space than the fully available space on an axis).
         // When that happens, a small scale factor can be applied to align the content
         // to the bounds.
-        if (Math.abs(ratioXtoY - 1f) > MIN_SCALING_RATIO_THRESHOLD) {
+        int backgroundAlpha = preferences.getInt(BACKGROUND_ALPHA_KEY, 0);
+        if (Math.abs(ratioXtoY - 1f) > MIN_SCALING_RATIO_THRESHOLD || backgroundAlpha > 0) {
             float scale = Math.min(viewWidth / totalMaxWidth, viewHeight / totalMaxHeight);
 
             hourPaint.setTextSize(TEST_HOUR_SIZE * scale);
@@ -516,6 +523,10 @@ public class StylizedClockView extends View implements SensorEventListener {
                 contentRect.bottom - halfStroke
         );
 
+        int alpha = preferences.getInt(BACKGROUND_ALPHA_KEY, 0);
+        backgroundPaint.setAlpha(alpha);
+        outlinePaint.setAlpha(alpha);
+
         canvas.drawRoundRect(
                 bgRect,
                 cornerRadius,
@@ -532,9 +543,7 @@ public class StylizedClockView extends View implements SensorEventListener {
 
         // Time compute
         calendar.setTimeInMillis(System.currentTimeMillis());
-
-        SharedPreferences preferences = stario.getSettings();
-        boolean is24Hour = !preferences.getBoolean(Weather.IMPERIAL_KEY, false);
+        boolean is24Hour = !preferences.getBoolean(IMPERIAL_KEY, Utils.isSystemUsingImperial(stario));
 
         int hour = is24Hour ? calendar.get(Calendar.HOUR_OF_DAY) : calendar.get(Calendar.HOUR);
         if (!is24Hour && hour == 0) {

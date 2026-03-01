@@ -44,7 +44,11 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -63,6 +67,19 @@ public class Utils {
             "https://ipv4.seeip.org",
             "https://api.ipify.org/"
     };
+    private static final Set<String> IMPERIAL_COUNTRIES = new HashSet<>(Arrays.asList(
+            "US", // United States
+            "PW", // Palau
+            "MH", // Marshall Islands
+            "MP", // Northern Mariana Islands
+            "AS", // American Samoa
+            "KY", // Cayman Islands
+            "VI", // U.S. Virgin Islands
+            "FM", // Micronesia
+            "GU", // Guam
+            "LR", // Liberia
+            "PR"  // Puerto Rico
+    ));
     private static Gson gson;
 
     public static Future<?> submitTask(Runnable runnable) {
@@ -87,6 +104,18 @@ public class Utils {
         }
 
         return gson;
+    }
+
+    public static boolean isSystemUsingImperial(Context context) {
+        if (context == null) {
+            return false;
+        }
+
+        Locale locale = context.getResources()
+                .getConfiguration().getLocales().get(0);
+        String countryCode = locale.getCountry();
+
+        return IMPERIAL_COUNTRIES.contains(countryCode);
     }
 
     public static boolean isMinimumSDK(int SDK) {

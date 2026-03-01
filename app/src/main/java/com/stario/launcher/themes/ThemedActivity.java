@@ -55,6 +55,10 @@ import androidx.core.app.ActivityCompat;
 import com.stario.launcher.Stario;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.back.BackEvent;
+import com.stario.launcher.ui.back.BackEventType;
+import com.stario.launcher.ui.back.BackGestureEventBus;
+import com.stario.launcher.ui.common.AnimatedInsetDrawable;
 import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.utils.Utils;
@@ -71,6 +75,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
     private static int requestCode = 0;
 
+    private AnimatedInsetDrawable uiInsetBackgroundAnimator;
     private PaintDrawable roundedCornerBackground;
     private SharedPreferences themePreferences;
     private ValueAnimator backgroundAnimator;
@@ -109,6 +114,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
         backgroundColor = getAttributeData(com.google.android.material.R.attr.colorSurface);
 
         roundedCornerBackground = new PaintDrawable(backgroundColor);
+        uiInsetBackgroundAnimator = new AnimatedInsetDrawable(roundedCornerBackground);
         roundedCornerBackground.setCornerRadius(Measurements.dpToPx(30));
 
         Window window = getWindow();
@@ -181,23 +187,44 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
                     @Override
                     public void handleOnBackProgressed(@NonNull BackEventCompat backEvent) {
-                        if (isAffectedByBackGesture() &&
-                                !isActivityTransitionRunning() && handleInit()) {
-                            View root = getRoot();
-
+                        if (isAffectedByBackGesture() && handleInit()) {
                             float progress = cubicBezier.transform(backEvent.getProgress());
-                            if (root != null) {
-                                windowBackground.setAlpha((int) (Math.max((1f - progress * 2), 0) * 255));
 
-                                root.setPivotY(backEvent.getTouchY() / 1.3f);
+                            if (!isActivityTransitionRunning()) {
+                                View root = getRoot();
 
-                                root.setScaleX(1f - progress * 0.15f);
-                                root.setTranslationY((root.getHeight() / 10f) * progress);
-                                root.setScaleY(1f - progress * 0.15f);
+                                if (root != null) {
+                                    windowBackground.setAlpha((int) (Math.max((1f - progress * 2), 0) * 255));
 
-                                roundedCornerBackground.setCornerRadius((float) (Measurements.dpToPx(10) +
-                                        Math.pow(progress, 0.3f) * Measurements.dpToPx(20)));
+                                    root.setPivotY(backEvent.getTouchY() / 1.3f);
+                                    float deltaX = 0;
+                                    if (backEvent.getSwipeEdge() == BackEventCompat.EDGE_LEFT) {
+                                        deltaX = backEvent.getTouchX();
+                                    } else if (backEvent.getSwipeEdge() == BackEventCompat.EDGE_RIGHT) {
+                                        deltaX = backEvent.getTouchX() - root.getWidth();
+                                    }
+                                    root.setPivotX(deltaX * 0.3f + root.getWidth() / 2f);
+
+                                    root.setScaleX(1f - progress * 0.15f);
+                                    root.setTranslationY((root.getHeight() / 10f) * progress);
+                                    root.setScaleY(1f - progress * 0.15f);
+
+                                    float expProgress = (float) Math.pow(progress, 0.3f);
+                                    roundedCornerBackground.setCornerRadius(Measurements.dpToPx(10) +
+                                            expProgress * Measurements.dpToPx(20));
+                                    uiInsetBackgroundAnimator.setInsets(0,
+                                            (int) (Measurements.getSysUIHeight() * expProgress),
+                                            0, (int) (Measurements.getNavHeight() * expProgress));
+                                }
                             }
+
+                            BackGestureEventBus.getInstance().postEvent(
+                                    new BackEvent(
+                                            BackEventType.BACK_PROGRESS,
+                                            progress,
+                                            ThemedActivity.this.getClass()
+                                    )
+                            );
                         }
                     }
 
@@ -207,25 +234,34 @@ abstract public class ThemedActivity extends AppCompatActivity {
                             return;
                         }
 
-                        if (isAffectedByBackGesture() && !isActivityTransitionRunning()) {
-                            View root = getRoot();
+                        if (isAffectedByBackGesture()) {
+                            if (!isActivityTransitionRunning()) {
+                                View root = getRoot();
 
-                            if (root != null) {
-                                int alpha = windowBackground.getAlpha();
+                                if (root != null) {
+                                    int alpha = windowBackground.getAlpha();
 
-                                root.animate()
-                                        .scaleX(1)
-                                        .scaleY(1)
-                                        .setDuration(Animation.MEDIUM.getDuration())
-                                        .setUpdateListener(animation -> {
-                                            float fraction = animation.getAnimatedFraction();
+                                    root.animate()
+                                            .scaleX(1)
+                                            .scaleY(1)
+                                            .setDuration(Animation.MEDIUM.getDuration())
+                                            .setUpdateListener(animation -> {
+                                                float fraction = animation.getAnimatedFraction();
 
-                                            windowBackground.setAlpha(alpha +
-                                                    (int) ((startingWindowBackgroundAlpha - alpha) * fraction));
-                                        })
-                                        .withEndAction(() ->
-                                                windowBackground.setAlpha(startingWindowBackgroundAlpha));
+                                                windowBackground.setAlpha(alpha +
+                                                        (int) ((startingWindowBackgroundAlpha - alpha) * fraction));
+                                            })
+                                            .withEndAction(() ->
+                                                    windowBackground.setAlpha(startingWindowBackgroundAlpha));
+                                }
                             }
+
+                            BackGestureEventBus.getInstance().postEvent(
+                                    new BackEvent(
+                                            BackEventType.BACK_CANCELLED,
+                                            ThemedActivity.this.getClass()
+                                    )
+                            );
                         }
 
                         initialized = false;
@@ -248,6 +284,13 @@ abstract public class ThemedActivity extends AppCompatActivity {
 
                         if (isAffectedByBackGesture()) {
                             finishAfterTransition();
+
+                            BackGestureEventBus.getInstance().postEvent(
+                                    new BackEvent(
+                                            BackEventType.BACK_COMPLETED,
+                                            ThemedActivity.this.getClass()
+                                    )
+                            );
                         }
 
                         initialized = false;
@@ -264,7 +307,7 @@ abstract public class ThemedActivity extends AppCompatActivity {
         Window window = getWindow();
 
         if (window != null && isOpaque()) {
-            getRoot().setBackground(roundedCornerBackground);
+            getRoot().setBackground(uiInsetBackgroundAnimator);
 
             if (isActivityTransitionRunning()) {
                 if (backgroundAnimator != null &&

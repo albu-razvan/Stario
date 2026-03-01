@@ -25,6 +25,7 @@ import android.content.ClipDescription;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,6 +37,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
@@ -196,8 +198,17 @@ public class PageManager extends ThemedActivity {
             add.setVisibility(View.GONE);
         }
 
-        findViewById(R.id.gradient).animate().alpha(0.5f).setDuration(Animation.EXTENDED.getDuration());
-        UiUtils.Notch.applyNotchMargin(getRoot(), UiUtils.Notch.Treatment.INVERSE);
+        findViewById(R.id.gradient).animate()
+                .alpha(0.5f).setDuration(Animation.EXTENDED.getDuration());
+
+        View root = getRoot();
+        UiUtils.Notch.applyNotchMargin(root, UiUtils.Notch.Treatment.CENTER);
+        Measurements.addStatusBarListener(value ->
+                root.setPadding(root.getPaddingLeft(), value,
+                        root.getPaddingRight(), root.getPaddingBottom()));
+        Measurements.addNavListener(value ->
+                root.setPadding(root.getPaddingLeft(), root.getPaddingTop(),
+                        root.getPaddingRight(), value));
     }
 
     @SuppressLint("FindViewByIdCast")
@@ -417,7 +428,7 @@ public class PageManager extends ThemedActivity {
                                 if (pair.first.equals(group)) {
                                     Class<?> clazz = pages.get(otherPage);
 
-                                    if(clazz != null) {
+                                    if (clazz != null) {
                                         preferences.edit()
                                                 .putString(clazz.getName(), pair.second.toString())
                                                 .apply();
@@ -434,7 +445,7 @@ public class PageManager extends ThemedActivity {
                                 if (pair.first.equals(view)) {
                                     Class<?> clazz = pages.get(draggedPage);
 
-                                    if(clazz != null) {
+                                    if (clazz != null) {
                                         preferences.edit()
                                                 .putString(clazz.getName(), pair.second.toString())
                                                 .apply();
@@ -545,9 +556,14 @@ public class PageManager extends ThemedActivity {
         }
 
         pagesContainer.setLayoutParams(params);
-        pagesContainer.forceLayout();
-        container.requestLayout();
-        add.forceLayout();
+        getRoot().requestLayout();
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration config) {
+        super.onConfigurationChanged(config);
+
+        loadParams();
     }
 
     @Override

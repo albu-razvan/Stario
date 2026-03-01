@@ -18,6 +18,7 @@
 package com.stario.launcher.activities.launcher.widgets.glance.extensions.weather;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.view.View;
 import android.widget.ImageView;
@@ -28,6 +29,7 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.stario.launcher.R;
 import com.stario.launcher.activities.launcher.widgets.glance.GlanceViewExtension;
+import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.utils.Utils;
 
@@ -38,6 +40,7 @@ final class WeatherPreview implements GlanceViewExtension {
     private SharedPreferences preferences;
     private boolean hasTemperature;
     private TextView temperature;
+    private Activity activity;
     private boolean hasIcon;
     private ImageView icon;
     private View root;
@@ -49,10 +52,12 @@ final class WeatherPreview implements GlanceViewExtension {
 
     @Override
     public View inflate(ThemedActivity activity, LinearLayout container) {
+        this.activity = activity;
+
         root = activity.getLayoutInflater()
                 .inflate(R.layout.weather_preview, container, false);
 
-        preferences = activity.getApplicationContext().getSettings();
+        preferences = activity.getApplicationContext().getSharedPreferences(Entry.WEATHER);
 
         icon = root.findViewById(R.id.icon);
         temperature = root.findViewById(R.id.temperature);
@@ -68,7 +73,7 @@ final class WeatherPreview implements GlanceViewExtension {
 
     @SuppressLint("SetTextI18n")
     void update(Weather.Data data) {
-        if (data == null) {
+        if (data == null || root == null) {
             hasIcon = false;
             hasTemperature = false;
 
@@ -78,7 +83,8 @@ final class WeatherPreview implements GlanceViewExtension {
         }
 
         if (!Double.isNaN(data.temperature)) {
-            if (preferences.getBoolean(Weather.IMPERIAL_KEY, false)) {
+            if (preferences.getBoolean(Weather.IMPERIAL_KEY,
+                    Utils.isSystemUsingImperial(activity))) {
                 this.temperature.setText((int) Math.round(
                         Utils.toFahrenheit(data.temperature)) + FAHRENHEIT);
             } else {

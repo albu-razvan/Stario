@@ -17,7 +17,6 @@
 
 package com.stario.launcher.activities.settings;
 
-import android.Manifest;
 import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -47,28 +46,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.widget.NestedScrollView;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.stario.launcher.BuildConfig;
 import com.stario.launcher.R;
 import com.stario.launcher.Stario;
-import com.stario.launcher.activities.launcher.widgets.ClockWidget;
-import com.stario.launcher.activities.launcher.widgets.glance.extensions.media.Media;
-import com.stario.launcher.activities.launcher.widgets.glance.extensions.weather.Weather;
-import com.stario.launcher.activities.launcher.widgets.pins.PinnedCategory;
 import com.stario.launcher.activities.pages.PageManager;
-import com.stario.launcher.activities.settings.dialogs.AccessibilityConfigurator;
-import com.stario.launcher.activities.settings.dialogs.NotificationConfigurator;
+import com.stario.launcher.activities.settings.dialogs.HomeScreenDialog;
 import com.stario.launcher.activities.settings.dialogs.hide.HideApplicationsDialog;
 import com.stario.launcher.activities.settings.dialogs.icons.IconsDialog;
 import com.stario.launcher.activities.settings.dialogs.license.LicensesDialog;
-import com.stario.launcher.activities.settings.dialogs.location.LocationDialog;
-import com.stario.launcher.activities.settings.dialogs.pin.PinnedCategoryDialog;
 import com.stario.launcher.activities.settings.dialogs.search.engine.SearchEngineDialog;
 import com.stario.launcher.activities.settings.dialogs.search.results.SearchResultsDialog;
 import com.stario.launcher.activities.settings.dialogs.theme.ThemeDialog;
-import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.apps.IconPackManager;
 import com.stario.launcher.apps.LauncherApplication;
 import com.stario.launcher.apps.ProfileApplicationManager;
@@ -80,13 +72,9 @@ import com.stario.launcher.sheet.drawer.search.SearchFragment;
 import com.stario.launcher.sheet.drawer.search.recyclers.adapters.WebAdapter;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
-import com.stario.launcher.ui.common.CollapsibleTitleBar;
-import com.stario.launcher.ui.common.lock.LockDetector;
 import com.stario.launcher.ui.dialogs.DialogBackgroundDimmingController;
+import com.stario.launcher.ui.utils.LayoutSizeObserver;
 import com.stario.launcher.ui.utils.UiUtils;
-import com.stario.launcher.utils.Utils;
-
-import java.util.UUID;
 
 public class Settings extends ThemedActivity {
 
@@ -94,34 +82,25 @@ public class Settings extends ThemedActivity {
     private SharedPreferences settingsPrefs;
     private SharedPreferences searchPrefs;
     private SharedPreferences iconsPrefs;
-    private SharedPreferences pinsPrefs;
-    private SharedPreferences weatherPrefs;
     private SharedPreferences themePrefs;
-    private Resources resources;
     private PowerManager powerManager;
     private boolean isBatterySaverOn;
+    private Resources resources;
 
     // Views
-    private CollapsibleTitleBar titleBar;
-    private View titleMeasurePlaceholder;
-    private View titleLandscape;
+    private CollapsingToolbarLayout collapsingToolbarLayout;
     private NestedScrollView scroller;
+    private AppBarLayout appBar;
+    private View titleLandscape;
     private ViewGroup content;
-    private View fader;
 
     // Dynamic views
-    private TextView searchEngineName;
+    private MaterialSwitch lowSpecSwitch;
     private View searchEngineContainer;
-    private TextView pinnedCategoryName;
-    private MaterialSwitch pinnedCategorySwitch;
+    private TextView searchEngineName;
+    private View lowSpecContainer;
     private TextView iconPackName;
     private TextView hideCount;
-    private MaterialSwitch mediaSwitch;
-    private MaterialSwitch lockSwitch;
-    private MaterialSwitch lowSpecSwitch;
-    private View lowSpecContainer;
-    private MaterialSwitch lockAnimSwitch;
-    private View lockAnimContainer;
 
     // Misc
     private ActivityResultLauncher<Intent> homeRoleLauncher;
@@ -138,7 +117,8 @@ public class Settings extends ThemedActivity {
         setContentView(R.layout.settings);
         postponeEnterTransition();
 
-        initCoreServices();
+        init();
+
         initViews();
         setupWindowInsets();
         setupLifecycleObservers();
@@ -146,13 +126,11 @@ public class Settings extends ThemedActivity {
         initGeneralSection();
         initDisplaySection();
         initSearchSection();
-        initHomeSection();
-        initAnimationSection();
         initMiscSection();
         initFooterLinks();
 
-        getRoot().post(this::startPostponedEnterTransition);
         handleOrientation();
+        getRoot().post(this::startPostponedEnterTransition);
     }
 
     @Override
@@ -162,14 +140,6 @@ public class Settings extends ThemedActivity {
         if (batterySaverReceiver != null) {
             unregisterReceiver(batterySaverReceiver);
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        checkNotificationPermission();
-        checkAccessibilityPermission();
     }
 
     @Override
@@ -187,16 +157,14 @@ public class Settings extends ThemedActivity {
         }
     }
 
-    private void initCoreServices() {
+    private void init() {
         resources = getResources();
         Stario stario = getApplicationContext();
 
         settingsPrefs = stario.getSettings();
         iconsPrefs = stario.getSharedPreferences(Entry.ICONS);
         searchPrefs = stario.getSharedPreferences(Entry.SEARCH);
-        pinsPrefs = stario.getSharedPreferences(Entry.PINNED_CATEGORY);
         themePrefs = stario.getSharedPreferences(Entry.THEME);
-        weatherPrefs = stario.getSharedPreferences(Entry.WEATHER);
 
         powerManager = (PowerManager) getSystemService(ThemedActivity.POWER_SERVICE);
 
@@ -212,26 +180,34 @@ public class Settings extends ThemedActivity {
     private void initViews() {
         content = findViewById(R.id.content);
         scroller = findViewById(R.id.scroller);
-        titleBar = findViewById(R.id.title_bar);
-        fader = findViewById(R.id.fader);
-        titleMeasurePlaceholder = findViewById(R.id.title_placeholder);
-        titleLandscape = findViewById(R.id.title_landscape);
-
-        searchEngineName = findViewById(R.id.engine_name);
-        searchEngineContainer = findViewById(R.id.search_engine);
-        pinnedCategoryName = findViewById(R.id.pinned_category_name);
-        pinnedCategorySwitch = findViewById(R.id.pinned_category);
         iconPackName = findViewById(R.id.pack_name);
         hideCount = findViewById(R.id.hidden_count);
-        mediaSwitch = findViewById(R.id.media);
-        lockSwitch = findViewById(R.id.lock);
         lowSpecSwitch = findViewById(R.id.low_spec);
+        searchEngineName = findViewById(R.id.engine_name);
+        titleLandscape = findViewById(R.id.title_landscape);
+        searchEngineContainer = findViewById(R.id.search_engine);
         lowSpecContainer = findViewById(R.id.low_spec_container);
-        lockAnimSwitch = findViewById(R.id.lock_animation);
-        lockAnimContainer = findViewById(R.id.lock_animation_container);
+        collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
 
-        titleBar.setOnOffsetChangeListener(offset ->
-                fader.setTranslationY(titleBar.getMeasuredHeight() - titleBar.getCollapsedHeight() + offset));
+        appBar = findViewById(R.id.app_bar);
+        TextView titlePortrait = findViewById(R.id.title_portrait);
+        LayoutSizeObserver.attach(titlePortrait, LayoutSizeObserver.HEIGHT,
+                new LayoutSizeObserver.OnChange() {
+                    @Override
+                    public void onChange(View view, int watchFlags) {
+                        titlePortrait.setPivotY(titlePortrait.getHeight() / 2f);
+                    }
+                });
+        appBar.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
+            // The text should scale from 30sp to 20sp
+            float factor = (float) -verticalOffset / appBarLayout.getTotalScrollRange();
+            factor = 1 - 0.333f * factor;
+
+            if (!Float.isNaN(factor)) {
+                titlePortrait.setScaleX(factor);
+                titlePortrait.setScaleY(factor);
+            }
+        });
     }
 
     private void setupWindowInsets() {
@@ -264,33 +240,25 @@ public class Settings extends ThemedActivity {
 
     // Settings
     private void initGeneralSection() {
-        // Media Player Switch
-        setupSwitch(mediaSwitch, findViewById(R.id.media_container),
-                settingsPrefs.getBoolean(Media.PREFERENCE_ENTRY, false),
-                (button, checked) -> {
-                    settingsPrefs.edit()
-                            .putBoolean(Media.PREFERENCE_ENTRY, checked)
-                            .apply();
+        // Home Screen
+        findViewById(R.id.home).setOnClickListener(new View.OnClickListener() {
+            private HomeScreenDialog dialog;
+            private boolean showing = false;
 
-                    if (checked && !Utils.isNotificationServiceEnabled(Settings.this)) {
-                        showNotificationPermissionDialog();
-                    }
-                });
+            @Override
+            public void onClick(View view) {
+                if (dialog == null) {
+                    dialog = new HomeScreenDialog(Settings.this);
+                }
 
-        // Double Tap Lock Switch
-        setupSwitch(lockSwitch, findViewById(R.id.lock_container),
-                settingsPrefs.getBoolean(LockDetector.PREFERENCE_ENTRY, false),
-                (button, checked) -> {
-                    settingsPrefs.edit()
-                            .putBoolean(LockDetector.PREFERENCE_ENTRY, checked)
-                            .apply();
+                dialog.setOnDismissListener((d) -> showing = false);
 
-                    if (checked && !Utils.isAccessibilityServiceEnabled(Settings.this)) {
-                        showAccessibilityPermissionDialog();
-                    }
-
-                    updateLockAnimationState(checked);
-                });
+                if (!showing) {
+                    dialog.show();
+                    showing = true;
+                }
+            }
+        });
 
         // Page Manager
         findViewById(R.id.pages).setOnClickListener(view ->
@@ -413,16 +381,10 @@ public class Settings extends ThemedActivity {
         });
 
         // Search Results
+        View searchResultsContainer = findViewById(R.id.search_results_container);
         MaterialSwitch resultsSwitch = findViewById(R.id.search_results);
-        setupSwitch(resultsSwitch, searchPrefs.getBoolean(WebAdapter.SEARCH_RESULTS, false),
-                (button, checked) -> {
-                    searchPrefs.edit()
-                            .putBoolean(WebAdapter.SEARCH_RESULTS, checked)
-                            .apply();
-                    updateEngineName();
-                });
 
-        findViewById(R.id.search_results_container).setOnClickListener(new View.OnClickListener() {
+        searchResultsContainer.setOnClickListener(new View.OnClickListener() {
             private SearchResultsDialog dialog;
             private boolean showing = false;
 
@@ -442,6 +404,20 @@ public class Settings extends ThemedActivity {
             }
         });
 
+        setupSwitch(resultsSwitch, searchPrefs.getBoolean(WebAdapter.SEARCH_RESULTS, false),
+                (button, checked) -> {
+                    String key = searchPrefs.getString(WebAdapter.KAGI_API_KEY, null);
+                    if (checked && (key == null || key.isEmpty())) {
+                        searchResultsContainer.performClick();
+                        button.setChecked(false);
+                    } else {
+                        searchPrefs.edit()
+                                .putBoolean(WebAdapter.SEARCH_RESULTS, checked)
+                                .apply();
+                        updateEngineName();
+                    }
+                });
+
         // Search Hidden Apps
         setupSwitch(findViewById(R.id.search_hidden_apps), findViewById(R.id.search_hidden_apps_container),
                 searchPrefs.getBoolean(SearchFragment.SEARCH_HIDDEN_APPS, false),
@@ -451,102 +427,7 @@ public class Settings extends ThemedActivity {
                                 .apply());
     }
 
-    private void initHomeSection() {
-        // Clock
-        setupSwitch(findViewById(R.id.clock), findViewById(R.id.clock_container),
-                settingsPrefs.getBoolean(ClockWidget.CLOCK_WIDGET_KEY, true),
-                (button, checked) ->
-                        settingsPrefs.edit()
-                                .putBoolean(ClockWidget.CLOCK_WIDGET_KEY, checked)
-                                .apply());
-
-        // Pinned Category
-        View pinnedCategoryContainer = findViewById(R.id.pinned_category_container);
-
-        updatePinnedCategoryName();
-        pinnedCategorySwitch.setChecked(
-                pinsPrefs.getBoolean(PinnedCategory.PINNED_CATEGORY_VISIBLE, false));
-        pinnedCategorySwitch.jumpDrawablesToCurrentState();
-
-        pinnedCategorySwitch.setOnCheckedChangeListener((button, isChecked) -> {
-            if (isChecked && !isPinnedCategoryValid()) {
-                pinnedCategorySwitch.setChecked(false);
-                pinnedCategoryContainer.performClick();
-            } else {
-                pinsPrefs.edit()
-                        .putBoolean(PinnedCategory.PINNED_CATEGORY_VISIBLE, isChecked)
-                        .apply();
-            }
-        });
-
-        pinnedCategoryContainer.setOnClickListener(new View.OnClickListener() {
-            private PinnedCategoryDialog dialog;
-            private boolean showing = false;
-
-            @Override
-            public void onClick(View view) {
-                if (dialog == null) {
-                    dialog = new PinnedCategoryDialog(Settings.this, pinsPrefs,
-                            (isChecked) -> {
-                                pinnedCategorySwitch.setChecked(isChecked);
-
-                                return isPinnedCategoryValid() && isChecked;
-                            });
-
-                    dialog.setOnDismissListener(dialog -> {
-                        updatePinnedCategoryName();
-                        showing = false;
-                    });
-                }
-
-                if (!showing) {
-                    dialog.show();
-                    showing = true;
-                }
-            }
-        });
-
-        // Weather
-        setupSwitch(findViewById(R.id.weather), findViewById(R.id.weather_container),
-                weatherPrefs.getBoolean(Weather.FORECAST_KEY, true),
-                (button, checked) -> {
-                    weatherPrefs.edit()
-                            .putBoolean(Weather.FORECAST_KEY, checked)
-                            .apply();
-
-                    //noinspection deprecation
-                    LocalBroadcastManager.getInstance(this)
-                            .sendBroadcastSync(new Intent(Weather.ACTION_REQUEST_UPDATE));
-                });
-
-        // Location
-        TextView locationName = findViewById(R.id.location_name);
-        locationName.setText(getLocationString());
-
-        findViewById(R.id.location).setOnClickListener(new View.OnClickListener() {
-            private LocationDialog dialog;
-            private boolean showing = false;
-
-            @Override
-            public void onClick(View view) {
-                if (dialog == null) {
-                    dialog = new LocationDialog(Settings.this);
-
-                    dialog.setOnLocationUpdateListener(() ->
-                            locationName.setText(getLocationString()));
-                    dialog.setOnDismissListener(dialog -> showing = false);
-                }
-
-                if (!showing) {
-                    dialog.show();
-                    showing = true;
-                }
-            }
-        });
-    }
-
-    private void initAnimationSection() {
-        // Low Spec
+    private void initMiscSection() {
         updateLowSpecState();
         lowSpecSwitch.setOnCheckedChangeListener((button, isChecked) -> {
             if (!isBatterySaverOn) {
@@ -556,24 +437,6 @@ public class Settings extends ThemedActivity {
             }
         });
         lowSpecSwitch.jumpDrawablesToCurrentState();
-
-        // Legacy Lock Animation
-        setupSwitch(lockAnimSwitch, findViewById(R.id.lock_animation_container),
-                settingsPrefs.getBoolean(LockDetector.LEGACY_ANIMATION, false),
-                (button, checked) ->
-                        settingsPrefs.edit()
-                                .putBoolean(LockDetector.LEGACY_ANIMATION, checked)
-                                .apply());
-        updateLockAnimationState(settingsPrefs.getBoolean(LockDetector.PREFERENCE_ENTRY, false));
-    }
-
-    private void initMiscSection() {
-        setupSwitch(findViewById(R.id.imperial), findViewById(R.id.imperial_container),
-                settingsPrefs.getBoolean(Weather.IMPERIAL_KEY, false),
-                (button, checked) ->
-                        settingsPrefs.edit()
-                                .putBoolean(Weather.IMPERIAL_KEY, checked)
-                                .apply());
 
         setupSwitch(findViewById(R.id.vibrations), findViewById(R.id.vibrations_container),
                 settingsPrefs.getBoolean(Vibrations.PREFERENCE_ENTRY, true),
@@ -605,9 +468,7 @@ public class Settings extends ThemedActivity {
                 if (dialog == null) {
                     dialog = new LicensesDialog(Settings.this);
 
-                    dialog.setOnDismissListener(dialog -> {
-                        showing = false;
-                    });
+                    dialog.setOnDismissListener(dialog -> showing = false);
                 }
 
                 if (!showing) {
@@ -662,16 +523,6 @@ public class Settings extends ThemedActivity {
         }
     }
 
-    private void updateLockAnimationState(boolean enabled) {
-        lockAnimContainer.setAlpha(enabled ? 1f : 0.6f);
-
-        if (enabled) {
-            lockAnimContainer.setOnClickListener((view) -> lockAnimSwitch.performClick());
-        } else {
-            lockAnimContainer.setOnClickListener(null);
-        }
-    }
-
     private void updateLowSpecState() {
         lowSpecContainer.setAlpha(isBatterySaverOn ? 0.6f : 1f);
 
@@ -709,20 +560,6 @@ public class Settings extends ThemedActivity {
         iconPackName.setText(R.string.default_text);
     }
 
-    private void updatePinnedCategoryName() {
-        if (pinsPrefs.contains(PinnedCategory.PINNED_CATEGORY)) {
-            try {
-                pinnedCategoryName.setText(CategoryManager.getInstance().getCategoryName(
-                        UUID.fromString(pinsPrefs.getString(PinnedCategory.PINNED_CATEGORY, ""))));
-                pinnedCategoryName.setVisibility(View.VISIBLE);
-            } catch (IllegalArgumentException | NullPointerException exception) {
-                pinnedCategoryName.setVisibility(View.GONE);
-            }
-        } else {
-            pinnedCategoryName.setVisibility(View.GONE);
-        }
-    }
-
     @SuppressLint("SetTextI18n")
     private void updateHiddenAppsCount() {
         int count = 0;
@@ -734,79 +571,38 @@ public class Settings extends ThemedActivity {
         hideCount.setText(resources.getString(R.string.hidden_apps) + ": " + count);
     }
 
-    private String getLocationString() {
-        String location = weatherPrefs.getString(Weather.LOCATION_NAME,
-                resources.getString(R.string.location_ip_based));
-
-        if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && weatherPrefs.getBoolean(Weather.PRECISE_LOCATION, false)) {
-            location = resources.getString(R.string.precise_location);
-        }
-
-        return location;
-    }
-
-    // Permission Dialogs
-    private void showNotificationPermissionDialog() {
-        NotificationConfigurator dialog = new NotificationConfigurator(Settings.this);
-
-        dialog.setOnDismissListener(d -> checkNotificationPermission());
-        dialog.show();
-    }
-
-    private void showAccessibilityPermissionDialog() {
-        AccessibilityConfigurator dialog = new AccessibilityConfigurator(Settings.this);
-
-        dialog.setOnDismissListener(d -> checkAccessibilityPermission());
-        dialog.show();
-    }
-
     // Utils
-    private void checkNotificationPermission() {
-        if (!Utils.isNotificationServiceEnabled(this)) {
-            mediaSwitch.setChecked(false);
-        }
-    }
-
-    private void checkAccessibilityPermission() {
-        if (!Utils.isAccessibilityServiceEnabled(this)) {
-            lockSwitch.setChecked(false);
-        }
-    }
-
-    private boolean isPinnedCategoryValid() {
-        String identifier = pinsPrefs.getString(PinnedCategory.PINNED_CATEGORY, null);
-
-        if (identifier == null) {
-            return false;
-        }
-
-        try {
-            return CategoryManager.getInstance().get(UUID.fromString(identifier)) != null;
-        } catch (IllegalArgumentException exception) {
-            return false;
-        }
-    }
-
     private void handleOrientation() {
+        scroller.stopNestedScroll();
+        scroller.setNestedScrollingEnabled(false);
+
+        AppBarLayout.LayoutParams params =
+                (AppBarLayout.LayoutParams) collapsingToolbarLayout.getLayoutParams();
+
         if (Measurements.isLandscape()) {
-            titleBar.getLayoutParams().height =
-                    Measurements.dpToPx(Measurements.HEADER_SIZE_DP / 3f);
-            titleBar.requestLayout();
+            params.height = 0;
+            params.setScrollFlags(
+                    AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+            );
 
-            titleMeasurePlaceholder.setVisibility(View.GONE);
+            collapsingToolbarLayout.setTitleEnabled(false);
             titleLandscape.setVisibility(View.VISIBLE);
-            titleBar.setVisibility(View.GONE);
         } else {
-            titleBar.getLayoutParams().height = Measurements.dpToPx(Measurements.HEADER_SIZE_DP);
-            titleBar.requestLayout();
+            params.height = Measurements.dpToPx(Measurements.HEADER_SIZE_DP);
+            params.setScrollFlags(
+                    AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL |
+                            AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED |
+                            AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP
+            );
 
-            titleMeasurePlaceholder.setVisibility(View.INVISIBLE);
+            collapsingToolbarLayout.setTitleEnabled(true);
             titleLandscape.setVisibility(View.GONE);
-            titleBar.setVisibility(View.VISIBLE);
         }
 
-        scroller.scrollTo(0, 0);
+        collapsingToolbarLayout.setLayoutParams(params);
+
+        scroller.setNestedScrollingEnabled(true);
+        scroller.setScrollY(0);
     }
 
     private void restart() {

@@ -110,8 +110,12 @@ public class IconsDialog extends ActionDialog {
 
         adapter = new IconsRecyclerAdapter(activity, v -> dismiss());
 
-        slider.setValue(preferences.getFloat(AdaptiveIconView.CORNER_RADIUS_ENTRY,
-                AdaptiveIconView.DEFAULT_CORNER_RADIUS));
+        slider.setValueFrom(0);
+        slider.setValueTo(1);
+        slider.setStepSize(0.01f);
+
+        slider.setValue((int) (preferences.getFloat(AdaptiveIconView.CORNER_RADIUS_ENTRY,
+                AdaptiveIconView.DEFAULT_CORNER_RADIUS) * 100f) / 100f);
         slider.addOnChangeListener((slider1, value, fromUser) -> {
             Intent intent = new Intent(INTENT_CHANGE_CORNER_RADIUS);
             intent.putExtra(EXTRA_CORNER_RADIUS, value);

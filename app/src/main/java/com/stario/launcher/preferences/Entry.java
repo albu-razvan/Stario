@@ -36,7 +36,8 @@ public enum Entry {
     DRAWER("DRAWER"),
     SHEET("SHEET"),
     THEME("THEME"),
-    ICONS("ICONS");
+    ICONS("ICONS"),
+    CLOCK("CLOCK");
 
     private final String serialized;
 
