@@ -92,7 +92,7 @@ public class PinnedCategoryDialog extends ActionDialog {
 
     @Override
     protected int getDesiredInitialState() {
-        return BottomSheetBehavior.STATE_EXPANDED;
+        return BottomSheetBehavior.STATE_HALF_EXPANDED;
     }
 
     public interface OnCheckedChangeListener {

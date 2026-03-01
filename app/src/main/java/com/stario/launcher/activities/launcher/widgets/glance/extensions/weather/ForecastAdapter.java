@@ -18,6 +18,7 @@
 package com.stario.launcher.activities.launcher.widgets.glance.extensions.weather;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,12 +40,15 @@ import java.util.List;
 
 public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHolder> {
     private static final int FORECAST_SIZE = 12;
-    private final List<Weather.Data> data;
-    private final int indexToStart;
+
     private final SharedPreferences preferences;
+    private final List<Weather.Data> data;
+    private final Activity activity;
+    private final int indexToStart;
 
     public ForecastAdapter(ThemedActivity activity, List<Weather.Data> data, int indexToStart) {
-        this.preferences = activity.getApplicationContext().getSharedPreferences(Entry.STARIO);
+        this.activity = activity;
+        this.preferences = activity.getApplicationContext().getSharedPreferences(Entry.WEATHER);
         this.data = data;
         this.indexToStart = indexToStart;
     }
@@ -73,7 +77,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
         viewHolder.time.setText(ViewHolder.DATE_FORMAT.format(data.date));
         viewHolder.icon.setImageResource(Weather.getIcon(data.iconCode));
 
-        if (preferences.getBoolean(Weather.IMPERIAL_KEY, false)) {
+        if (preferences.getBoolean(Weather.IMPERIAL_KEY, Utils.isSystemUsingImperial(activity))) {
             viewHolder.temperature.setText((int) Math.round(Utils.toFahrenheit(data.temperature)) + "°");
         } else {
             viewHolder.temperature.setText((int) Math.round(data.temperature) + "°");

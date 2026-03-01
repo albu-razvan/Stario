@@ -27,7 +27,6 @@
     <string name="remove">Remove</string>
     <string name="licenses">Licenses</string>
     <string name="restart">Restart</string>
-    <string name="animations">Animations</string>
     <string name="drawer">Drawer</string>
     <string name="search">Search</string>
     <string name="miscellaneous">Miscellaneous</string>
@@ -44,16 +43,11 @@
 
     <!-- Settings -->
     <string name="preferences">Preferences</string>
-    <string name="media_player">Media player</string>
     <string name="notification_dots">Notification dots</string>
-    <string name="lock_gesture">Double tap to lock</string>
-    <string name="imperial_units">Imperial units</string>
     <string name="vibrations">Vibrations</string>
     <string name="theme">Theme</string>
     <string name="pages">Page manager</string>
-    <string name="home">Home</string>
-    <string name="clock">Clock</string>
-    <string name="pinned_category">Pinned category</string>
+    <string name="home">Start screen</string>
     <string name="search_engine">Search engine</string>
     <string name="search_results">Search results</string>
     <string name="kagi_integration">Powered by Kagi</string>
@@ -61,14 +55,24 @@
     <string name="hide_applications_hint">Click to hide or show</string>
     <string name="low_spec">Low spec mode</string>
     <string name="low_spec_description">Enabled by default when battery saver is on.</string>
-    <string name="legacy_lock_animation">Legacy lock animation</string>
     <string name="icons">Icons</string>
+    <string name="system_launcher">Reassign system launcher</string>
+    <string name="app_info">App info</string>
+
+    <!-- Home pop-up -->
+    <string name="media_player">Media player</string>
+    <string name="pinned_category">Pinned category</string>
+    <string name="lock_gesture">Double tap to lock</string>
+    <string name="legacy_lock_animation">Legacy lock animation</string>
+    <string name="imperial_units">Imperial units</string>
     <string name="weather_forecast">Weather forecast</string>
     <string name="weather_location">Location</string>
     <string name="location_ip_based">IP Geolocation (Approximated)</string>
     <string name="precise_location">Current Location (Exact)</string>
-    <string name="system_launcher">Reassign system launcher</string>
-    <string name="app_info">App info</string>
+    <string name="clock">Clock</string>
+    <string name="background">Background</string>
+    <string name="weather">Weather</string>
+    <string name="lock">lock</string>
 
     <!-- Page Manager -->
     <string name="default_position">Default position</string>

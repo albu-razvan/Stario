@@ -57,8 +57,12 @@ public class SearchResultsDialog extends ActionDialog {
         View root = inflater.inflate(R.layout.pop_up_kagi, null);
 
         resultsSwitch = root.findViewById(R.id.search_results);
-        resultsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (listener != null) {
+        resultsSwitch.setOnCheckedChangeListener((button, isChecked) -> {
+            String key = preferences.getString(WebAdapter.KAGI_API_KEY, null);
+
+            if (key == null || key.isEmpty()) {
+                button.setChecked(false);
+            } else if (listener != null) {
                 listener.onChanged(isChecked);
             }
         });

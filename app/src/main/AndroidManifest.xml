@@ -69,6 +69,7 @@
             android:allowEmbedded="false"
             android:alwaysRetainTaskState="false"
             android:autoRemoveFromRecents="true"
+            android:configChanges="orientation|screenSize|layoutDirection"
             android:excludeFromRecents="true"
             android:exported="true"
             android:launchMode="standard"

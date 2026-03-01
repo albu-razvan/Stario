@@ -35,6 +35,8 @@ import androidx.annotation.Nullable;
 import com.stario.launcher.utils.Utils;
 import com.stario.launcher.utils.objects.ObservableObject;
 
+import java.util.WeakHashMap;
+
 public class Measurements {
     public static final int HEADER_SIZE_DP = 250;
     private static final ObservableObject<Integer> NAV_HEIGHT = new ObservableObject<>(0);
@@ -42,9 +44,10 @@ public class Measurements {
     private static final ObservableObject<Float> WINDOW_ANIMATION_SCALE = new ObservableObject<>(1f);
     private static final ObservableObject<Float> ANIMATOR_DURATION_SCALE = new ObservableObject<>(1f);
     private static final ObservableObject<Float> TRANSITION_ANIMATION_SCALE = new ObservableObject<>(1f);
+    private static final WeakHashMap<View, OnMeasureRoot> LISTENERS = new WeakHashMap<>();
+
     private static ContentObserver contentObserver = null;
     private static boolean measured = false;
-    private static OnMeasureRoot listener;
     private static int defaultPadding;
     private static int width;
     private static int height;
@@ -53,14 +56,15 @@ public class Measurements {
     private static float sp;
 
     public static void measure(@NonNull View root, OnMeasureRoot onMeasureListener) {
-        listener = onMeasureListener;
-
+        LISTENERS.put(root, onMeasureListener);
         measure(root);
     }
 
     public static void remeasure(View root) {
         if (root != null && measured) {
-            measure(root);
+            if (LISTENERS.containsKey(root)) {
+                measure(root);
+            }
         } else {
             throw new RuntimeException("remeasure() should not be called without a prior measure() call.");
         }
@@ -104,7 +108,12 @@ public class Measurements {
                 NAV_HEIGHT.updateObject(insets.getSystemWindowInsetBottom());
             }
 
-            return listener.onMeasure(insets);
+            OnMeasureRoot listener = LISTENERS.get(root);
+            if (listener != null) {
+                return listener.onMeasure(insets);
+            }
+
+            return insets;
         });
 
         root.requestApplyInsets();

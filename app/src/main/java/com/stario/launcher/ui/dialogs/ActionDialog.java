@@ -51,7 +51,7 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 
 public abstract class ActionDialog extends BottomSheetDialog {
-    private static final float DIMMING_MULTIPLIER = 0.5f;
+    private static final float DIMMING_MULTIPLIER = 0.7f;
 
     protected final ThemedActivity activity;
 
@@ -140,6 +140,7 @@ public abstract class ActionDialog extends BottomSheetDialog {
                         content.getPaddingTop(), content.getPaddingRight(), value));
 
         root.setOnClickListener(view -> dismiss());
+        content.setOnClickListener(view -> {});
 
         setContentView(root);
 

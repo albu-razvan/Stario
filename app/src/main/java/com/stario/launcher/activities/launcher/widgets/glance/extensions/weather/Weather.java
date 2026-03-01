@@ -348,7 +348,6 @@ public class Weather extends GlanceDialogExtension {
     private final DateParser dateParser;
 
     private SharedPreferences weatherPreferences;
-    private SharedPreferences settings;
     private GeocoderFallback geocoder;
     private volatile Address address;
     private volatile long lastUpdate;
@@ -408,7 +407,6 @@ public class Weather extends GlanceDialogExtension {
 
         Stario stario = activity.getApplicationContext();
         weatherPreferences = stario.getSharedPreferences(Entry.WEATHER);
-        settings = stario.getSettings();
 
         geocoder = new GeocoderFallback(activity);
 
@@ -600,7 +598,7 @@ public class Weather extends GlanceDialogExtension {
 
             icon.setImageResource(getIcon(data.iconCode));
 
-            if (settings.getBoolean(Weather.IMPERIAL_KEY, false)) {
+            if (weatherPreferences.getBoolean(Weather.IMPERIAL_KEY, Utils.isSystemUsingImperial(activity))) {
                 temperature.setText((int) Math.round(Utils.toFahrenheit(data.temperature)) + "°");
             } else {
                 temperature.setText((int) Math.round(data.temperature) + "°");
@@ -632,7 +630,7 @@ public class Weather extends GlanceDialogExtension {
             }
 
             direction.setRotation((float) data.windDirection + 180f);
-            if (settings.getBoolean(Weather.IMPERIAL_KEY, false)) {
+            if (weatherPreferences.getBoolean(Weather.IMPERIAL_KEY, Utils.isSystemUsingImperial(activity))) {
                 speed.setText((int) Math.round(Utils.msToMph(data.windSpeed)) + "mi/h");
             } else {
                 speed.setText((int) Math.round(data.windSpeed) + "m/s");

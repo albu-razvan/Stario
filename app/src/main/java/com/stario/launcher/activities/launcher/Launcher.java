@@ -50,6 +50,8 @@ import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.SheetsFocusController;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.back.BackEvent;
+import com.stario.launcher.ui.back.BackGestureEventBus;
 import com.stario.launcher.ui.common.grid.DynamicGridLayout;
 import com.stario.launcher.ui.common.lock.ClosingAnimationView;
 import com.stario.launcher.ui.popup.PopupMenu;
@@ -63,6 +65,7 @@ public class Launcher extends ThemedActivity {
     public static final String INTENT_KILL_TASK_ID_EXTRA = "com.stario.launcher.INTENT_KILL_TASK_ID_EXTRA";
     public static final String ACTION_KILL_TASK = "com.stario.launcher.ACTION_KILL_TASK";
 
+    private BackGestureEventBus.BackEventListener backEventListener;
     private BroadcastReceiver screenOnReceiver;
     private SheetsFocusController controller;
     private BroadcastReceiver killReceiver;
@@ -234,6 +237,42 @@ public class Launcher extends ThemedActivity {
 
                     activity.startActivity(intent,
                             ActivityOptions.makeSceneTransitionAnimation(activity).toBundle());
+
+                    backEventListener = new BackGestureEventBus.BackEventListener(Settings.class) {
+                        @Override
+                        public void onBackEvent(BackEvent event) {
+                            View root = getRoot();
+                            if (root == null) {
+                                return;
+                            }
+
+                            switch (event.type) {
+                                case BACK_PROGRESS:
+                                    root.animate().cancel();
+                                    root.setVisibility(View.VISIBLE);
+
+                                    root.setAlpha(event.progress);
+                                    root.setScaleX(0.9f + 0.1f * event.progress);
+                                    root.setScaleY(0.9f + 0.1f * event.progress);
+
+                                    break;
+                                case BACK_CANCELLED:
+                                    root.setVisibility(View.INVISIBLE);
+                                    root.animate()
+                                            .alpha(0f)
+                                            .scaleY(0.9f)
+                                            .scaleX(0.9f)
+                                            .setDuration(Animation.SHORT.getDuration())
+                                            .withEndAction(() ->
+                                                    root.setVisibility(View.INVISIBLE));
+
+                                    break;
+                            }
+                        }
+                    };
+
+                    BackGestureEventBus.getInstance()
+                            .addListener(backEventListener);
                 })));
 
         menu.add(new PopupMenu.Item(resources.getString(R.string.rearrange),
@@ -337,12 +376,23 @@ public class Launcher extends ThemedActivity {
         glance.update();
         updateWallpaperZoom(0f);
 
+        View root = getRoot();
+        root.setVisibility(View.VISIBLE);
+        root.animate()
+                .alpha(1f)
+                .scaleY(1f)
+                .scaleX(1f)
+                .setDuration(Animation.SHORT.getDuration());
+
+        BackGestureEventBus.getInstance().removeListener(backEventListener);
+        backEventListener = null;
+
         controller.animate()
                 .alpha(1)
                 .scaleX(1)
                 .scaleY(1)
-                .setDuration(Animation.EXTENDED.getDuration())
-                .setInterpolator(new DecelerateInterpolator(3));
+                .setDuration(Animation.LONG.getDuration())
+                .setInterpolator(new DecelerateInterpolator(2));
 
         super.onResume();
     }
