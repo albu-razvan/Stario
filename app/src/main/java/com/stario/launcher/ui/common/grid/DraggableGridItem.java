@@ -179,7 +179,26 @@ public class DraggableGridItem extends FrameLayout {
         float width = isVisualResizeEnabled ? visualWidth : getWidth();
         float height = isVisualResizeEnabled ? visualHeight : getHeight();
 
-        return x > width - handleSize && y > height - handleSize;
+        boolean resizeW = canResizeWidth();
+        boolean resizeH = canResizeHeight();
+
+        if (resizeW && resizeH) {
+            return x > width - handleSize && y > height - handleSize;
+        }
+
+        if (resizeW) {
+            return x > width - handleSize
+                    && y > height / 2f - handleSize / 2f
+                    && y < height / 2f + handleSize / 2f;
+        }
+
+        if (resizeH) {
+            return y > height - handleSize
+                    && x > width / 2f - handleSize / 2f
+                    && x < width / 2f + handleSize / 2f;
+        }
+
+        return false;
     }
 
     @Override
@@ -226,42 +245,62 @@ public class DraggableGridItem extends FrameLayout {
 
             canvas.drawRoundRect(rect, cornerSize, cornerSize, borderPaint);
 
-            if (canResize()) {
-                RectF cornerRect = new RectF(
-                        currentWidth - 2 * cornerSize - strokeWidth / 2f,
-                        currentHeight - 2 * cornerSize - strokeWidth / 2f,
-                        currentWidth - strokeWidth / 2f,
-                        currentHeight - strokeWidth / 2f
-                );
+            boolean resizeW = canResizeWidth();
+            boolean resizeH = canResizeHeight();
 
-                canvas.drawArc(cornerRect, 20, 50, false, handlePaint);
+            if (resizeW || resizeH) {
+
+                float left, top, right, bottom;
+
+                if (resizeW && resizeH) {
+                    left = currentWidth - 2 * cornerSize - strokeWidth / 2f;
+                    top = currentHeight - 2 * cornerSize - strokeWidth / 2f;
+                    right = currentWidth - strokeWidth / 2f;
+                    bottom = currentHeight - strokeWidth / 2f;
+
+                    RectF handleRect = new RectF(left, top, right, bottom);
+                    canvas.drawArc(handleRect, 20, 50, false, handlePaint);
+                } else if (resizeW) {
+                    left = currentWidth - strokeWidth / 2f;
+                    top = currentHeight / 2f - cornerSize / 2f;
+                    right = currentWidth - strokeWidth / 2f;
+                    bottom = currentHeight / 2f + cornerSize / 2f;
+
+                    canvas.drawLine(left, top, right, bottom, handlePaint);
+                } else {
+                    left = currentWidth / 2f - cornerSize / 2f;
+                    top = currentHeight - strokeWidth / 2f;
+                    right = currentWidth / 2f + cornerSize / 2f;
+                    bottom = currentHeight - strokeWidth / 2f;
+
+                    canvas.drawLine(left, top, right, bottom, handlePaint);
+                }
             }
         }
     }
 
-    private boolean canResize() {
+    private boolean canResizeWidth() {
         DynamicGridLayout parent = (DynamicGridLayout) getParent();
 
-        boolean canResizeWidth = true;
-        boolean canResizeHeight = true;
-
         if (maxColSpan > 0) {
-            if (Math.min(maxColSpan, parent.getColumnCount()) <= minColSpan) {
-                canResizeWidth = false;
-            }
-        } else if (parent.getColumnCount() <= minColSpan) {
-            canResizeWidth = false;
+            return Math.min(maxColSpan, parent.getColumnCount()) > minColSpan;
         }
+
+        return parent.getColumnCount() > minColSpan;
+    }
+
+    private boolean canResizeHeight() {
+        DynamicGridLayout parent = (DynamicGridLayout) getParent();
 
         if (maxRowSpan > 0) {
-            if (Math.min(maxRowSpan, parent.getRowCount()) <= minRowSpan) {
-                canResizeHeight = false;
-            }
-        } else if (parent.getRowCount() <= minRowSpan) {
-            canResizeHeight = false;
+            return Math.min(maxRowSpan, parent.getRowCount()) > minRowSpan;
         }
 
-        return canResizeWidth || canResizeHeight;
+        return parent.getRowCount() > minRowSpan;
+    }
+
+    private boolean canResize() {
+        return canResizeWidth() || canResizeHeight();
     }
 
     @Override

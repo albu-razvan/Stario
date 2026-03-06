@@ -34,6 +34,7 @@
     <declare-styleable name="DynamicGridLayout">
         <attr name="grid_preference_key" format="string" />
         <attr name="grid_layout_template" format="reference" />
+        <attr name="grid_no_space_warning" format="string" />
     </declare-styleable>
 
     <declare-styleable name="StylizedClockView">
