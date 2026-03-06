@@ -17,6 +17,8 @@
 
 package com.stario.launcher.ui.common.grid;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -28,15 +30,19 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Toast;
 
 import com.stario.launcher.R;
 import com.stario.launcher.Stario;
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.utils.animation.Animation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 // Used Gemini 3 for the nudge and item move logic
 public class DynamicGridLayout extends ViewGroup {
@@ -47,17 +53,21 @@ public class DynamicGridLayout extends ViewGroup {
     private static final int MIN_COLS_LANDSCAPE = 5;
     private static final int MIN_ROWS_PORTRAIT = 5;
     private static final int MIN_ROWS_LANDSCAPE = 3;
-    private static final long REORDER_DELAY_MS = 250;
-    private static final int NUDGE_OFFSET_PX = 40;
+    private static final long REORDER_DELAY_MS = 300;
+    private static final float HINT_SCALE = 0.85f;
+    private static final float HINT_ALPHA = 0.85f;
 
     private final GridTemplateManager templateManager;
     private final Map<View, Point> preAnimVisualPos;
+    private final List<View> hintedViews;
 
     private boolean isRearrangeable;
     private int cellWidth;
     private int cellHeight;
     private int colCount;
     private int rowCount;
+
+    private String warningMessage;
 
     private DraggableGridItem activeItem;
     private float initialTouchX;
@@ -74,28 +84,35 @@ public class DynamicGridLayout extends ViewGroup {
     private int pendingTargetRow;
     private int lastMeasuredCols;
     private int lastMeasuredRows;
-    private int pendingPushDirX;
-    private int pendingPushDirY;
+    private int lastReorderCol;
+    private int lastReorderRow;
+
+    private int runningAnimations;
 
     public DynamicGridLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         String key;
         int templateResourceId;
-        try (TypedArray arr = context.getTheme().obtainStyledAttributes(
+        try (TypedArray array = context.getTheme().obtainStyledAttributes(
                 attrs,
                 R.styleable.DynamicGridLayout,
                 0, 0
         )) {
-            key = arr.getString(R.styleable.DynamicGridLayout_grid_preference_key);
-            templateResourceId = arr.getResourceId(
+            key = array.getString(R.styleable.DynamicGridLayout_grid_preference_key);
+            templateResourceId = array.getResourceId(
                     R.styleable.DynamicGridLayout_grid_layout_template,
                     0
             );
+            warningMessage = array.getString(R.styleable.DynamicGridLayout_grid_no_space_warning);
 
             if (key == null || key.isEmpty()) {
                 throw new RuntimeException("'grid_preference_key' attribute is required");
             }
+        }
+
+        if (warningMessage == null) {
+            warningMessage = "No room available.";
         }
 
         this.colCount = MIN_COLS_PORTRAIT;
@@ -108,13 +125,16 @@ public class DynamicGridLayout extends ViewGroup {
         this.isResizing = false;
 
         this.preAnimVisualPos = new HashMap<>();
+        this.hintedViews = new ArrayList<>();
         this.currentHoverTarget = null;
         this.handler = new Handler();
 
-        this.pendingPushDirX = 0;
-        this.pendingPushDirY = 0;
+        this.lastReorderCol = -1;
+        this.lastReorderRow = -1;
         this.lastMeasuredCols = -1;
         this.lastMeasuredRows = -1;
+
+        this.runningAnimations = 0;
 
         setClipChildren(false);
         setClipToPadding(false);
@@ -129,6 +149,10 @@ public class DynamicGridLayout extends ViewGroup {
         }
     }
 
+    private boolean isAnimationRunning() {
+        return runningAnimations > 0;
+    }
+
     public void setRearrangeable(boolean rearrangeable) {
         this.isRearrangeable = rearrangeable;
 
@@ -141,49 +165,244 @@ public class DynamicGridLayout extends ViewGroup {
         }
     }
 
+    /**
+     * @noinspection ReplaceNullCheck
+     */
     public void addItem(DraggableGridItem view, ItemLayoutData defaultTemplateData) {
-        ItemLayoutData savedState = null;
+        ItemLayoutData saved = templateManager.getLayoutForSize(colCount, rowCount).get(view.itemId);
+        ItemLayoutData data;
 
-        Map<String, ItemLayoutData> currentConfig = templateManager.getLayoutForSize(colCount, rowCount);
-
-        if (currentConfig != null) {
-            savedState = currentConfig.get(view.itemId);
+        if (saved != null) {
+            data = saved;
+        } else if (defaultTemplateData != null) {
+            data = defaultTemplateData;
+        } else {
+            data = new ItemLayoutData(view.itemId, 0, 0, 1, 1);
         }
 
-        ItemLayoutData target = savedState != null ? savedState : defaultTemplateData;
-
-        view.minColSpan = defaultTemplateData.minColSpan;
-        view.minRowSpan = defaultTemplateData.minRowSpan;
-        view.maxColSpan = defaultTemplateData.maxColSpan > 0 ? defaultTemplateData.maxColSpan : -1;
-        view.maxRowSpan = defaultTemplateData.maxRowSpan > 0 ? defaultTemplateData.maxRowSpan : -1;
+        view.minColSpan = data.minColSpan;
+        view.minRowSpan = data.minRowSpan;
+        view.maxColSpan = data.maxColSpan > 0 ? data.maxColSpan : -1;
+        view.maxRowSpan = data.maxRowSpan > 0 ? data.maxRowSpan : -1;
         view.setResizingActive(isRearrangeable);
 
-        Rect targetRect = new Rect(target.col, target.row,
-                target.col + target.colSpan, target.row + target.rowSpan);
-
-        LayoutParams layoutParams = new LayoutParams(target.col, target.row, target.colSpan, target.rowSpan);
+        LayoutParams layoutParams = new LayoutParams(data.col, data.row, data.colSpan, data.rowSpan);
         view.setLayoutParams(layoutParams);
 
-        List<View> collisions = getCollisions(targetRect, view);
-        if (!collisions.isEmpty()) {
-            boolean shiftSuccess = shiftItemsToFreeSpace(collisions, view);
+        GridState currentState = buildCurrentState();
+        Rect targetRect = new Rect(layoutParams.col, layoutParams.row, layoutParams.col + layoutParams.colSpan, layoutParams.row + layoutParams.rowSpan);
 
-            if (!shiftSuccess) {
-                Rect freeSpot = findClosestFreeSpot(target.colSpan,
-                        target.rowSpan, target.col, target.row, view);
+        // Attempt preferred position first
+        if (!currentState.isOccupied(targetRect, null)) {
+            addView(view);
+            saveLayoutState();
 
-                if (freeSpot != null) {
-                    layoutParams.col = freeSpot.left;
-                    layoutParams.row = freeSpot.top;
-                } else {
-                    layoutParams.col = 0;
-                    layoutParams.row = getNextBottomRow();
+            return;
+        }
+
+        // Try to rearrange items
+        GridState rearranged = attemptGlobalRearrange(currentState, view, layoutParams.colSpan, layoutParams.rowSpan, false);
+        if (rearranged != null) {
+            commitState(rearranged);
+            addView(view);
+            saveLayoutState();
+
+            return;
+        }
+
+        // Try shrinking and rearranging items
+        GridState shrunken = attemptGlobalRearrange(currentState, view, layoutParams.colSpan, layoutParams.rowSpan, true);
+        if (shrunken != null) {
+            commitState(shrunken);
+            addView(view);
+            saveLayoutState();
+
+            return;
+        }
+
+        // Drop it on the first free spot
+        Rect firstFree = findClosestFreeSpotInState(currentState, layoutParams.colSpan, layoutParams.rowSpan, 0, 0, null);
+        if (firstFree != null) {
+            layoutParams.col = firstFree.left;
+            layoutParams.row = firstFree.top;
+            addView(view);
+            saveLayoutState();
+
+            return;
+        }
+
+        // (#-_-)
+        Toast.makeText(getContext(), warningMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    private Rect findClosestFreeSpotInState(GridState state, int spanX, int spanY,
+                                            int preferredCol, int preferredRow, View ignoreView) {
+        double bestDistance = Double.MAX_VALUE;
+        Rect bestRect = null;
+
+        for (int row = 0; row <= state.rows - spanY; row++) {
+            for (int col = 0; col <= state.cols - spanX; col++) {
+                Rect candidate = new Rect(col, row, col + spanX, row + spanY);
+
+                if (!state.isOccupied(candidate, ignoreView)) {
+                    double distance = Math.sqrt(Math.pow(col - preferredCol, 2)
+                            + Math.pow(row - preferredRow, 2));
+
+                    if (distance < bestDistance) {
+                        bestDistance = distance;
+                        bestRect = candidate;
+                    }
                 }
             }
         }
 
-        addView(view);
-        saveLayoutState();
+        return bestRect;
+    }
+
+    private GridState attemptGlobalRearrange(GridState currentState, View newItem,
+                                             int newSpanX, int newSpanY, boolean allowShrink) {
+
+        DraggableGridItem newDrag = (DraggableGridItem) newItem;
+        int minX = newDrag.minColSpan;
+        int minY = newDrag.minRowSpan;
+
+        // really, REALLY SLOW, but the cell count is small
+        for (int spanX = newSpanX; spanX >= minX; spanX--) {
+            for (int spanY = newSpanY; spanY >= minY; spanY--) {
+
+                for (int row = 0; row <= rowCount - spanY; row++) {
+                    for (int col = 0; col <= colCount - spanX; col++) {
+
+                        GridState state = currentState.cloneState();
+                        Rect target = new Rect(col, row, col + spanX, row + spanY);
+                        state.placements.put(newItem, target);
+
+                        GridState solved = resolveAllCollisions(state, newItem,
+                                allowShrink, rowCount, colCount);
+
+                        if (solved != null) {
+                            return solved;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private GridState resolveAllCollisions(GridState state, View newItem, boolean allowShrink,
+                                           int rowCount, int colCount) {
+        Queue<GridState> queue = new LinkedList<>();
+        queue.add(state);
+
+        while (!queue.isEmpty()) {
+            GridState current = queue.poll();
+            if (current == null) {
+                break;
+            }
+
+            boolean collisionFound = false;
+            boolean stopProcessing = false;
+
+            for (Map.Entry<View, Rect> a : current.placements.entrySet()) {
+                if (stopProcessing) {
+                    break;
+                }
+
+                for (Map.Entry<View, Rect> b : current.placements.entrySet()) {
+                    if (a.getKey() != b.getKey()) {
+                        Rect ra = a.getValue();
+                        Rect rb = b.getValue();
+
+                        if (Rect.intersects(ra, rb)) {
+                            collisionFound = true;
+                            View victim = b.getKey();
+
+                            if (victim != newItem) {
+                                if (allowShrink) {
+                                    DraggableGridItem d = (DraggableGridItem) victim;
+
+                                    // Try shrinking width
+                                    if (rb.width() > d.minColSpan) {
+                                        GridState copy = current.cloneState();
+                                        Rect victimRect = copy.placements.get(victim);
+
+                                        if (victimRect != null) {
+                                            victimRect.right -= 1;
+
+                                            if (reflowItem(copy, victim, rowCount, colCount)) {
+                                                queue.add(copy);
+                                            }
+                                        }
+                                    }
+
+                                    // Try shrinking height
+                                    if (rb.height() > d.minRowSpan) {
+                                        GridState copy = current.cloneState();
+                                        Rect victimRect = copy.placements.get(victim);
+
+                                        if (victimRect != null) {
+                                            victimRect.bottom -= 1;
+
+                                            if (reflowItem(copy, victim, rowCount, colCount)) {
+                                                queue.add(copy);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                GridState movedCopy = current.cloneState();
+                                if (reflowItem(movedCopy, victim, rowCount, colCount)) {
+                                    queue.add(movedCopy);
+                                }
+                            }
+
+                            stopProcessing = true;
+                        }
+                    }
+                }
+            }
+
+            if (!collisionFound) {
+                return current;
+            }
+        }
+
+        return null;
+    }
+
+    private boolean reflowItem(GridState state, View item, int rowCount, int colCount) {
+        Rect rect = state.placements.remove(item);
+        if (rect == null) {
+            return false;
+        }
+
+        int spanX = rect.width();
+        int spanY = rect.height();
+
+        for (int row = 0; row <= rowCount - spanY; row++) {
+            for (int col = 0; col <= colCount - spanX; col++) {
+
+                Rect candidate = new Rect(col, row, col + spanX, row + spanY);
+                boolean fits = true;
+
+                for (Rect other : state.placements.values()) {
+                    if (Rect.intersects(candidate, other)) {
+                        fits = false;
+                        break;
+                    }
+                }
+
+                if (fits) {
+                    state.placements.put(item, candidate);
+                    return true;
+                }
+            }
+        }
+
+        state.placements.put(item, rect);
+        return false;
     }
 
     public void removeItem(DraggableGridItem view) {
@@ -359,7 +578,8 @@ public class DynamicGridLayout extends ViewGroup {
                         child.animate()
                                 .translationX(0)
                                 .translationY(0)
-                                .setDuration((long) Math.min(350, Math.max(150, distance * 0.8)))
+                                .setDuration((long) Math.min(Animation.LONG.getDuration(),
+                                        Math.max(Animation.SHORT.getDuration(), distance * 0.8)))
                                 .setInterpolator(new DecelerateInterpolator(1.2f))
                                 .start();
                     } else {
@@ -389,6 +609,7 @@ public class DynamicGridLayout extends ViewGroup {
         return isRearrangeable || super.onInterceptTouchEvent(ev);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (!isRearrangeable) {
@@ -416,6 +637,11 @@ public class DynamicGridLayout extends ViewGroup {
                     LayoutParams layoutParams = (LayoutParams) activeItem.getLayoutParams();
                     originalParams = new LayoutParams(layoutParams.col,
                             layoutParams.row, layoutParams.colSpan, layoutParams.rowSpan);
+
+                    lastReorderCol = originalParams.col;
+                    lastReorderRow = originalParams.row;
+                    pendingTargetCol = originalParams.col;
+                    pendingTargetRow = originalParams.row;
 
                     activeItem.bringToFront();
 
@@ -462,6 +688,13 @@ public class DynamicGridLayout extends ViewGroup {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 if (activeItem != null) {
+                    if (reorderRunnable != null) {
+                        handler.removeCallbacks(reorderRunnable);
+
+                        reorderRunnable.run();
+                        reorderRunnable = null;
+                    }
+
                     if (isResizing) {
                         finishResize();
                     } else {
@@ -477,6 +710,7 @@ public class DynamicGridLayout extends ViewGroup {
                     }
                 }
 
+                clearCurrentHints();
                 resetHoverState();
                 break;
         }
@@ -563,198 +797,210 @@ public class DynamicGridLayout extends ViewGroup {
     }
 
     private void handleDrag(float dx, float dy) {
-        // Bounds Constraint
+        // Move the view visually
         int parentLeft = getPaddingLeft();
         int parentTop = getPaddingTop();
         int parentRight = getWidth() - getPaddingRight();
         int parentBottom = getHeight() - getPaddingBottom();
 
-        int itemW = activeItem.getWidth();
-        int itemH = activeItem.getHeight();
+        int clampedX = Math.max(parentLeft,
+                Math.min(activeItem.getLeft() + (int) dx, parentRight - activeItem.getWidth()));
+        int clampedY = Math.max(parentTop,
+                Math.min(activeItem.getTop() + (int) dy, parentBottom - activeItem.getHeight()));
 
-        // Calculate drag based on current view position
-        int potentialLeft = activeItem.getLeft() + (int) dx;
-        int potentialTop = activeItem.getTop() + (int) dy;
+        activeItem.offsetLeftAndRight(clampedX - activeItem.getLeft());
+        activeItem.offsetTopAndBottom(clampedY - activeItem.getTop());
 
-        // Clamp
-        int clampedLeft = Math.max(parentLeft, Math.min(potentialLeft, parentRight - itemW));
-        int clampedTop = Math.max(parentTop, Math.min(potentialTop, parentBottom - itemH));
-
-        activeItem.offsetLeftAndRight(clampedLeft - activeItem.getLeft());
-        activeItem.offsetTopAndBottom(clampedTop - activeItem.getTop());
-
-        // Snap based on insertion point (Left + Half Cell)
+        // Compute which cell we are hovering over
+        LayoutParams layoutParams = (LayoutParams) activeItem.getLayoutParams();
         float relativeLeft = activeItem.getLeft() - parentLeft;
         float relativeTop = activeItem.getTop() - parentTop;
 
-        int rawCol = (int) ((relativeLeft + (cellWidth / 2f)) / cellWidth);
-        int rawRow = (int) ((relativeTop + (cellHeight / 2f)) / cellHeight);
+        int targetCol = Math.max(0, Math.min(
+                (int) ((relativeLeft + (cellWidth / 2f)) / cellWidth),
+                colCount - layoutParams.colSpan
+        ));
+        int targetRow = Math.max(0, Math.min(
+                (int) ((relativeTop + (cellHeight / 2f)) / cellHeight),
+                rowCount - layoutParams.rowSpan
+        ));
 
-        LayoutParams layoutParams = (LayoutParams) activeItem.getLayoutParams();
-        int targetCol = Math.max(0, Math.min(rawCol, colCount - layoutParams.colSpan));
-        int targetRow = Math.max(0, Math.min(rawRow, rowCount - layoutParams.rowSpan));
-
-        // Collision Logic
-        Rect targetRect = new Rect(targetCol, targetRow,
-                targetCol + layoutParams.colSpan,
-                targetRow + layoutParams.rowSpan);
-        List<View> collisions = getCollisions(targetRect, activeItem);
-
-        if (collisions.isEmpty()) {
-            if (layoutParams.col != targetCol || layoutParams.row != targetRow) {
-                captureLayoutState();
-
-                layoutParams.col = targetCol;
-                layoutParams.row = targetRow;
-
-                requestLayout();
-                saveLayoutState();
-            }
-            resetHoverState();
-        } else {
-            View primaryCollision = collisions.get(0);
-
-            // Smart Nudge Direction Calculation
-            int parentCenterX = activeItem.getLeft() + activeItem.getWidth() / 2;
-            int parentCenterY = activeItem.getTop() + activeItem.getHeight() / 2;
-            int targetCenterX = primaryCollision.getLeft() + primaryCollision.getWidth() / 2;
-            int targetCenterY = primaryCollision.getTop() + primaryCollision.getHeight() / 2;
-
-            LayoutParams targetLayoutParams = (LayoutParams) primaryCollision.getLayoutParams();
-
-            // Determine possible axes
-            boolean canGoRight = (targetLayoutParams.col + targetLayoutParams.colSpan < colCount);
-            boolean canGoLeft = (targetLayoutParams.col > 0);
-            boolean canGoDown = (targetLayoutParams.row + targetLayoutParams.rowSpan < rowCount);
-            boolean canGoUp = (targetLayoutParams.row > 0);
-
-            // "Full Width Drag" Constraint -> Other view can only go Up/Down
-            boolean forcedVertical = (layoutParams.colSpan == colCount);
-
-            int nudgeX = 0;
-            int nudgeY = 0;
-            int pushDirX = 0;
-            int pushDirY = 0;
-
-            // Determine Preferred Axis
-            boolean preferHorizontal = !forcedVertical
-                    && (Math.abs(targetCenterX - parentCenterX) > Math.abs(targetCenterY - parentCenterY));
-
-            if (preferHorizontal) {
-                // Try Horizontal first
-                if (targetCenterX > parentCenterX && canGoRight) {
-                    nudgeX = NUDGE_OFFSET_PX;
-                    pushDirX = 1;
-                } else if (targetCenterX <= parentCenterX && canGoLeft) {
-                    nudgeX = -NUDGE_OFFSET_PX;
-                    pushDirX = -1;
-                } else if (canGoDown) { // Fallback to Vertical
-                    nudgeY = NUDGE_OFFSET_PX;
-                    pushDirY = 1;
-                } else if (canGoUp) {
-                    nudgeY = -NUDGE_OFFSET_PX;
-                    pushDirY = -1;
-                }
-            } else {
-                // Try Vertical first
-                if (targetCenterY > parentCenterY && canGoDown) {
-                    nudgeY = NUDGE_OFFSET_PX;
-                    pushDirY = 1;
-                } else if (targetCenterY <= parentCenterY && canGoUp) {
-                    nudgeY = -NUDGE_OFFSET_PX;
-                    pushDirY = -1;
-                } else if (!forcedVertical && canGoRight) { // Fallback to Horizontal
-                    nudgeX = NUDGE_OFFSET_PX;
-                    pushDirX = 1;
-                } else if (!forcedVertical && canGoLeft) {
-                    nudgeX = -NUDGE_OFFSET_PX;
-                    pushDirX = -1;
-                }
+        // Check if we are hovering over a different cell
+        // than the one we are currently waiting for
+        if (targetCol != pendingTargetCol || targetRow != pendingTargetRow) {
+            // If we move, cancel the previous timer
+            // Because this block only runs if targetCol or targetRow changes,
+            // tiny jitters inside the same cell will NOT trigger this and thus
+            // NOT reset the timer.
+            if (reorderRunnable != null) {
+                handler.removeCallbacks(reorderRunnable);
+                reorderRunnable = null;
             }
 
-            // Only animate if we found a valid direction
-            if (nudgeX != 0 || nudgeY != 0) {
-                // Update State if Target or Direction changed
-                if (primaryCollision != currentHoverTarget
-                        || pushDirX != pendingPushDirX
-                        || pushDirY != pendingPushDirY) {
+            clearCurrentHints();
 
-                    if (primaryCollision != currentHoverTarget) {
-                        resetHoverState();
+            pendingTargetCol = targetCol;
+            pendingTargetRow = targetRow;
 
-                        currentHoverTarget = primaryCollision;
-                    }
+            // Don't start a timer if we are just hovering over where the item already is
+            if (targetCol == lastReorderCol && targetRow == lastReorderRow) {
+                return;
+            }
 
-                    pendingPushDirX = pushDirX;
-                    pendingPushDirY = pushDirY;
+            GridState currentState = buildCurrentState();
+            Rect targetRect = new Rect(targetCol, targetRow,
+                    targetCol + layoutParams.colSpan, targetRow + layoutParams.rowSpan);
+            boolean isSpotOccupied = currentState.isOccupied(targetRect, activeItem);
 
-                    // Show hint animation
-                    animateNudge(currentHoverTarget, nudgeX, nudgeY);
+            if (isSpotOccupied) {
+                applyHint(targetCol, targetRow, layoutParams.colSpan, layoutParams.rowSpan);
+            }
 
-                    // Cancel pending shift for old target/dir
-                    if (reorderRunnable != null) {
-                        handler.removeCallbacks(reorderRunnable);
-                    }
-
-                    // Store the intent
-                    pendingTargetCol = targetCol;
-                    pendingTargetRow = targetRow;
-
-                    // Schedule real shift
-                    reorderRunnable = () -> {
-                        if (currentHoverTarget != null) {
-                            captureLayoutState();
-
-                            boolean shifted;
-
-                            // Try Primary Direction
-                            shifted = performDirectionalShift(currentHoverTarget, pendingPushDirX, pendingPushDirY);
-
-                            // Try other axis if primary failed
-                            if (!shifted) {
-                                int fallbackDirX = (pendingPushDirX == 0) ? 1 : 0;
-                                int fallbackDirY = (pendingPushDirY == 0) ? 1 : 0;
-
-                                shifted = performDirectionalShift(currentHoverTarget, fallbackDirX, fallbackDirY);
-                                if (!shifted) {
-                                    shifted = performDirectionalShift(currentHoverTarget, -fallbackDirX, -fallbackDirY);
-                                }
-                            }
-
-                            // "Evict" :) to any free spot on the screen
-                            if (!shifted) {
-                                LayoutParams targetParams = (LayoutParams) currentHoverTarget.getLayoutParams();
-                                Rect freeSpot = findClosestFreeSpot(targetParams.colSpan, targetParams.rowSpan,
-                                        targetParams.col, targetParams.row, activeItem);
-
-                                if (freeSpot != null) {
-                                    targetParams.col = freeSpot.left;
-                                    targetParams.row = freeSpot.top;
-                                    shifted = true;
-                                }
-                            }
-
-                            // Claim the space
-                            if (shifted) {
-                                LayoutParams activeParams = (LayoutParams) activeItem.getLayoutParams();
-
-                                activeParams.col = pendingTargetCol;
-                                activeParams.row = pendingTargetRow;
-
-                                requestLayout();
-                                saveLayoutState();
-                            }
-
-                            resetHoverState();
-                        }
-                    };
-
-                    handler.postDelayed(reorderRunnable, REORDER_DELAY_MS);
+            reorderRunnable = () -> {
+                if (isAnimationRunning()) {
+                    clearCurrentHints();
+                    return;
                 }
-            } else {
-                resetHoverState();
+
+                GridState simulated = simulateMove(
+                        currentState, activeItem, targetCol, targetRow,
+                        layoutParams.colSpan, layoutParams.rowSpan
+                );
+
+                if (simulated != null) {
+                    clearCurrentHints();
+
+                    if (!isSpotOccupied) {
+                        clearVisualNudges();
+                    } else {
+                        applySimulatedStateVisually(simulated);
+                    }
+
+                    commitState(simulated);
+                    lastReorderCol = targetCol;
+                    lastReorderRow = targetRow;
+                }
+            };
+
+            handler.postDelayed(reorderRunnable, REORDER_DELAY_MS);
+        }
+    }
+
+    private void applyHint(int targetCol, int targetRow, int colSpan, int rowSpan) {
+        clearCurrentHints();
+
+        Rect targetRect = new Rect(targetCol, targetRow, targetCol + colSpan, targetRow + rowSpan);
+
+        for (int index = 0; index < getChildCount(); index++) {
+            View child = getChildAt(index);
+
+            if (child != activeItem) {
+                LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
+                Rect childRect = new Rect(layoutParams.col, layoutParams.row,
+                        layoutParams.col + layoutParams.colSpan, layoutParams.row + layoutParams.rowSpan);
+
+                if (Rect.intersects(targetRect, childRect)) {
+                    hintedViews.add(child);
+                    child.animate()
+                            .scaleX(HINT_SCALE)
+                            .scaleY(HINT_SCALE)
+                            .alpha(HINT_ALPHA)
+                            .setDuration(Animation.MEDIUM.getDuration())
+                            .setInterpolator(new DecelerateInterpolator())
+                            .start();
+                }
             }
         }
+    }
+
+    private void clearCurrentHints() {
+        for (View view : hintedViews) {
+            view.animate()
+                    .scaleX(1.0f)
+                    .scaleY(1.0f)
+                    .alpha(1f)
+                    .setDuration(Animation.EXTENDED.getDuration())
+                    .start();
+        }
+
+        hintedViews.clear();
+    }
+
+    private void clearVisualNudges() {
+        for (int index = 0; index < getChildCount(); index++) {
+            View child = getChildAt(index);
+
+            if (child != activeItem) {
+                if (child.getTranslationX() != 0 || child.getTranslationY() != 0) {
+                    child.animate()
+                            .translationX(0)
+                            .translationY(0)
+                            .setDuration(Animation.SHORT.getDuration())
+                            .setInterpolator(new DecelerateInterpolator())
+                            .start();
+                }
+            }
+        }
+    }
+
+    private void applySimulatedStateVisually(GridState state) {
+        for (Map.Entry<View, Rect> entry : state.placements.entrySet()) {
+            View view = entry.getKey();
+
+            if (view != activeItem) {
+                Rect targetRect = entry.getValue();
+                int targetLeft = getPaddingLeft() + (targetRect.left * cellWidth);
+                int targetTop = getPaddingTop() + (targetRect.top * cellHeight);
+
+                int dx = targetLeft - view.getLeft();
+                int dy = targetTop - view.getTop();
+
+                runningAnimations++;
+                view.animate()
+                        .translationX(dx)
+                        .translationY(dy)
+                        .setDuration(Animation.MEDIUM.getDuration())
+                        .setInterpolator(new DecelerateInterpolator())
+                        .setListener(new AnimatorListenerAdapter() {
+
+                            boolean handled = false;
+
+                            private void finish() {
+                                if (!handled) {
+                                    handled = true;
+                                    runningAnimations--;
+                                }
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                finish();
+                            }
+
+                            @Override
+                            public void onAnimationCancel(Animator animation) {
+                                finish();
+                            }
+                        })
+                        .start();
+            }
+        }
+    }
+
+    private void commitState(GridState state) {
+        captureLayoutState();
+
+        for (Map.Entry<View, Rect> entry : state.placements.entrySet()) {
+            LayoutParams layoutParams = (LayoutParams) entry.getKey().getLayoutParams();
+
+            layoutParams.col = entry.getValue().left;
+            layoutParams.row = entry.getValue().top;
+            layoutParams.colSpan = entry.getValue().width();
+            layoutParams.rowSpan = entry.getValue().height();
+        }
+
+        requestLayout();
+        saveLayoutState();
     }
 
     private void finishDrag() {
@@ -762,24 +1008,42 @@ public class DynamicGridLayout extends ViewGroup {
             return;
         }
 
+        LayoutParams layoutParams = (LayoutParams) activeItem.getLayoutParams();
+
+        int parentLeft = getPaddingLeft();
+        int parentTop = getPaddingTop();
+
+        float relativeLeft = activeItem.getLeft() - parentLeft;
+        float relativeTop = activeItem.getTop() - parentTop;
+
+        int rawCol = (int) ((relativeLeft + (cellWidth / 2f)) / cellWidth);
+        int rawRow = (int) ((relativeTop + (cellHeight / 2f)) / cellHeight);
+
+        int targetCol = Math.max(0, Math.min(rawCol, colCount - layoutParams.colSpan));
+        int targetRow = Math.max(0, Math.min(rawRow, rowCount - layoutParams.rowSpan));
+
+        GridState currentState = buildCurrentState();
+
+        GridState simulated = simulateMove(
+                currentState,
+                activeItem,
+                targetCol,
+                targetRow,
+                layoutParams.colSpan,
+                layoutParams.rowSpan
+        );
+
+        if (simulated != null) {
+            commitState(simulated);
+        }
+
         activeItem.setTag(R.id.is_dragging_tag, null);
         captureLayoutState();
 
         activeItem = null;
 
-        // This triggers layout. If layout params were not updated (due to failed shift/overlap),
-        // item snaps back to its last valid position.
         requestLayout();
         saveLayoutState();
-    }
-
-    private void animateNudge(View target, int dx, int dy) {
-        target.animate()
-                .translationX(dx)
-                .translationY(dy)
-                .setDuration(200)
-                .setInterpolator(new DecelerateInterpolator())
-                .start();
     }
 
     private void resetHoverState() {
@@ -792,60 +1056,11 @@ public class DynamicGridLayout extends ViewGroup {
             currentHoverTarget.animate()
                     .translationX(0)
                     .translationY(0)
-                    .setDuration(200)
+                    .setDuration(Animation.MEDIUM.getDuration())
                     .start();
 
             currentHoverTarget = null;
         }
-
-        pendingPushDirX = 0;
-        pendingPushDirY = 0;
-    }
-
-    private boolean performDirectionalShift(View target, int dirX, int dirY) {
-        if (dirX == 0 && dirY == 0) {
-            return false;
-        }
-
-        LayoutParams targetParams = (LayoutParams) target.getLayoutParams();
-        LayoutParams activeParams = (LayoutParams) activeItem.getLayoutParams();
-
-        int newCol = targetParams.col;
-        int newRow = targetParams.row;
-
-        // Calculate displacement based on spans to ensure they don't overlap anymore
-        if (dirX > 0) {
-            newCol = pendingTargetCol + activeParams.colSpan;
-        } else if (dirX < 0) {
-            newCol = pendingTargetCol - targetParams.colSpan;
-        }
-
-        if (dirY > 0) {
-            newRow = pendingTargetRow + activeParams.rowSpan;
-        } else if (dirY < 0) {
-            newRow = pendingTargetRow - targetParams.rowSpan;
-        }
-
-        // Boundary Check
-        if (newCol < 0 || newCol + targetParams.colSpan > colCount ||
-                newRow < 0 || newRow + targetParams.rowSpan > rowCount) {
-            return false;
-        }
-
-        // Collision Check at the new destination
-        Rect destinationRect = new Rect(newCol, newRow,
-                newCol + targetParams.colSpan, newRow + targetParams.rowSpan);
-
-        List<View> collisions = getCollisions(destinationRect, activeItem);
-        collisions.remove(target);
-
-        if (collisions.isEmpty()) {
-            targetParams.col = newCol;
-            targetParams.row = newRow;
-            return true;
-        }
-
-        return false;
     }
 
     private int calculateGridSpan(float visualSize, int cellSize) {
@@ -941,23 +1156,9 @@ public class DynamicGridLayout extends ViewGroup {
                             column + width, row + height);
                     boolean collides = false;
 
-                    if (ignoreView != null) {
-                        LayoutParams ignoreViewLayoutParams = (LayoutParams) ignoreView.getLayoutParams();
-                        Rect ignoreRect = new Rect(ignoreViewLayoutParams.col, ignoreViewLayoutParams.row,
-                                ignoreViewLayoutParams.col + ignoreViewLayoutParams.colSpan,
-                                ignoreViewLayoutParams.row + ignoreViewLayoutParams.rowSpan);
-
-                        if (Rect.intersects(candidate, ignoreRect)) {
-                            collides = true;
-                        }
-                    }
-
-                    if (!collides) {
-                        List<View> others = getCollisions(candidate, ignoreView);
-
-                        if (!others.isEmpty()) {
-                            collides = true;
-                        }
+                    List<View> others = getCollisions(candidate, ignoreView);
+                    if (!others.isEmpty()) {
+                        collides = true;
                     }
 
                     if (!collides) {
@@ -1015,6 +1216,136 @@ public class DynamicGridLayout extends ViewGroup {
         }
 
         templateManager.saveUserLayout(colCount, rowCount, existing);
+    }
+
+    private GridState simulateMove(GridState initialState, View activeItem, int targetCol, int targetRow, int spanX, int spanY) {
+        GridState state = initialState.cloneState();
+        Rect targetRect = new Rect(targetCol, targetRow, targetCol + spanX, targetRow + spanY);
+
+        if (targetRect.right > state.cols || targetRect.bottom > state.rows) return null;
+
+        state.placements.remove(activeItem); // Prevent self-collision logic
+        List<View> collisions = state.getCollisions(targetRect, null);
+        state.placements.put(activeItem, targetRect); // Claim space for dragged item
+
+        if (collisions.isEmpty()) return state;
+
+        // Resolve overlaps deterministically
+        for (View victim : collisions) {
+            if (!resolveCollision(state, victim, targetCol, targetRow)) {
+                return null; // Dead end, move is invalid
+            }
+        }
+        return state;
+    }
+
+    private boolean resolveCollision(GridState state, View victim, int activeCol, int activeRow) {
+        Rect victimRect = state.placements.get(victim);
+        if (victimRect == null) {
+            return false;
+        }
+
+        int pushX = Integer.compare(activeCol - victimRect.left, 0);
+        int pushY = Integer.compare(activeRow - victimRect.top, 0);
+
+        int[][] directions;
+        if (Math.abs(pushX) > Math.abs(pushY)) {
+            directions = new int[][]{
+                    {-1, 0}, // prefer left movement
+                    {pushX, 0},
+                    {0, pushY},
+                    {0, -pushY},
+                    {-pushX, 0}
+            };
+        } else {
+            directions = new int[][]{
+                    {0, 1}, // prefer down movement
+                    {0, pushY},
+                    {pushX, 0},
+                    {-pushX, 0},
+                    {0, -pushY}
+            };
+        }
+
+        for (int[] dir : directions) {
+            if (dir[0] != 0 || dir[1] != 0) {
+                Rect testRect = new Rect(
+                        victimRect.left + dir[0], victimRect.top + dir[1],
+                        victimRect.right + dir[0], victimRect.bottom + dir[1]
+                );
+
+                if (!state.isOccupied(testRect, victim)) {
+                    state.placements.put(victim, testRect);
+
+                    return true;
+                }
+            }
+        }
+
+        // Fallback
+        Rect closest = findClosestFreeSpotInState(state, victimRect.width(),
+                victimRect.height(), victimRect.left, victimRect.top, victim);
+        if (closest != null) {
+            state.placements.put(victim, closest);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private GridState buildCurrentState() {
+        GridState state = new GridState(colCount, rowCount);
+
+        for (int index = 0; index < getChildCount(); index++) {
+            View child = getChildAt(index);
+            LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
+
+            state.placements.put(child, new Rect(layoutParams.col, layoutParams.row,
+                    layoutParams.col + layoutParams.colSpan, layoutParams.row + layoutParams.rowSpan));
+        }
+
+        return state;
+    }
+
+    private static class GridState {
+        public final Map<View, Rect> placements = new HashMap<>();
+        public final int cols;
+        public final int rows;
+
+        public GridState(int cols, int rows) {
+            this.cols = cols;
+            this.rows = rows;
+        }
+
+        public GridState cloneState() {
+            GridState copy = new GridState(cols, rows);
+            copy.placements.putAll(this.placements);
+
+            return copy;
+        }
+
+        public List<View> getCollisions(Rect targetRect, View ignoreView) {
+            List<View> collisions = new ArrayList<>();
+
+            for (Map.Entry<View, Rect> entry : placements.entrySet()) {
+                if (entry.getKey() != ignoreView
+                        && Rect.intersects(targetRect, entry.getValue())) {
+                    collisions.add(entry.getKey());
+                }
+            }
+
+            return collisions;
+        }
+
+        public boolean isOccupied(Rect rect, View ignoreView) {
+            if (rect.left < 0 || rect.top < 0
+                    || rect.right > cols || rect.bottom > rows) {
+                return true;
+            }
+
+            return !getCollisions(rect, ignoreView).isEmpty();
+        }
     }
 
     private static class LayoutParams extends ViewGroup.LayoutParams {

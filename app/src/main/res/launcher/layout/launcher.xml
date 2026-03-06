@@ -41,8 +41,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            app:grid_preference_key="homescreen"
-            app:grid_layout_template="@raw/grid_template_homescreen">
+            app:grid_layout_template="@raw/grid_template_homescreen"
+            app:grid_no_space_warning="@string/home_no_space_warning"
+            app:grid_preference_key="homescreen">
 
         </com.stario.launcher.ui.common.lock.LockDetector>
 
