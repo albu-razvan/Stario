@@ -47,7 +47,7 @@ public class StylizedClockView extends View implements SensorEventListener {
     public static final String BACKGROUND_ALPHA_KEY = "com.stario.BACKGROUND_ALPHA";
     public static final String IMPERIAL_KEY = "com.stario.IMPERIAL";
 
-    private static final float MIN_SCALING_RATIO_THRESHOLD = 0.3f;
+    private static final float MIN_SCALING_RATIO_THRESHOLD = 0.2f;
     private static final float LYING_ON_TABLE_THRESHOLD = 8.5f;
     private static final float TILT_DEADZONE = 1.2f;
     private static final float TEST_HOUR_SIZE = 100f;
@@ -379,7 +379,7 @@ public class StylizedClockView extends View implements SensorEventListener {
         // When that happens, a small scale factor can be applied to align the content
         // to the bounds.
         int backgroundAlpha = preferences.getInt(BACKGROUND_ALPHA_KEY, 0);
-        if (Math.abs(ratioXtoY - 1f) > MIN_SCALING_RATIO_THRESHOLD || backgroundAlpha > 0) {
+        if (Math.abs(ratioXtoY - 1f) > MIN_SCALING_RATIO_THRESHOLD || backgroundAlpha == 0) {
             float scale = Math.min(viewWidth / totalMaxWidth, viewHeight / totalMaxHeight);
 
             hourPaint.setTextSize(TEST_HOUR_SIZE * scale);
@@ -575,7 +575,16 @@ public class StylizedClockView extends View implements SensorEventListener {
             canvas.save();
 
             Path clipPath = new Path();
-            clipPath.addRoundRect(pillBackgroundRect, containerRadius, containerRadius, Path.Direction.CW);
+            float padding = containerRadius / 3f;
+            clipPath.addRoundRect(
+                    pillBackgroundRect.left + padding,
+                    pillBackgroundRect.top + padding,
+                    pillBackgroundRect.right - padding,
+                    pillBackgroundRect.bottom - padding,
+                    containerRadius - padding,
+                    containerRadius - padding,
+                    Path.Direction.CW
+            );
 
             canvas.clipPath(clipPath);
             canvas.translate(centerX, centerY);
@@ -601,7 +610,7 @@ public class StylizedClockView extends View implements SensorEventListener {
             canvas.drawRoundRect(pmContainerRect, containerRadius, containerRadius, pillBgPaint);
             canvas.drawText("PM", pmTextX, pmTextY, amPmPaint);
 
-            pillBgPaint.setAlpha(Color.alpha(255));
+            pillBgPaint.setAlpha(255);
         }
 
         postInvalidateOnAnimation();

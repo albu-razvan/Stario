@@ -66,12 +66,12 @@ public class ClockWidget {
         listener = (sharedPreferences, key) -> {
             if (CLOCK_WIDGET_KEY.equals(key)) {
                 updateContainerState(container,
-                        sharedPreferences.getBoolean(CLOCK_WIDGET_KEY, false));
+                        sharedPreferences.getBoolean(CLOCK_WIDGET_KEY, true));
             }
         };
         preferences.registerOnSharedPreferenceChangeListener(listener);
 
-        updateContainerState(container, preferences.getBoolean(CLOCK_WIDGET_KEY, false));
+        updateContainerState(container, preferences.getBoolean(CLOCK_WIDGET_KEY, true));
     }
 
     private void updateContainerState(DynamicGridLayout container, boolean shouldBeVisible) {
