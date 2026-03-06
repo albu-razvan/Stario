@@ -174,14 +174,17 @@ public class DynamicGridLayout extends ViewGroup {
 
         if (saved != null) {
             data = saved;
+
+            data.maxColSpan = defaultTemplateData.maxColSpan;
+            data.maxRowSpan = defaultTemplateData.maxRowSpan;
         } else if (defaultTemplateData != null) {
             data = defaultTemplateData;
         } else {
             data = new ItemLayoutData(view.itemId, 0, 0, 1, 1);
         }
 
-        view.minColSpan = data.minColSpan;
-        view.minRowSpan = data.minRowSpan;
+        view.minColSpan = data.minColSpan > 0 ? data.minColSpan : 1;
+        view.minRowSpan = data.minRowSpan > 0 ? data.minRowSpan : 1;
         view.maxColSpan = data.maxColSpan > 0 ? data.maxColSpan : -1;
         view.maxRowSpan = data.maxRowSpan > 0 ? data.maxRowSpan : -1;
         view.setResizingActive(isRearrangeable);
