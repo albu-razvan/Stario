@@ -17,10 +17,15 @@
 
 package com.stario.launcher.activities.launcher.widgets;
 
+import android.app.ActivityOptions;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.provider.AlarmClock;
 import android.view.View;
 
 import com.stario.launcher.R;
+import com.stario.launcher.preferences.Vibrations;
+import com.stario.launcher.sheet.SheetsFocusController;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.common.grid.DraggableGridItem;
 import com.stario.launcher.ui.common.grid.DynamicGridLayout;
@@ -61,6 +66,17 @@ public class ClockWidget {
 
         View root = activity.getLayoutInflater()
                 .inflate(R.layout.home_clock, gridItem, false);
+        root.setHapticFeedbackEnabled(false);
+        root.setOnTouchListener(SheetsFocusController.createClickTouchListener(view -> {
+            Vibrations.getInstance().vibrate();
+
+            Intent intent = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
+            if (intent.resolveActivity(activity.getPackageManager()) != null) {
+                activity.startActivity(intent, ActivityOptions.makeScaleUpAnimation(root,
+                        0, 0, root.getMeasuredWidth(), root.getMeasuredHeight()).toBundle());
+            }
+        }));
+
         gridItem.addView(root);
 
         listener = (sharedPreferences, key) -> {
