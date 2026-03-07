@@ -24,6 +24,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewParent;
 import android.view.WindowInsets;
 
 import androidx.annotation.NonNull;
@@ -32,6 +33,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.Insets;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.stario.launcher.activities.launcher.Launcher;
 import com.stario.launcher.sheet.behavior.SheetBehavior;
@@ -91,10 +94,12 @@ public class SheetsFocusController extends ConstraintLayout {
     }
 
     private boolean isTouchInSystemInsets(float x, float y) {
-        return x < systemGestureInsets.left ||
-                x > (getWidth() - systemGestureInsets.right) ||
-                y < systemGestureInsets.top ||
-                y > (getHeight() - systemGestureInsets.bottom);
+        MarginLayoutParams params = (MarginLayoutParams) getLayoutParams();
+
+        return x < systemGestureInsets.left + params.leftMargin ||
+                x - params.leftMargin > (getWidth() - systemGestureInsets.right) ||
+                y < systemGestureInsets.top + params.topMargin ||
+                y - params.topMargin > (getHeight() - systemGestureInsets.bottom);
     }
 
     @Override
@@ -103,57 +108,51 @@ public class SheetsFocusController extends ConstraintLayout {
             return super.onInterceptTouchEvent(ev);
         }
 
-        int action = ev.getAction();
+        switch (ev.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                if (isTouchInSystemInsets(ev.getRawX(), ev.getRawY())) {
+                    return false;
+                }
 
-        if (action == MotionEvent.ACTION_DOWN) {
-            if (isTouchInSystemInsets(ev.getRawX(), ev.getRawY())) {
+                targetPointers.clear();
+                targetPointers.add(0);
+
+                X = ev.getX(getPointer(ev));
+                Y = ev.getY(getPointer(ev));
+
+                deltaX = deltaY = 0;
+                dispatchedMoveEvent = false;
+
+                postCheckForLongClick();
+
                 return false;
-            }
 
-            targetPointers.add(0, 0);
+            case MotionEvent.ACTION_MOVE:
+                if (targetPointers.isEmpty()) {
+                    return false;
+                }
 
-            X = ev.getX(getPointer(ev));
-            Y = ev.getY(getPointer(ev));
+                deltaX = X - ev.getX(getPointer(ev));
+                deltaY = Y - ev.getY(getPointer(ev));
 
-            deltaX = 0;
-            deltaY = 0;
+                boolean movedEnough = Math.abs(deltaX) >= moveSlop || Math.abs(deltaY) >= moveSlop;
+                if (movedEnough) {
+                    removeCheck();
+                }
 
-            dispatchedMoveEvent = false;
-            dispatchSheetMotionEvent(MotionEvent.obtain(ev));
+                return movedEnough;
 
-            super.onInterceptTouchEvent(ev);
-            return false;
-        } else {
-            if (action == MotionEvent.ACTION_UP ||
-                    action == MotionEvent.ACTION_CANCEL) {
-                dispatchSheetMotionEvent(MotionEvent.obtain(ev));
-
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
                 removeCheck();
 
                 sheetType = null;
                 targetPointers.clear();
 
-                super.onInterceptTouchEvent(ev);
                 return false;
-            } else {
-                if (hasPerformedLongPress) {
-                    removeCheck();
 
-                    super.onInterceptTouchEvent(ev);
-                    return false;
-                }
-
-                if (targetPointers.isEmpty()) {
-                    return super.onInterceptTouchEvent(ev);
-                }
-
-                deltaY = Y - ev.getY(getPointer(ev));
-                deltaX = X - ev.getX(getPointer(ev));
-
-                super.onInterceptTouchEvent(ev);
-                return Math.abs(deltaY) >= moveSlop ||
-                        Math.abs(deltaX) >= moveSlop;
-            }
+            default:
+                return false;
         }
     }
 
@@ -488,6 +487,199 @@ public class SheetsFocusController extends ConstraintLayout {
                 }
             }
         }
+    }
+
+    /**
+     * Use this if your view is or can be a direct or indirect child of SheetFocusController
+     *
+     * @param clickListener click listener to invoke on a valid gesture
+     * @return touch listener
+     */
+    public static View.OnTouchListener createClickTouchListener(
+            @Nullable View.OnClickListener clickListener
+    ) {
+        return createClickTouchListener(clickListener, null, null);
+    }
+
+    /**
+     * Use this if your view is or can be a direct or indirect child of SheetFocusController
+     *
+     * @param clickListener          click listener to invoke on a valid gesture
+     * @param longClickListener      long click listener to invoke on a valid gesture
+     * @param longClickEventListener event listener for long click. <code>longClickListener</code> has to be provided.
+     * @return touch listener
+     */
+    public static View.OnTouchListener createClickTouchListener(
+            @Nullable View.OnClickListener clickListener,
+            @Nullable View.OnLongClickListener longClickListener,
+            @Nullable OnLongClickEventListener longClickEventListener
+    ) {
+        return createClickTouchListener(clickListener, longClickListener,
+                longClickEventListener, null, null, null);
+    }
+
+    /**
+     * Use this if your view is or can be a direct or indirect child of SheetFocusController
+     *
+     * @param clickListener          click listener to invoke on a valid gesture
+     * @param longClickListener      long click listener to invoke on a valid gesture
+     * @param longClickEventListener event listener for long click. <code>longClickListener</code> has to be provided.
+     * @param viewHolder             target view holder
+     * @param itemTouchHelper        drag RecyclerView item touch helper
+     * @param dragStartListener      event listener for when a drag starts
+     * @return touch listener
+     */
+    public static View.OnTouchListener createClickTouchListener(
+            @Nullable View.OnClickListener clickListener,
+            @Nullable View.OnLongClickListener longClickListener,
+            @Nullable OnLongClickEventListener longClickEventListener,
+            @Nullable RecyclerView.ViewHolder viewHolder,
+            @Nullable ItemTouchHelper itemTouchHelper,
+            @Nullable OnDragStartListener dragStartListener
+    ) {
+        return new View.OnTouchListener() {
+            private boolean longPressPerformed = false;
+            private Runnable longPressRunnable = null;
+            private boolean isClickCandidate = false;
+            private boolean isFinishedCalled = false;
+            private boolean dragStarted = false;
+            private boolean dragReady = false;
+            private Integer touchSlop = null;
+            private float startX = 0;
+            private float startY = 0;
+
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                if (touchSlop == null) {
+                    touchSlop = ViewConfiguration.get(view.getContext()).getScaledTouchSlop();
+                }
+
+                SheetsFocusController parentController = findParentController(view);
+
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        startX = event.getX();
+                        startY = event.getY();
+
+                        longPressPerformed = false;
+                        isClickCandidate = true;
+                        isFinishedCalled = false;
+                        dragStarted = false;
+                        dragReady = false;
+
+                        if (longClickListener != null && parentController != null) {
+                            parentController.cancelLongPress();
+                        }
+
+                        longPressRunnable = () -> {
+                            dragReady = true;
+
+                            if (longClickListener != null) {
+                                longPressPerformed = longClickListener.onLongClick(view);
+
+                                triggerFinished();
+                            }
+                        };
+
+                        int duration = ViewConfiguration.getLongPressTimeout();
+                        view.postDelayed(longPressRunnable, duration);
+                        if (longClickListener != null && longClickEventListener != null) {
+                            longClickEventListener.onDown(duration);
+                        }
+
+                        return true;
+
+                    case MotionEvent.ACTION_MOVE:
+                        float dx = Math.abs(event.getX() - startX);
+                        float dy = Math.abs(event.getY() - startY);
+
+                        if (dx > touchSlop || dy > touchSlop) {
+                            isClickCandidate = false;
+
+                            if (dragReady && !dragStarted && itemTouchHelper != null && viewHolder != null) {
+                                triggerFinished();
+                                dragStarted = true;
+
+                                if (view.getParent() != null) {
+                                    view.getParent().requestDisallowInterceptTouchEvent(false);
+                                }
+
+                                itemTouchHelper.startDrag(viewHolder);
+
+                                if (dragStartListener != null) {
+                                    dragStartListener.onDragStart();
+                                }
+
+                                return true;
+                            }
+
+                            if (!dragReady && longPressRunnable != null) {
+                                view.removeCallbacks(longPressRunnable);
+                            }
+                        }
+                        return dragStarted;
+
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        if (longPressRunnable != null) {
+                            view.removeCallbacks(longPressRunnable);
+                        }
+
+                        boolean parentLongPressed = parentController != null
+                                && parentController.hasPerformedLongPress;
+
+                        if (event.getActionMasked() == MotionEvent.ACTION_UP && isClickCandidate
+                                && !longPressPerformed && !parentLongPressed && clickListener != null) {
+                            clickListener.onClick(view);
+                        }
+
+                        triggerFinished();
+
+                        isClickCandidate = false;
+                        longPressPerformed = false;
+                        dragReady = false;
+                        dragStarted = false;
+
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+
+            private SheetsFocusController findParentController(View view) {
+                ViewParent parent = view.getParent();
+
+                while (parent instanceof View) {
+                    if (parent instanceof SheetsFocusController) {
+                        return (SheetsFocusController) parent;
+                    }
+
+                    parent = parent.getParent();
+                }
+
+                return null;
+            }
+
+            private void triggerFinished() {
+                if (!isFinishedCalled && longClickListener != null
+                        && longClickEventListener != null) {
+                    longClickEventListener.onFinished();
+                    isFinishedCalled = true;
+                }
+            }
+        };
+    }
+
+    public interface OnDragStartListener {
+        void onDragStart();
+    }
+
+    public interface OnLongClickEventListener {
+        void onDown(long duration);
+
+        void onFinished();
     }
 
     public class SheetWrapper {

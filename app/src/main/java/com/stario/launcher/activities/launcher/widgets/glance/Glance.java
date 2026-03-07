@@ -19,16 +19,14 @@ package com.stario.launcher.activities.launcher.widgets.glance;
 
 import android.animation.LayoutTransition;
 import android.animation.ObjectAnimator;
-import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.widget.LinearLayout;
 
 import androidx.fragment.app.FragmentActivity;
 
 import com.stario.launcher.R;
+import com.stario.launcher.sheet.SheetsFocusController;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
 import com.stario.launcher.ui.common.grid.DraggableGridItem;
@@ -81,8 +79,8 @@ public class Glance {
         container.addItem(gridItem, defaultLayoutData);
     }
 
-    public GlanceViewExtension attachViewExtension(GlanceViewExtension extension,
-                                                   View.OnClickListener additionalClickListener) {
+    public void attachViewExtension(GlanceViewExtension extension,
+                                    View.OnClickListener additionalClickListener) {
         if (root == null) {
             throw new RuntimeException("Glance should attach itself first before attaching extensions.");
         }
@@ -90,57 +88,19 @@ public class Glance {
         View view = extension.inflate(activity, extensionContainer);
 
         extensionContainer.addView(view);
-        view.setOnTouchListener(new View.OnTouchListener() {
-            private final float moveSlop = ViewConfiguration
-                    .get(view.getContext()).getScaledTouchSlop();
+        view.setHapticFeedbackEnabled(false);
+        view.setOnTouchListener(SheetsFocusController.createClickTouchListener(
+                view1 -> {
+                    if (extension.getClickListener() != null) {
+                        extension.getClickListener().onClick(view1);
+                    }
 
-            private boolean assumesClick;
-            private float startX;
-            private float startY;
-
-            @SuppressLint("ClickableViewAccessibility")
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        assumesClick = true;
-                        startX = event.getX();
-                        startY = event.getY();
-
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        if (!isAClick(startX, event.getX(), startY, event.getY())) {
-                            assumesClick = false;
-                        }
-
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        if (assumesClick && isAClick(startX, event.getX(), startY, event.getY())) {
-                            View.OnClickListener extensionClickListener = extension.getClickListener();
-                            if (extensionClickListener != null) {
-                                extensionClickListener.onClick(view);
-                            }
-
-                            if (additionalClickListener != null) {
-                                additionalClickListener.onClick(view);
-                            }
-                        }
-
-                        break;
-                }
-
-                return assumesClick;
-            }
-
-            private boolean isAClick(float startX, float endX, float startY, float endY) {
-                return Math.abs(startX - endX) < moveSlop &&
-                        Math.abs(startY - endY) < moveSlop;
-            }
-        });
+                    if (additionalClickListener != null) {
+                        additionalClickListener.onClick(view1);
+                    }
+                }));
 
         extensions.add(extension);
-
-        return extension;
     }
 
     public void attachViewExtension(GlanceViewExtension extension) {

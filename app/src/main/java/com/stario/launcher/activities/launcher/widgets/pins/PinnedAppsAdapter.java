@@ -30,6 +30,7 @@ import com.stario.launcher.activities.launcher.widgets.pins.dialog.PinnedAppsGro
 import com.stario.launcher.apps.Category;
 import com.stario.launcher.apps.CategoryManager;
 import com.stario.launcher.apps.LauncherApplication;
+import com.stario.launcher.preferences.Vibrations;
 import com.stario.launcher.sheet.drawer.RecyclerApplicationAdapter;
 import com.stario.launcher.themes.ThemedActivity;
 import com.stario.launcher.ui.recyclers.async.InflationType;
@@ -156,6 +157,8 @@ class PinnedAppsAdapter extends RecyclerApplicationAdapter {
         @Override
         public View.OnClickListener getOnClickListener() {
             return view -> {
+                Vibrations.getInstance().vibrate();
+
                 int index = getBindingAdapterPosition();
                 if (index == RecyclerView.NO_POSITION) {
                     return;
