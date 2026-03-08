@@ -59,7 +59,13 @@ public class KeyboardHeightProvider extends PopupWindow {
         popupView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         popupView.setBackground(new ColorDrawable(0));
 
-        this.listener = () -> notifyKeyboardHeightChanged(getKeyboardHeight());
+        this.listener = () -> {
+            notifyKeyboardHeightChanged(getKeyboardHeight());
+            // on API 29, the GlobalLayoutListener fires before
+            // PopupWindow finishes the resizing. Add a post
+            // call just to be safe
+            popupView.post(() -> notifyKeyboardHeightChanged(getKeyboardHeight()));
+        };
 
         setContentView(popupView);
 
@@ -85,10 +91,10 @@ public class KeyboardHeightProvider extends PopupWindow {
     }
 
     public void close() {
-        popupView.getViewTreeObserver()
-                .removeOnGlobalLayoutListener(listener);
-
         dismiss();
+
+        parentView.getViewTreeObserver()
+                .removeOnGlobalLayoutListener(listener);
     }
 
     public void addKeyboardHeightListener(KeyboardHeightListener observer) {

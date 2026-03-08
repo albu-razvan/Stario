@@ -115,18 +115,22 @@ public class ApplicationsDialog extends SheetDialogFragment {
         ViewGroup searchContainer = (ViewGroup) search.getParent();
 
         setOnBackPressed(() -> {
-            if (getChildFragmentManager()
-                    .popBackStackImmediate(SearchFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE) ||
-                    (pager.getCurrentItem() == DrawerAdapter.CATEGORIES_POSITION && adapter.collapse())) {
-                return false;
-            }
-
             SheetBehavior<?> behavior = getBehavior();
 
             if (behavior != null) {
-                hide(true);
                 behavior.setDraggable(true);
             }
+
+            boolean popped = getChildFragmentManager()
+                    .popBackStackImmediate(SearchFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            if (popped || (
+                    pager.getCurrentItem() == DrawerAdapter.CATEGORIES_POSITION
+                            && adapter.collapse()
+            )) {
+                return false;
+            }
+
+            hide(true);
 
             return true;
         });
