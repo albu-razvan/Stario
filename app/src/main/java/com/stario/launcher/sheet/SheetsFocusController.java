@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.Insets;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -388,19 +389,33 @@ public class SheetsFocusController extends ConstraintLayout {
     public final void addSheetDialog(
             @NonNull Launcher launcher,
             @NonNull List<Class<? extends SheetDialogFragment>> dialogFragmentClass) {
+        FragmentManager manager = launcher.getSupportFragmentManager();
+
         for (Class<? extends SheetDialogFragment> clazz : dialogFragmentClass) {
             SheetType type = SheetType.getSheetTypeForSheetDialogFragment(launcher, clazz);
 
             if (type == null || type == SheetType.UNDEFINED || wrappers[type.ordinal()] != null) {
-                return;
+                continue;
             }
 
             try {
-                Constructor<? extends SheetDialogFragment> constructor =
-                        clazz.getConstructor(SheetType.class);
+                Fragment existingFragment = manager.findFragmentByTag(type.toString());
+                SheetDialogFragment fragment;
+
+                if (existingFragment != null && clazz.isInstance(existingFragment)) {
+                    fragment = (SheetDialogFragment) existingFragment;
+                } else {
+                    if (existingFragment != null) {
+                        manager.beginTransaction().remove(existingFragment).commitNowAllowingStateLoss();
+                    }
+
+                    Constructor<? extends SheetDialogFragment> constructor =
+                            clazz.getConstructor(SheetType.class);
+                    fragment = constructor.newInstance(type);
+                }
 
                 wrappers[type.ordinal()] =
-                        new SheetWrapper(launcher, type, constructor.newInstance(type));
+                        new SheetWrapper(launcher, type, fragment);
             } catch (Exception exception) {
                 throw new RuntimeException(clazz.getName() +
                         "(" + SheetType.class.getName() + ")" +
@@ -699,11 +714,20 @@ public class SheetsFocusController extends ConstraintLayout {
                 }
             });
 
-            showRunnable = () -> {
-                FragmentManager manager = launcher.getSupportFragmentManager();
+            FragmentManager manager = launcher.getSupportFragmentManager();
+            if (dialogFragment.requiresEagerInitialization()
+                    && manager.findFragmentByTag(type.toString()) == null) {
+                manager.beginTransaction()
+                        .add(dialogFragment, type.toString())
+                        .commitNowAllowingStateLoss();
+            }
 
-                if (!manager.isDestroyed() && manager.findFragmentByTag(type.toString()) == null) {
-                    dialogFragment.show(manager, type.toString());
+            showRunnable = () -> {
+                FragmentManager runnableManager = launcher.getSupportFragmentManager();
+
+                if (!runnableManager.isDestroyed()
+                        && runnableManager.findFragmentByTag(type.toString()) == null) {
+                    dialogFragment.show(runnableManager, type.toString());
                 }
 
                 showRunnable = null;

@@ -552,7 +552,16 @@ public class SearchFragment extends Fragment {
 
             startPostponedEnterTransition();
 
-            search.post(() -> UiUtils.showKeyboard(search));
+            search.post(new Runnable() {
+                @Override
+                public void run() {
+                    UiUtils.showKeyboard(search);
+
+                    if (!UiUtils.isKeyboardVisible(search)) {
+                        search.post(this);
+                    }
+                }
+            });
         });
 
         return root;

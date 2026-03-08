@@ -39,6 +39,7 @@ import androidx.core.math.MathUtils;
 import com.stario.launcher.R;
 import com.stario.launcher.activities.launcher.sheets.LauncherSheets;
 import com.stario.launcher.activities.launcher.widgets.ClockWidget;
+import com.stario.launcher.activities.launcher.widgets.SearchWidget;
 import com.stario.launcher.activities.launcher.widgets.glance.Glance;
 import com.stario.launcher.activities.launcher.widgets.glance.GlanceDialogExtension;
 import com.stario.launcher.activities.launcher.widgets.glance.extensions.calendar.Calendar;
@@ -72,6 +73,7 @@ public class Launcher extends ThemedActivity {
     private PinnedCategory pinnedCategory;
     private DynamicGridLayout container;
     private ClosingAnimationView main;
+    private SearchWidget searchWidget;
     private ClockWidget clockWidget;
     private HomeWatcher homeWatcher;
     private boolean showWhenLocked;
@@ -194,6 +196,7 @@ public class Launcher extends ThemedActivity {
         LauncherSheets.attach(this, this::animateSheet);
         attachPinnedCategory(container);
         attachGlance(container);
+        attachSearch(container);
         attachClock(container);
     }
 
@@ -209,6 +212,11 @@ public class Launcher extends ThemedActivity {
     private void attachClock(DynamicGridLayout container) {
         clockWidget = new ClockWidget(this);
         clockWidget.attach(container);
+    }
+
+    private void attachSearch(DynamicGridLayout container) {
+        searchWidget = new SearchWidget(this);
+        searchWidget.attach(container);
     }
 
     private void attachGlance(DynamicGridLayout container) {
@@ -366,6 +374,7 @@ public class Launcher extends ThemedActivity {
         }
 
         pinnedCategory.detach();
+        searchWidget.detach();
         clockWidget.detach();
 
         super.onDestroy();

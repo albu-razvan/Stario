@@ -126,6 +126,11 @@ public class WidgetsDialog extends SheetDialogFragment {
                 });
     }
 
+    @Override
+    public boolean requiresEagerInitialization() {
+        return false;
+    }
+
     @SuppressWarnings("ConstantConditions")
     @Nullable
     @Override

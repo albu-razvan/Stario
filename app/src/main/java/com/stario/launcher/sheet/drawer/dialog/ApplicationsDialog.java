@@ -64,11 +64,15 @@ import com.stario.launcher.utils.Utils;
 import java.util.Objects;
 
 public class ApplicationsDialog extends SheetDialogFragment {
+    public static final String INTENT_LAUNCH_SEARCH = "com.stario.INTENT_LAUNCH_SEARCH";
     private static final String APPLICATIONS_PAGE = "com.stario.APPLICATIONS_PAGE";
 
+    private BroadcastReceiver launchSearchReceiver;
     private BroadcastReceiver popStackReceiver;
+    private SearchFragment searchFragment;
     private ThemedActivity activity;
     private ResumeListener listener;
+    private FadingEdgeLayout fader;
     private Drawable swipeDrawable;
     private DrawerAdapter adapter;
     private ViewPager pager;
@@ -87,6 +91,11 @@ public class ApplicationsDialog extends SheetDialogFragment {
     }
 
     @Override
+    public boolean requiresEagerInitialization() {
+        return true;
+    }
+
+    @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
@@ -100,10 +109,10 @@ public class ApplicationsDialog extends SheetDialogFragment {
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.drawer,
                 container, false);
 
+        fader = root.findViewById(R.id.fader);
         pager = root.findViewById(R.id.pager);
         search = root.findViewById(R.id.search);
         ViewGroup searchContainer = (ViewGroup) search.getParent();
-        FadingEdgeLayout fader = root.findViewById(R.id.fader);
 
         setOnBackPressed(() -> {
             if (getChildFragmentManager()
@@ -151,14 +160,16 @@ public class ApplicationsDialog extends SheetDialogFragment {
                     @Override
                     public void onStateChanged(@NonNull View sheet, int newState) {
                         if (newState == SheetBehavior.STATE_COLLAPSED) {
-                            try {
-                                getChildFragmentManager()
-                                        .popBackStackImmediate(SearchFragment.TAG,
-                                                FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                                Objects.requireNonNull(getBehavior()).setDraggable(true);
-                            } catch (Exception exception) {
-                                Log.e("ApplicationsDialog",
-                                        "onStateChanged: " + exception.getMessage());
+                            if (isAdded()) {
+                                try {
+                                    getChildFragmentManager()
+                                            .popBackStackImmediate(SearchFragment.TAG,
+                                                    FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                                    Objects.requireNonNull(getBehavior()).setDraggable(true);
+                                } catch (Exception exception) {
+                                    Log.e("ApplicationsDialog",
+                                            "onStateChanged: " + exception.getMessage());
+                                }
                             }
 
                             try {
@@ -211,109 +222,114 @@ public class ApplicationsDialog extends SheetDialogFragment {
 
         search.setFocusable(false);
         search.setFocusableInTouchMode(false);
+        search.setOnClickListener(view -> showSearch(true));
 
-        search.setOnClickListener(new View.OnClickListener() {
-            private SearchFragment fragment;
+        return root;
+    }
 
-            @Override
-            public void onClick(View v) {
-                FragmentManager manager = getChildFragmentManager();
-                FragmentTransaction transaction = manager.beginTransaction();
+    private void showSearch(boolean animate) {
+        FragmentManager manager = getChildFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
 
-                if (fragment == null) {
-                    fragment = new SearchFragment();
+        if (searchFragment == null) {
+            searchFragment = new SearchFragment();
 
-                    if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
-                        Dialog dialog = getDialog();
+            if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
+                Dialog dialog = getDialog();
 
-                        if (dialog != null) {
-                            dialog.getOnBackInvokedDispatcher()
-                                    .registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_OVERLAY,
-                                            () -> {
-                                                if (!fragment.onBackPressed()) {
-                                                    //noinspection deprecation
-                                                    dialog.onBackPressed();
+                if (dialog != null) {
+                    dialog.getOnBackInvokedDispatcher()
+                            .registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_OVERLAY,
+                                    () -> {
+                                        if (!searchFragment.onBackPressed()) {
+                                            //noinspection deprecation
+                                            dialog.onBackPressed();
 
-                                                    SheetBehavior<?> behavior = getBehavior();
-                                                    if (behavior != null) {
-                                                        behavior.setDraggable(true);
-                                                    }
-                                                }
-                                            });
-                        }
-                    }
-                }
-
-                for (Fragment target : manager.getFragments()) {
-                    if (target == fragment) {
-                        return;
-                    }
-                }
-
-                Transition transition = new FragmentTransition(true)
-                        .excludeTarget(EditText.class, true)
-                        .excludeTarget(RelativeLayout.class, true);
-
-                transition.setDuration(Animation.MEDIUM.getDuration());
-
-                transition.addListener(new TransitionListenerAdapter() {
-                    @Override
-                    public void onTransitionStart(@NonNull Transition transition) {
-                        if (search.getVisibility() == View.VISIBLE) {
-                            fader.animate().cancel();
-                            fader.setTranslationY(0);
-                            fader.setScaleX(1f);
-                            fader.setScaleY(1f);
-                            fader.setAlpha(1f);
-
-                            fader.animate().alpha(0)
-                                    .translationY((float) -Measurements.getHeight() / 2)
-                                    .setDuration(transition.getDuration())
-                                    .setInterpolator(transition.getInterpolator())
-                                    .withEndAction(() -> {
-                                        notifySelection(false);
-
-                                        fader.setTranslationY(0);
-                                        fader.setScaleX(0.9f);
-                                        fader.setScaleY(0.9f);
+                                            SheetBehavior<?> behavior = getBehavior();
+                                            if (behavior != null) {
+                                                behavior.setDraggable(true);
+                                            }
+                                        }
                                     });
-                            search.setVisibility(View.GONE);
-                        } else {
-                            fader.animate().cancel();
-                            fader.setTranslationY(0);
-                            fader.setScaleX(0.9f);
-                            fader.setScaleY(0.9f);
-                            fader.setAlpha(0f);
-
-                            fader.animate()
-                                    .alpha(1)
-                                    .scaleY(1)
-                                    .scaleX(1)
-                                    .translationY(0)
-                                    .setDuration(transition.getDuration())
-                                    .setInterpolator(transition.getInterpolator())
-                                    .withEndAction(() -> notifySelection(true));
-
-                            search.setVisibility(View.VISIBLE);
-                        }
-                    }
-                });
-
-                fragment.setEnterTransition(transition);
-
-                transaction.setReorderingAllowed(true)
-                        .addToBackStack(SearchFragment.TAG)
-                        .add(R.id.root, fragment)
-                        .commit();
-
-                SheetBehavior<?> behavior = getBehavior();
-                if (behavior != null) {
-                    behavior.setDraggable(false);
                 }
+            }
+        }
+
+        for (Fragment target : manager.getFragments()) {
+            if (target == searchFragment) {
+                return;
+            }
+        }
+
+        long enterDuration = animate ? Animation.MEDIUM.getDuration() : 0;
+        Transition enterTransition = new FragmentTransition(true)
+                .excludeTarget(EditText.class, true)
+                .excludeTarget(RelativeLayout.class, true);
+        enterTransition.setDuration(enterDuration);
+
+        Transition exitTransition = new FragmentTransition(true)
+                .excludeTarget(EditText.class, true)
+                .excludeTarget(RelativeLayout.class, true);
+        exitTransition.setDuration(Animation.MEDIUM.getDuration());
+
+        enterTransition.addListener(new TransitionListenerAdapter() {
+            @Override
+            public void onTransitionStart(@NonNull Transition transition) {
+                if (animate) {
+                    fader.setAlpha(1f);
+                    fader.animate().alpha(0)
+                            .translationY((float) -Measurements.getHeight() / 2)
+                            .setDuration(transition.getDuration())
+                            .setInterpolator(transition.getInterpolator())
+                            .withEndAction(() -> {
+                                notifySelection(false);
+                                fader.setTranslationY(0);
+                                fader.setScaleX(0.9f);
+                                fader.setScaleY(0.9f);
+                            });
+                } else {
+                    fader.setAlpha(0);
+                    notifySelection(false);
+                    fader.setScaleX(0.9f);
+                    fader.setScaleY(0.9f);
+                }
+
+                search.setVisibility(View.GONE);
             }
         });
 
-        return root;
+        exitTransition.addListener(new TransitionListenerAdapter() {
+            @Override
+            public void onTransitionStart(@NonNull Transition transition) {
+                fader.setAlpha(0f);
+                fader.setScaleX(0.9f);
+                fader.setScaleY(0.9f);
+
+                fader.animate()
+                        .alpha(1)
+                        .scaleY(1)
+                        .scaleX(1)
+                        .translationY(0)
+                        .setDuration(transition.getDuration())
+                        .setInterpolator(transition.getInterpolator())
+                        .withEndAction(() -> notifySelection(true));
+
+                search.setVisibility(View.VISIBLE);
+            }
+        });
+
+        searchFragment.setEnterTransition(enterTransition);
+        searchFragment.setReturnTransition(exitTransition);
+
+        transaction.setReorderingAllowed(true)
+                .addToBackStack(SearchFragment.TAG)
+                .add(R.id.root, searchFragment)
+                .commit();
+
+        SheetBehavior<?> behavior = getBehavior();
+        if (behavior != null) {
+            behavior.setDraggable(false);
+        }
     }
 
     @Override
@@ -395,6 +411,14 @@ public class ApplicationsDialog extends SheetDialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        launchSearchReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                expand();
+
+                showSearch(false);
+            }
+        };
         popStackReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -404,15 +428,20 @@ public class ApplicationsDialog extends SheetDialogFragment {
             }
         };
 
-        LocalBroadcastManager.getInstance(activity)
-                .registerReceiver(popStackReceiver, new IntentFilter(Categories.FOLDER_STACK_ID));
+        //noinspection deprecation
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(activity);
+        manager.registerReceiver(popStackReceiver, new IntentFilter(Categories.FOLDER_STACK_ID));
+        manager.registerReceiver(launchSearchReceiver, new IntentFilter(INTENT_LAUNCH_SEARCH));
 
         swipeDrawable = AppCompatResources.getDrawable(activity, R.drawable.ic_swipe);
     }
 
     @Override
     public void onDestroy() {
-        LocalBroadcastManager.getInstance(activity).unregisterReceiver(popStackReceiver);
+        //noinspection deprecation
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(activity);
+        manager.unregisterReceiver(launchSearchReceiver);
+        manager.unregisterReceiver(popStackReceiver);
 
         super.onDestroy();
     }

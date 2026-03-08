@@ -46,6 +46,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class SheetDialogFragment extends DialogFragment {
+    private static final String TYPE_KEY = "DialogSheetType";
+
     public static final List<Class<? extends SheetDialogFragment>> IMPLEMENTATIONS =
             List.of(ApplicationsDialog.class, WidgetsDialog.class, BriefingDialog.class);
 
@@ -129,13 +131,21 @@ public abstract class SheetDialogFragment extends DialogFragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         if (savedInstanceState != null) {
-            dismissAllowingStateLoss();
-        } else if (type == null) {
-            throw new RuntimeException("SheetDialogFragment type cannot be null.");
+            type = (SheetType) savedInstanceState.getSerializable(TYPE_KEY);
         }
 
-        super.onCreate(null);
+        if (type == null) {
+            throw new RuntimeException("SheetDialogFragment type cannot be null.");
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(TYPE_KEY, type);
     }
 
     @NonNull
@@ -260,6 +270,23 @@ public abstract class SheetDialogFragment extends DialogFragment {
         }
     }
 
+    public void expand() {
+        if (dialog != null) {
+            dialog.showDialog();
+
+            View container = dialog.getContainer();
+            if (container != null) {
+                container.post(() -> {
+                    SheetBehavior<?> behavior = getBehavior();
+
+                    if (behavior != null) {
+                        behavior.setState(SheetBehavior.STATE_EXPANDED);
+                    }
+                });
+            }
+        }
+    }
+
     /**
      * Add a one time show listener
      */
@@ -308,6 +335,8 @@ public abstract class SheetDialogFragment extends DialogFragment {
             }
         }
     }
+
+    public abstract boolean requiresEagerInitialization();
 
     public interface OnDestroyListener {
         void onDestroy(SheetType type);

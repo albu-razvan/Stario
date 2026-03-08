@@ -123,6 +123,7 @@ public abstract class SheetDialog extends PersistentFullscreenDialog {
 
                     if (state == SheetBehavior.STATE_EXPANDED) {
                         shouldDispatchMotionEventsToParent = false;
+                        dispatchMotionEventsToParent = false;
                     }
 
                     Window window = getWindow();
