@@ -72,8 +72,9 @@ public class Glance {
         gridItem.addView(root);
 
         DynamicGridLayout.ItemLayoutData defaultLayoutData =
-                new DynamicGridLayout.ItemLayoutData(GLANCE_TAG, 0, 0, 4, 1);
-        defaultLayoutData.minColSpan = 4;
+                new DynamicGridLayout.ItemLayoutData(GLANCE_TAG, 0, 0, 3, 1);
+        defaultLayoutData.minColSpan = 3;
+        defaultLayoutData.maxColSpan = 4;
         defaultLayoutData.maxRowSpan = 1;
 
         container.addItem(gridItem, defaultLayoutData);

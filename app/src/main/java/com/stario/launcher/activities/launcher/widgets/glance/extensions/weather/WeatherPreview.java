@@ -17,10 +17,13 @@
 
 package com.stario.launcher.activities.launcher.widgets.glance.extensions.weather;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -31,6 +34,7 @@ import com.stario.launcher.R;
 import com.stario.launcher.activities.launcher.widgets.glance.GlanceViewExtension;
 import com.stario.launcher.preferences.Entry;
 import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.ui.utils.LayoutSizeObserver;
 import com.stario.launcher.utils.Utils;
 
 final class WeatherPreview implements GlanceViewExtension {
@@ -62,8 +66,27 @@ final class WeatherPreview implements GlanceViewExtension {
         icon = root.findViewById(R.id.icon);
         temperature = root.findViewById(R.id.temperature);
 
-        root.setBackground(ResourcesCompat.getDrawable(activity.getResources(),
+        View background = root.findViewById(R.id.rotating_background);
+        background.setBackground(ResourcesCompat.getDrawable(activity.getResources(),
                 R.drawable.weather_background, activity.getTheme(true)));
+
+        LayoutSizeObserver.attach(background, LayoutSizeObserver.WIDTH | LayoutSizeObserver.HEIGHT,
+                new LayoutSizeObserver.OnChange() {
+                    @Override
+                    public void onChange(View view, int watchFlags) {
+                        background.setPivotX(background.getWidth() / 2f);
+                        background.setPivotY(background.getHeight() / 2f);
+                    }
+                });
+        background.setPivotX(background.getWidth() / 2f);
+        background.setPivotY(background.getHeight() / 2f);
+
+        ObjectAnimator rotate = ObjectAnimator.ofFloat(background, View.ROTATION, 0f, -360f);
+        rotate.setDuration(100000);
+        rotate.setRepeatCount(ValueAnimator.INFINITE);
+        rotate.setInterpolator(new LinearInterpolator());
+        rotate.start();
+
         temperature.setTextColor(activity.getAttributeData(
                 com.google.android.material.R.attr.colorOnPrimaryContainer, true)
         );

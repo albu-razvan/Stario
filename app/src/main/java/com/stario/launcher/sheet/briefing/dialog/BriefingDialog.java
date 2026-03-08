@@ -136,6 +136,11 @@ public class BriefingDialog extends SheetDialogFragment {
     }
 
     @Override
+    public boolean requiresEagerInitialization() {
+        return false;
+    }
+
+    @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 

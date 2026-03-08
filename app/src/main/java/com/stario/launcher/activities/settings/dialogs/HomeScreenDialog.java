@@ -40,6 +40,7 @@ import com.google.android.material.slider.Slider;
 import com.stario.launcher.R;
 import com.stario.launcher.Stario;
 import com.stario.launcher.activities.launcher.widgets.ClockWidget;
+import com.stario.launcher.activities.launcher.widgets.SearchWidget;
 import com.stario.launcher.activities.launcher.widgets.glance.extensions.media.Media;
 import com.stario.launcher.activities.launcher.widgets.glance.extensions.weather.Weather;
 import com.stario.launcher.activities.launcher.widgets.pins.PinnedCategory;
@@ -121,6 +122,14 @@ public class HomeScreenDialog extends ActionDialog {
                         showNotificationPermissionDialog();
                     }
                 });
+
+        // Search
+        setupSwitch(root.findViewById(R.id.search), root.findViewById(R.id.search_container),
+                settingsPrefs.getBoolean(SearchWidget.SEARCH_WIDGET_KEY, true),
+                (button, checked) ->
+                        settingsPrefs.edit()
+                                .putBoolean(SearchWidget.SEARCH_WIDGET_KEY, checked)
+                                .apply());
 
         // Pinned Category
         View pinnedCategoryContainer = root.findViewById(R.id.pinned_category_container);
