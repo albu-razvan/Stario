@@ -65,6 +65,8 @@ public class StylizedClockView extends View implements SensorEventListener {
     private Paint pillFgPaint;
     private Paint amPmPaint;
     private Paint hourPaint;
+    int backgroundColor;
+    int pillBgColor;
 
     private float containerRadius;
     private float minuteDrawX;
@@ -113,18 +115,18 @@ public class StylizedClockView extends View implements SensorEventListener {
         pillBackgroundRect = new RectF();
 
         int textColor = Color.rgb(239, 223, 219);
-        int bgColor = Color.rgb(34, 26, 24);
         int outlineColor = Color.rgb(55, 46, 44);
-        int pillBgColor = Color.rgb(93, 64, 56);
         int pillFgColor = Color.rgb(249, 183, 165);
+        backgroundColor = Color.rgb(34, 26, 24);
+        pillBgColor = Color.rgb(93, 64, 56);
 
         if (attrs != null) {
             try (TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.StylizedClockView)) {
                 textColor = array.getColor(R.styleable.StylizedClockView_clockTextColor, textColor);
-                bgColor = array.getColor(R.styleable.StylizedClockView_clockBackgroundColor, bgColor);
                 outlineColor = array.getColor(R.styleable.StylizedClockView_clockOutlineColor, outlineColor);
-                pillBgColor = array.getColor(R.styleable.StylizedClockView_clockPillBackgroundColor, pillBgColor);
                 pillFgColor = array.getColor(R.styleable.StylizedClockView_clockPillForegroundColor, pillFgColor);
+                backgroundColor = array.getColor(R.styleable.StylizedClockView_clockBackgroundColor, backgroundColor);
+                pillBgColor = array.getColor(R.styleable.StylizedClockView_clockPillBackgroundColor, pillBgColor);
             }
         }
 
@@ -141,7 +143,7 @@ public class StylizedClockView extends View implements SensorEventListener {
 
         backgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         backgroundPaint.setStyle(Paint.Style.FILL);
-        backgroundPaint.setColor(bgColor);
+        backgroundPaint.setColor(backgroundColor);
 
         outlinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         outlinePaint.setStyle(Paint.Style.STROKE);
@@ -558,8 +560,19 @@ public class StylizedClockView extends View implements SensorEventListener {
         String minStr = String.format(Locale.US, "%02d", minute);
 
         // Time drawing
+        outlinePaint.setAlpha(120);
+
         canvas.drawText(hourStr, hourDrawX, hourDrawY, hourPaint);
+        outlinePaint.setTextSize(hourPaint.getTextSize());
+        outlinePaint.setTypeface(hourPaint.getTypeface());
+        outlinePaint.setTextScaleX(hourPaint.getTextScaleX());
+        canvas.drawText(hourStr, hourDrawX, hourDrawY, outlinePaint);
+
         canvas.drawText(minStr, minuteDrawX, minuteDrawY, minutePaint);
+        outlinePaint.setTextSize(minutePaint.getTextSize());
+        outlinePaint.setTypeface(minutePaint.getTypeface());
+        outlinePaint.setTextScaleX(minutePaint.getTextScaleX());
+        canvas.drawText(minStr, minuteDrawX, minuteDrawY, outlinePaint);
 
         // AM/PM or 24H pill
         if (is24Hour) {
@@ -570,6 +583,7 @@ public class StylizedClockView extends View implements SensorEventListener {
             float diagonal = (float) Math.sqrt(width * width + height * height);
             float radius = diagonal / 2f;
 
+            pillBgPaint.setAlpha(255);
             canvas.drawRoundRect(pillBackgroundRect, containerRadius, containerRadius, pillBgPaint);
 
             canvas.save();
@@ -602,15 +616,25 @@ public class StylizedClockView extends View implements SensorEventListener {
 
             pillBgPaint.setAlpha(isAm ? 255 : 80);
             amPmPaint.setAlpha(isAm ? 255 : 80);
+            
             canvas.drawRoundRect(amContainerRect, containerRadius, containerRadius, pillBgPaint);
+
+            if (!isAm) {
+                canvas.drawRoundRect(amContainerRect, containerRadius, containerRadius, outlinePaint);
+            }
+
             canvas.drawText("AM", amTextX, amTextY, amPmPaint);
 
             pillBgPaint.setAlpha(!isAm ? 255 : 80);
             amPmPaint.setAlpha(!isAm ? 255 : 80);
-            canvas.drawRoundRect(pmContainerRect, containerRadius, containerRadius, pillBgPaint);
-            canvas.drawText("PM", pmTextX, pmTextY, amPmPaint);
 
-            pillBgPaint.setAlpha(255);
+            canvas.drawRoundRect(pmContainerRect, containerRadius, containerRadius, pillBgPaint);
+
+            if (isAm) {
+                canvas.drawRoundRect(pmContainerRect, containerRadius, containerRadius, outlinePaint);
+            }
+
+            canvas.drawText("PM", pmTextX, pmTextY, amPmPaint);
         }
 
         postInvalidateOnAnimation();
