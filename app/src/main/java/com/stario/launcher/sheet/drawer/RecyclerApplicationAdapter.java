@@ -17,7 +17,6 @@
 
 package com.stario.launcher.sheet.drawer;
 
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -29,7 +28,9 @@ import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.SystemClock;
 import android.util.Log;
+import android.view.Choreographer;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -38,7 +39,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -145,44 +145,64 @@ public abstract class RecyclerApplicationAdapter
                             getOnClickListener(),
                             getOnLongClickListener(),
                             new SheetsFocusController.OnLongClickEventListener() {
-                                private ValueAnimator animator;
+                                private Choreographer.FrameCallback iconAnimationCallback;
 
                                 @Override
                                 public void onDown(long duration) {
-                                    animateIcon(icon, duration);
+                                    icon.animate().cancel();
+
+                                    float startScale = icon.getScaleX();
+                                    float endScale = AdaptiveIconView.MAX_SCALE;
+
+                                    if (iconAnimationCallback != null) {
+                                        Choreographer.getInstance()
+                                                .removeFrameCallback(iconAnimationCallback);
+                                        iconAnimationCallback = null;
+                                    }
+
+                                    if (duration <= 0) {
+                                        icon.setScaleX(endScale);
+                                        icon.setScaleY(endScale);
+
+                                        return;
+                                    }
+
+                                    long startTime = SystemClock.uptimeMillis();
+                                    iconAnimationCallback = new Choreographer.FrameCallback() {
+                                        @Override
+                                        public void doFrame(long frameTimeNanos) {
+                                            long elapsed = SystemClock.uptimeMillis() - startTime;
+                                            float fraction = Math.min(1f, (float) elapsed / duration);
+                                            float scale = startScale + fraction * (endScale - startScale);
+
+                                            icon.setScaleX(scale);
+                                            icon.setScaleY(scale);
+
+                                            if (fraction < 1f) {
+                                                Choreographer.getInstance().postFrameCallback(this);
+                                            } else {
+                                                iconAnimationCallback = null;
+                                            }
+                                        }
+                                    };
+
+                                    Choreographer.getInstance()
+                                            .postFrameCallback(iconAnimationCallback);
                                 }
 
                                 @Override
                                 public void onFinished() {
-                                    if (animator != null) {
-                                        animator.cancel();
-                                        animator = null;
+                                    if (iconAnimationCallback != null) {
+                                        Choreographer.getInstance()
+                                                .removeFrameCallback(iconAnimationCallback);
+
+                                        iconAnimationCallback = null;
                                     }
 
                                     icon.animate().scaleY(1)
                                             .scaleX(1)
                                             .setInterpolator(new DecelerateInterpolator())
                                             .setDuration(Animation.SHORT.getDuration());
-                                }
-
-                                private void animateIcon(final View icon, long duration) {
-                                    if (animator != null) {
-                                        animator.cancel();
-                                    }
-
-                                    animator = ValueAnimator.ofFloat(icon.getScaleX(),
-                                            AdaptiveIconView.MAX_SCALE);
-                                    animator.setDuration(duration);
-                                    animator.setInterpolator(new FastOutSlowInInterpolator());
-
-                                    animator.addUpdateListener(animation -> {
-                                        float scale = (float) animation.getAnimatedValue();
-                                        icon.setScaleX(scale);
-                                        icon.setScaleY(scale);
-                                    });
-
-                                    animator.setDuration(duration);
-                                    animator.start();
                                 }
                             },
                             this,

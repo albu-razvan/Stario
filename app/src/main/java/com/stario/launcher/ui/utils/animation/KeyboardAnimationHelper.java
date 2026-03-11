@@ -27,7 +27,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsAnimationCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.keyboard.ImeAnimationController;
 import com.stario.launcher.ui.keyboard.KeyboardHeightProvider;
 import com.stario.launcher.ui.utils.UiUtils;
@@ -77,7 +76,7 @@ public class KeyboardAnimationHelper {
                 }
 
                 heightProvider.addKeyboardHeightListener((height) -> {
-                    if (Measurements.getAnimatorDurationScale() == 0) {
+                    if (!UiUtils.areAnimationsOn()) {
                         listener.translate(-height);
                     } else {
                         if (!running) {
@@ -136,8 +135,8 @@ public class KeyboardAnimationHelper {
                     }
                 }
 
-                if (imeAnimation != null && (imeAnimation.getDurationMillis() < 0 ||
-                        Measurements.getAnimatorDurationScale() > 0)) {
+                if (imeAnimation != null && (imeAnimation.getDurationMillis() < 0
+                        || UiUtils.areAnimationsOn())) {
                     if (allowControllerAnimation != null) {
                         UiUtils.removeUICallback(allowControllerAnimation);
                     }
