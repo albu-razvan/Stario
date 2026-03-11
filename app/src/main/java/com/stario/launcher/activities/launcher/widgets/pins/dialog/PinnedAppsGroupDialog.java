@@ -17,10 +17,10 @@
 
 package com.stario.launcher.activities.launcher.widgets.pins.dialog;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
@@ -60,6 +60,7 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
 
     private RelativeLayout recyclerContainer;
     private RelativeLayout container;
+    private int previousOrientation;
     private boolean allowDismissal;
     private RecyclerView recycler;
     private Category category;
@@ -114,6 +115,7 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
             updateRecyclerPositionInContainer(view);
         };
 
+        this.previousOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
         this.allowDismissal = false;
         this.category = null;
         this.skip = 0;
@@ -170,15 +172,8 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
                     height -> invalidateRecycler());
 
             recycler.setLayoutManager(manager);
-            recycler.getViewTreeObserver().addOnGlobalLayoutListener(
-                    new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @Override
-                        public void onGlobalLayout() {
-                            recycler.getViewTreeObserver()
-                                    .removeOnGlobalLayoutListener(this);
-                            recycler.setAdapter(adapter);
-                        }
-                    });
+            recycler.setItemAnimator(null);
+            recycler.setAdapter(adapter);
         } else {
             dismiss();
         }
@@ -231,20 +226,30 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
             size = 3;
         }
 
-        if (recycler != null) {
-            int recyclerWidth = size * Measurements.dpToPx(ITEM_SIZE_DP) +
-                    recycler.getPaddingLeft() + recycler.getPaddingRight();
-            int recyclerHeight = Math.min(
-                    Measurements.dpToPx(Measurements.HEADER_SIZE_DP),
-                    adapter.approximateRecyclerHeight()
-            ) + recycler.getPaddingBottom() + recycler.getPaddingTop();
-
-            ViewGroup.LayoutParams params = recycler.getLayoutParams();
-            params.width = recyclerWidth;
-            params.height = recyclerHeight;
-
-            updateRecyclerPositionInContainer(source);
+        if (recycler == null || container == null) {
+            return size;
         }
+
+        int recyclerWidth = size * Measurements.dpToPx(ITEM_SIZE_DP)
+                + recycler.getPaddingLeft() + recycler.getPaddingRight();
+
+        int recyclerHeight = Math.min(
+                Measurements.dpToPx(Measurements.HEADER_SIZE_DP),
+                adapter.approximateRecyclerHeight()
+        ) + recycler.getPaddingBottom() + recycler.getPaddingTop();
+
+        ViewGroup.LayoutParams params = recycler.getLayoutParams();
+
+        boolean changed = params.width != recyclerWidth || params.height != recyclerHeight;
+
+        params.width = recyclerWidth;
+        params.height = recyclerHeight;
+
+        if (changed) {
+            recycler.setLayoutParams(params);
+        }
+
+        recycler.post(() -> updateRecyclerPositionInContainer(source));
 
         return size;
     }
@@ -259,6 +264,10 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
             return;
         }
 
+        if (container.getWidth() == 0 || container.getHeight() == 0) {
+            return;
+        }
+
         int[] sourceLoc = new int[2];
         int[] containerLoc = new int[2];
         view.getLocationOnScreen(sourceLoc);
@@ -270,11 +279,15 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
         int sourceCenterX = relativeSourceX + view.getWidth() / 2;
         int sourceCenterY = relativeSourceY + view.getHeight() / 2;
 
-        int containerWidth = container.getWidth() > 0 ? container.getWidth() : Measurements.getWidth();
-        int containerHeight = container.getHeight() > 0 ? container.getHeight() : Measurements.getHeight();
+        int containerWidth = container.getWidth();
+        int containerHeight = container.getHeight();
 
         int recyclerWidth = recycler.getLayoutParams().width;
         int recyclerHeight = recycler.getLayoutParams().height;
+
+        if (recyclerWidth == 0 || recyclerHeight == 0) {
+            return;
+        }
 
         int targetX = (int) (sourceCenterX * (1 - CENTER_PIVOT_WEIGHT)
                 + containerWidth / 2f * CENTER_PIVOT_WEIGHT);
@@ -307,6 +320,9 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
         if (isShowing() || category == null || category.getSize() <= skip) {
             return;
         }
+
+        previousOrientation = activity.getRequestedOrientation();
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 
         this.skip = Math.max(0, skip);
         adapter.updateDataSnapshot(category, skip);
@@ -365,6 +381,7 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
                             if (!allowDismissal) {
                                 window.getDecorView().post(() -> {
                                     if (!activity.isDestroyed()) {
+                                        activity.setRequestedOrientation(previousOrientation);
                                         super.dismiss();
                                     }
                                 });
@@ -382,6 +399,7 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
                 setDimmingFactor(0);
 
                 if (!activity.isDestroyed()) {
+                    activity.setRequestedOrientation(previousOrientation);
                     super.dismiss();
                 }
 

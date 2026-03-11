@@ -29,6 +29,7 @@ import android.view.animation.PathInterpolator;
 import androidx.appcompat.widget.AppCompatTextView;
 
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.utils.UiUtils;
 
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -127,7 +128,7 @@ public class DelayedMarqueeTextView extends AppCompatTextView {
         float viewWidth = width - getPaddingLeft() - getPaddingRight();
 
         isMarqueeNeeded = originalTextWidth > viewWidth
-                && Measurements.getAnimatorDurationScale() > 0;
+                && UiUtils.areAnimationsOn();
         if (!isMarqueeNeeded) {
             restoreOriginalText();
 

@@ -26,7 +26,6 @@ import android.graphics.Outline;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.Settings;
 import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.View;
@@ -110,14 +109,16 @@ public class UiUtils {
         }
     }
 
-    public static boolean areTransitionsOn(Context context) {
-        return Settings.Global.getFloat(context.getContentResolver(),
-                Settings.Global.TRANSITION_ANIMATION_SCALE, 0) > 0;
+    public static boolean areAnimationsOn() {
+        return Measurements.getAnimatorDurationScale() > 0;
     }
 
-    public static boolean areWindowAnimationsOn(Context context) {
-        return Settings.Global.getFloat(context.getContentResolver(),
-                Settings.Global.WINDOW_ANIMATION_SCALE, 0) > 0;
+    public static boolean areTransitionsOn() {
+        return Measurements.getTransitionAnimationScale() > 0;
+    }
+
+    public static boolean areWindowAnimationsOn() {
+        return  Measurements.getWindowAnimationScale() > 0;
     }
 
     public static boolean isKeyboardVisible(View view) {

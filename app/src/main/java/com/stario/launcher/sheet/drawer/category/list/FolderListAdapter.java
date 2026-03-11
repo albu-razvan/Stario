@@ -267,7 +267,7 @@ public class FolderListAdapter extends AsyncRecyclerAdapter<FolderListAdapter.Vi
                             }
                         }
 
-                        if (UiUtils.areTransitionsOn(activity)) {
+                        if (UiUtils.areAnimationsOn() && UiUtils.areTransitionsOn()) {
                             folder.setSharedElementEnterTransition(new SharedElementTransition(excluded));
                             folder.setEnterTransition(new FragmentTransition(true, excluded));
 

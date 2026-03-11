@@ -184,10 +184,10 @@ public abstract class DrawerPage extends Fragment implements ScrollToTop {
     protected void showLayout() {
         if (hideInflatedLayout() && root != null) {
             root.setVisibility(View.VISIBLE);
-            root.animate()
+            root.post(() -> root.animate()
                     .alpha(1f)
                     .setDuration(Animation.LONG.getDuration())
-                    .setInterpolator(new FastOutLinearInInterpolator());
+                    .setInterpolator(new FastOutLinearInInterpolator()));
         }
     }
 

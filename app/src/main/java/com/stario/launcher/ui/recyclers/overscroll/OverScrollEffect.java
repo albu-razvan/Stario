@@ -31,6 +31,7 @@ import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.dynamicanimation.animation.SpringForce;
 
 import com.stario.launcher.ui.Measurements;
+import com.stario.launcher.ui.utils.UiUtils;
 import com.stario.launcher.utils.objects.ObjectDelegate;
 
 import java.lang.annotation.Retention;
@@ -219,7 +220,9 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
         return factor.getValue();
     }
 
-    /** @noinspection BooleanMethodIsAlwaysInverted*/
+    /**
+     * @noinspection BooleanMethodIsAlwaysInverted
+     */
     private boolean isPullAllowed() {
         if (pivot == PIVOT_TOP) {
             return (edges & PULL_EDGE_TOP) == PULL_EDGE_TOP;
@@ -232,7 +235,7 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
 
     @Override
     public float onPullDistance(float deltaDistance, float displacement) {
-        if (!receivedMoveEvent || !isPullAllowed()) {
+        if (!receivedMoveEvent || !isPullAllowed() || !UiUtils.areAnimationsOn()) {
             return 0;
         }
 
@@ -291,6 +294,10 @@ public class OverScrollEffect<V extends View & OverScroll> extends EdgeEffect {
 
     @Override
     public void onAbsorb(int velocity) {
+        if (!UiUtils.areAnimationsOn()) {
+            return;
+        }
+
         if (state == OverScrollState.IDLE
                 && !view.tryCaptureOverScroll(this)) {
             return;
