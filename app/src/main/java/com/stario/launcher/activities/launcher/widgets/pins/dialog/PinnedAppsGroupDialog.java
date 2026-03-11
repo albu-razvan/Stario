@@ -80,13 +80,8 @@ public class PinnedAppsGroupDialog extends PersistentFullscreenDialog {
 
         this.categoryChangeListener = new Category.CategoryItemListener() {
             private void update() {
-                if (recycler != null) {
-                    recycler.post(() -> {
-                        if (isShowing()) {
-                            adapter.updateDataSnapshot(category, skip);
-                            manager.setSpanCount(invalidateRecycler());
-                        }
-                    });
+                if (isShowing()) {
+                    dismiss();
                 }
             }
 
