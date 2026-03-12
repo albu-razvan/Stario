@@ -165,6 +165,14 @@ public class DynamicGridLayout extends ViewGroup {
         }
     }
 
+    int getCellWidth() {
+        return cellWidth;
+    }
+
+    int getCellHeight() {
+        return cellHeight;
+    }
+
     /**
      * @noinspection ReplaceNullCheck
      */
@@ -174,19 +182,34 @@ public class DynamicGridLayout extends ViewGroup {
 
         if (saved != null) {
             data = saved;
-
-            data.maxColSpan = defaultTemplateData.maxColSpan;
-            data.maxRowSpan = defaultTemplateData.maxRowSpan;
         } else if (defaultTemplateData != null) {
             data = defaultTemplateData;
         } else {
             data = new ItemLayoutData(view.itemId, 0, 0, 1, 1);
         }
 
+        if (defaultTemplateData != null) {
+            data.minColSpan = defaultTemplateData.minColSpan > 0 ? defaultTemplateData.minColSpan : 1;
+            data.minWidth = defaultTemplateData.minWidth > 0 ? defaultTemplateData.minWidth : -1;
+            data.maxColSpan = defaultTemplateData.maxColSpan > 0 ? defaultTemplateData.maxColSpan : -1;
+            data.maxWidth = defaultTemplateData.maxWidth > 0 ? defaultTemplateData.maxWidth : -1;
+
+            data.minRowSpan = defaultTemplateData.minRowSpan > 0 ? defaultTemplateData.minRowSpan : 1;
+            data.minHeight = defaultTemplateData.minHeight > 0 ? defaultTemplateData.minHeight : -1;
+            data.maxRowSpan = defaultTemplateData.maxRowSpan > 0 ? defaultTemplateData.maxRowSpan : -1;
+            data.maxHeight = defaultTemplateData.maxHeight > 0 ? defaultTemplateData.maxHeight : -1;
+        }
+
         view.minColSpan = data.minColSpan > 0 ? data.minColSpan : 1;
-        view.minRowSpan = data.minRowSpan > 0 ? data.minRowSpan : 1;
+        view.minWidth = data.minWidth > 0 ? data.minWidth : -1;
         view.maxColSpan = data.maxColSpan > 0 ? data.maxColSpan : -1;
+        view.maxWidth = data.maxWidth > 0 ? data.maxWidth : -1;
+
+        view.minRowSpan = data.minRowSpan > 0 ? data.minRowSpan : 1;
+        view.minHeight = data.minHeight > 0 ? data.minHeight : -1;
         view.maxRowSpan = data.maxRowSpan > 0 ? data.maxRowSpan : -1;
+        view.maxHeight = data.maxHeight > 0 ? data.maxHeight : -1;
+
         view.setResizingActive(isRearrangeable);
 
         LayoutParams layoutParams = new LayoutParams(data.col, data.row, data.colSpan, data.rowSpan);
@@ -489,54 +512,90 @@ public class DynamicGridLayout extends ViewGroup {
     private void reloadLayoutForCurrentSize() {
         Map<String, ItemLayoutData> newConfig = templateManager.getLayoutForSize(colCount, rowCount);
         if (newConfig == null) {
-            return;
+            newConfig = new HashMap<>();
         }
 
         boolean changed = false;
+        GridState newState = new GridState(colCount, rowCount);
+
+        List<View> configuredItems = new ArrayList<>();
+        List<View> unconfiguredItems = new ArrayList<>();
+
         for (int index = 0; index < getChildCount(); index++) {
             View child = getChildAt(index);
 
             if (child != null) {
-                ItemLayoutData data = newConfig.get(((DraggableGridItem) child).itemId);
+                DraggableGridItem item = (DraggableGridItem) child;
 
-                if (data != null) {
-                    LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
+                if (newConfig.containsKey(item.itemId)) {
+                    configuredItems.add(child);
+                } else {
+                    unconfiguredItems.add(child);
+                }
+            }
+        }
 
-                    Rect targetRect = new Rect(
-                            data.col,
-                            data.row,
-                            data.col + data.colSpan,
-                            data.row + data.rowSpan
-                    );
+        for (View child : configuredItems) {
+            DraggableGridItem item = (DraggableGridItem) child;
+            ItemLayoutData data = newConfig.get(item.itemId);
 
-                    layoutParams.col = data.col;
-                    layoutParams.row = data.row;
-                    layoutParams.colSpan = data.colSpan;
-                    layoutParams.rowSpan = data.rowSpan;
+            if (data != null) {
+                int column = Math.max(0, Math.min(data.col, colCount - data.colSpan));
+                int row = Math.max(0, Math.min(data.row, rowCount - data.rowSpan));
 
-                    List<View> collisions = getCollisions(targetRect, child);
+                Rect targetRect = new Rect(column, row,
+                        column + data.colSpan, row + data.rowSpan);
 
-                    if (!collisions.isEmpty()) {
-                        boolean shifted = shiftItemsToFreeSpace(collisions, child);
+                if (!newState.isOccupied(targetRect, null)) {
+                    newState.placements.put(child, targetRect);
+                } else {
+                    unconfiguredItems.add(child);
+                }
+            }
+        }
 
-                        if (!shifted) {
-                            Rect freeSpot = findClosestFreeSpot(
-                                    layoutParams.colSpan,
-                                    layoutParams.rowSpan,
-                                    layoutParams.col,
-                                    layoutParams.row,
-                                    child
-                            );
+        for (View child : unconfiguredItems) {
+            LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
 
-                            if (freeSpot != null) {
-                                layoutParams.col = freeSpot.left;
-                                layoutParams.row = freeSpot.top;
-                            } else {
-                                layoutParams.col = 0;
-                                layoutParams.row = getNextBottomRow();
-                            }
-                        }
-                    }
+            int oldCol = layoutParams.col;
+            int oldRow = layoutParams.row;
+
+            Rect freeSpot = findClosestFreeSpotInState(
+                    newState, layoutParams.colSpan, layoutParams.rowSpan, oldCol, oldRow, null);
+
+            if (freeSpot != null) {
+                newState.placements.put(child, freeSpot);
+            } else {
+                GridState rearranged = attemptGlobalRearrange(newState, child,
+                        layoutParams.colSpan, layoutParams.rowSpan, true);
+
+                if (rearranged != null) {
+                    newState = rearranged;
+                } else {
+                    int clampedCol = Math.max(0, Math.min(oldCol, colCount - layoutParams.colSpan));
+                    int clampedRow = Math.max(0, Math.min(oldRow, rowCount - layoutParams.rowSpan));
+
+                    newState.placements.put(child, new Rect(clampedCol, clampedRow,
+                            clampedCol + layoutParams.colSpan, clampedRow + layoutParams.rowSpan));
+                }
+            }
+        }
+
+        for (int index = 0; index < getChildCount(); index++) {
+            View child = getChildAt(index);
+            Rect placedRect = newState.placements.get(child);
+
+            if (placedRect != null) {
+                LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
+
+                if (layoutParams.col != placedRect.left || layoutParams.row != placedRect.top
+                        || layoutParams.colSpan != placedRect.width()
+                        || layoutParams.rowSpan != placedRect.height()) {
+
+                    layoutParams.col = placedRect.left;
+                    layoutParams.row = placedRect.top;
+                    layoutParams.colSpan = placedRect.width();
+                    layoutParams.rowSpan = placedRect.height();
 
                     changed = true;
                 }
@@ -731,18 +790,35 @@ public class DynamicGridLayout extends ViewGroup {
         float rawVisualW = baseW + totalDx;
         float rawVisualH = baseH + totalDy;
 
+        float minAllowedW = activeItem.minColSpan * cellWidth;
+        if (activeItem.minWidth > 0) {
+            minAllowedW = Math.max(minAllowedW, activeItem.minWidth);
+        }
+
         float maxAllowedW = getWidth() - getPaddingLeft() - getPaddingRight();
+
         if (activeItem.maxColSpan > 0) {
             maxAllowedW = Math.min(maxAllowedW, activeItem.maxColSpan * cellWidth);
         }
 
+        if (activeItem.maxWidth > 0) {
+            maxAllowedW = Math.min(maxAllowedW, activeItem.maxWidth);
+        }
+
+        float minAllowedH = activeItem.minRowSpan * cellHeight;
+        if (activeItem.minHeight > 0) {
+            minAllowedH = Math.max(minAllowedH, activeItem.minHeight);
+        }
+
         float maxAllowedH = getHeight() - getPaddingTop() - getPaddingBottom();
+
         if (activeItem.maxRowSpan > 0) {
             maxAllowedH = Math.min(maxAllowedH, activeItem.maxRowSpan * cellHeight);
         }
 
-        float minAllowedW = activeItem.minColSpan * cellWidth;
-        float minAllowedH = activeItem.minRowSpan * cellHeight;
+        if (activeItem.maxHeight > 0) {
+            maxAllowedH = Math.min(maxAllowedH, activeItem.maxHeight);
+        }
 
         float clampedVisualW = Math.max(minAllowedW, Math.min(rawVisualW, maxAllowedW));
         float clampedVisualH = Math.max(minAllowedH, Math.min(rawVisualH, maxAllowedH));
@@ -1113,83 +1189,6 @@ public class DynamicGridLayout extends ViewGroup {
         return collisions;
     }
 
-    private boolean shiftItemsToFreeSpace(List<View> itemsToMove, View ignoreView) {
-        Map<View, Point> rollback = new HashMap<>();
-
-        for (View view : itemsToMove) {
-            LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
-            rollback.put(view, new Point(layoutParams.col, layoutParams.row));
-        }
-
-        for (View view : itemsToMove) {
-            LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
-            Rect free = findClosestFreeSpot(layoutParams.colSpan, layoutParams.rowSpan,
-                    layoutParams.col, layoutParams.row, ignoreView);
-
-            if (free != null) {
-                layoutParams.col = free.left;
-                layoutParams.row = free.top;
-            } else {
-                for (Map.Entry<View, Point> entry : rollback.entrySet()) {
-                    LayoutParams entryLayoutParams = (LayoutParams) entry.getKey().getLayoutParams();
-
-                    entryLayoutParams.col = entry.getValue().x;
-                    entryLayoutParams.row = entry.getValue().y;
-                }
-
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private Rect findClosestFreeSpot(int width, int height, int preferredCol,
-                                     int preferredRow, View ignoreView) {
-        int maxRow = Math.max(rowCount, getNextBottomRow() + height + 2);
-        double bestDistance = Double.MAX_VALUE;
-        Rect bestRect = null;
-
-        for (int row = 0; row < maxRow; row++) {
-            for (int column = 0; column <= colCount - width; column++) {
-                double distance = Math.pow(column - preferredCol, 2)
-                        + Math.pow(row - preferredRow, 2);
-
-                if (distance < bestDistance) {
-                    Rect candidate = new Rect(column, row,
-                            column + width, row + height);
-                    boolean collides = false;
-
-                    List<View> others = getCollisions(candidate, ignoreView);
-                    if (!others.isEmpty()) {
-                        collides = true;
-                    }
-
-                    if (!collides) {
-                        bestDistance = distance;
-                        bestRect = candidate;
-                    }
-                }
-            }
-        }
-
-        return bestRect;
-    }
-
-    private int getNextBottomRow() {
-        int max = 0;
-
-        for (int index = 0; index < getChildCount(); index++) {
-            View child = getChildAt(index);
-
-            if (child != activeItem) {
-                LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
-                max = Math.max(max, layoutParams.row + layoutParams.rowSpan);
-            }
-        }
-
-        return max;
-    }
-
     private void saveLayoutState() {
         Map<String, ItemLayoutData> existing =
                 templateManager.getLayoutForSize(colCount, rowCount);
@@ -1211,9 +1210,14 @@ public class DynamicGridLayout extends ViewGroup {
             );
 
             data.minColSpan = childItem.minColSpan;
-            data.minRowSpan = childItem.minRowSpan;
+            data.minWidth = childItem.minWidth;
             data.maxColSpan = childItem.maxColSpan;
+            data.maxWidth = childItem.maxWidth;
+
+            data.minRowSpan = childItem.minRowSpan;
+            data.minHeight = childItem.minHeight;
             data.maxRowSpan = childItem.maxRowSpan;
+            data.maxHeight = childItem.maxHeight;
 
             existing.put(childItem.itemId, data);
         }
@@ -1369,14 +1373,21 @@ public class DynamicGridLayout extends ViewGroup {
 
     public static class ItemLayoutData {
         public String id;
+
         public int col;
         public int row;
         public int colSpan;
         public int rowSpan;
+
         public int minColSpan;
-        public int minRowSpan;
+        public int minHeight;
         public int maxColSpan;
+        public int maxHeight;
+
+        public int minRowSpan;
+        public int minWidth;
         public int maxRowSpan;
+        public int maxWidth;
 
         public ItemLayoutData(String id, int col, int row, int colSpan, int rowSpan) {
             this.id = id;
@@ -1385,9 +1396,13 @@ public class DynamicGridLayout extends ViewGroup {
             this.colSpan = colSpan;
             this.rowSpan = rowSpan;
             this.minColSpan = 1;
-            this.minRowSpan = 1;
+            this.minWidth = -1;
             this.maxColSpan = -1;
+            this.maxWidth = -1;
+            this.minRowSpan = 1;
+            this.minHeight = -1;
             this.maxRowSpan = -1;
+            this.maxHeight = -1;
         }
     }
 }

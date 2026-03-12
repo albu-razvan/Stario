@@ -1,21 +1,273 @@
 [
   {
-    "cols": 4,
+    "cols": 3,
+    "rows": 3,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 3,
+        "row": 2,
+        "colSpan": 2,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 2,
+        "row": 2,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 0,
+        "colSpan": 2,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 3,
+    "rows": 4,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 2,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 2,
+        "row": 2,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 0,
+        "colSpan": 2,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 3,
+    "rows": 5,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 2,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 2,
+        "row": 3,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 0,
+        "colSpan": 3,
+        "rowSpan": 2
+      }
+    ]
+  },
+  {
+    "cols": 3,
     "rows": 6,
     "items": [
       {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
         "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 2,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 2,
+        "row": 4,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 3,
+        "rowSpan": 2
+      }
+    ]
+  },
+  {
+    "cols": 4,
+    "rows": 3,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 4,
+        "row": 2,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 3,
+        "row": 2,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 0,
+        "colSpan": 2,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 4,
+    "rows": 4,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 3,
+        "row": 2,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 0,
+        "colSpan": 2,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 4,
+    "rows": 5,
+    "items": [
+      {
+        "id": "GridGlance",
         "col": 0,
         "row": 4,
         "colSpan": 4,
         "rowSpan": 1
       },
       {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 3,
+        "row": 3,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 0,
+        "colSpan": 3,
+        "rowSpan": 2
+      }
+    ]
+  },
+  {
+    "cols": 4,
+    "rows": 6,
+    "items": [
+      {
         "id": "GridGlance",
         "col": 0,
         "row": 5,
         "colSpan": 4,
         "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 3,
+        "row": 4,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 3,
+        "rowSpan": 2
       }
     ]
   },
@@ -24,18 +276,32 @@
     "rows": 7,
     "items": [
       {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 5,
-        "colSpan": 4,
-        "rowSpan": 1
-      },
-      {
         "id": "GridGlance",
         "col": 0,
         "row": 6,
         "colSpan": 4,
         "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 3,
+        "row": 5,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 4,
+        "rowSpan": 3
       }
     ]
   },
@@ -44,58 +310,32 @@
     "rows": 8,
     "items": [
       {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
         "id": "CategoryGlance",
         "col": 0,
         "row": 6,
-        "colSpan": 4,
+        "colSpan": 3,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 0,
-        "row": 7,
-        "colSpan": 4,
-        "rowSpan": 1
-      }
-    ]
-  },
-  {
-    "cols": 4,
-    "rows": 9,
-    "items": [
-      {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 7,
-        "colSpan": 4,
+        "id": "SearchWidget",
+        "col": 3,
+        "row": 6,
+        "colSpan": 1,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
+        "id": "StylizedClockGlance",
         "col": 0,
-        "row": 8,
+        "row": 1,
         "colSpan": 4,
-        "rowSpan": 1
-      }
-    ]
-  },
-  {
-    "cols": 4,
-    "rows": 10,
-    "items": [
-      {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 8,
-        "colSpan": 4,
-        "rowSpan": 1
-      },
-      {
-        "id": "GridGlance",
-        "col": 0,
-        "row": 9,
-        "colSpan": 4,
-        "rowSpan": 1
+        "rowSpan": 4
       }
     ]
   },
@@ -104,17 +344,31 @@
     "rows": 3,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 2,
-        "colSpan": 2,
+        "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 2,
+        "id": "CategoryGlance",
+        "col": 4,
         "row": 2,
         "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 4,
+        "row": 2,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 0,
+        "colSpan": 2,
         "rowSpan": 1
       }
     ]
@@ -124,18 +378,134 @@
     "rows": 4,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 3,
-        "colSpan": 2,
+        "colSpan": 4,
         "rowSpan": 1
       },
       {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 4,
+        "row": 2,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 0,
+        "colSpan": 2,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 5,
+    "rows": 5,
+    "items": [
+      {
         "id": "GridGlance",
-        "col": 2,
+        "col": 0,
+        "row": 4,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
         "row": 3,
         "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 4,
+        "row": 3,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 0,
+        "colSpan": 3,
+        "rowSpan": 2
+      }
+    ]
+  },
+  {
+    "cols": 5,
+    "rows": 6,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 4,
+        "row": 4,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 1,
+        "colSpan": 3,
+        "rowSpan": 2
+      }
+    ]
+  },
+  {
+    "cols": 5,
+    "rows": 7,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 4,
+        "row": 5,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 5,
+        "rowSpan": 3
       }
     ]
   },
@@ -144,18 +514,32 @@
     "rows": 8,
     "items": [
       {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 6,
-        "colSpan": 5,
-        "rowSpan": 1
-      },
-      {
         "id": "GridGlance",
         "col": 0,
         "row": 7,
-        "colSpan": 5,
+        "colSpan": 4,
         "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 4,
+        "row": 6,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 5,
+        "rowSpan": 4
       }
     ]
   },
@@ -164,18 +548,32 @@
     "rows": 9,
     "items": [
       {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
         "id": "CategoryGlance",
         "col": 0,
         "row": 7,
-        "colSpan": 5,
+        "colSpan": 3,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 0,
-        "row": 8,
-        "colSpan": 5,
+        "id": "SearchWidget",
+        "col": 4,
+        "row": 7,
+        "colSpan": 1,
         "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 5,
+        "rowSpan": 4
       }
     ]
   },
@@ -184,38 +582,32 @@
     "rows": 10,
     "items": [
       {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
         "id": "CategoryGlance",
         "col": 0,
         "row": 8,
-        "colSpan": 5,
+        "colSpan": 3,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 0,
-        "row": 9,
-        "colSpan": 5,
-        "rowSpan": 1
-      }
-    ]
-  },
-  {
-    "cols": 5,
-    "rows": 11,
-    "items": [
-      {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 9,
-        "colSpan": 5,
+        "id": "SearchWidget",
+        "col": 4,
+        "row": 8,
+        "colSpan": 1,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
+        "id": "StylizedClockGlance",
         "col": 0,
-        "row": 10,
+        "row": 1,
         "colSpan": 5,
-        "rowSpan": 1
+        "rowSpan": 5
       }
     ]
   },
@@ -224,17 +616,31 @@
     "rows": 3,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
+        "row": 2,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 4,
         "row": 2,
         "colSpan": 3,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 3,
+        "id": "SearchWidget",
+        "col": 5,
         "row": 2,
-        "colSpan": 3,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 0,
+        "colSpan": 2,
         "rowSpan": 1
       }
     ]
@@ -244,17 +650,31 @@
     "rows": 4,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 3,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 2,
         "colSpan": 3,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 3,
-        "row": 3,
-        "colSpan": 3,
+        "id": "SearchWidget",
+        "col": 5,
+        "row": 2,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 0,
+        "colSpan": 2,
         "rowSpan": 1
       }
     ]
@@ -264,85 +684,12 @@
     "rows": 5,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 4,
-        "colSpan": 3,
+        "colSpan": 4,
         "rowSpan": 1
       },
-      {
-        "id": "GridGlance",
-        "col": 3,
-        "row": 4,
-        "colSpan": 3,
-        "rowSpan": 1
-      }
-    ]
-  },
-  {
-    "cols": 6,
-    "rows": 10,
-    "items": [
-      {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 8,
-        "colSpan": 6,
-        "rowSpan": 1
-      },
-      {
-        "id": "GridGlance",
-        "col": 0,
-        "row": 9,
-        "colSpan": 6,
-        "rowSpan": 1
-      }
-    ]
-  },
-  {
-    "cols": 6,
-    "rows": 11,
-    "items": [
-      {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 9,
-        "colSpan": 6,
-        "rowSpan": 1
-      },
-      {
-        "id": "GridGlance",
-        "col": 0,
-        "row": 10,
-        "colSpan": 6,
-        "rowSpan": 1
-      }
-    ]
-  },
-  {
-    "cols": 6,
-    "rows": 12,
-    "items": [
-      {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 10,
-        "colSpan": 6,
-        "rowSpan": 1
-      },
-      {
-        "id": "GridGlance",
-        "col": 0,
-        "row": 11,
-        "colSpan": 6,
-        "rowSpan": 1
-      }
-    ]
-  },
-  {
-    "cols": 7,
-    "rows": 4,
-    "items": [
       {
         "id": "CategoryGlance",
         "col": 0,
@@ -351,39 +698,67 @@
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 3,
+        "id": "SearchWidget",
+        "col": 5,
         "row": 3,
-        "colSpan": 4,
-        "rowSpan": 1
-      }
-    ]
-  },
-  {
-    "cols": 7,
-    "rows": 5,
-    "items": [
-      {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 4,
-        "colSpan": 3,
+        "colSpan": 1,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 3,
-        "row": 4,
-        "colSpan": 4,
-        "rowSpan": 1
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 0,
+        "colSpan": 3,
+        "rowSpan": 2
       }
     ]
   },
   {
-    "cols": 7,
+    "cols": 6,
     "rows": 6,
     "items": [
       {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 5,
+        "row": 4,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 1,
+        "colSpan": 3,
+        "rowSpan": 2
+      }
+    ]
+  },
+  {
+    "cols": 6,
+    "rows": 7,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
         "id": "CategoryGlance",
         "col": 0,
         "row": 5,
@@ -391,111 +766,596 @@
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 3,
+        "id": "SearchWidget",
+        "col": 5,
         "row": 5,
-        "colSpan": 4,
+        "colSpan": 1,
         "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 5,
+        "rowSpan": 3
       }
     ]
   },
   {
-    "cols": 7,
+    "cols": 6,
+    "rows": 8,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 5,
+        "row": 6,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 6,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 6,
+    "rows": 9,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 5,
+        "row": 7,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 6,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 6,
     "rows": 10,
     "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
       {
         "id": "CategoryGlance",
         "col": 0,
         "row": 8,
-        "colSpan": 7,
+        "colSpan": 3,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 0,
-        "row": 9,
-        "colSpan": 7,
+        "id": "SearchWidget",
+        "col": 5,
+        "row": 8,
+        "colSpan": 1,
         "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 6,
+        "rowSpan": 5
       }
     ]
   },
   {
-    "cols": 7,
+    "cols": 6,
     "rows": 11,
     "items": [
       {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
         "id": "CategoryGlance",
         "col": 0,
         "row": 9,
-        "colSpan": 7,
+        "colSpan": 3,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 0,
-        "row": 10,
-        "colSpan": 7,
+        "id": "SearchWidget",
+        "col": 5,
+        "row": 9,
+        "colSpan": 1,
         "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 6,
+        "rowSpan": 5
       }
     ]
   },
   {
-    "cols": 7,
+    "cols": 6,
     "rows": 12,
     "items": [
       {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 10,
-        "colSpan": 7,
-        "rowSpan": 1
-      },
-      {
         "id": "GridGlance",
         "col": 0,
         "row": 11,
-        "colSpan": 7,
+        "colSpan": 4,
         "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 5,
+        "row": 10,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 6,
+        "rowSpan": 6
       }
     ]
   },
   {
     "cols": 7,
-    "rows": 13,
-    "items": [
-      {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 11,
-        "colSpan": 7,
-        "rowSpan": 1
-      },
-      {
-        "id": "GridGlance",
-        "col": 0,
-        "row": 12,
-        "colSpan": 7,
-        "rowSpan": 1
-      }
-    ]
-  },
-  {
-    "cols": 8,
     "rows": 3,
     "items": [
       {
         "id": "CategoryGlance",
-        "col": 0,
+        "col": 3,
         "row": 2,
-        "colSpan": 4,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 6,
+        "row": 2,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 5,
+        "row": 0,
+        "colSpan": 2,
         "rowSpan": 1
       },
       {
         "id": "GridGlance",
-        "col": 4,
+        "col": 0,
         "row": 2,
+        "colSpan": 3,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 4,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 3,
         "colSpan": 4,
         "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 6,
+        "row": 2,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 0,
+        "colSpan": 2,
+        "rowSpan": 1
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 5,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 6,
+        "row": 3,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 0,
+        "colSpan": 3,
+        "rowSpan": 2
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 6,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 6,
+        "row": 4,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 1,
+        "colSpan": 3,
+        "rowSpan": 2
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 7,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 6,
+        "row": 5,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 1,
+        "colSpan": 5,
+        "rowSpan": 3
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 8,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 6,
+        "row": 6,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 9,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 6,
+        "row": 7,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 10,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 6,
+        "row": 8,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 11,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 6,
+        "row": 9,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 7,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 12,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 6,
+        "row": 10,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 7,
+        "rowSpan": 6
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 13,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 6,
+        "row": 11,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 7,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 7,
+    "rows": 14,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 6,
+        "row": 12,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 7,
+        "rowSpan": 7
       }
     ]
   },
@@ -504,17 +1364,31 @@
     "rows": 4,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 3,
         "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 4,
-        "row": 3,
-        "colSpan": 4,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 7,
+        "row": 2,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 0,
+        "colSpan": 2,
         "rowSpan": 1
       }
     ]
@@ -524,18 +1398,32 @@
     "rows": 5,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 4,
         "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 4,
-        "row": 4,
-        "colSpan": 4,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 7,
+        "row": 3,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 0,
+        "colSpan": 3,
+        "rowSpan": 2
       }
     ]
   },
@@ -544,18 +1432,168 @@
     "rows": 6,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 5,
         "colSpan": 4,
         "rowSpan": 1
       },
       {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 7,
+        "row": 4,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 1,
+        "colSpan": 3,
+        "rowSpan": 2
+      }
+    ]
+  },
+  {
+    "cols": 8,
+    "rows": 7,
+    "items": [
+      {
         "id": "GridGlance",
-        "col": 4,
-        "row": 5,
+        "col": 0,
+        "row": 6,
         "colSpan": 4,
         "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 7,
+        "row": 5,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 1,
+        "colSpan": 5,
+        "rowSpan": 3
+      }
+    ]
+  },
+  {
+    "cols": 8,
+    "rows": 8,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 7,
+        "row": 6,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 8,
+    "rows": 9,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 7,
+        "row": 7,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 8,
+    "rows": 10,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 7,
+        "row": 8,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 8,
+        "rowSpan": 5
       }
     ]
   },
@@ -564,18 +1602,32 @@
     "rows": 11,
     "items": [
       {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 9,
-        "colSpan": 8,
-        "rowSpan": 1
-      },
-      {
         "id": "GridGlance",
         "col": 0,
         "row": 10,
-        "colSpan": 8,
+        "colSpan": 4,
         "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 7,
+        "row": 9,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 8,
+        "rowSpan": 5
       }
     ]
   },
@@ -584,18 +1636,32 @@
     "rows": 12,
     "items": [
       {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 10,
-        "colSpan": 8,
-        "rowSpan": 1
-      },
-      {
         "id": "GridGlance",
         "col": 0,
         "row": 11,
-        "colSpan": 8,
+        "colSpan": 4,
         "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 7,
+        "row": 10,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 8,
+        "rowSpan": 6
       }
     ]
   },
@@ -604,18 +1670,32 @@
     "rows": 13,
     "items": [
       {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 11,
-        "colSpan": 8,
-        "rowSpan": 1
-      },
-      {
         "id": "GridGlance",
         "col": 0,
         "row": 12,
-        "colSpan": 8,
+        "colSpan": 4,
         "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 7,
+        "row": 11,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 8,
+        "rowSpan": 7
       }
     ]
   },
@@ -624,38 +1704,100 @@
     "rows": 14,
     "items": [
       {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 12,
-        "colSpan": 8,
-        "rowSpan": 1
-      },
-      {
         "id": "GridGlance",
         "col": 0,
         "row": 13,
-        "colSpan": 8,
-        "rowSpan": 1
-      }
-    ]
-  },
-  {
-    "cols": 9,
-    "rows": 4,
-    "items": [
-      {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 3,
         "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 4,
-        "row": 3,
-        "colSpan": 5,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 7,
+        "row": 12,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 8,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 8,
+    "rows": 15,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 7,
+        "row": 13,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 8,
+        "rowSpan": 8
+      }
+    ]
+  },
+  {
+    "cols": 8,
+    "rows": 16,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 15,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 7,
+        "row": 14,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 8,
+        "rowSpan": 8
       }
     ]
   },
@@ -664,18 +1806,32 @@
     "rows": 5,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 4,
         "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 4,
-        "row": 4,
-        "colSpan": 5,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 8,
+        "row": 3,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 0,
+        "colSpan": 3,
+        "rowSpan": 2
       }
     ]
   },
@@ -684,18 +1840,32 @@
     "rows": 6,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 5,
         "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 4,
-        "row": 5,
-        "colSpan": 5,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 8,
+        "row": 4,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 1,
+        "colSpan": 3,
+        "rowSpan": 2
       }
     ]
   },
@@ -704,18 +1874,168 @@
     "rows": 7,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 6,
         "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 4,
-        "row": 6,
-        "colSpan": 5,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 8,
+        "row": 5,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 1,
+        "colSpan": 5,
+        "rowSpan": 3
+      }
+    ]
+  },
+  {
+    "cols": 9,
+    "rows": 8,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 8,
+        "row": 6,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 9,
+    "rows": 9,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 8,
+        "row": 7,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 9,
+    "rows": 10,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 8,
+        "row": 8,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 1,
+        "colSpan": 8,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 9,
+    "rows": 11,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 8,
+        "row": 9,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 8,
+        "rowSpan": 5
       }
     ]
   },
@@ -724,18 +2044,168 @@
     "rows": 12,
     "items": [
       {
-        "id": "CategoryGlance",
-        "col": 0,
-        "row": 10,
-        "colSpan": 9,
-        "rowSpan": 1
-      },
-      {
         "id": "GridGlance",
         "col": 0,
         "row": 11,
-        "colSpan": 9,
+        "colSpan": 4,
         "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 8,
+        "row": 10,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 9,
+        "rowSpan": 6
+      }
+    ]
+  },
+  {
+    "cols": 9,
+    "rows": 13,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 8,
+        "row": 11,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 9,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 9,
+    "rows": 14,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 8,
+        "row": 12,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 9,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 9,
+    "rows": 15,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 8,
+        "row": 13,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 9,
+        "rowSpan": 8
+      }
+    ]
+  },
+  {
+    "cols": 9,
+    "rows": 16,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 15,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 8,
+        "row": 14,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 9,
+        "rowSpan": 8
       }
     ]
   },
@@ -744,18 +2214,32 @@
     "rows": 5,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 4,
-        "colSpan": 5,
+        "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 5,
-        "row": 4,
-        "colSpan": 5,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 9,
+        "row": 3,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 0,
+        "colSpan": 3,
+        "rowSpan": 2
       }
     ]
   },
@@ -764,18 +2248,32 @@
     "rows": 6,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 5,
-        "colSpan": 5,
+        "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 5,
-        "row": 5,
-        "colSpan": 5,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 9,
+        "row": 4,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 1,
+        "colSpan": 3,
+        "rowSpan": 2
       }
     ]
   },
@@ -784,18 +2282,202 @@
     "rows": 7,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 6,
-        "colSpan": 5,
+        "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 5,
-        "row": 6,
-        "colSpan": 5,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 9,
+        "row": 5,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 1,
+        "colSpan": 5,
+        "rowSpan": 3
+      }
+    ]
+  },
+  {
+    "cols": 10,
+    "rows": 8,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 9,
+        "row": 6,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 10,
+    "rows": 9,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 9,
+        "row": 7,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 10,
+    "rows": 10,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 9,
+        "row": 8,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 1,
+        "colSpan": 8,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 10,
+    "rows": 11,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 9,
+        "row": 9,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 2,
+        "colSpan": 8,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 10,
+    "rows": 12,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 9,
+        "row": 10,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 10,
+        "rowSpan": 6
       }
     ]
   },
@@ -804,98 +2486,1222 @@
     "rows": 13,
     "items": [
       {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
         "id": "CategoryGlance",
         "col": 0,
         "row": 11,
-        "colSpan": 10,
+        "colSpan": 3,
         "rowSpan": 1
       },
+      {
+        "id": "SearchWidget",
+        "col": 9,
+        "row": 11,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 10,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 10,
+    "rows": 14,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 9,
+        "row": 12,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 10,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 10,
+    "rows": 15,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 9,
+        "row": 13,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 10,
+        "rowSpan": 8
+      }
+    ]
+  },
+  {
+    "cols": 10,
+    "rows": 16,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 15,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 9,
+        "row": 14,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 10,
+        "rowSpan": 8
+      }
+    ]
+  },
+  {
+    "cols": 11,
+    "rows": 6,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 10,
+        "row": 4,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 4,
+        "row": 1,
+        "colSpan": 3,
+        "rowSpan": 2
+      }
+    ]
+  },
+  {
+    "cols": 11,
+    "rows": 7,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 10,
+        "row": 5,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 1,
+        "colSpan": 5,
+        "rowSpan": 3
+      }
+    ]
+  },
+  {
+    "cols": 11,
+    "rows": 8,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 10,
+        "row": 6,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 11,
+    "rows": 9,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 10,
+        "row": 7,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 11,
+    "rows": 10,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 10,
+        "row": 8,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 1,
+        "colSpan": 8,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 11,
+    "rows": 11,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 10,
+        "row": 9,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 2,
+        "colSpan": 8,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 11,
+    "rows": 12,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 10,
+        "row": 10,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 10,
+        "rowSpan": 6
+      }
+    ]
+  },
+  {
+    "cols": 11,
+    "rows": 13,
+    "items": [
       {
         "id": "GridGlance",
         "col": 0,
         "row": 12,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 10,
+        "row": 11,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 11,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 11,
+    "rows": 14,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 10,
+        "row": 12,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 11,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 11,
+    "rows": 15,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 10,
+        "row": 13,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 11,
+        "rowSpan": 8
+      }
+    ]
+  },
+  {
+    "cols": 11,
+    "rows": 16,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 15,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 10,
+        "row": 14,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 11,
+        "rowSpan": 8
+      }
+    ]
+  },
+  {
+    "cols": 12,
+    "rows": 6,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 4,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 11,
+        "row": 4,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 4,
+        "row": 1,
+        "colSpan": 3,
+        "rowSpan": 2
+      }
+    ]
+  },
+  {
+    "cols": 12,
+    "rows": 7,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 11,
+        "row": 5,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 1,
+        "colSpan": 5,
+        "rowSpan": 3
+      }
+    ]
+  },
+  {
+    "cols": 12,
+    "rows": 8,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 11,
+        "row": 6,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 12,
+    "rows": 9,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 11,
+        "row": 7,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 12,
+    "rows": 10,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 11,
+        "row": 8,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 1,
+        "colSpan": 8,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 12,
+    "rows": 11,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 11,
+        "row": 9,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 2,
+        "colSpan": 8,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 12,
+    "rows": 12,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 11,
+        "row": 10,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 2,
         "colSpan": 10,
-        "rowSpan": 1
+        "rowSpan": 6
       }
     ]
   },
   {
     "cols": 12,
-    "rows": 6,
+    "rows": 13,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
-        "row": 5,
-        "colSpan": 6,
+        "row": 12,
+        "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 6,
-        "row": 5,
-        "colSpan": 6,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 11,
+        "row": 11,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 12,
+        "rowSpan": 7
       }
     ]
   },
   {
     "cols": 12,
+    "rows": 14,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 11,
+        "row": 12,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 12,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 12,
+    "rows": 15,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 11,
+        "row": 13,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 12,
+        "rowSpan": 8
+      }
+    ]
+  },
+  {
+    "cols": 12,
+    "rows": 16,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 15,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 11,
+        "row": 14,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 12,
+        "rowSpan": 8
+      }
+    ]
+  },
+  {
+    "cols": 13,
     "rows": 7,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 6,
-        "colSpan": 6,
+        "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 6,
-        "row": 6,
-        "colSpan": 6,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 12,
+        "row": 5,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 4,
+        "row": 1,
+        "colSpan": 5,
+        "rowSpan": 3
       }
     ]
   },
   {
-    "cols": 12,
+    "cols": 13,
     "rows": 8,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 7,
-        "colSpan": 6,
+        "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 6,
-        "row": 7,
-        "colSpan": 6,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 12,
+        "row": 6,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
       }
     ]
   },
   {
-    "cols": 14,
-    "rows": 6,
+    "cols": 13,
+    "rows": 9,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
-        "row": 5,
-        "colSpan": 7,
+        "row": 8,
+        "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 7,
-        "row": 5,
-        "colSpan": 7,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 12,
+        "row": 7,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 13,
+    "rows": 10,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 12,
+        "row": 8,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 1,
+        "colSpan": 8,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 13,
+    "rows": 11,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 12,
+        "row": 9,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 2,
+        "colSpan": 8,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 13,
+    "rows": 12,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 12,
+        "row": 10,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 2,
+        "colSpan": 10,
+        "rowSpan": 6
+      }
+    ]
+  },
+  {
+    "cols": 13,
+    "rows": 13,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 12,
+        "row": 11,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 12,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 13,
+    "rows": 14,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 12,
+        "row": 12,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 12,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 13,
+    "rows": 15,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 12,
+        "row": 13,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 13,
+        "rowSpan": 8
+      }
+    ]
+  },
+  {
+    "cols": 13,
+    "rows": 16,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 15,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 12,
+        "row": 14,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 13,
+        "rowSpan": 8
       }
     ]
   },
@@ -904,18 +3710,32 @@
     "rows": 7,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 6,
-        "colSpan": 7,
+        "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 7,
-        "row": 6,
-        "colSpan": 7,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 5,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 13,
+        "row": 5,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 4,
+        "row": 1,
+        "colSpan": 5,
+        "rowSpan": 3
       }
     ]
   },
@@ -924,18 +3744,610 @@
     "rows": 8,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 7,
-        "colSpan": 7,
+        "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 7,
-        "row": 7,
-        "colSpan": 7,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 13,
+        "row": 6,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 14,
+    "rows": 9,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 13,
+        "row": 7,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 14,
+    "rows": 10,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 13,
+        "row": 8,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 1,
+        "colSpan": 8,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 14,
+    "rows": 11,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 13,
+        "row": 9,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 2,
+        "colSpan": 8,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 14,
+    "rows": 12,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 13,
+        "row": 10,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 2,
+        "colSpan": 10,
+        "rowSpan": 6
+      }
+    ]
+  },
+  {
+    "cols": 14,
+    "rows": 13,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 13,
+        "row": 11,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 2,
+        "colSpan": 12,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 14,
+    "rows": 14,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 13,
+        "row": 12,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 2,
+        "colSpan": 12,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 14,
+    "rows": 15,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 13,
+        "row": 13,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 14,
+        "rowSpan": 8
+      }
+    ]
+  },
+  {
+    "cols": 14,
+    "rows": 16,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 15,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 13,
+        "row": 14,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 14,
+        "rowSpan": 8
+      }
+    ]
+  },
+  {
+    "cols": 15,
+    "rows": 8,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 14,
+        "row": 6,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 4,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 15,
+    "rows": 9,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 14,
+        "row": 7,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 4,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 15,
+    "rows": 10,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 14,
+        "row": 8,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 1,
+        "colSpan": 8,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 15,
+    "rows": 11,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 14,
+        "row": 9,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 2,
+        "colSpan": 8,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 15,
+    "rows": 12,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 14,
+        "row": 10,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 2,
+        "colSpan": 10,
+        "rowSpan": 6
+      }
+    ]
+  },
+  {
+    "cols": 15,
+    "rows": 13,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 14,
+        "row": 11,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 2,
+        "colSpan": 12,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 15,
+    "rows": 14,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 14,
+        "row": 12,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 2,
+        "colSpan": 12,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 15,
+    "rows": 15,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 14,
+        "row": 13,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 2,
+        "colSpan": 14,
+        "rowSpan": 8
+      }
+    ]
+  },
+  {
+    "cols": 15,
+    "rows": 16,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 15,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 14,
+        "row": 14,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 0,
+        "row": 3,
+        "colSpan": 14,
+        "rowSpan": 8
       }
     ]
   },
@@ -944,18 +4356,66 @@
     "rows": 8,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 7,
-        "colSpan": 8,
+        "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 8,
-        "row": 7,
-        "colSpan": 8,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 6,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 15,
+        "row": 6,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 4,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
+      }
+    ]
+  },
+  {
+    "cols": 16,
+    "rows": 9,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 7,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 15,
+        "row": 7,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 4,
+        "row": 1,
+        "colSpan": 7,
+        "rowSpan": 4
       }
     ]
   },
@@ -964,18 +4424,236 @@
     "rows": 10,
     "items": [
       {
-        "id": "CategoryGlance",
+        "id": "GridGlance",
         "col": 0,
         "row": 9,
-        "colSpan": 8,
+        "colSpan": 4,
         "rowSpan": 1
       },
       {
-        "id": "GridGlance",
-        "col": 8,
-        "row": 9,
-        "colSpan": 8,
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 8,
+        "colSpan": 3,
         "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 15,
+        "row": 8,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 4,
+        "row": 1,
+        "colSpan": 8,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 16,
+    "rows": 11,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 9,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 15,
+        "row": 9,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 4,
+        "row": 2,
+        "colSpan": 8,
+        "rowSpan": 5
+      }
+    ]
+  },
+  {
+    "cols": 16,
+    "rows": 12,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 10,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 15,
+        "row": 10,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 3,
+        "row": 2,
+        "colSpan": 10,
+        "rowSpan": 6
+      }
+    ]
+  },
+  {
+    "cols": 16,
+    "rows": 13,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 11,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 15,
+        "row": 11,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 2,
+        "colSpan": 12,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 16,
+    "rows": 14,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 12,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 15,
+        "row": 12,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 2,
+        "row": 2,
+        "colSpan": 12,
+        "rowSpan": 7
+      }
+    ]
+  },
+  {
+    "cols": 16,
+    "rows": 15,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 13,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 15,
+        "row": 13,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 2,
+        "colSpan": 14,
+        "rowSpan": 8
+      }
+    ]
+  },
+  {
+    "cols": 16,
+    "rows": 16,
+    "items": [
+      {
+        "id": "GridGlance",
+        "col": 0,
+        "row": 15,
+        "colSpan": 4,
+        "rowSpan": 1
+      },
+      {
+        "id": "CategoryGlance",
+        "col": 0,
+        "row": 14,
+        "colSpan": 3,
+        "rowSpan": 1
+      },
+      {
+        "id": "SearchWidget",
+        "col": 15,
+        "row": 14,
+        "colSpan": 1,
+        "rowSpan": 1
+      },
+      {
+        "id": "StylizedClockGlance",
+        "col": 1,
+        "row": 3,
+        "colSpan": 14,
+        "rowSpan": 8
       }
     ]
   }

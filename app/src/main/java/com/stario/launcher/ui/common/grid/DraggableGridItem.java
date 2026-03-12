@@ -56,22 +56,32 @@ public class DraggableGridItem extends FrameLayout {
     private float visualHeight;
     private float visualWidth;
     private float borderAlpha;
+
     public String itemId;
     public int minColSpan;
-    public int minRowSpan;
+    public int minWidth;
     public int maxColSpan;
+    public int maxWidth;
+    public int minRowSpan;
+    public int minHeight;
     public int maxRowSpan;
+    public int maxHeight;
 
     public DraggableGridItem(Context context) {
         super(context);
 
         this.isVisualResizeEnabled = false;
         this.isResizingActive = false;
+
         this.borderAlpha = 0;
         this.minColSpan = 1;
-        this.minRowSpan = 1;
+        this.minWidth = -1;
         this.maxColSpan = -1;
+        this.maxWidth = -1;
+        this.minRowSpan = 1;
+        this.minHeight = -1;
         this.maxRowSpan = -1;
+        this.maxHeight = -1;
 
         if (!(context instanceof ThemedActivity)) {
             throw new RuntimeException("Parent activity is not of type ThemedActivity.");
@@ -282,6 +292,36 @@ public class DraggableGridItem extends FrameLayout {
     private boolean canResizeWidth() {
         DynamicGridLayout parent = (DynamicGridLayout) getParent();
 
+        int minComputedWidth;
+        if (minWidth > 0) {
+            if (minColSpan > 0) {
+                minComputedWidth = Math.max(minWidth, minColSpan * parent.getCellWidth());
+            } else {
+                minComputedWidth = minWidth;
+            }
+        } else if (minColSpan > 0) {
+            minComputedWidth = minColSpan * parent.getCellWidth();
+        } else {
+            minComputedWidth = 0;
+        }
+
+        int maxComputedWidth;
+        if (maxWidth > 0) {
+            if (maxColSpan > 0) {
+                maxComputedWidth = Math.min(maxWidth, maxColSpan * parent.getCellWidth());
+            } else {
+                maxComputedWidth = maxWidth;
+            }
+        } else if (maxColSpan > 0) {
+            maxComputedWidth = maxColSpan * parent.getCellWidth();
+        } else {
+            maxComputedWidth = parent.getWidth();
+        }
+
+        if (maxComputedWidth - minComputedWidth < parent.getCellWidth()) {
+            return false;
+        }
+
         if (maxColSpan > 0) {
             return Math.min(maxColSpan, parent.getColumnCount()) > minColSpan;
         }
@@ -291,6 +331,36 @@ public class DraggableGridItem extends FrameLayout {
 
     private boolean canResizeHeight() {
         DynamicGridLayout parent = (DynamicGridLayout) getParent();
+
+        int minComputedHeight;
+        if (minHeight > 0) {
+            if (minRowSpan > 0) {
+                minComputedHeight = Math.max(minHeight, minRowSpan * parent.getCellHeight());
+            } else {
+                minComputedHeight = minHeight;
+            }
+        } else if (minRowSpan > 0) {
+            minComputedHeight = minRowSpan * parent.getCellHeight();
+        } else {
+            minComputedHeight = 0;
+        }
+
+        int maxComputedHeight;
+        if (maxHeight > 0) {
+            if (maxRowSpan > 0) {
+                maxComputedHeight = Math.min(maxHeight, maxRowSpan * parent.getCellHeight());
+            } else {
+                maxComputedHeight = maxHeight;
+            }
+        } else if (maxRowSpan > 0) {
+            maxComputedHeight = maxRowSpan * parent.getCellHeight();
+        } else {
+            maxComputedHeight = parent.getHeight();
+        }
+
+        if (maxComputedHeight - minComputedHeight < parent.getCellHeight()) {
+            return false;
+        }
 
         if (maxRowSpan > 0) {
             return Math.min(maxRowSpan, parent.getRowCount()) > minRowSpan;

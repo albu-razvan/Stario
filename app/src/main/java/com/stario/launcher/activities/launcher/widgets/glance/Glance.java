@@ -28,6 +28,7 @@ import androidx.fragment.app.FragmentActivity;
 import com.stario.launcher.R;
 import com.stario.launcher.sheet.SheetsFocusController;
 import com.stario.launcher.themes.ThemedActivity;
+import com.stario.launcher.ui.Measurements;
 import com.stario.launcher.ui.common.glance.GlanceConstraintLayout;
 import com.stario.launcher.ui.common.grid.DraggableGridItem;
 import com.stario.launcher.ui.common.grid.DynamicGridLayout;
@@ -74,6 +75,7 @@ public class Glance {
         DynamicGridLayout.ItemLayoutData defaultLayoutData =
                 new DynamicGridLayout.ItemLayoutData(GLANCE_TAG, 0, 0, 3, 1);
         defaultLayoutData.minColSpan = 3;
+        defaultLayoutData.minWidth = Measurements.dpToPx(330);
         defaultLayoutData.maxColSpan = 4;
         defaultLayoutData.maxRowSpan = 1;
 
