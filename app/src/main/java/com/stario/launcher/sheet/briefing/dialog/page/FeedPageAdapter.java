@@ -193,9 +193,9 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
                                     .setDuration(Animation.MEDIUM.getDuration());
 
                             if (!item.getCategories().isEmpty()) {
-                                String text = item.getCategories().get(0);
+                                Spanned text = cleanHtml(item.getCategories().get(0));
 
-                                if (!text.isEmpty()) {
+                                if (!text.toString().isEmpty()) {
                                     viewHolder.category.setText(text);
                                     viewHolder.category.setVisibility(View.VISIBLE);
                                 }
