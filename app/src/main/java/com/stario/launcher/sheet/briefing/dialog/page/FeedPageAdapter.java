@@ -42,7 +42,7 @@ import com.prof18.rssparser.model.RssItem;
 import com.stario.launcher.R;
 import com.stario.launcher.Stario;
 import com.stario.launcher.preferences.Vibrations;
-import com.stario.launcher.ui.common.text.LinkMovementMethodWithFallback;
+import com.stario.launcher.ui.common.text.ClickableSpanTextView;
 import com.stario.launcher.ui.utils.animation.Animation;
 import com.stario.launcher.utils.Utils;
 
@@ -105,12 +105,12 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
     }
 
     protected class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private final ImageView display;
+        private final ClickableSpanTextView description;
         private final ViewGroup representative;
-        private final TextView title;
-        private final TextView description;
-        private final TextView author;
+        private final ImageView display;
         private final TextView category;
+        private final TextView author;
+        private final TextView title;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -125,11 +125,9 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
             itemView.setClipToOutline(true);
             itemView.setOnClickListener(this);
 
-            description.setMovementMethod(new LinkMovementMethodWithFallback() {
-                @Override
-                public void onClickFallback(View widget) {
-                    itemView.performClick();
-                }
+            description.setOnSpanClickListener((view, span) -> {
+                Vibrations.getInstance().vibrate();
+                span.onClick(view);
             });
         }
 

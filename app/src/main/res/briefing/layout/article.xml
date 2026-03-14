@@ -25,7 +25,7 @@
     android:layout_marginTop="10dp"
     android:layout_marginRight="10dp"
     android:layout_marginBottom="10dp"
-    android:background="@drawable/background_large_corners"
+    android:background="@drawable/background_medium_corners"
     android:clipChildren="false"
     android:forceDarkAllowed="false"
     android:orientation="vertical"
@@ -101,19 +101,18 @@
             android:textColor="?attr/colorOnSurface"
             android:textSize="20sp" />
 
-        <TextView
+        <com.stario.launcher.ui.common.text.ClickableSpanTextView
             android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="20dp"
-            android:alpha="0.7"
             android:clickable="false"
             android:ellipsize="end"
             android:focusable="false"
             android:fontFamily="@font/dm_sans_regular"
-            android:gravity="left"
+            android:gravity="start|top"
             android:letterSpacing="-0.01"
             android:maxLines="20"
             android:linksClickable="true"
