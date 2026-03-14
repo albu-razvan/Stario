@@ -1,92 +1,81 @@
-<!--
-  ~ Copyright (C) 2025 Răzvan Albu
-  ~
-  ~ This program is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
-  -->
-
 <resources>
-    <!-- General -->
-    <string name="unavailable">Ej tillgänglig</string>
+    <string name="unavailable">Inte tillgänglig</string>
     <string name="default_text">Standard</string>
     <string name="about">Info</string>
     <string name="remove">Ta bort</string>
     <string name="licenses">Licenser</string>
     <string name="restart">Starta om</string>
-    <string name="drawer">Låda</string>
+    <string name="drawer">App-låda</string>
     <string name="search">Sök</string>
-    <string name="miscellaneous">Diverse</string>
+    <string name="miscellaneous">Övrigt</string>
     <string name="apps">Applikationer</string>
     <string name="personal">Personligt</string>
-    <string name="managed">Hanterad</string>
+    <string name="managed">Hanterat</string>
     <string name="something_went_wrong">Något gick fel!</string>
     <string name="refresh">Uppdatera</string>
 
-    <!-- Home pop-up -->
-    <string name="settings">Hem-vinställningar</string>
-    <string name="wallpaper">Bakgrund &amp; Stil</string>
+    <string name="home_no_space_warning">Det finns inget ledigt utrymme på hemskärmen för att lägga till detta objekt!</string>
 
-    <!-- Settings -->
+    <string name="settings">Heminställningar</string>
+    <string name="wallpaper">Bakgrund &amp; stil</string>
+    <string name="rearrange">Ordna om</string>
+
     <string name="preferences">Inställningar</string>
-    <string name="media_player">Mediaspelare</string>
-    <string name="notification_dots">Meddelandepunkter</string>
-    <string name="lock_gesture">Dubbeltryck för att låsa</string>
-    <string name="imperial_units">Imperialistiska enheter</string>
+    <string name="notification_dots">Aviseringsprickar</string>
     <string name="vibrations">Vibrationer</string>
     <string name="theme">Tema</string>
-    <string name="pages">Sidor</string>
-    <string name="pinned_category">Fäst kategori</string>
+    <string name="pages">Sidhanterare</string>
+    <string name="home">Startskärm</string>
     <string name="search_engine">Sökmotor</string>
     <string name="search_results">Sökresultat</string>
     <string name="kagi_integration">Drivs av Kagi</string>
     <string name="hide_applications">Dölj applikationer</string>
     <string name="hide_applications_hint">Klicka för att dölja eller visa</string>
-    <string name="legacy_lock_animation">Äldre låsanimering</string>
+    <string name="low_spec">Läge för låg prestanda</string>
+    <string name="low_spec_description">Aktiveras som standard när batterisparläget är på.</string>
     <string name="icons">Ikoner</string>
-    <string name="weather_forecast">Väderprognos</string>
-    <string name="weather_location">Väderplats</string>
-    <string name="location_ip_based">IP-geolokalisering (ungefärlig)</string>
-    <string name="precise_location">Aktuell plats (exakt)</string>
-    <string name="system_launcher">Tilldela om hemskärm</string>
+    <string name="system_launcher">Tilldela systemets startprogram på nytt</string>
     <string name="app_info">Appinfo</string>
 
-    <!-- Page Manager -->
+    <string name="media_player">Mediaspelare</string>
+    <string name="pinned_category">Fäst kategori</string>
+    <string name="lock_gesture">Dubbeltryck för att låsa</string>
+    <string name="legacy_lock_animation">Gammal låsanimering</string>
+    <string name="imperial_units">Imperialenheter</string>
+    <string name="weather_forecast">Väderprognos</string>
+    <string name="weather_location">Plats</string>
+    <string name="location_ip_based">IP-geolokaliserad (ungefärlig)</string>
+    <string name="precise_location">Nuvarande plats (exakt)</string>
+    <string name="search_shortcut">Sökgenväg</string>
+    <string name="clock">Klocka</string>
+    <string name="background">Bakgrund</string>
+    <string name="weather">Väder</string>
+    <string name="lock">lås</string>
+
     <string name="default_position">Standardposition</string>
     <string name="left">Vänster</string>
-    <string name="top">Topp</string>
+    <string name="top">Uppe</string>
     <string name="right">Höger</string>
-    <string name="bottom">Botten</string>
+    <string name="bottom">Nere</string>
     <string name="add">Lägg till</string>
 
-    <!-- Settings pop-up -->
-    <string name="return_button">Återvänd</string>
+    <string name="return_button">Gå tillbaka</string>
     <string name="proceed_button">Fortsätt</string>
 
-    <!-- Notifications pop-up -->
-    <string name="read_notifications">Läs meddelanden</string>
-    <string name="notifications_access">Stario behöver åtkomst till meddelanden för att denna funktion ska fungera.</string>
+    <string name="read_notifications">Läs aviseringar</string>
+    <string name="notifications_access">Stario behöver åtkomst till aviseringar för att denna funktion ska fungera.</string>
 
-    <!-- Accessibility pop-up -->
     <string name="location_reasoning">Tillåt platsåtkomst från systeminställningarna.</string>
-    <string name="use_accessibility">Använd tillgänglighet</string>
+
+    <string name="use_accessibility">Använd tillgänglighetstjänster</string>
     <string name="accessibility_notice">Stario behöver åtkomst till tillgänglighetstjänster för att denna funktion ska fungera.</string>
 
-    <!-- Theme pop-up -->
     <string name="dynamic">Dynamisk</string>
+    <string name="monochrome">Monokrom</string>
     <string name="red">Röd</string>
     <string name="orange">Orange</string>
     <string name="yellow">Gul</string>
-    <string name="lime">Ljusgrön</string>
+    <string name="lime">Lime</string>
     <string name="green">Grön</string>
     <string name="turquoise">Turkos</string>
     <string name="cyan">Cyan</string>
@@ -96,33 +85,27 @@
     <string name="dark">Mörk</string>
     <string name="force_dark">Tvinga mörkt läge</string>
 
-    <!-- Icons pop-up -->
     <string name="corner_radius">Hörnradie</string>
-    <string name="regular">Vanlig</string>
+    <string name="regular">Regelbunden</string>
     <string name="squircle">Squircle</string>
     <string name="components">komponenter</string>
     <string name="calculating">Beräknar…</string>
 
-    <!-- Hidden apps pop-up -->
     <string name="hidden_apps">Dolda appar</string>
 
-    <!-- License pop-up -->
     <string name="license">Licens</string>
     <string name="main_dependencies">Huvudberoenden</string>
     <string name="all_dependencies">Alla beroenden</string>
 
-    <!-- Widgets -->
-    <string name="nothing_here_yet">Inget här än!</string>
+    <string name="nothing_here_yet">Här finns ingenting än!</string>
     <string name="create_a_widget">Lägg till en widget</string>
     <string name="configure_widget">Konfigurera widget</string>
     <string name="widgets">Widgets</string>
     <string name="widget_one">widget</string>
     <string name="widget_many">widgets</string>
 
-    <!-- Media -->
     <string name="unknown_artist">Okänd artist</string>
 
-    <!-- Categories -->
     <string name="categories">Kategorier</string>
     <string name="unsorted">Osorterade</string>
     <string name="games">Spel</string>
@@ -139,7 +122,6 @@
     <string name="personalization">Personalisering</string>
     <string name="sports">Sport</string>
 
-    <!-- Applications -->
     <string name="uninstall">Avinstallera</string>
     <string name="hide">Dölj</string>
     <string name="customize">Anpassa</string>
@@ -147,48 +129,48 @@
     <string name="category_name">Kategorinamn</string>
     <string name="available_icons">Tillgängliga ikoner</string>
     <string name="application_label">Etikett</string>
-    <string name="category_name_warning">Denna kategori finns redan.</string>
+    <string name="category_name_warning">Den här kategorin finns redan.</string>
     <string name="application_label_warning">Etiketten måste vara minst ett tecken lång.</string>
     <string name="category_warning">Detta kommer att skapa en ny kategori med det angivna namnet.</string>
 
-    <!-- Briefing -->
     <string name="briefing">Din briefing</string>
     <string name="briefing_configurator">Briefing</string>
-    <string name="import_feed">Importera en feed</string>
+    <string name="import_feed">Importera ett flöde</string>
     <string name="link_feed">Importera</string>
+    <string name="unknown_feed">Okänt flöde</string>
     <string name="invalid_url">Ogiltig URL</string>
-    <string name="invalid_rss">Inte en feed</string>
-    <string name="link">Feedlänk</string>
+    <string name="invalid_rss">Inte ett flöde</string>
+    <string name="rename_feed">Byt namn</string>
+    <string name="feed_name">Flödets namn</string>
+    <string name="feed_warning">Namnet måste vara minst ett tecken långt.</string>
+    <string name="link">Länk till flöde</string>
     <string name="fetching_feed">Hämtar</string>
     <string name="no_connection">Ingen internetanslutning</string>
-    <string name="already_subscribed">Du är redan prenumererad på denna feed!</string>
+    <string name="already_subscribed">Du prenumererar redan på det här flödet!</string>
 
-    <!-- Search -->
     <string name="search_on">Sök på</string>
     <string name="searching">Söker…</string>
-    <string name="search_hidden_apps">Sök dolda appar</string>
+    <string name="search_hidden_apps">Sök i dolda appar</string>
     <string name="unauthorized">Kagi-servrar rapporterade obehörig åtkomst. Är din API-nyckel giltig?</string>
-    <string name="to_search">att söka med Kagi</string>
+    <string name="to_search">för att söka med Kagi</string>
     <string name="kagi_dependency">Stario förlitar sig på data från Kagi för att tillhandahålla sökresultat.</string>
-    <string name="kagi_api_key">Kagi API-nyckel</string>
+    <string name="kagi_api_key">API-nyckel för Kagi</string>
     <string name="api_key">API-nyckel</string>
 
-    <!-- Keyboard -->
     <string name="done">Klar</string>
 
-    <!-- Weather -->
     <string name="clear_sky">Klart</string>
-    <string name="cloudy">Molnigt</string>
-    <string name="fair">Fint</string>
+    <string name="cloudy">Mulet</string>
+    <string name="fair">Klart</string>
     <string name="fog">Dimma</string>
     <string name="heavy_rain">Kraftigt regn</string>
     <string name="heavy_rain_and_thunder">Kraftigt regn och åska</string>
     <string name="heavy_rain_showers">Kraftiga regnskurar</string>
     <string name="heavy_rain_showers_and_thunder">Kraftiga regnskurar och åska</string>
-    <string name="heavy_sleet">Kraftigt slask</string>
-    <string name="heavy_sleet_and_thunder">Kraftigt slask och åska</string>
-    <string name="heavy_sleet_showers">Kraftiga slaskskurar</string>
-    <string name="heavy_sleet_showers_and_thunder">Kraftiga slaskskurar och åska</string>
+    <string name="heavy_sleet">Kraftigt småspik</string>
+    <string name="heavy_sleet_and_thunder">Kraftigt småspik och åska</string>
+    <string name="heavy_sleet_showers">Kraftiga skurar med småspik</string>
+    <string name="heavy_sleet_showers_and_thunder">Kraftiga skurar med småspik och åska</string>
     <string name="heavy_snow">Kraftigt snöfall</string>
     <string name="heavy_snow_and_thunder">Kraftigt snöfall och åska</string>
     <string name="heavy_snow_showers">Kraftiga snöbyar</string>
@@ -197,29 +179,28 @@
     <string name="light_rain_and_thunder">Lätt regn och åska</string>
     <string name="light_rain_showers">Lätta regnskurar</string>
     <string name="light_rain_showers_and_thunder">Lätta regnskurar och åska</string>
-    <string name="light_sleet">Lätt slask</string>
-    <string name="light_sleet_and_thunder">Lätt slask och åska</string>
-    <string name="light_sleet_showers">Lätta slaskskurar</string>
+    <string name="light_sleet">Lätt småspik</string>
+    <string name="light_sleet_and_thunder">Lätt småspik och åska</string>
+    <string name="light_sleet_showers">Lätta skurar med småspik</string>
     <string name="light_snow">Lätt snöfall</string>
     <string name="light_snow_and_thunder">Lätt snöfall och åska</string>
     <string name="light_snow_showers">Lätta snöbyar</string>
-    <string name="light_sleet_showers_and_thunder">Lätta slaskskurar och åska</string>
+    <string name="light_sleet_showers_and_thunder">Lätta skurar med småspik och åska</string>
     <string name="light_snow_showers_and_thunder">Lätta snöbyar och åska</string>
-    <string name="partly_cloudy">Halvklart</string>
+    <string name="partly_cloudy">Växlande molnighet</string>
     <string name="rain">Regn</string>
     <string name="rain_and_thunder">Regn och åska</string>
     <string name="rain_showers">Regnskurar</string>
     <string name="rain_showers_and_thunder">Regnskurar och åska</string>
-    <string name="sleet">Slask</string>
-    <string name="sleet_and_thunder">Slask och åska</string>
-    <string name="sleet_showers">Slaskskurar</string>
-    <string name="sleet_showers_and_thunder">Slaskskurar och åska</string>
+    <string name="sleet">Småspik</string>
+    <string name="sleet_and_thunder">Småspik och åska</string>
+    <string name="sleet_showers">Skurar med småspik</string>
+    <string name="sleet_showers_and_thunder">Skurar med småspik och åska</string>
     <string name="snow">Snö</string>
-    <string name="snow_and_thunder">Snö och åska</string>
+    <string name="snow_and_thunder">Snöfall och åska</string>
     <string name="snow_showers">Snöbyar</string>
     <string name="snow_showers_and_thunder">Snöbyar och åska</string>
     <string name="weather_source">Källa: met.no</string>
 
-    <!-- Accessibility service -->
-    <string name="accessibility_service_description">Tjänsten har det enda syftet att aktivera låsskärmsgest på startskärmen. Den samlar inte in eller delar data med tredje part.</string>
+    <string name="accessibility_service_description">Tjänstens enda syfte är att möjliggöra låsskärmsgesten på hemskärmen. Den samlar inte in eller delar data med någon tredje part.</string>
 </resources>

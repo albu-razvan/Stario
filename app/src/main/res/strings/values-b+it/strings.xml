@@ -1,66 +1,57 @@
-<!--
-  ~ Copyright (C) 2025 Răzvan Albu
-  ~
-  ~ This program is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
-  -->
-
 <resources>
-    <!-- General -->
     <string name="unavailable">Non disponibile</string>
     <string name="default_text">Predefinito</string>
-    <string name="about">Info</string>
+    <string name="about">Informazioni</string>
     <string name="remove">Rimuovi</string>
     <string name="licenses">Licenze</string>
     <string name="restart">Riavvia</string>
-    <string name="drawer">Cassetto</string>
+    <string name="drawer">Drawer</string>
     <string name="search">Cerca</string>
     <string name="miscellaneous">Varie</string>
     <string name="apps">Applicazioni</string>
     <string name="personal">Personale</string>
-    <string name="managed">Gestite</string>
+    <string name="managed">Gestito</string>
     <string name="something_went_wrong">Qualcosa è andato storto!</string>
     <string name="refresh">Aggiorna</string>
 
-    <!-- Home pop-up -->
-    <string name="settings">Impostazioni Home</string>
-    <string name="wallpaper">Sfondo e Stile</string>
+    <string name="home_no_space_warning">Spazio insufficiente nella home!</string>
 
-    <!-- Settings -->
+    <string name="settings">Impostazioni home</string>
+    <string name="wallpaper">Sfondo e stile</string>
+    <string name="rearrange">Riordina</string>
+
     <string name="preferences">Preferenze</string>
-    <string name="media_player">Lettore multimediale</string>
     <string name="notification_dots">Punti di notifica</string>
-    <string name="lock_gesture">Doppio tocco per bloccare</string>
-    <string name="imperial_units">Unità imperiali</string>
     <string name="vibrations">Vibrazioni</string>
     <string name="theme">Tema</string>
     <string name="pages">Gestore pagine</string>
-    <string name="pinned_category">Categoria aggiunta</string>
+    <string name="home">Schermata home</string>
     <string name="search_engine">Motore di ricerca</string>
     <string name="search_results">Risultati di ricerca</string>
-    <string name="kagi_integration">Fornito da Kagi</string>
-    <string name="hide_applications">Nascondi applicazioni</string>
-    <string name="hide_applications_hint">Fai clic per nascondere o mostrare</string>
-    <string name="legacy_lock_animation">Animazione di blocco legacy</string>
+    <string name="kagi_integration">Powered by Kagi</string>
+    <string name="hide_applications">Nascondi app</string>
+    <string name="hide_applications_hint">Clicca per nascondere o mostrare</string>
+    <string name="low_spec">Modalità prestazioni ridotte</string>
+    <string name="low_spec_description">Attivato automaticamente con il risparmio energetico.</string>
     <string name="icons">Icone</string>
-    <string name="weather_forecast">Previsioni meteo</string>
-    <string name="weather_location">Posizione meteo</string>
-    <string name="location_ip_based">Geolocalizzazione IP (Approssimata)</string>
-    <string name="precise_location">Posizioneattuale (esatta)</string>
     <string name="system_launcher">Riassegna launcher di sistema</string>
     <string name="app_info">Info app</string>
 
-    <!-- Page Manager -->
+    <string name="media_player">Lettore multimediale</string>
+    <string name="pinned_category">Categoria fissata</string>
+    <string name="lock_gesture">Doppio tocco per bloccare</string>
+    <string name="legacy_lock_animation">Animazione di blocco classica</string>
+    <string name="imperial_units">Unità imperiali</string>
+    <string name="weather_forecast">Previsioni meteo</string>
+    <string name="weather_location">Posizione</string>
+    <string name="location_ip_based">Geolocalizzazione IP (Approssimativa)</string>
+    <string name="precise_location">Posizione attuale (Esatta)</string>
+    <string name="search_shortcut">Scorciatoia di ricerca</string>
+    <string name="clock">Orologio</string>
+    <string name="background">Sfondo</string>
+    <string name="weather">Meteo</string>
+    <string name="lock">blocca</string>
+
     <string name="default_position">Posizione predefinita</string>
     <string name="left">Sinistra</string>
     <string name="top">Sopra</string>
@@ -68,21 +59,19 @@
     <string name="bottom">Sotto</string>
     <string name="add">Aggiungi</string>
 
-    <!-- Settings pop-up -->
     <string name="return_button">Indietro</string>
-    <string name="proceed_button">Procedi</string>
+    <string name="proceed_button">Continua</string>
 
-    <!-- Notifications pop-up -->
     <string name="read_notifications">Leggi notifiche</string>
-    <string name="notifications_access">Stario necessita dell\'accesso alle notifiche affinché questa funzione possa funzionare.</string>
+    <string name="notifications_access">Stario richiede l’accesso alle notifiche per funzionare.</string>
 
-    <!-- Accessibility pop-up -->
-    <string name="location_reasoning">Consenti l\'accesso alla posizione dalle impostazioni di sistema.</string>
+    <string name="location_reasoning">Consenti l’accesso alla posizione nelle impostazioni di sistema.</string>
+
     <string name="use_accessibility">Usa accessibilità</string>
-    <string name="accessibility_notice">Stario necessita dell\'accesso ai servizi di accessibilità affinché questa funzione possa funzionare.</string>
+    <string name="accessibility_notice">Stario richiede l’accesso ai servizi di accessibilità per funzionare.</string>
 
-    <!-- Theme pop-up -->
     <string name="dynamic">Dinamico</string>
+    <string name="monochrome">Monocromatico</string>
     <string name="red">Rosso</string>
     <string name="orange">Arancione</string>
     <string name="yellow">Giallo</string>
@@ -96,35 +85,29 @@
     <string name="dark">Scuro</string>
     <string name="force_dark">Forza modalità scura</string>
 
-    <!-- Icons pop-up -->
-    <string name="corner_radius">Raggio angolo</string>
+    <string name="corner_radius">Raggio angoli</string>
     <string name="regular">Regolare</string>
     <string name="squircle">Squircle</string>
     <string name="components">componenti</string>
     <string name="calculating">Calcolo in corso…</string>
 
-    <!-- Hidden apps pop-up -->
     <string name="hidden_apps">App nascoste</string>
 
-    <!-- License pop-up -->
     <string name="license">Licenza</string>
     <string name="main_dependencies">Dipendenze principali</string>
     <string name="all_dependencies">Tutte le dipendenze</string>
 
-    <!-- Widgets -->
-    <string name="nothing_here_yet">Niente qui ancora!</string>
+    <string name="nothing_here_yet">Non c’è ancora nulla qui!</string>
     <string name="create_a_widget">Aggiungi un widget</string>
     <string name="configure_widget">Configura widget</string>
     <string name="widgets">Widget</string>
     <string name="widget_one">widget</string>
     <string name="widget_many">widget</string>
 
-    <!-- Media -->
     <string name="unknown_artist">Artista sconosciuto</string>
 
-    <!-- Categories -->
     <string name="categories">Categorie</string>
-    <string name="unsorted">Non ordinato</string>
+    <string name="unsorted">Non categorizzate</string>
     <string name="games">Giochi</string>
     <string name="audio">Musica</string>
     <string name="video">Intrattenimento</string>
@@ -139,7 +122,6 @@
     <string name="personalization">Personalizzazione</string>
     <string name="sports">Sport</string>
 
-    <!-- Applications -->
     <string name="uninstall">Disinstalla</string>
     <string name="hide">Nascondi</string>
     <string name="customize">Personalizza</string>
@@ -148,68 +130,68 @@
     <string name="available_icons">Icone disponibili</string>
     <string name="application_label">Etichetta</string>
     <string name="category_name_warning">Questa categoria esiste già.</string>
-    <string name="application_label_warning">L\'etichetta deve essere lunga almeno un carattere.</string>
-    <string name="category_warning">Questo creerà una nuova categoria con il nome fornito.</string>
+    <string name="application_label_warning">L’etichetta deve contenere almeno un carattere.</string>
+    <string name="category_warning">Verrà creata una nuova categoria con il nome fornito.</string>
 
-    <!-- Briefing -->
     <string name="briefing">Il tuo briefing</string>
     <string name="briefing_configurator">Briefing</string>
-    <string name="import_feed">Importa un feed</string>
+    <string name="import_feed">Importa feed</string>
     <string name="link_feed">Importa</string>
+    <string name="unknown_feed">Feed sconosciuto</string>
     <string name="invalid_url">URL non valido</string>
-    <string name="invalid_rss">Non è un feed</string>
+    <string name="invalid_rss">Non è un feed RSS</string>
+    <string name="rename_feed">Rinomina</string>
+    <string name="feed_name">Nome feed</string>
+    <string name="feed_warning">Il nome deve contenere almeno un carattere.</string>
     <string name="link">Link del feed</string>
-    <string name="fetching_feed">Caricamento</string>
+    <string name="fetching_feed">Recupero in corso</string>
     <string name="no_connection">Nessuna connessione internet</string>
     <string name="already_subscribed">Sei già iscritto a questo feed!</string>
 
-    <!-- Search -->
     <string name="search_on">Cerca su</string>
     <string name="searching">Ricerca in corso…</string>
-    <string name="search_hidden_apps">Cerca app nascoste</string>
+    <string name="search_hidden_apps">Cerca tra le app nascoste</string>
     <string name="unauthorized">I server Kagi hanno segnalato un accesso non autorizzato. La tua chiave API è valida?</string>
     <string name="to_search">per cercare con Kagi</string>
-    <string name="kagi_dependency">Stario si basa sui dati forniti da Kagi per fornire i risultati di ricerca.</string>
+    <string name="kagi_dependency">Stario si affida ai dati forniti da Kagi per i risultati di ricerca.</string>
     <string name="kagi_api_key">Chiave API Kagi</string>
     <string name="api_key">Chiave API</string>
 
-    <!-- Keyboard -->
     <string name="done">Fatto</string>
 
-    <!-- Weather -->
     <string name="clear_sky">Sereno</string>
     <string name="cloudy">Nuvoloso</string>
     <string name="fair">Bello</string>
     <string name="fog">Nebbia</string>
     <string name="heavy_rain">Pioggia forte</string>
     <string name="heavy_rain_and_thunder">Pioggia forte e tuoni</string>
-    <string name="heavy_rain_showers">Rovesci di pioggia forte</string>
-    <string name="heavy_rain_showers_and_thunder">Rovesci di pioggia forte e tuoni</string>
+    <string name="heavy_rain_showers">Rovescio forte</string>
+    <string name="heavy_rain_showers_and_thunder">Rovescio forte e tuoni</string>
     <string name="heavy_sleet">Nevischio forte</string>
     <string name="heavy_sleet_and_thunder">Nevischio forte e tuoni</string>
-    <string name="heavy_sleet_showers">Rovesci di nevischio forte</string>
-    <string name="heavy_sleet_showers_and_thunder">Rovesci di nevischio forte e tuoni</string>
+    <string name="heavy_sleet_showers">Rovesci di nevischio forti</string>
+    <string name="heavy_sleet_showers_and_thunder">Rovesci di nevischio forti e tuoni</string>
     <string name="heavy_snow">Neve forte</string>
     <string name="heavy_snow_and_thunder">Neve forte e tuoni</string>
-    <string name="heavy_snow_showers">Rovesci di neve forte</string>
-    <string name="heavy_snow_showers_and_thunder">Rovesci di neve forte e tuoni</string>
+    <string name="heavy_snow_showers">Rovesci di neve forti</string>
+    <string name="heavy_snow_showers_and_thunder">Rovesci di neve forti e tuoni</string>
     <string name="light_rain">Pioggia leggera</string>
     <string name="light_rain_and_thunder">Pioggia leggera e tuoni</string>
-    <string name="light_rain_showers">Rovesci di pioggia leggera</string>
-    <string name="light_rain_showers_and_thunder">Rovesci di pioggia leggera e tuoni</string>
+    <string name="light_rain_showers">Rovescio leggero</string>
+    <string name="light_rain_showers_and_thunder">Rovescio leggero e tuoni</string>
     <string name="light_sleet">Nevischio leggero</string>
     <string name="light_sleet_and_thunder">Nevischio leggero e tuoni</string>
-    <string name="light_sleet_showers">Rovesci di nevischio leggero</string>
+    <string name="light_sleet_showers">Rovesci di nevischio leggeri</string>
     <string name="light_snow">Neve leggera</string>
     <string name="light_snow_and_thunder">Neve leggera e tuoni</string>
-    <string name="light_snow_showers">Rovesci di neve leggera</string>
-    <string name="light_sleet_showers_and_thunder">Rovesci di nevischio leggero e tuoni</string>
-    <string name="light_snow_showers_and_thunder">Rovesci di neve leggera e tuoni</string>
+    <string name="light_snow_showers">Rovesci di neve leggeri</string>
+    <string name="light_sleet_showers_and_thunder">Rovesci di nevischio leggeri e tuoni</string>
+    <string name="light_snow_showers_and_thunder">Rovesci di neve leggeri e tuoni</string>
     <string name="partly_cloudy">Parzialmente nuvoloso</string>
     <string name="rain">Pioggia</string>
     <string name="rain_and_thunder">Pioggia e tuoni</string>
-    <string name="rain_showers">Rovesci di pioggia</string>
-    <string name="rain_showers_and_thunder">Rovesci di pioggia e tuoni</string>
+    <string name="rain_showers">Rovesci</string>
+    <string name="rain_showers_and_thunder">Rovesci e tuoni</string>
     <string name="sleet">Nevischio</string>
     <string name="sleet_and_thunder">Nevischio e tuoni</string>
     <string name="sleet_showers">Rovesci di nevischio</string>
@@ -220,6 +202,5 @@
     <string name="snow_showers_and_thunder">Rovesci di neve e tuoni</string>
     <string name="weather_source">Fonte: met.no</string>
 
-    <!-- Accessibility service -->
-    <string name="accessibility_service_description">Il servizio ha l\'unico scopo di abilitare il gesto di blocco schermo sulla schermata iniziale. Non raccoglie né condivide dati con terze parti.</string>
+    <string name="accessibility_service_description">Questo servizio ha il solo scopo di abilitare la gesture di blocco dello schermo nella home. Non raccoglie né condivide dati con terze parti.</string>
 </resources>

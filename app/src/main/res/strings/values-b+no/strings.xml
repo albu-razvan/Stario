@@ -1,29 +1,11 @@
-<!--
-  ~ Copyright (C) 2025 Răzvan Albu
-  ~
-  ~ This program is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
-  -->
-
 <resources>
-    <!-- General -->
     <string name="unavailable">Utilgjengelig</string>
     <string name="default_text">Standard</string>
     <string name="about">Info</string>
     <string name="remove">Fjern</string>
     <string name="licenses">Lisenser</string>
     <string name="restart">Start på nytt</string>
-    <string name="drawer">Skuff</string>
+    <string name="drawer">Appskuff</string>
     <string name="search">Søk</string>
     <string name="miscellaneous">Diverse</string>
     <string name="apps">Applikasjoner</string>
@@ -32,57 +14,64 @@
     <string name="something_went_wrong">Noe gikk galt!</string>
     <string name="refresh">Oppdater</string>
 
-    <!-- Home pop-up -->
-    <string name="settings">Hjeminnstillinger</string>
-    <string name="wallpaper">Bakgrunn og stil</string>
+    <string name="home_no_space_warning">Ingen ledig plass på hjemskjermen for å legge til dette elementet!</string>
 
-    <!-- Settings -->
-    <string name="preferences">Innstillinger</string>
-    <string name="media_player">Mediaspiller</string>
+    <string name="settings">Innstillinger for hjemskjerm</string>
+    <string name="wallpaper">Bakgrunn og stil</string>
+    <string name="rearrange">Omorganiser</string>
+
+    <string name="preferences">Preferanser</string>
     <string name="notification_dots">Varslingsprikker</string>
-    <string name="lock_gesture">Dobbelttrykk for å låse</string>
-    <string name="imperial_units">Imperiale enheter</string>
     <string name="vibrations">Vibrasjoner</string>
     <string name="theme">Tema</string>
     <string name="pages">Sidebehandling</string>
-    <string name="pinned_category">Festet kategori</string>
+    <string name="home">Startskjerm</string>
     <string name="search_engine">Søkemotor</string>
     <string name="search_results">Søkeresultater</string>
     <string name="kagi_integration">Drevet av Kagi</string>
     <string name="hide_applications">Skjul applikasjoner</string>
     <string name="hide_applications_hint">Klikk for å skjule eller vise</string>
-    <string name="legacy_lock_animation">Gammel låseanimasjon</string>
+    <string name="low_spec">Enkel modus</string>
+    <string name="low_spec_description">Aktivert som standard når batterisparing er på.</string>
     <string name="icons">Ikoner</string>
-    <string name="weather_forecast">Værmelding</string>
-    <string name="weather_location">Værlokasjon</string>
-    <string name="location_ip_based">IP Geolocation (omtrentlig)</string>
-    <string name="precise_location">Nåværende posisjon (nøyaktig)</string>
-    <string name="system_launcher">Tilordne systemstarter på nytt</string>
-    <string name="app_info">Appinfo</string>
+    <string name="system_launcher">Bytt systemstarter</string>
+    <string name="app_info">App-info</string>
 
-    <!-- Page Manager -->
-    <string name="default_position">Standard posisjon</string>
+    <string name="media_player">Mediespiller</string>
+    <string name="pinned_category">Festet kategori</string>
+    <string name="lock_gesture">Dobbelttrykk for å låse</string>
+    <string name="legacy_lock_animation">Klassisk låseanimasjon</string>
+    <string name="imperial_units">Imperiell enheter</string>
+    <string name="weather_forecast">Værvarsel</string>
+    <string name="weather_location">Posisjon</string>
+    <string name="location_ip_based">IP-geolokasjon (Omtrentlig)</string>
+    <string name="precise_location">Nåværende posisjon (Eksakt)</string>
+    <string name="search_shortcut">Søkesnarvei</string>
+    <string name="clock">Klokke</string>
+    <string name="background">Bakgrunn</string>
+    <string name="weather">Vær</string>
+    <string name="lock">lås</string>
+
+    <string name="default_position">Standardposisjon</string>
     <string name="left">Venstre</string>
     <string name="top">Topp</string>
     <string name="right">Høyre</string>
     <string name="bottom">Bunn</string>
     <string name="add">Legg til</string>
 
-    <!-- Settings pop-up -->
     <string name="return_button">Tilbake</string>
     <string name="proceed_button">Fortsett</string>
 
-    <!-- Notifications pop-up -->
     <string name="read_notifications">Les varsler</string>
-    <string name="notifications_access">Stario trenger tilgang til varsler for at denne funksjonen skal fungere.</string>
+    <string name="notifications_access">Stario trenger tilgang til varsler for at denne funksjonen skal virke.</string>
 
-    <!-- Accessibility pop-up -->
-    <string name="location_reasoning">Tillat posisjonstilgang fra systeminnstillingene.</string>
+    <string name="location_reasoning">Tillat posisjonstilgang i systeminnstillingene.</string>
+
     <string name="use_accessibility">Bruk tilgjengelighet</string>
-    <string name="accessibility_notice">Stario trenger tilgang til tilgjengelighetstjenester for at denne funksjonen skal fungere.</string>
+    <string name="accessibility_notice">Stario trenger tilgang til tilgjengelighetstjenester for at denne funksjonen skal virke.</string>
 
-    <!-- Theme pop-up -->
     <string name="dynamic">Dynamisk</string>
+    <string name="monochrome">Monokrom</string>
     <string name="red">Rød</string>
     <string name="orange">Oransje</string>
     <string name="yellow">Gul</string>
@@ -96,33 +85,27 @@
     <string name="dark">Mørk</string>
     <string name="force_dark">Tving mørk modus</string>
 
-    <!-- Icons pop-up -->
     <string name="corner_radius">Hjørneradius</string>
     <string name="regular">Vanlig</string>
     <string name="squircle">Squircle</string>
     <string name="components">komponenter</string>
     <string name="calculating">Beregner…</string>
 
-    <!-- Hidden apps pop-up -->
     <string name="hidden_apps">Skjulte apper</string>
 
-    <!-- License pop-up -->
     <string name="license">Lisens</string>
     <string name="main_dependencies">Hovedavhengigheter</string>
     <string name="all_dependencies">Alle avhengigheter</string>
 
-    <!-- Widgets -->
     <string name="nothing_here_yet">Ingenting her ennå!</string>
     <string name="create_a_widget">Legg til en widget</string>
     <string name="configure_widget">Konfigurer widget</string>
-    <string name="widgets">Widgets</string>
+    <string name="widgets">Widgeter</string>
     <string name="widget_one">widget</string>
-    <string name="widget_many">widgets</string>
+    <string name="widget_many">widgeter</string>
 
-    <!-- Media -->
     <string name="unknown_artist">Ukjent artist</string>
 
-    <!-- Categories -->
     <string name="categories">Kategorier</string>
     <string name="unsorted">Usortert</string>
     <string name="games">Spill</string>
@@ -136,10 +119,9 @@
     <string name="accessibility">Tilgjengelighet</string>
     <string name="finance">Finans</string>
     <string name="health">Helse</string>
-    <string name="personalization">Tilpasning</string>
+    <string name="personalization">Personlig tilpasning</string>
     <string name="sports">Sport</string>
 
-    <!-- Applications -->
     <string name="uninstall">Avinstaller</string>
     <string name="hide">Skjul</string>
     <string name="customize">Tilpass</string>
@@ -147,39 +129,39 @@
     <string name="category_name">Kategorinavn</string>
     <string name="available_icons">Tilgjengelige ikoner</string>
     <string name="application_label">Etikett</string>
-    <string name="category_name_warning">Denne kategorien finnes allerede.</string>
+    <string name="category_name_warning">Denne kategorien eksisterer allerede.</string>
     <string name="application_label_warning">Etiketten må være minst ett tegn lang.</string>
-    <string name="category_warning">Dette vil opprette en ny kategori med det angitte navnet.</string>
+    <string name="category_warning">Dette vil opprette en ny kategori med det oppgitte navnet.</string>
 
-    <!-- Briefing -->
-    <string name="briefing">Din oppsummering</string>
-    <string name="briefing_configurator">Oppsummering</string>
-    <string name="import_feed">Importer en feed</string>
+    <string name="briefing">Din briefing</string>
+    <string name="briefing_configurator">Briefing</string>
+    <string name="import_feed">Importer en kilde</string>
     <string name="link_feed">Importer</string>
+    <string name="unknown_feed">Ukjent kilde</string>
     <string name="invalid_url">Ugyldig URL</string>
-    <string name="invalid_rss">Ikke en feed</string>
-    <string name="link">Feedlenke</string>
+    <string name="invalid_rss">Ikke en kilde</string>
+    <string name="rename_feed">Gi nytt navn</string>
+    <string name="feed_name">Navn på kilde</string>
+    <string name="feed_warning">Navnet må være minst ett tegn langt.</string>
+    <string name="link">Kildelenke</string>
     <string name="fetching_feed">Henter</string>
     <string name="no_connection">Ingen internettforbindelse</string>
-    <string name="already_subscribed">Du er allerede abonnert på denne feeden!</string>
+    <string name="already_subscribed">Du abonnerer allerede på denne kilden!</string>
 
-    <!-- Search -->
     <string name="search_on">Søk på</string>
     <string name="searching">Søker…</string>
-    <string name="search_hidden_apps">Søk etter skjulte apper</string>
+    <string name="search_hidden_apps">Søk i skjulte apper</string>
     <string name="unauthorized">Kagi-servere rapporterte uautorisert tilgang. Er API-nøkkelen din gyldig?</string>
     <string name="to_search">for å søke med Kagi</string>
-    <string name="kagi_dependency">Stario er avhengig av data levert av Kagi for å gi søkeresultater.</string>
+    <string name="kagi_dependency">Stario stoler på data levert av Kagi for å gi søkeresultater.</string>
     <string name="kagi_api_key">Kagi API-nøkkel</string>
     <string name="api_key">API-nøkkel</string>
 
-    <!-- Keyboard -->
     <string name="done">Ferdig</string>
 
-    <!-- Weather -->
-    <string name="clear_sky">Klar himmel</string>
-    <string name="cloudy">Skyet</string>
-    <string name="fair">Pent</string>
+    <string name="clear_sky">Klart</string>
+    <string name="cloudy">Overskyet</string>
+    <string name="fair">Lett skyet</string>
     <string name="fog">Tåke</string>
     <string name="heavy_rain">Kraftig regn</string>
     <string name="heavy_rain_and_thunder">Kraftig regn og torden</string>
@@ -220,6 +202,5 @@
     <string name="snow_showers_and_thunder">Snøbyger og torden</string>
     <string name="weather_source">Kilde: met.no</string>
 
-    <!-- Accessibility service -->
-    <string name="accessibility_service_description">Tjenesten har som eneste formål å aktivere låseskjermbevegelser på startskjermen. Den samler ikke inn eller deler data med tredjeparter.</string>
+    <string name="accessibility_service_description">Tjenesten har som eneste formål å aktivere låseskjermbevegelse på hjemskjermen. Den samler ikke inn eller deler data med tredjeparter.</string>
 </resources>
