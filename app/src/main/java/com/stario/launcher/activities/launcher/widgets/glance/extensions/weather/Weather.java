@@ -42,7 +42,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.sisyphsu.dateparser.DateParser;
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
 import com.stario.launcher.R;
@@ -345,7 +344,6 @@ public class Weather extends GlanceDialogExtension {
 
     private final BroadcastReceiver receiver;
     private final WeatherPreview preview;
-    private final DateParser dateParser;
 
     private SharedPreferences weatherPreferences;
     private GeocoderFallback geocoder;
@@ -364,7 +362,6 @@ public class Weather extends GlanceDialogExtension {
 
     public Weather() {
         this.weatherData = new CopyOnWriteArrayList<>();
-        this.dateParser = DateParser.newBuilder().build();
         this.runningTask = null;
         this.address = null;
         this.lastUpdate = 0;
@@ -550,7 +547,7 @@ public class Weather extends GlanceDialogExtension {
 
                             String iconCode = summary.getString("symbol_code");
 
-                            entries.add(new Data(dateParser.parseDate(time), iconCode,
+                            entries.add(new Data(Utils.parseDate(time), iconCode,
                                     temperature, windDirection, windSpeed));
                         } catch (JSONException exception) {
                             Log.e(TAG, "update: Parse exception for item " + index + ".");

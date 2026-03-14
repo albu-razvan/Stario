@@ -49,9 +49,12 @@ import com.stario.launcher.utils.Utils;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
     private static final Safelist CONTENT_SAFELIST = new Safelist() {
@@ -107,6 +110,7 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
     protected class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private final ClickableSpanTextView description;
         private final ViewGroup representative;
+        private final TextView timestamp;
         private final ImageView display;
         private final TextView category;
         private final TextView author;
@@ -119,6 +123,7 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
             representative = itemView.findViewById(R.id.representative);
             title = itemView.findViewById(R.id.title);
             description = itemView.findViewById(R.id.description);
+            timestamp = itemView.findViewById(R.id.timestamp);
             author = itemView.findViewById(R.id.author);
             category = itemView.findViewById(R.id.category);
 
@@ -165,6 +170,7 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
         viewHolder.author.setVisibility(View.GONE);
         viewHolder.category.setVisibility(View.GONE);
         viewHolder.description.setVisibility(View.GONE);
+        viewHolder.timestamp.setVisibility(View.GONE);
         viewHolder.display.setAlpha(0f);
 
         String image = item.getImage();
@@ -238,6 +244,24 @@ class FeedPageAdapter extends RecyclerView.Adapter<FeedPageAdapter.ViewHolder> {
             if (!author.toString().isEmpty()) {
                 viewHolder.author.setText(author);
                 viewHolder.author.setVisibility(View.VISIBLE);
+            }
+        }
+
+        if (item.getPubDate() != null && !item.getPubDate().isEmpty()) {
+            try {
+                Date date = Utils.parseDate(item.getPubDate());
+                SimpleDateFormat output =
+                        new SimpleDateFormat("dd MMM yyyy • HH:mm", Locale.getDefault());
+
+                if (date != null) {
+                    viewHolder.timestamp.setText(output.format(date));
+                } else {
+                    viewHolder.timestamp.setText(item.getPubDate());
+                }
+            } catch (Exception exception) {
+                viewHolder.timestamp.setText(item.getPubDate());
+            } finally {
+                viewHolder.timestamp.setVisibility(View.VISIBLE);
             }
         }
     }
