@@ -132,7 +132,22 @@
             android:fontFamily="@font/dm_sans_regular"
             android:gravity="left"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/timestamp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            android:alpha="0.5"
+            android:fontFamily="@font/dm_sans_regular"
+            android:gravity="left"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="14sp"
+            android:visibility="gone" />
 
     </LinearLayout>
 

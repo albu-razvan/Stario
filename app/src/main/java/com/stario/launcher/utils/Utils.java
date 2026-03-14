@@ -32,6 +32,7 @@ import android.util.Log;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 
+import com.github.sisyphsu.dateparser.DateParser;
 import com.google.gson.Gson;
 import com.stario.launcher.BuildConfig;
 import com.stario.launcher.apps.ProfileManager;
@@ -45,6 +46,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -80,6 +82,7 @@ public class Utils {
             "LR", // Liberia
             "PR"  // Puerto Rico
     ));
+    private static DateParser dateParser;
     private static Gson gson;
 
     public static Future<?> submitTask(Runnable runnable) {
@@ -96,6 +99,14 @@ public class Utils {
                 return null;
             }
         }, executorPool);
+    }
+
+    public static Date parseDate(String date) {
+        if (dateParser == null) {
+            dateParser = DateParser.newBuilder().build();
+        }
+
+        return dateParser.parseDate(date);
     }
 
     public static @NonNull Gson getGsonInstance() {
