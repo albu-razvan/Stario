@@ -1,29 +1,11 @@
-<!--
-  ~ Copyright (C) 2025 Răzvan Albu
-  ~
-  ~ This program is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
-  -->
-
 <resources>
-    <!-- General -->
     <string name="unavailable">Indisponível</string>
     <string name="default_text">Padrão</string>
-    <string name="about">Informações</string>
+    <string name="about">Sobre</string>
     <string name="remove">Remover</string>
     <string name="licenses">Licenças</string>
     <string name="restart">Reiniciar</string>
-    <string name="drawer">Gaveta</string>
+    <string name="drawer">Gaveta de apps</string>
     <string name="search">Pesquisar</string>
     <string name="miscellaneous">Diversos</string>
     <string name="apps">Aplicativos</string>
@@ -32,57 +14,64 @@
     <string name="something_went_wrong">Algo deu errado!</string>
     <string name="refresh">Atualizar</string>
 
-    <!-- Home pop-up -->
-    <string name="settings">Configurações da Tela Inicial</string>
-    <string name="wallpaper">Papel de Parede e Estilo</string>
+    <string name="home_no_space_warning">Não há espaço na tela inicial!</string>
 
-    <!-- Settings -->
+    <string name="settings">Configurações de início</string>
+    <string name="wallpaper">Plano de fundo e estilo</string>
+    <string name="rearrange">Reorganizar</string>
+
     <string name="preferences">Preferências</string>
-    <string name="media_player">Reprodutor de mídia</string>
     <string name="notification_dots">Pontos de notificação</string>
-    <string name="lock_gesture">Toque duas vezes para bloquear</string>
-    <string name="imperial_units">Unidades imperiais</string>
     <string name="vibrations">Vibrações</string>
     <string name="theme">Tema</string>
     <string name="pages">Gerenciador de páginas</string>
-    <string name="pinned_category">Categoria fixada</string>
-    <string name="search_engine">Mecanismo de busca</string>
-    <string name="search_results">Resultados da pesquisa</string>
-    <string name="kagi_integration">Fornecido por Kagi</string>
+    <string name="home">Tela inicial</string>
+    <string name="search_engine">Motor de busca</string>
+    <string name="search_results">Resultados de busca</string>
+    <string name="kagi_integration">Distribuído por Kagi</string>
     <string name="hide_applications">Ocultar aplicativos</string>
-    <string name="hide_applications_hint">Clique para ocultar ou mostrar</string>
-    <string name="legacy_lock_animation">Animação de bloqueio antiga</string>
+    <string name="hide_applications_hint">Clique para ocultar ou exibir</string>
+    <string name="low_spec">Modo de baixo desempenho</string>
+    <string name="low_spec_description">Ativado por padrão quando a economia de bateria está ligada.</string>
     <string name="icons">Ícones</string>
-    <string name="weather_forecast">Previsão do tempo</string>
-    <string name="weather_location">Localização do clima</string>
-    <string name="location_ip_based">Geolocalização por IP (Aproximada)</string>
-    <string name="precise_location">Localização atual (exata)</string>
-    <string name="system_launcher">Reatribuir iniciador do sistema</string>
-    <string name="app_info">Informações do aplicativo</string>
+    <string name="system_launcher">Reatribuir launcher do sistema</string>
+    <string name="app_info">Informações do app</string>
 
-    <!-- Page Manager -->
+    <string name="media_player">Player de mídia</string>
+    <string name="pinned_category">Categoria fixada</string>
+    <string name="lock_gesture">Toque duplo para bloquear</string>
+    <string name="legacy_lock_animation">Animação de bloqueio clássica</string>
+    <string name="imperial_units">Unidades imperiais</string>
+    <string name="weather_forecast">Previsão do tempo</string>
+    <string name="weather_location">Localização</string>
+    <string name="location_ip_based">Geolocalização por IP (Aproximada)</string>
+    <string name="precise_location">Localização atual (Exata)</string>
+    <string name="search_shortcut">Atalho de busca</string>
+    <string name="clock">Relógio</string>
+    <string name="background">Fundo</string>
+    <string name="weather">Clima</string>
+    <string name="lock">bloquear</string>
+
     <string name="default_position">Posição padrão</string>
     <string name="left">Esquerda</string>
-    <string name="top">Superior</string>
+    <string name="top">Cima</string>
     <string name="right">Direita</string>
-    <string name="bottom">Inferior</string>
+    <string name="bottom">Baixo</string>
     <string name="add">Adicionar</string>
 
-    <!-- Settings pop-up -->
     <string name="return_button">Voltar</string>
-    <string name="proceed_button">Prosseguir</string>
+    <string name="proceed_button">Continuar</string>
 
-    <!-- Notifications pop-up -->
     <string name="read_notifications">Ler notificações</string>
-    <string name="notifications_access">Stario precisa de acesso às notificações para que este recurso funcione.</string>
+    <string name="notifications_access">O Stario precisa de acesso às notificações para funcionar.</string>
 
-    <!-- Accessibility pop-up -->
     <string name="location_reasoning">Permita o acesso à localização nas configurações do sistema.</string>
-    <string name="use_accessibility">Usar acessibilidade</string>
-    <string name="accessibility_notice">Stario precisa de acesso aos serviços de acessibilidade para que este recurso funcione.</string>
 
-    <!-- Theme pop-up -->
+    <string name="use_accessibility">Usar acessibilidade</string>
+    <string name="accessibility_notice">O Stario precisa de acesso aos serviços de acessibilidade para funcionar.</string>
+
     <string name="dynamic">Dinâmico</string>
+    <string name="monochrome">Monocromático</string>
     <string name="red">Vermelho</string>
     <string name="orange">Laranja</string>
     <string name="yellow">Amarelo</string>
@@ -96,33 +85,27 @@
     <string name="dark">Escuro</string>
     <string name="force_dark">Forçar modo escuro</string>
 
-    <!-- Icons pop-up -->
-    <string name="corner_radius">Raio de canto</string>
+    <string name="corner_radius">Raio dos cantos</string>
     <string name="regular">Regular</string>
-    <string name="squircle">Esquilo</string>
+    <string name="squircle">Squircle</string>
     <string name="components">componentes</string>
     <string name="calculating">Calculando…</string>
 
-    <!-- Hidden apps pop-up -->
-    <string name="hidden_apps">Aplicativos ocultos</string>
+    <string name="hidden_apps">Apps ocultos</string>
 
-    <!-- License pop-up -->
     <string name="license">Licença</string>
-    <string name="main_dependencies">Dependências principais</string>
+    <string name="main_dependencies">Principais dependências</string>
     <string name="all_dependencies">Todas as dependências</string>
 
-    <!-- Widgets -->
-    <string name="nothing_here_yet">Nada aqui ainda!</string>
+    <string name="nothing_here_yet">Nada por aqui ainda!</string>
     <string name="create_a_widget">Adicionar um widget</string>
     <string name="configure_widget">Configurar widget</string>
     <string name="widgets">Widgets</string>
     <string name="widget_one">widget</string>
     <string name="widget_many">widgets</string>
 
-    <!-- Media -->
-    <string name="unknown_artist">Artista Desconhecido</string>
+    <string name="unknown_artist">Artista desconhecido</string>
 
-    <!-- Categories -->
     <string name="categories">Categorias</string>
     <string name="unsorted">Não classificado</string>
     <string name="games">Jogos</string>
@@ -139,7 +122,6 @@
     <string name="personalization">Personalização</string>
     <string name="sports">Esportes</string>
 
-    <!-- Applications -->
     <string name="uninstall">Desinstalar</string>
     <string name="hide">Ocultar</string>
     <string name="customize">Personalizar</string>
@@ -151,75 +133,74 @@
     <string name="application_label_warning">A etiqueta deve ter pelo menos um caractere.</string>
     <string name="category_warning">Isso criará uma nova categoria com o nome fornecido.</string>
 
-    <!-- Briefing -->
     <string name="briefing">Seu briefing</string>
     <string name="briefing_configurator">Briefing</string>
-    <string name="import_feed">Importar um feed</string>
+    <string name="import_feed">Importar feed</string>
     <string name="link_feed">Importar</string>
-    <string name="invalid_url">URL inválido</string>
-    <string name="invalid_rss">Não é um feed</string>
+    <string name="unknown_feed">Feed desconhecido</string>
+    <string name="invalid_url">URL inválida</string>
+    <string name="invalid_rss">Não é um feed RSS</string>
+    <string name="rename_feed">Renomear</string>
+    <string name="feed_name">Nome do feed</string>
+    <string name="feed_warning">O nome deve ter pelo menos um caractere.</string>
     <string name="link">Link do feed</string>
     <string name="fetching_feed">Buscando</string>
     <string name="no_connection">Sem conexão com a internet</string>
-    <string name="already_subscribed">Você já está inscrito neste feed!</string>
+    <string name="already_subscribed">Você já é inscrito neste feed!</string>
 
-    <!-- Search -->
-    <string name="search_on">Pesquisar em</string>
+    <string name="search_on">Pesquisar no</string>
     <string name="searching">Pesquisando…</string>
     <string name="search_hidden_apps">Pesquisar apps ocultos</string>
-    <string name="unauthorized">Servidores Kagi relataram acesso não autorizado. Sua chave de API é válida?</string>
+    <string name="unauthorized">Servidores Kagi relataram acesso não autorizado. Sua chave API é válida?</string>
     <string name="to_search">para pesquisar com Kagi</string>
-    <string name="kagi_dependency">Stario depende de dados fornecidos por Kagi para fornecer resultados de pesquisa.</string>
-    <string name="kagi_api_key">Chave de API Kagi</string>
-    <string name="api_key">Chave de API</string>
+    <string name="kagi_dependency">O Stario depende dos dados fornecidos pela Kagi para resultados de busca.</string>
+    <string name="kagi_api_key">Chave API Kagi</string>
+    <string name="api_key">Chave API</string>
 
-    <!-- Keyboard -->
     <string name="done">Concluído</string>
 
-    <!-- Weather -->
     <string name="clear_sky">Céu limpo</string>
     <string name="cloudy">Nublado</string>
-    <string name="fair">Pouco nublado</string>
-    <string name="fog">Névoa</string>
+    <string name="fair">Tempo bom</string>
+    <string name="fog">Neblina</string>
     <string name="heavy_rain">Chuva forte</string>
-    <string name="heavy_rain_and_thunder">Chuva forte e trovoadas</string>
-    <string name="heavy_rain_showers">Pancadas de chuva forte</string>
-    <string name="heavy_rain_showers_and_thunder">Pancadas de chuva forte e trovoadas</string>
-    <string name="heavy_sleet">Aguaceiros fortes</string>
-    <string name="heavy_sleet_and_thunder">Aguaceiros fortes e trovoadas</string>
-    <string name="heavy_sleet_showers">Pancadas de aguaceiro forte</string>
-    <string name="heavy_sleet_showers_and_thunder">Pancadas de aguaceiro forte e trovoadas</string>
+    <string name="heavy_rain_and_thunder">Chuva forte e trovões</string>
+    <string name="heavy_rain_showers">Pancadas de chuva fortes</string>
+    <string name="heavy_rain_showers_and_thunder">Pancadas de chuva fortes e trovões</string>
+    <string name="heavy_sleet">Chuva com neve forte</string>
+    <string name="heavy_sleet_and_thunder">Chuva com neve forte e trovões</string>
+    <string name="heavy_sleet_showers">Pancadas de chuva com neve fortes</string>
+    <string name="heavy_sleet_showers_and_thunder">Pancadas de chuva com neve fortes e trovões</string>
     <string name="heavy_snow">Neve forte</string>
-    <string name="heavy_snow_and_thunder">Neve forte e trovoadas</string>
-    <string name="heavy_snow_showers">Pancadas de neve forte</string>
-    <string name="heavy_snow_showers_and_thunder">Pancadas de neve forte e trovoadas</string>
-    <string name="light_rain">Chuva fraca</string>
-    <string name="light_rain_and_thunder">Chuva fraca e trovoadas</string>
-    <string name="light_rain_showers">Pancadas de chuva fraca</string>
-    <string name="light_rain_showers_and_thunder">Pancadas de chuva fraca e trovoadas</string>
-    <string name="light_sleet">Aguaceiro fraco</string>
-    <string name="light_sleet_and_thunder">Aguaceiro fraco e trovoadas</string>
-    <string name="light_sleet_showers">Pancadas de aguaceiro fraco</string>
-    <string name="light_snow">Neve fraca</string>
-    <string name="light_snow_and_thunder">Neve fraca e trovoadas</string>
-    <string name="light_snow_showers">Pancadas de neve fraca</string>
-    <string name="light_sleet_showers_and_thunder">Pancadas de aguaceiro fraco e trovoadas</string>
-    <string name="light_snow_showers_and_thunder">Pancadas de neve fraca e trovoadas</string>
+    <string name="heavy_snow_and_thunder">Neve forte e trovões</string>
+    <string name="heavy_snow_showers">Pancadas de neve fortes</string>
+    <string name="heavy_snow_showers_and_thunder">Pancadas de neve fortes e trovões</string>
+    <string name="light_rain">Chuva leve</string>
+    <string name="light_rain_and_thunder">Chuva leve e trovões</string>
+    <string name="light_rain_showers">Pancadas de chuva leves</string>
+    <string name="light_rain_showers_and_thunder">Pancadas de chuva leves e trovões</string>
+    <string name="light_sleet">Chuva com neve leve</string>
+    <string name="light_sleet_and_thunder">Chuva com neve leve e trovões</string>
+    <string name="light_sleet_showers">Pancadas de chuva com neve leves</string>
+    <string name="light_snow">Neve leve</string>
+    <string name="light_snow_and_thunder">Neve leve e trovões</string>
+    <string name="light_snow_showers">Pancadas de neve leves</string>
+    <string name="light_sleet_showers_and_thunder">Pancadas de chuva com neve leves e trovões</string>
+    <string name="light_snow_showers_and_thunder">Pancadas de neve leves e trovões</string>
     <string name="partly_cloudy">Parcialmente nublado</string>
     <string name="rain">Chuva</string>
-    <string name="rain_and_thunder">Chuva e trovoadas</string>
+    <string name="rain_and_thunder">Chuva e trovões</string>
     <string name="rain_showers">Pancadas de chuva</string>
-    <string name="rain_showers_and_thunder">Pancadas de chuva e trovoadas</string>
-    <string name="sleet">Aguaceiro</string>
-    <string name="sleet_and_thunder">Aguaceiro e trovoadas</string>
-    <string name="sleet_showers">Pancadas de aguaceiro</string>
-    <string name="sleet_showers_and_thunder">Pancadas de aguaceiro e trovoadas</string>
+    <string name="rain_showers_and_thunder">Pancadas de chuva e trovões</string>
+    <string name="sleet">Chuva com neve</string>
+    <string name="sleet_and_thunder">Chuva com neve e trovões</string>
+    <string name="sleet_showers">Pancadas de chuva com neve</string>
+    <string name="sleet_showers_and_thunder">Pancadas de chuva com neve e trovões</string>
     <string name="snow">Neve</string>
-    <string name="snow_and_thunder">Neve e trovoadas</string>
+    <string name="snow_and_thunder">Neve e trovões</string>
     <string name="snow_showers">Pancadas de neve</string>
-    <string name="snow_showers_and_thunder">Pancadas de neve e trovoadas</string>
+    <string name="snow_showers_and_thunder">Pancadas de neve e trovões</string>
     <string name="weather_source">Fonte: met.no</string>
 
-    <!-- Accessibility service -->
-    <string name="accessibility_service_description">O serviço tem o único propósito de permitir o gesto de bloqueio de tela na tela inicial. Ele não coleta nem compartilha dados com terceiros.</string>
+    <string name="accessibility_service_description">Este serviço serve apenas para permitir o gesto de bloqueio de tela na tela inicial. Ele não coleta nem compartilha dados com terceiros.</string>
 </resources>

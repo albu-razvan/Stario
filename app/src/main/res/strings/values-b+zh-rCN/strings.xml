@@ -1,0 +1,206 @@
+<resources>
+    <string name="unavailable">不可用</string>
+    <string name="default_text">默认</string>
+    <string name="about">关于</string>
+    <string name="remove">移除</string>
+    <string name="licenses">许可</string>
+    <string name="restart">重启</string>
+    <string name="drawer">应用抽屉</string>
+    <string name="search">搜索</string>
+    <string name="miscellaneous">杂项</string>
+    <string name="apps">应用</string>
+    <string name="personal">个人</string>
+    <string name="managed">工作</string>
+    <string name="something_went_wrong">出了点问题！</string>
+    <string name="refresh">刷新</string>
+
+    <string name="home_no_space_warning">主屏幕没有可用空间！</string>
+
+    <string name="settings">主屏幕设置</string>
+    <string name="wallpaper">壁纸与风格</string>
+    <string name="rearrange">重排</string>
+
+    <string name="preferences">偏好设置</string>
+    <string name="notification_dots">通知圆点</string>
+    <string name="vibrations">振动</string>
+    <string name="theme">主题</string>
+    <string name="pages">页面管理</string>
+    <string name="home">主屏幕</string>
+    <string name="search_engine">搜索引擎</string>
+    <string name="search_results">搜索结果</string>
+    <string name="kagi_integration">由 Kagi 提供支持</string>
+    <string name="hide_applications">隐藏应用</string>
+    <string name="hide_applications_hint">点击隐藏或取消隐藏</string>
+    <string name="low_spec">低性能模式</string>
+    <string name="low_spec_description">开启省电模式时默认启用。</string>
+    <string name="icons">图标</string>
+    <string name="system_launcher">重新分配系统启动器</string>
+    <string name="app_info">应用信息</string>
+
+    <string name="media_player">媒体播放器</string>
+    <string name="pinned_category">固定类别</string>
+    <string name="lock_gesture">双击锁定</string>
+    <string name="legacy_lock_animation">传统锁定动画</string>
+    <string name="imperial_units">英制单位</string>
+    <string name="weather_forecast">天气预报</string>
+    <string name="weather_location">位置</string>
+    <string name="location_ip_based">IP 地理位置（粗略）</string>
+    <string name="precise_location">当前位置（精准）</string>
+    <string name="search_shortcut">搜索快捷方式</string>
+    <string name="clock">时钟</string>
+    <string name="background">背景</string>
+    <string name="weather">天气</string>
+    <string name="lock">锁定</string>
+
+    <string name="default_position">默认位置</string>
+    <string name="left">左</string>
+    <string name="top">上</string>
+    <string name="right">右</string>
+    <string name="bottom">下</string>
+    <string name="add">添加</string>
+
+    <string name="return_button">返回</string>
+    <string name="proceed_button">继续</string>
+
+    <string name="read_notifications">读取通知</string>
+    <string name="notifications_access">Stario 需要通知访问权限才能运行。</string>
+
+    <string name="location_reasoning">请在系统设置中允许位置访问。</string>
+
+    <string name="use_accessibility">使用无障碍服务</string>
+    <string name="accessibility_notice">Stario 需要无障碍服务权限才能运行。</string>
+
+    <string name="dynamic">动态</string>
+    <string name="monochrome">单色</string>
+    <string name="red">红色</string>
+    <string name="orange">橙色</string>
+    <string name="yellow">黄色</string>
+    <string name="lime">青柠色</string>
+    <string name="green">绿色</string>
+    <string name="turquoise">青绿色</string>
+    <string name="cyan">青色</string>
+    <string name="blue">蓝色</string>
+    <string name="purple">紫色</string>
+    <string name="pink">粉色</string>
+    <string name="dark">深色</string>
+    <string name="force_dark">强制深色模式</string>
+
+    <string name="corner_radius">圆角半径</string>
+    <string name="regular">常规</string>
+    <string name="squircle">连续曲率正方形</string>
+    <string name="components">个组件</string>
+    <string name="calculating">计算中…</string>
+
+    <string name="hidden_apps">隐藏的应用</string>
+
+    <string name="license">许可</string>
+    <string name="main_dependencies">主要依赖</string>
+    <string name="all_dependencies">所有依赖</string>
+
+    <string name="nothing_here_yet">这里空空如也！</string>
+    <string name="create_a_widget">添加小部件</string>
+    <string name="configure_widget">配置小部件</string>
+    <string name="widgets">小部件</string>
+    <string name="widget_one">小部件</string>
+    <string name="widget_many">个小部件</string>
+
+    <string name="unknown_artist">未知艺术家</string>
+
+    <string name="categories">类别</string>
+    <string name="unsorted">未分类</string>
+    <string name="games">游戏</string>
+    <string name="audio">音乐</string>
+    <string name="video">娱乐</string>
+    <string name="images">摄影</string>
+    <string name="social">社交</string>
+    <string name="news">新闻</string>
+    <string name="maps">导航</string>
+    <string name="productivity">效率</string>
+    <string name="accessibility">无障碍</string>
+    <string name="finance">财务</string>
+    <string name="health">健康</string>
+    <string name="personalization">个性化</string>
+    <string name="sports">运动</string>
+
+    <string name="uninstall">卸载</string>
+    <string name="hide">隐藏</string>
+    <string name="customize">自定义</string>
+    <string name="category">类别</string>
+    <string name="category_name">类别名称</string>
+    <string name="available_icons">可用图标</string>
+    <string name="application_label">标签</string>
+    <string name="category_name_warning">此类别已存在。</string>
+    <string name="application_label_warning">标签长度必须至少为一个字符。</string>
+    <string name="category_warning">这将创建一个具有指定名称的新类别。</string>
+
+    <string name="briefing">简报</string>
+    <string name="briefing_configurator">简报配置</string>
+    <string name="import_feed">导入订阅源</string>
+    <string name="link_feed">导入</string>
+    <string name="unknown_feed">未知订阅源</string>
+    <string name="invalid_url">URL 无效</string>
+    <string name="invalid_rss">非订阅源</string>
+    <string name="rename_feed">重命名</string>
+    <string name="feed_name">订阅源名称</string>
+    <string name="feed_warning">名称长度必须至少为一个字符。</string>
+    <string name="link">订阅源链接</string>
+    <string name="fetching_feed">获取中</string>
+    <string name="no_connection">无网络连接</string>
+    <string name="already_subscribed">您已订阅此源！</string>
+
+    <string name="search_on">搜索于</string>
+    <string name="searching">搜索中…</string>
+    <string name="search_hidden_apps">搜索隐藏应用</string>
+    <string name="unauthorized">Kagi 服务器报告未经授权。您的 API 密钥是否有效？</string>
+    <string name="to_search">以使用 Kagi 搜索</string>
+    <string name="kagi_dependency">Stario 依赖 Kagi 提供的数据获取搜索结果。</string>
+    <string name="kagi_api_key">Kagi API 密钥</string>
+    <string name="api_key">API 密钥</string>
+
+    <string name="done">完成</string>
+
+    <string name="clear_sky">晴</string>
+    <string name="cloudy">多云</string>
+    <string name="fair">晴间多云</string>
+    <string name="fog">雾</string>
+    <string name="heavy_rain">大雨</string>
+    <string name="heavy_rain_and_thunder">大雨伴有雷电</string>
+    <string name="heavy_rain_showers">强阵雨</string>
+    <string name="heavy_rain_showers_and_thunder">强雷阵雨</string>
+    <string name="heavy_sleet">强雨夹雪</string>
+    <string name="heavy_sleet_and_thunder">强雨夹雪伴有雷电</string>
+    <string name="heavy_sleet_showers">强阵性雨夹雪</string>
+    <string name="heavy_sleet_showers_and_thunder">强阵性雨夹雪伴有雷电</string>
+    <string name="heavy_snow">大雪</string>
+    <string name="heavy_snow_and_thunder">大雪伴有雷电</string>
+    <string name="heavy_snow_showers">强阵雪</string>
+    <string name="heavy_snow_showers_and_thunder">强雷阵雪</string>
+    <string name="light_rain">小雨</string>
+    <string name="light_rain_and_thunder">小雨伴有雷电</string>
+    <string name="light_rain_showers">小阵雨</string>
+    <string name="light_rain_showers_and_thunder">小雷阵雨</string>
+    <string name="light_sleet">小雨夹雪</string>
+    <string name="light_sleet_and_thunder">小雨夹雪伴有雷电</string>
+    <string name="light_sleet_showers">轻微阵性雨夹雪</string>
+    <string name="light_snow">小雪</string>
+    <string name="light_snow_and_thunder">小雪伴有雷电</string>
+    <string name="light_snow_showers">小阵雪</string>
+    <string name="light_sleet_showers_and_thunder">轻微阵性雨夹雪伴有雷电</string>
+    <string name="light_snow_showers_and_thunder">小雷阵雪</string>
+    <string name="partly_cloudy">晴间多云</string>
+    <string name="rain">雨</string>
+    <string name="rain_and_thunder">雷雨</string>
+    <string name="rain_showers">阵雨</string>
+    <string name="rain_showers_and_thunder">雷阵雨</string>
+    <string name="sleet">雨夹雪</string>
+    <string name="sleet_and_thunder">雨夹雪伴有雷电</string>
+    <string name="sleet_showers">阵性雨夹雪</string>
+    <string name="sleet_showers_and_thunder">阵性雨夹雪伴有雷电</string>
+    <string name="snow">雪</string>
+    <string name="snow_and_thunder">雪伴有雷电</string>
+    <string name="snow_showers">阵雪</string>
+    <string name="snow_showers_and_thunder">雷阵雪</string>
+    <string name="weather_source">来源：met.no</string>
+
+    <string name="accessibility_service_description">此服务仅用于支持主屏幕上的锁定手势。它不会收集或与任何第三方共享数据。</string>
+</resources>
