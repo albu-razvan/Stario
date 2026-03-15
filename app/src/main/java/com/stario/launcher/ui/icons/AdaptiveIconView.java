@@ -55,8 +55,10 @@ import java.io.Serializable;
 public class AdaptiveIconView extends View {
     public static final String CORNER_RADIUS_ENTRY = "com.stario.CORNER_RADIUS";
     public static final float DEFAULT_CORNER_RADIUS = 1f;
-    private static final int MAX_SHADOW_SIZE = 3;
     public static final float MAX_SCALE = 1.12f;
+
+    private static final int MAX_SHADOW_SIZE = 5;
+    private static final float BADGE_SIZE = 0.4f;
 
     private ObjectDelegate<PathCornerTreatmentAlgorithm> pathAlgorithm;
     private ProfileStateBinding profileStateBinding;
@@ -68,8 +70,8 @@ public class AdaptiveIconView extends View {
     private ObjectDelegate<Drawable> icon;
     private SharedPreferences preferences;
     private ObjectDelegate<Float> radius;
-    private boolean applyAlternateBadge;
-    private Drawable alternateBadge;
+    private boolean applyBadge;
+    private Drawable badge;
     private boolean sizeRestricted;
     private boolean looseClipping;
     private Paint shadowPaint;
@@ -143,7 +145,7 @@ public class AdaptiveIconView extends View {
         this.radius = new ObjectDelegate<>(
                 preferences.getFloat(CORNER_RADIUS_ENTRY,
                         DEFAULT_CORNER_RADIUS), (o) -> requestLayout());
-        this.alternateBadge = ResourcesCompat.getDrawable(context.getResources(),
+        this.badge = ResourcesCompat.getDrawable(context.getResources(),
                 R.drawable.ic_alternate_badge, context.getTheme());
 
         ColorMatrix matrix = new ColorMatrix();
@@ -169,7 +171,7 @@ public class AdaptiveIconView extends View {
 
         if (profileStateBinding != null) {
             paused = profileStateBinding.isPaused(getContext());
-            applyAlternateBadge = profileStateBinding.shouldApplyManagedBadge();
+            applyBadge = profileStateBinding.shouldApplyManagedBadge();
 
             localBroadcastManager.registerReceiver(profileStateBinding.receiver,
                     profileStateBinding.filter);
@@ -290,7 +292,7 @@ public class AdaptiveIconView extends View {
             );
 
             paused = profileStateBinding.isPaused(getContext());
-            applyAlternateBadge = profileStateBinding.shouldApplyManagedBadge();
+            applyBadge = profileStateBinding.shouldApplyManagedBadge();
 
             localBroadcastManager.registerReceiver(profileStateBinding.receiver,
                     profileStateBinding.filter);
@@ -317,7 +319,7 @@ public class AdaptiveIconView extends View {
         }
 
         paused = false;
-        applyAlternateBadge = false;
+        applyBadge = false;
 
         post(this::requestLayout);
     }
@@ -330,13 +332,11 @@ public class AdaptiveIconView extends View {
 
             Drawable icon = this.icon.getValue();
             if (icon != null) {
-                icon.setBounds(0, 0, inset, inset);
+                icon.setBounds(MAX_SHADOW_SIZE, MAX_SHADOW_SIZE,
+                        inset + MAX_SHADOW_SIZE, inset + MAX_SHADOW_SIZE);
             }
 
             updateClipPath(inset, inset);
-
-            alternateBadge.setBounds((int) (inset * 0.6), (int) (inset * 0.6), inset, inset);
-
             shadowPaint.setShadowLayer(
                     ((float) size / getMaxIconSize()) * MAX_SHADOW_SIZE * 0.75f,
                     0, 0, Color.argb(100, 0, 0, 0)
@@ -383,8 +383,24 @@ public class AdaptiveIconView extends View {
             super.draw(canvas);
         }
 
-        if (applyAlternateBadge) {
-            alternateBadge.draw(canvas);
+        if (applyBadge && icon.getValue() != null) {
+            Rect iconBounds = icon.getValue().getBounds();
+
+            int intrinsicW = badge.getIntrinsicWidth();
+            int intrinsicH = badge.getIntrinsicHeight();
+            badge.setBounds(0, 0, intrinsicW, intrinsicH);
+
+            float targetSize = iconBounds.width() * BADGE_SIZE;
+            float scale = targetSize / intrinsicW;
+
+            int save = canvas.save();
+
+            canvas.translate(iconBounds.right - targetSize,
+                    iconBounds.bottom - targetSize);
+            canvas.scale(scale, scale);
+
+            badge.draw(canvas);
+            canvas.restoreToCount(save);
         }
 
         canvas.restoreToCount(saveCount);
