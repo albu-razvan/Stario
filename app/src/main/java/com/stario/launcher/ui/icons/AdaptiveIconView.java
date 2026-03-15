@@ -32,6 +32,7 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.UserHandle;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -58,11 +59,12 @@ public class AdaptiveIconView extends View {
     public static final float MAX_SCALE = 1.12f;
 
     private ObjectDelegate<PathCornerTreatmentAlgorithm> pathAlgorithm;
+    private ProfileStateBinding profileStateBinding;
+    /// @noinspection deprecation
     private LocalBroadcastManager localBroadcastManager;
     private ColorMatrixColorFilter grayscaleFilter;
     private BroadcastReceiver squircleReceiver;
     private BroadcastReceiver radiusReceiver;
-    private BroadcastReceiver pausedReceiver;
     private ObjectDelegate<Drawable> icon;
     private SharedPreferences preferences;
     private ObjectDelegate<Float> radius;
@@ -96,6 +98,7 @@ public class AdaptiveIconView extends View {
     private void init(Context context, @Nullable AttributeSet attrs) {
         this.preferences = context.getApplicationContext()
                 .getSharedPreferences(Entry.ICONS.toString(), Context.MODE_PRIVATE);
+        //noinspection deprecation
         this.localBroadcastManager = LocalBroadcastManager.getInstance(context);
         this.radiusReceiver = new BroadcastReceiver() {
             @Override
@@ -146,7 +149,7 @@ public class AdaptiveIconView extends View {
         ColorMatrix matrix = new ColorMatrix();
         matrix.setSaturation(0);
         this.grayscaleFilter = new ColorMatrixColorFilter(matrix);
-        this.pausedReceiver = null;
+        this.profileStateBinding = null;
         this.paused = false;
 
         this.shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -163,6 +166,14 @@ public class AdaptiveIconView extends View {
                 new IntentFilter(IconsDialog.INTENT_CHANGE_CORNER_RADIUS));
         localBroadcastManager.registerReceiver(squircleReceiver,
                 new IntentFilter(IconsDialog.INTENT_CHANGE_PATH_ALGORITHM));
+
+        if (profileStateBinding != null) {
+            paused = profileStateBinding.isPaused(getContext());
+            applyAlternateBadge = profileStateBinding.shouldApplyManagedBadge();
+
+            localBroadcastManager.registerReceiver(profileStateBinding.receiver,
+                    profileStateBinding.filter);
+        }
 
         PathCornerTreatmentAlgorithm currentPathCornerTreatmentAlgorithm = PathCornerTreatmentAlgorithm
                 .fromIdentifier(preferences.getInt(PathCornerTreatmentAlgorithm.PATH_ALGORITHM_ENTRY,
@@ -184,9 +195,8 @@ public class AdaptiveIconView extends View {
         localBroadcastManager.unregisterReceiver(radiusReceiver);
         localBroadcastManager.unregisterReceiver(squircleReceiver);
 
-        if (pausedReceiver != null) {
-            localBroadcastManager.unregisterReceiver(pausedReceiver);
-            pausedReceiver = null;
+        if (profileStateBinding != null) {
+            localBroadcastManager.unregisterReceiver(profileStateBinding.receiver);
         }
     }
 
@@ -265,28 +275,34 @@ public class AdaptiveIconView extends View {
         if (application != null) {
             setIcon(application.getIcon());
 
-            paused = !Utils.isProfileAvailable(getContext(), application.getProfile());
-            applyAlternateBadge = !Utils.isMainProfile(application.getProfile());
+            profileStateBinding = new ProfileStateBinding(
+                    new BroadcastReceiver() {
+                        @Override
+                        public void onReceive(Context context, Intent intent) {
+                            paused = !intent.getBooleanExtra(ProfileManager.PROFILE_AVAILABLE_EXTRA, true);
 
-            pausedReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    paused = !intent.getBooleanExtra(ProfileManager.PROFILE_AVAILABLE_EXTRA, true);
+                            post(() -> invalidate());
+                        }
+                    },
+                    new IntentFilter(ProfileManager
+                            .getProfileAvailabilityIntentAction(application.getProfile())),
+                    application.getProfile()
+            );
 
-                    post(() -> invalidate());
-                }
-            };
-            localBroadcastManager.registerReceiver(pausedReceiver,
-                    new IntentFilter(ProfileManager.getProfileAvailabilityIntentAction(application.getProfile())));
+            paused = profileStateBinding.isPaused(getContext());
+            applyAlternateBadge = profileStateBinding.shouldApplyManagedBadge();
+
+            localBroadcastManager.registerReceiver(profileStateBinding.receiver,
+                    profileStateBinding.filter);
         } else {
             setIcon(null);
         }
     }
 
     public void setIcon(Drawable icon) {
-        if (pausedReceiver != null) {
-            localBroadcastManager.unregisterReceiver(pausedReceiver);
-            pausedReceiver = null;
+        if (profileStateBinding != null) {
+            localBroadcastManager.unregisterReceiver(profileStateBinding.receiver);
+            profileStateBinding = null;
         }
 
         if (icon != null && icon.getConstantState() != null) {
@@ -410,6 +426,27 @@ public class AdaptiveIconView extends View {
                 icon.draw(canvas);
                 icon.setColorFilter(null);
             }
+        }
+    }
+
+    public static class ProfileStateBinding {
+        public final BroadcastReceiver receiver;
+        public final IntentFilter filter;
+        private final UserHandle handle;
+
+        private ProfileStateBinding(BroadcastReceiver receiver,
+                                    IntentFilter filter, UserHandle handle) {
+            this.receiver = receiver;
+            this.handle = handle;
+            this.filter = filter;
+        }
+
+        private boolean isPaused(Context context) {
+            return !Utils.isProfileAvailable(context, handle);
+        }
+
+        private boolean shouldApplyManagedBadge() {
+            return !Utils.isMainProfile(handle);
         }
     }
 }
