@@ -154,6 +154,10 @@ public class DynamicGridLayout extends ViewGroup {
     }
 
     public void setRearrangeable(boolean rearrangeable) {
+        if (this.isRearrangeable == rearrangeable) {
+            return;
+        }
+
         this.isRearrangeable = rearrangeable;
 
         for (int index = 0; index < getChildCount(); index++) {

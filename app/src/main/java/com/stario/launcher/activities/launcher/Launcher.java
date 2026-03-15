@@ -108,7 +108,10 @@ public class Launcher extends ThemedActivity {
         };
 
         homeWatcher = new HomeWatcher(this);
-        homeWatcher.setOnHomePressedListener(() -> setContrastVisibility(View.GONE));
+        homeWatcher.setOnHomePressedListener(() -> {
+            setContrastVisibility(View.GONE);
+            setRearrangeable(false);
+        });
 
         if (Utils.isMinimumSDK(Build.VERSION_CODES.TIRAMISU)) {
             registerReceiver(killReceiver, new IntentFilter(ACTION_KILL_TASK), RECEIVER_EXPORTED);
@@ -148,8 +151,7 @@ public class Launcher extends ThemedActivity {
                     .addCallback(this, new OnBackPressedCallback(true) {
                         @Override
                         public void handleOnBackPressed() {
-                            container.setRearrangeable(false);
-                            controller.setControllerEnabled(true);
+                            setRearrangeable(false);
                         }
                     });
         }
@@ -286,8 +288,7 @@ public class Launcher extends ThemedActivity {
         menu.add(new PopupMenu.Item(resources.getString(R.string.rearrange),
                 ResourcesCompat.getDrawable(resources, R.drawable.ic_move, activity.getTheme()),
                 view -> view.post(() -> {
-                    container.setRearrangeable(true);
-                    controller.setControllerEnabled(false);
+                    setRearrangeable(true);
                     menu.dismiss();
                 })));
 
@@ -425,6 +426,13 @@ public class Launcher extends ThemedActivity {
         }
     }
 
+    private void setRearrangeable(boolean value) {
+        if (controller != null && container != null) {
+            container.setRearrangeable(value);
+            controller.setControllerEnabled(!value);
+        }
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -436,8 +444,7 @@ public class Launcher extends ThemedActivity {
     protected void onStop() {
         setContrastVisibility(View.GONE);
 
-        container.setRearrangeable(false);
-        controller.setControllerEnabled(true);
+        setRearrangeable(false);
         homeWatcher.stopWatch();
 
         if (showWhenLocked) {
@@ -501,5 +508,6 @@ public class Launcher extends ThemedActivity {
     @SuppressWarnings("deprecation")
     @SuppressLint({"MissingSuperCall", "GestureBackNavigation"})
     public void onBackPressed() {
+        setRearrangeable(false);
     }
 }
