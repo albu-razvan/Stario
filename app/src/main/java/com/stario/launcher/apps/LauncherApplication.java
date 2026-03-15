@@ -31,7 +31,7 @@ import com.stario.launcher.utils.Utils;
 
 import java.util.UUID;
 
-public class LauncherApplication {
+public class LauncherApplication implements Comparable<LauncherApplication> {
     public static final LauncherApplication FALLBACK_APP = null;
 
     public final boolean systemPackage;
@@ -97,9 +97,18 @@ public class LauncherApplication {
         if (this == obj) {
             return true;
         } else if (obj instanceof LauncherApplication) {
-            return ((LauncherApplication) obj).info.equals(info);
+            LauncherApplication other = (LauncherApplication) obj;
+
+            return info.packageName.equals(other.info.packageName) &&
+                    handle.equals(other.handle);
         } else {
             return false;
         }
+    }
+
+    @Override
+    public int compareTo(@NonNull LauncherApplication launcherApplication) {
+        int result = getLabel().compareTo(launcherApplication.getLabel());
+        return result != 0 ? result : handle.hashCode() - launcherApplication.handle.hashCode();
     }
 }

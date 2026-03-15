@@ -102,16 +102,22 @@ public class CategoryMappings {
             }
         }
 
+        private String getApplicationKey(LauncherApplication application) {
+            return application.getProfile().equals(ProfileManager.getOwner()) ?
+                    application.getInfo().packageName :
+                    application.getInfo().packageName + ":" + application.getProfile().hashCode();
+        }
+
         @Override
         public int compare(LauncherApplication a, LauncherApplication b) {
-            Integer aIndex = indexCache.get(a.getInfo().packageName);
-            Integer bIndex = indexCache.get(b.getInfo().packageName);
+            Integer aIndex = indexCache.get(getApplicationKey(a));
+            Integer bIndex = indexCache.get(getApplicationKey(b));
 
             if (aIndex != null && bIndex != null) {
                 return Integer.compare(aIndex, bIndex);
             }
 
-            return a.getLabel().compareTo(b.getLabel());
+            return a.compareTo(b);
         }
 
         @Override
@@ -123,14 +129,11 @@ public class CategoryMappings {
             indexCache.clear();
 
             for (int index = 0; index < applications.size(); index++) {
-                LauncherApplication application =
-                        applications.get(index);
+                LauncherApplication application = applications.get(index);
+                String key = getApplicationKey(application);
 
-                String packageName =
-                        application.getInfo().packageName;
-
-                editor.putInt(packageName, index);
-                indexCache.put(packageName, index);
+                editor.putInt(key, index);
+                indexCache.put(key, index);
             }
 
             editor.apply();

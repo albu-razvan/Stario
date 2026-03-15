@@ -71,8 +71,8 @@ public class Category {
                 left = middle + 1;
             } else if (compareValue > 0) {
                 right = middle - 1;
-            } else if (!applicationAtMiddle.info.packageName
-                    .equals(applicationToAdd.info.packageName)) {
+            } else if (!applicationAtMiddle.info.packageName.equals(applicationToAdd.info.packageName) ||
+                    !applicationAtMiddle.getProfile().equals(applicationToAdd.getProfile())) {
                 for (CategoryItemListener listener : listeners) {
                     listener.onPrepareInsertion(applicationToAdd);
                 }
@@ -100,11 +100,13 @@ public class Category {
         }
     }
 
-    synchronized void removeApplication(String packageName) {
+    synchronized void removeApplication(LauncherApplication applicationToRemove) {
         for (int index = 0; index < applications.size(); index++) {
             LauncherApplication application = applications.get(index);
 
-            if (application.getInfo().packageName.equals(packageName)) {
+            if (application.getInfo().packageName.equals(applicationToRemove.getInfo().packageName) &&
+                    application.getProfile().equals(applicationToRemove.getProfile())) {
+
                 for (CategoryItemListener listener : listeners) {
                     listener.onPrepareRemoval(application);
                 }

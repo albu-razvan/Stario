@@ -141,9 +141,7 @@ public class FolderList extends DrawerPage {
         itemTouchHelper.attachToRecyclerView(drawer);
 
         drawer.post(this::startPostponedEnterTransition);
-
-        CategoryManager.getInstance()
-                .addOnReadyListener(applicationManager -> showLayout());
+        CategoryManager.getInstance().addOnReadyListener(this::showLayout);
 
         return rootView;
     }
