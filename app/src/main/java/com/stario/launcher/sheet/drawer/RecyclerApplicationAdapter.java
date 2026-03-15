@@ -397,7 +397,8 @@ public abstract class RecyclerApplicationAdapter
             }
 
             viewHolder.icon.setApplication(application);
-            viewHolder.icon.setTransitionName(application.getInfo().packageName);
+            viewHolder.icon.setTransitionName(application.getInfo().packageName
+                    + application.getProfile());
         }
 
         viewHolder.icon.setTag(R.id.stagger_order_tag, index);

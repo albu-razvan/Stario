@@ -45,7 +45,7 @@ public final class ProfileManager {
     public static final String PROFILE_AVAILABLE_EXTRA = "com.stario.launcher.PROFILE_AVAILABLE_EXTRA";
 
     private static final String PROFILE_AVAILABLE_INTENT = "com.stario.launcher.PROFILE_AVAILABLE_INTENT";
-    private static final String TAG = "LauncherApplicationManager";
+
     private static ProfileManager instance = null;
     private static UserHandle owner;
 
@@ -65,6 +65,8 @@ public final class ProfileManager {
         this.profilesList = new ArrayList<>();
         this.profilesMap = new HashMap<>();
 
+        CategoryManager.from(stario);
+
         LauncherApps launcherApps = (LauncherApps) stario.getSystemService(Context.LAUNCHER_APPS_SERVICE);
         UserManager userManager = (UserManager) stario.getSystemService(Context.USER_SERVICE);
 
@@ -80,15 +82,25 @@ public final class ProfileManager {
         for (int index = 0; index < profiles.size(); index++) {
             UserHandle handle = profiles.get(index);
 
-            ProfileApplicationManager manager =
-                    new ProfileApplicationManager(stario, handle, index == 0);
+            ProfileApplicationManager manager = new ProfileApplicationManager(stario, handle);
+            if (owner != null) {
+                owner = handle;
+            }
 
             profilesMap.put(handle, manager);
             profilesList.add(manager);
+
+            for (LauncherProfileListener listener : listeners) {
+                if (listener != null) {
+                    listener.onInserted(handle);
+                }
+            }
         }
 
         // there should always be a profile, if not, something TERRIBLE happened
-        owner = !profilesList.isEmpty() ? profilesList.get(0).handle : Process.myUserHandle();
+        if (owner == null) {
+            owner = Process.myUserHandle();
+        }
     }
 
     public static ProfileManager from(@NonNull Stario stario) {
@@ -142,8 +154,7 @@ public final class ProfileManager {
                             for (UserHandle profileHandle : launcherApps.getProfiles()) {
                                 if (handle.equals(profileHandle)) {
                                     ProfileApplicationManager manager = new ProfileApplicationManager(
-                                            (Stario) context.getApplicationContext(),
-                                            profileHandle, Utils.isMainProfile(profileHandle)
+                                            (Stario) context.getApplicationContext(), profileHandle
                                     );
 
                                     instance.profilesMap.put(profileHandle, manager);

@@ -110,7 +110,7 @@ public class PinnedCategory {
         recycler.setItemAnimator(null);
         recycler.setLayoutManager(manager);
 
-        categoryManager.addOnReadyListener(applicationManager -> {
+        categoryManager.addOnReadyListener(() -> {
             if (activity.isFinishing() || activity.isDestroyed()) {
                 return;
             }

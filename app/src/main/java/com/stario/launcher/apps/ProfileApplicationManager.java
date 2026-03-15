@@ -53,12 +53,11 @@ public final class ProfileApplicationManager {
     private final SharedPreferences applicationLabels;
     private final PackageManager packageManager;
     private final IconPackManager iconPacks;
-    private final boolean mainUser;
     public final UserHandle handle;
 
     private boolean loaded;
 
-    ProfileApplicationManager(Stario stario, UserHandle handle, boolean mainUser) {
+    ProfileApplicationManager(Stario stario, UserHandle handle) {
         this.visibleApplicationList = Collections.synchronizedList(new ArrayList<>());
         this.applicationList = Collections.synchronizedList(new ArrayList<>());
         this.applicationMap = new HashMap<>();
@@ -68,7 +67,6 @@ public final class ProfileApplicationManager {
                 Integer.toString(handle.hashCode()));
         this.packageManager = stario.getPackageManager();
         this.readyListeners = new ArrayList<>();
-        this.mainUser = mainUser;
         this.loaded = false;
         this.handle = handle;
 
@@ -77,10 +75,6 @@ public final class ProfileApplicationManager {
         launcherApps.registerCallback(callback);
 
         this.iconPacks = IconPackManager.from(stario);
-        if (mainUser) {
-            CategoryManager.from(stario, this);
-        }
-
         Utils.submitTask(() -> loadApplications(stario));
     }
 
@@ -295,10 +289,8 @@ public final class ProfileApplicationManager {
         LauncherApplication application = new LauncherApplication(applicationInfo,
                 handle, getLabel(applicationInfo));
 
-        if (mainUser) {
-            application.category = CategoryManager.getInstance()
-                    .getCategoryIdentifier(applicationInfo);
-        }
+        application.category = CategoryManager.getInstance()
+                .getCategoryIdentifier(applicationInfo, handle);
 
         return application;
     }
@@ -384,9 +376,8 @@ public final class ProfileApplicationManager {
         iconPacks.add(application);
         iconPacks.updateIcon(application.info.packageName);
 
-        if (mainUser) {
-            CategoryManager.getInstance().addApplication(application);
-        }
+        CategoryManager.getInstance()
+                .addApplication(application);
     }
 
     private synchronized void addApplicationToList(LauncherApplication applicationToAdd, List<LauncherApplication> list) {
@@ -432,9 +423,8 @@ public final class ProfileApplicationManager {
             applicationList.remove(application);
 
             iconPacks.remove(application);
-            if (mainUser) {
-                CategoryManager.getInstance().removeApplication(application);
-            }
+            CategoryManager.getInstance()
+                    .removeApplication(application);
 
             for (LauncherApplicationListener listener : listeners) {
                 if (listener != null) {
@@ -451,9 +441,8 @@ public final class ProfileApplicationManager {
 
         if (!visibleApplicationList.contains(application)) {
             addApplicationToList(application, visibleApplicationList);
-            if (mainUser) {
-                CategoryManager.getInstance().addApplication(application);
-            }
+            CategoryManager.getInstance()
+                    .addApplication(application);
 
             for (LauncherApplicationListener listener : listeners) {
                 if (listener != null) {
@@ -475,9 +464,8 @@ public final class ProfileApplicationManager {
         }
 
         visibleApplicationList.remove(application);
-        if (mainUser) {
-            CategoryManager.getInstance().removeApplication(application);
-        }
+        CategoryManager.getInstance()
+                .removeApplication(application);
 
         for (LauncherApplicationListener listener : listeners) {
             if (listener != null) {
