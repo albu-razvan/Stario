@@ -1,0 +1,250 @@
+<!--
+  ~ Copyright (C) 2025 Răzvan Albu
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>
+  -->
+
+<resources>
+    <!-- Non translatable -->
+    <string name="app_name" translatable="false">Stario</string>
+    <string name="affinity" translatable="false">com.stario</string>
+
+    <!-- General -->
+    <string name="unavailable">Недоступно</string>
+    <string name="default_text">За замовчуванням</string>
+    <string name="about">Інформація</string>
+    <string name="remove">Видалити</string>
+    <string name="licenses">Ліцензії</string>
+    <string name="restart">Перезапустити</string>
+    <string name="drawer">Меню застосунків</string>
+    <string name="search">Пошук</string>
+    <string name="miscellaneous">Інше</string>
+    <string name="apps">Застосунки</string>
+    <string name="personal">Особисті</string>
+    <string name="managed">Керовані</string>
+    <string name="something_went_wrong">Щось пішло не так!</string>
+    <string name="refresh">Оновити</string>
+
+    <!-- Home -->
+    <string name="home_no_space_warning">Недостатньо місця на головному екрані для додавання цього елемента!</string>
+
+    <!-- Home pop-up -->
+    <string name="settings">Налаштування головного екрана</string>
+    <string name="wallpaper">Шпалери та стиль</string>
+    <string name="rearrange">Перевпорядкувати</string>
+
+    <!-- Settings -->
+    <string name="preferences">Налаштування</string>
+    <string name="notification_dots">Крапки сповіщень</string>
+    <string name="vibrations">Вібрація</string>
+    <string name="theme">Тема</string>
+    <string name="pages">Керування сторінками</string>
+    <string name="home">Головний екран</string>
+    <string name="search_engine">Пошукова система</string>
+    <string name="search_results">Результати пошуку</string>
+    <string name="kagi_integration">На базі Kagi</string>
+    <string name="hide_applications">Приховати застосунки</string>
+    <string name="hide_applications_hint">Натисніть, щоб приховати або показати</string>
+    <string name="low_spec">Режим низької продуктивності</string>
+    <string name="low_spec_description">Ввімкнено за замовчуванням при ввімкненому режимі економії заряду.</string>
+    <string name="icons">Значки</string>
+    <string name="system_launcher">Змінити системний запускач</string>
+    <string name="app_info">Про застосунок</string>
+
+    <!-- Home pop-up -->
+    <string name="media_player">Програвач медіа</string>
+    <string name="pinned_category">Закріплена категорія</string>
+    <string name="lock_gesture">Подвійний дотик для блокування</string>
+    <string name="legacy_lock_animation">Застаріла анімація блокування</string>
+    <string name="imperial_units">Імперські одиниці</string>
+    <string name="weather_forecast">Прогноз погоди</string>
+    <string name="weather_location">Розташування</string>
+    <string name="location_ip_based">Розташування за IP (Приблизне)</string>
+    <string name="precise_location">Поточне розташування (Точне)</string>
+    <string name="search_shortcut">Ярлик пошуку</string>
+    <string name="clock">Годинник</string>
+    <string name="background">Тло</string>
+    <string name="weather">Погода</string>
+    <string name="lock">Блокування</string>
+
+    <!-- Page Manager -->
+    <string name="default_position">Позиція за замовчуванням</string>
+    <string name="left">Зліва</string>
+    <string name="top">Зверху</string>
+    <string name="right">Справа</string>
+    <string name="bottom">Знизу</string>
+    <string name="add">Додати</string>
+
+    <!-- Settings pop-up -->
+    <string name="return_button">Назад</string>
+    <string name="proceed_button">Продовжити</string>
+
+    <!-- Notifications pop-up -->
+    <string name="read_notifications">Читання сповіщень</string>
+    <string name="notifications_access">Stario потребує доступу до сповіщень для роботи цієї функції.</string>
+
+    <!-- Location pop-up -->
+    <string name="location_reasoning">Дозвольте доступ до розташування в системних налаштуваннях.</string>
+
+    <!-- Accessibility pop-up -->
+    <string name="use_accessibility">Використання спеціальних можливостей</string>
+    <string name="accessibility_notice">Stario потребує доступу до служб спеціальних можливостей для роботи цієї функції.</string>
+
+    <!-- Theme pop-up -->
+    <string name="dynamic">Динамічна</string>
+    <string name="monochrome">Монохромна</string>
+    <string name="red">Червона</string>
+    <string name="orange">Помаранчева</string>
+    <string name="yellow">Жовта</string>
+    <string name="lime">Лаймова</string>
+    <string name="green">Зелена</string>
+    <string name="turquoise">Бірюзова</string>
+    <string name="cyan">Ціанова</string>
+    <string name="blue">Синя</string>
+    <string name="purple">Пурпурова</string>
+    <string name="pink">Рожева</string>
+    <string name="dark">Темна</string>
+    <string name="force_dark">Примусовий темний режим</string>
+
+    <!-- Icons pop-up -->
+    <string name="corner_radius">Радіус заокруглення кутів</string>
+    <string name="regular">Звичайний</string>
+    <string name="squircle">Сквіркл</string>
+    <string name="components">компоненти</string>
+    <string name="calculating">Обчислення…</string>
+
+    <!-- Hidden apps pop-up -->
+    <string name="hidden_apps">Приховані застосунки</string>
+
+    <!-- License pop-up -->
+    <string name="license">Ліцензія</string>
+    <string name="main_dependencies">Основні залежності</string>
+    <string name="all_dependencies">Усі залежності</string>
+
+    <!-- Widgets -->
+    <string name="nothing_here_yet">Тут поки що нічого немає!</string>
+    <string name="create_a_widget">Додати віджет</string>
+    <string name="configure_widget">Налаштувати віджет</string>
+    <string name="widgets">Віджети</string>
+    <string name="widget_one">віджет</string>
+    <string name="widget_many">віджетів</string>
+
+    <!-- Media -->
+    <string name="unknown_artist">Невідомий виконавець</string>
+
+    <!-- Categories -->
+    <string name="categories">Категорії</string>
+    <string name="unsorted">Без категорії</string>
+    <string name="games">Ігри</string>
+    <string name="audio">Музика</string>
+    <string name="video">Розваги</string>
+    <string name="images">Фотографія</string>
+    <string name="social">Соціальні мережі</string>
+    <string name="news">Новини</string>
+    <string name="maps">Навігація</string>
+    <string name="productivity">Продуктивність</string>
+    <string name="accessibility">Спеціальні можливості</string>
+    <string name="finance">Фінанси</string>
+    <string name="health">Здоров\'я</string>
+    <string name="personalization">Персоналізація</string>
+    <string name="sports">Спорт</string>
+
+    <!-- Applications -->
+    <string name="uninstall">Видалити</string>
+    <string name="hide">Приховати</string>
+    <string name="customize">Налаштувати</string>
+    <string name="category">Категорія</string>
+    <string name="category_name">Назва категорії</string>
+    <string name="available_icons">Доступні значки</string>
+    <string name="application_label">Мітка</string>
+    <string name="category_name_warning">Така категорія вже існує.</string>
+    <string name="application_label_warning">Мітка має містити щонайменше один символ.</string>
+    <string name="category_warning">Це створить нову категорію із вказаною назвою.</string>
+
+    <!-- Briefing -->
+    <string name="briefing">Ваш дайджест</string>
+    <string name="briefing_configurator">Дайджест</string>
+    <string name="import_feed">Імпортувати стрічку</string>
+    <string name="link_feed">Імпортувати</string>
+    <string name="unknown_feed">Невідома стрічка</string>
+    <string name="invalid_url">Неправильна URL-адреса</string>
+    <string name="invalid_rss">Не є стрічкою</string>
+    <string name="rename_feed">Перейменувати</string>
+    <string name="feed_name">Назва стрічки</string>
+    <string name="feed_warning">Назва має містити щонайменше один символ.</string>
+    <string name="link">Посилання на стрічку</string>
+    <string name="fetching_feed">Завантаження</string>
+    <string name="no_connection">Немає підключення до Інтернету</string>
+    <string name="already_subscribed">Ви вже підписані на цю стрічку!</string>
+
+    <!-- Search -->
+    <string name="search_on">Пошук у</string>
+    <string name="searching">Пошук…</string>
+    <string name="search_hidden_apps">Шукати приховані застосунки</string>
+    <string name="unauthorized">Сервери Kagi повідомили про неавторизований доступ. Чи дійсний ваш API-ключ?</string>
+    <string name="to_search">для пошуку з Kagi</string>
+    <string name="kagi_dependency">Stario використовує дані з Kagi для надання результатів пошуку.</string>
+    <string name="kagi_api_key">API-ключ Kagi</string>
+    <string name="api_key">API-ключ</string>
+
+    <!-- Keyboard -->
+    <string name="done">Готово</string>
+
+    <!-- Weather -->
+    <string name="clear_sky">Ясно</string>
+    <string name="cloudy">Хмарно</string>
+    <string name="fair">Малохмарно</string>
+    <string name="fog">Туман</string>
+    <string name="heavy_rain">Сильний дощ</string>
+    <string name="heavy_rain_and_thunder">Сильний дощ з грозою</string>
+    <string name="heavy_rain_showers">Сильна злива</string>
+    <string name="heavy_rain_showers_and_thunder">Сильна злива з грозою</string>
+    <string name="heavy_sleet">Сильний мокрий сніг</string>
+    <string name="heavy_sleet_and_thunder">Сильний мокрий сніг з грозою</string>
+    <string name="heavy_sleet_showers">Сильна злива мокрого снігу</string>
+    <string name="heavy_sleet_showers_and_thunder">Сильна злива мокрого снігу з грозою</string>
+    <string name="heavy_snow">Сильний снігопад</string>
+    <string name="heavy_snow_and_thunder">Сильний снігопад з грозою</string>
+    <string name="heavy_snow_showers">Сильні снігові заряди</string>
+    <string name="heavy_snow_showers_and_thunder">Сильні снігові заряди з грозою</string>
+    <string name="light_rain">Невеликий дощ</string>
+    <string name="light_rain_and_thunder">Невеликий дощ з грозою</string>
+    <string name="light_rain_showers">Невелика злива</string>
+    <string name="light_rain_showers_and_thunder">Невелика злива з грозою</string>
+    <string name="light_sleet">Невеликий мокрий сніг</string>
+    <string name="light_sleet_and_thunder">Невеликий мокрий сніг з грозою</string>
+    <string name="light_sleet_showers">Невелика злива мокрого снігу</string>
+    <string name="light_snow">Невеликий снігопад</string>
+    <string name="light_snow_and_thunder">Невеликий снігопад з грозою</string>
+    <string name="light_snow_showers">Невеликі снігові заряди</string>
+    <string name="light_sleet_showers_and_thunder">Невелика злива мокрого снігу з грозою</string>
+    <string name="light_snow_showers_and_thunder">Невеликі снігові заряди з грозою</string>
+    <string name="partly_cloudy">Мінлива хмарність</string>
+    <string name="rain">Дощ</string>
+    <string name="rain_and_thunder">Дощ з грозою</string>
+    <string name="rain_showers">Злива</string>
+    <string name="rain_showers_and_thunder">Злива з грозою</string>
+    <string name="sleet">Мокрий сніг</string>
+    <string name="sleet_and_thunder">Мокрий сніг з грозою</string>
+    <string name="sleet_showers">Злива мокрого снігу</string>
+    <string name="sleet_showers_and_thunder">Злива мокрого снігу з грозою</string>
+    <string name="snow">Сніг</string>
+    <string name="snow_and_thunder">Сніг з грозою</string>
+    <string name="snow_showers">Снігові заряди</string>
+    <string name="snow_showers_and_thunder">Снігові заряди з грозою</string>
+    <string name="weather_source">Джерело: met.no</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_description">Ця служба призначена виключно для ввімкнення жесту блокування на головному екрані. Вона не збирає та не передає дані жодній третій стороні.</string>
+</resources>

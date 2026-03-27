@@ -34,6 +34,7 @@
     <locale android:name="sk"/>
     <locale android:name="sv"/>
     <locale android:name="tr"/>
+    <locale android:name="uk"/>
     <locale android:name="zh-rCN"/>
     <locale android:name="zh-rTW"/>
 </locale-config>
